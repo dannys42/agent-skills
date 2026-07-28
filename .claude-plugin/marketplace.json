@@ -1,0 +1,30 @@
+{
+  "name": "danny-sung-agent-skills",
+  "owner": {
+    "name": "Danny Sung"
+  },
+  "metadata": {
+    "description": "Danny Sung's portable agent skills for Swift and Apple-platform development",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "swift-testing",
+      "source": "./plugins/swift-testing",
+      "version": "1.0.0",
+      "description": "Swift unit-test naming conventions for Swift Testing and XCTest",
+      "category": "testing",
+      "keywords": [
+        "swift",
+        "ios",
+        "unit-tests",
+        "xctest",
+        "agent-skills"
+      ],
+      "tags": [
+        "testing",
+        "swift"
+      ]
+    }
+  ]
+}

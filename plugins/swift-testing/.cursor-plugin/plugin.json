@@ -1,0 +1,24 @@
+{
+  "name": "swift-testing",
+  "displayName": "Swift Testing",
+  "version": "1.0.0",
+  "description": "Swift unit-test naming conventions for Swift Testing and XCTest",
+  "license": "MIT",
+  "author": {
+    "name": "Danny Sung"
+  },
+  "repository": "https://github.com/dannys42/agent-skills",
+  "keywords": [
+    "swift",
+    "ios",
+    "unit-tests",
+    "xctest",
+    "agent-skills"
+  ],
+  "category": "developer-tools",
+  "tags": [
+    "swift",
+    "testing"
+  ],
+  "skills": "./skills/"
+}

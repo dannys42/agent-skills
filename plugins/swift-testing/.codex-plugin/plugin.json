@@ -1,0 +1,32 @@
+{
+  "name": "swift-testing",
+  "version": "1.0.0",
+  "description": "Swift unit-test naming conventions for Swift Testing and XCTest",
+  "license": "MIT",
+  "skills": "./skills/",
+  "author": {
+    "name": "Danny Sung",
+    "url": "https://github.com/dannys42"
+  },
+  "repository": "https://github.com/dannys42/agent-skills",
+  "keywords": [
+    "swift",
+    "ios",
+    "unit-tests",
+    "xctest",
+    "agent-skills"
+  ],
+  "interface": {
+    "displayName": "Swift Testing",
+    "shortDescription": "Name Swift unit tests consistently",
+    "longDescription": "Name and review Swift Testing and XCTest code using precise observable contracts.",
+    "developerName": "Danny Sung",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Unit test naming"
+    ],
+    "defaultPrompt": [
+      "Name and write Swift unit tests with exact observable contracts."
+    ]
+  }
+}

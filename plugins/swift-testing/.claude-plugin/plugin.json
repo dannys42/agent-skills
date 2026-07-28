@@ -1,0 +1,16 @@
+{
+  "name": "swift-testing",
+  "version": "1.0.0",
+  "description": "Swift unit-test naming conventions for Swift Testing and XCTest",
+  "license": "MIT",
+  "author": {
+    "name": "Danny Sung"
+  },
+  "keywords": [
+    "swift",
+    "ios",
+    "unit-tests",
+    "xctest",
+    "agent-skills"
+  ]
+}
