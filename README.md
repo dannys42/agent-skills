@@ -16,6 +16,94 @@ Names Swift Testing and XCTest files, suites, functions, values, fixtures,
 test environments, and parameterized arguments so each test's inputs, expected
 and observed values, and successful or failing outcome are immediately clear.
 
+#### Intent
+
+Tests are executable documentation. Their names should state the domain
+scenario, relevant conditions, and observable contract without requiring the
+reader to inspect the implementation. The same principle applies inside the
+test: names should distinguish inputs, expectations, and observations so its
+arrange-act-assert flow is visible at a glance.
+
+#### Before and after
+
+A conventional test often uses broad function and value names:
+
+```swift
+@Test
+func discount() throws {
+    let price = 100
+    let discount = 20
+    let expected = 80
+
+    let result = try PriceCalculator()
+        .applying(percentage: discount, to: price)
+
+    #expect(result == expected)
+}
+
+@Test
+func invalidDiscount() {
+    let discount = -1
+
+    #expect(throws: InvalidDiscountError.self) {
+        try PriceCalculator().applying(percentage: discount, to: 100)
+    }
+}
+```
+
+With explicit contract naming, sibling tests describe both the scenario and
+whether the observable outcome is a returned value or an error:
+
+```swift
+@Test
+func percentageDiscount_WillReturnDiscountedPrice() throws {
+    let inputValues = (price: 100, discountPercentage: 20)
+    let expectedValue = 80
+    let priceCalculator = PriceCalculator()
+
+    let observedValue = try priceCalculator.applying(
+        percentage: inputValues.discountPercentage,
+        to: inputValues.price
+    )
+
+    #expect(observedValue == expectedValue)
+}
+
+@Test
+func percentageDiscount_WithNegativePercentage_WillThrowInvalidDiscountError() {
+    let inputValues = (price: 100, discountPercentage: -1)
+    let priceCalculator = PriceCalculator()
+
+    #expect(throws: InvalidDiscountError.self) {
+        try priceCalculator.applying(
+            percentage: inputValues.discountPercentage,
+            to: inputValues.price
+        )
+    }
+}
+```
+
+XCTest uses the same contract with a `testThat_` prefix.
+
+#### Why use explicit contract naming?
+
+Names such as `discount`, `invalidDiscount`, `expected`, and `result` are
+familiar, but they leave important questions unanswered. A reader must inspect
+the test body to learn what behavior is exercised, what success means, whether
+a negative case returns a value or throws, and which values are stimuli versus
+expected or observed outputs. These ambiguities become more costly as setup and
+the number of sibling tests grow.
+
+Explicit contract naming makes those roles visible:
+
+- `<scenario>[_With<condition>...]_Will<ObservableContract>` makes positive and
+  negative paths easy to distinguish, scan, and search.
+- `inputValue` or labeled `inputValues` identifies the stimulus.
+- `expectedValue` states the contract before the action occurs.
+- `observedValue` identifies what the test actually captured.
+- Symmetric vocabulary makes related tests easier to compare and keeps names
+  honest about only the behavior each test observes.
+
 ## Install `naming-swift-tests`
 
 Canonical source:
