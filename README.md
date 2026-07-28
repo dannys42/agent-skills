@@ -127,69 +127,32 @@ codex plugin marketplace add dannys42/agent-skills
 codex plugin add swift-testing@danny-sung-agent-skills
 ```
 
-### Cursor
+### Other agents
+
+Install the individual skill with the open `skills` installer, replacing
+`<agent>` with a value from the table:
 
 ```bash
-gh skill install dannys42/agent-skills naming-swift-tests --scope user --agent cursor
+npx skills add dannys42/agent-skills \
+  --skill naming-swift-tests \
+  --global \
+  --agent <agent>
 ```
 
-### Gemini CLI
+| Tool | `<agent>` value |
+|---|---|
+| Cursor | `cursor` |
+| Gemini CLI | `gemini-cli` |
+| GitHub Copilot | `github-copilot` |
+| OpenCode | `opencode` |
+| Roo Code | `roo` |
+| Zoo Code | `roo` |
+| ZCode | `zcode` |
+| Zed | `zed` |
 
-```bash
-gh skill install dannys42/agent-skills naming-swift-tests --scope user --agent gemini-cli
-```
-
-### GitHub Copilot
-
-```bash
-gh skill install dannys42/agent-skills naming-swift-tests --scope user --agent github-copilot
-```
-
-### OpenCode
-
-```bash
-gh skill install dannys42/agent-skills naming-swift-tests --scope user --agent opencode
-```
-
-### Roo Code
-
-```bash
-gh skill install dannys42/agent-skills naming-swift-tests --scope user --agent roo
-```
-
-The open `skills` installer provides an equivalent path. For example:
-
-```bash
-npx skills add dannys42/agent-skills --skill naming-swift-tests --global --agent cursor
-```
-
-### Zoo Code
-
-Zoo Code supports Roo-compatible skill directories:
-
-```bash
-npx skills add dannys42/agent-skills --skill naming-swift-tests --global --agent roo
-```
-
-This installs to `~/.roo/skills`, which Zoo Code scans along with `.agents`
-skill locations.
-
-### ZCode
-
-```bash
-npx skills add dannys42/agent-skills --skill naming-swift-tests --global --agent zcode
-```
-
-This installs to `~/.zcode/skills`. In ZCode, open **Settings → Skills** to
-refresh and enable the skill or import it from an external skills directory.
-
-### Zed
-
-```bash
-npx skills add dannys42/agent-skills --skill naming-swift-tests --global --agent zed
-```
-
-This installs to `~/.agents/skills`, where Zed discovers global Agent Skills.
+Zoo Code uses `roo` because it supports Roo-compatible skill directories. In
+ZCode, open **Settings → Skills** after installation to refresh and enable the
+skill.
 
 ## Marketplace adapters and open registries
 
