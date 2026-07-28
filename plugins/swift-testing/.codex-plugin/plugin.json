@@ -1,7 +1,7 @@
 {
   "name": "swift-testing",
   "version": "1.0.0",
-  "description": "Swift unit-test naming conventions for Swift Testing and XCTest",
+  "description": "Explicit contract naming for Swift Testing and XCTest",
   "license": "MIT",
   "skills": "./skills/",
   "author": {
@@ -18,15 +18,15 @@
   ],
   "interface": {
     "displayName": "Swift Testing",
-    "shortDescription": "Name Swift unit tests consistently",
-    "longDescription": "Name and review Swift Testing and XCTest code using precise observable contracts.",
+    "shortDescription": "Make Swift test contracts explicit",
+    "longDescription": "Name Swift Testing and XCTest code so inputs, expected and observed values, and successful or failing outcomes are immediately clear.",
     "developerName": "Danny Sung",
     "category": "Developer Tools",
     "capabilities": [
-      "Unit test naming"
+      "Explicit test contract naming"
     ],
     "defaultPrompt": [
-      "Name and write Swift unit tests with exact observable contracts."
+      "Name and write Swift unit tests with explicit inputs, expectations, and outcomes."
     ]
   }
 }

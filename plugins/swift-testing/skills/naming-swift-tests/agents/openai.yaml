@@ -1,4 +1,4 @@
 interface:
   display_name: "Naming Swift Tests"
-  short_description: "Name Swift unit tests consistently"
+  short_description: "Make Swift test contracts explicit"
   default_prompt: "Use $naming-swift-tests to name or review Swift unit tests."

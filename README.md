@@ -6,15 +6,15 @@ Portable agent skills for Swift and Apple-platform development.
 
 | Plugin | Skills | Description |
 |---|---|---|
-| `swift-testing` | `naming-swift-tests` | Precise naming conventions for Swift Testing and XCTest |
+| `swift-testing` | `naming-swift-tests` | Explicit contract naming for Swift Testing and XCTest |
 
 ## Skills
 
 ### `naming-swift-tests`
 
 Names Swift Testing and XCTest files, suites, functions, values, fixtures,
-test environments, and parameterized arguments so tests state exact observable
-contracts.
+test environments, and parameterized arguments so each test's inputs, expected
+and observed values, and successful or failing outcome are immediately clear.
 
 ## Install `naming-swift-tests`
 

@@ -10,7 +10,7 @@
     {
       "name": "swift-testing",
       "source": "plugins/swift-testing",
-      "description": "Swift unit-test naming conventions for Swift Testing and XCTest"
+      "description": "Explicit contract naming for Swift Testing and XCTest"
     }
   ]
 }
