@@ -1,0 +1,36 @@
+{
+  "name": "swift-design-patterns",
+  "version": "1.0.0",
+  "description": "Original Swift design-pattern selection guidance informed by and attributed to Refactoring.Guru",
+  "license": "MIT",
+  "skills": "./skills/",
+  "author": {
+    "name": "Danny Sung",
+    "url": "https://github.com/dannys42"
+  },
+  "repository": "https://github.com/dannys42/agent-skills",
+  "keywords": [
+    "swift",
+    "ios",
+    "macos",
+    "design-patterns",
+    "architecture",
+    "refactoring",
+    "agent-skills"
+  ],
+  "interface": {
+    "displayName": "Swift Design Patterns",
+    "shortDescription": "Choose clear Swift architecture",
+    "longDescription": "Choose, compare, and review Swift designs across 22 common patterns while preferring simpler Swift-native constructs.",
+    "developerName": "Danny Sung",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Swift-native architecture selection",
+      "GoF pattern comparison",
+      "Existing-code design review"
+    ],
+    "defaultPrompt": [
+      "Choose or review a Swift design, preferring the clearest Swift-native approach."
+    ]
+  }
+}

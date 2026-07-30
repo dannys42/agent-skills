@@ -670,16 +670,26 @@ Use:
 
 Match the existing `swift-testing` shapes. Use the same version, description, license, author, repository, and keywords. Set Cursor `displayName` to `Swift Design Patterns`, category to `developer-tools`, tags to `["swift", "architecture", "design-patterns"]`, and skills to `./skills/`.
 
-- [ ] **Step 4: Validate the plugin skeleton**
+- [ ] **Step 4: Validate the manifest JSON and record deferred plugin validation**
 
 Run:
 
 ```bash
-python3 /Users/dannys/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py \
+python3 -m json.tool plugins/swift-design-patterns/.codex-plugin/plugin.json
+python3 -m json.tool plugins/swift-design-patterns/.claude-plugin/plugin.json
+python3 -m json.tool plugins/swift-design-patterns/.cursor-plugin/plugin.json
+python3 -m json.tool plugins/swift-design-patterns/gemini-extension.json
+UV_CACHE_DIR=/tmp/codex-uv-cache uv run --with pyyaml python \
+  /Users/dannys/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py \
   plugins/swift-design-patterns
 ```
 
-Expected: plugin validation succeeds.
+Expected: all four JSON validation commands succeed. Plugin validation reports
+only that `skills/choosing-swift-design-patterns/SKILL.md` is missing because
+the selector is intentionally authored in Task 12. Full plugin validation is
+deferred until Task 12 and remains part of final verification in Task 15. The
+`uv` invocation supplies PyYAML in a temporary environment and keeps its cache
+under `/tmp`, without changing repository or system dependencies.
 
 - [ ] **Step 5: Commit manifests**
 
@@ -689,7 +699,8 @@ Run:
 git add plugins/swift-design-patterns/.codex-plugin \
   plugins/swift-design-patterns/.claude-plugin \
   plugins/swift-design-patterns/.cursor-plugin \
-  plugins/swift-design-patterns/gemini-extension.json
+  plugins/swift-design-patterns/gemini-extension.json \
+  docs/superpowers/plans/2026-07-30-swift-design-patterns-plugin.md
 git commit -m "feat(swift-design-patterns): scaffold portable plugin"
 ```
 
@@ -1067,7 +1078,8 @@ Keep the body under 600 words.
 Run:
 
 ```bash
-python3 /Users/dannys/.codex/skills/.system/skill-creator/scripts/quick_validate.py \
+UV_CACHE_DIR=/tmp/codex-uv-cache uv run --with pyyaml python \
+  /Users/dannys/.codex/skills/.system/skill-creator/scripts/quick_validate.py \
   plugins/swift-design-patterns/skills/choosing-swift-design-patterns
 wc -w plugins/swift-design-patterns/skills/choosing-swift-design-patterns/SKILL.md
 ```
@@ -1125,7 +1137,8 @@ Run:
 
 ```bash
 python3 -m unittest discover -s plugins/swift-design-patterns/tests -v
-python3 /Users/dannys/.codex/skills/.system/skill-creator/scripts/quick_validate.py \
+UV_CACHE_DIR=/tmp/codex-uv-cache uv run --with pyyaml python \
+  /Users/dannys/.codex/skills/.system/skill-creator/scripts/quick_validate.py \
   plugins/swift-design-patterns/skills/choosing-swift-design-patterns
 python3 plugins/swift-design-patterns/skills/choosing-swift-design-patterns/scripts/validate_content.py \
   plugins/swift-design-patterns/skills/choosing-swift-design-patterns
@@ -1200,7 +1213,8 @@ Run:
 python3 -m json.tool .agents/plugins/marketplace.json >/dev/null
 python3 -m json.tool .claude-plugin/marketplace.json >/dev/null
 python3 -m json.tool .cursor-plugin/marketplace.json >/dev/null
-python3 /Users/dannys/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py \
+UV_CACHE_DIR=/tmp/codex-uv-cache uv run --with pyyaml python \
+  /Users/dannys/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py \
   plugins/swift-design-patterns
 ```
 
@@ -1230,9 +1244,11 @@ Run:
 
 ```bash
 python3 -m unittest discover -s plugins/swift-design-patterns/tests -v
-python3 /Users/dannys/.codex/skills/.system/skill-creator/scripts/quick_validate.py \
+UV_CACHE_DIR=/tmp/codex-uv-cache uv run --with pyyaml python \
+  /Users/dannys/.codex/skills/.system/skill-creator/scripts/quick_validate.py \
   plugins/swift-design-patterns/skills/choosing-swift-design-patterns
-python3 /Users/dannys/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py \
+UV_CACHE_DIR=/tmp/codex-uv-cache uv run --with pyyaml python \
+  /Users/dannys/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py \
   plugins/swift-design-patterns
 python3 plugins/swift-design-patterns/skills/choosing-swift-design-patterns/scripts/validate_content.py \
   plugins/swift-design-patterns/skills/choosing-swift-design-patterns

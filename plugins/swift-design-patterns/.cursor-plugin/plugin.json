@@ -1,0 +1,27 @@
+{
+  "name": "swift-design-patterns",
+  "displayName": "Swift Design Patterns",
+  "version": "1.0.0",
+  "description": "Original Swift design-pattern selection guidance informed by and attributed to Refactoring.Guru",
+  "license": "MIT",
+  "author": {
+    "name": "Danny Sung"
+  },
+  "repository": "https://github.com/dannys42/agent-skills",
+  "keywords": [
+    "swift",
+    "ios",
+    "macos",
+    "design-patterns",
+    "architecture",
+    "refactoring",
+    "agent-skills"
+  ],
+  "category": "developer-tools",
+  "tags": [
+    "swift",
+    "architecture",
+    "design-patterns"
+  ],
+  "skills": "./skills/"
+}
