@@ -1265,7 +1265,7 @@ Expected: all tests and validators pass, all 22 Swift examples type-check, the o
 Run:
 
 ```bash
-git -C claude-marketplace status --short
+git -C /Users/dannys/projects/AITools/claude-marketplace status --short
 git diff --name-only main...HEAD | rg '^claude-marketplace/' && exit 1 || true
 ```
 

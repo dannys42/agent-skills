@@ -2,6 +2,8 @@ import importlib.util
 import hashlib
 import io
 import json
+import os
+import re
 import sys
 import tempfile
 import threading
@@ -581,6 +583,300 @@ class CatalogDiscoveryTests(unittest.TestCase):
 
 
 class CacheAndImportTests(unittest.TestCase):
+    def test_retained_root_descriptor_anchors_reads_logs_and_atomic_writes(self):
+        importer = load_importer()
+        with tempfile.TemporaryDirectory() as temporary:
+            temporary_path = Path(temporary)
+            selected_root = temporary_path / "cache"
+            selected_root.mkdir()
+            selected_root.joinpath("catalog.html").write_bytes(b"inside")
+            outside = temporary_path / "outside"
+            outside.mkdir()
+
+            with importer.CacheRoot.open(selected_root) as cache:
+                moved_root = temporary_path / "moved-cache"
+                selected_root.rename(moved_root)
+                selected_root.symlink_to(outside, target_is_directory=True)
+
+                self.assertEqual(
+                    b"inside",
+                    cache.read_bytes("catalog.html"),
+                )
+                cache.atomic_write("manifest.json", b"inside manifest")
+                importer._request_log_writer(cache)(
+                    {"url": "https://refactoring.guru/"}
+                )
+
+            self.assertEqual(b"inside manifest", (moved_root / "manifest.json").read_bytes())
+            self.assertTrue((moved_root / "requests.jsonl").is_file())
+            self.assertEqual([], list(outside.iterdir()))
+
+    def test_hardlinked_request_log_is_rejected_without_mutating_outside_file(self):
+        importer = load_importer()
+        with tempfile.TemporaryDirectory() as temporary:
+            temporary_path = Path(temporary)
+            output = temporary_path / "cache"
+            output.mkdir()
+            outside = temporary_path / "outside.log"
+            outside.write_bytes(b"preserve\n")
+            os.link(outside, output / "requests.jsonl")
+            client = importer.ImportClient(opener=RecordingOpener([]))
+
+            with self.assertRaisesRegex(
+                importer.ImportFailure,
+                "requests.jsonl.*hard link",
+            ):
+                importer.run_import(output, client=client)
+
+            self.assertEqual(b"preserve\n", outside.read_bytes())
+            self.assertEqual([], client.opener.requests)
+
+    @unittest.skipUnless(hasattr(os, "mkfifo"), "FIFO creation is unavailable")
+    def test_fifo_cache_target_is_rejected_without_blocking(self):
+        importer = load_importer()
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / "cache"
+            output.mkdir()
+            os.mkfifo(output / "requests.jsonl")
+            client = importer.ImportClient(opener=RecordingOpener([]))
+
+            with self.assertRaisesRegex(
+                importer.ImportFailure,
+                "requests.jsonl.*regular file",
+            ):
+                importer.run_import(output, client=client)
+
+            self.assertEqual([], client.opener.requests)
+
+    def test_disappearing_read_target_is_a_path_specific_import_failure(self):
+        importer = load_importer()
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary)
+            target = output / "catalog.html"
+            target.write_bytes(b"catalog")
+
+            with importer.CacheRoot.open(output) as cache:
+                real_validate = cache.validate
+                validation_count = 0
+
+                def unlink_after_validation(filename):
+                    nonlocal validation_count
+                    file_status = real_validate(filename)
+                    validation_count += 1
+                    if validation_count == 1:
+                        target.unlink(missing_ok=True)
+                    return file_status
+
+                with mock.patch.object(
+                    cache,
+                    "validate",
+                    side_effect=unlink_after_validation,
+                ):
+                    with self.assertRaisesRegex(
+                        importer.ImportFailure,
+                        "catalog.html.*disappeared",
+                    ):
+                        cache.read_bytes("catalog.html", allow_missing=True)
+
+    def test_disappearing_root_during_atomic_write_fails_path_specifically(self):
+        importer = load_importer()
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / "cache"
+            output.mkdir()
+
+            with importer.CacheRoot.open(output) as cache:
+                output.rmdir()
+                with self.assertRaisesRegex(
+                    importer.ImportFailure,
+                    re.escape(str(output / "manifest.json")),
+                ):
+                    cache.atomic_write("manifest.json", b"manifest")
+
+    def test_closed_cache_root_never_falls_back_to_current_working_directory(self):
+        importer = load_importer()
+        operations = (
+            (
+                "read",
+                lambda cache: cache.read_bytes("catalog.html"),
+            ),
+            (
+                "atomic-write",
+                lambda cache: cache.atomic_write(
+                    "manifest.json",
+                    b"cache manifest",
+                ),
+            ),
+            (
+                "request-log",
+                lambda cache: importer._request_log_writer(cache)(
+                    {"url": "https://refactoring.guru/"}
+                ),
+            ),
+        )
+
+        for close_mode in ("explicit", "context-exit"):
+            for operation_name, operation in operations:
+                with self.subTest(
+                    close_mode=close_mode,
+                    operation=operation_name,
+                ):
+                    with tempfile.TemporaryDirectory() as temporary:
+                        temporary_path = Path(temporary)
+                        output = temporary_path / "cache"
+                        output.mkdir()
+                        working_directory = temporary_path / "cwd"
+                        working_directory.mkdir()
+                        working_directory.joinpath("catalog.html").write_bytes(
+                            b"cwd catalog"
+                        )
+                        working_directory.joinpath("manifest.json").write_bytes(
+                            b"cwd manifest"
+                        )
+                        working_directory.joinpath("requests.jsonl").write_bytes(
+                            b"cwd log\n"
+                        )
+                        original_contents = {
+                            path.name: path.read_bytes()
+                            for path in working_directory.iterdir()
+                        }
+
+                        if close_mode == "explicit":
+                            cache = importer.CacheRoot.open(output)
+                            cache.close()
+                            cache.close()
+                        else:
+                            with importer.CacheRoot.open(output) as cache:
+                                pass
+
+                        previous_directory = Path.cwd()
+                        try:
+                            os.chdir(working_directory)
+                            with self.assertRaisesRegex(
+                                importer.ImportFailure,
+                                re.escape(str(output)),
+                            ):
+                                operation(cache)
+                        finally:
+                            os.chdir(previous_directory)
+
+                        self.assertEqual(
+                            original_contents,
+                            {
+                                path.name: path.read_bytes()
+                                for path in working_directory.iterdir()
+                            },
+                        )
+                        self.assertEqual([], list(output.iterdir()))
+
+    def test_atomic_write_fails_closed_when_dir_fd_open_is_unavailable(self):
+        importer = load_importer()
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary)
+            real_open = importer.os.open
+
+            def reject_dir_fd(path, flags, *args, **kwargs):
+                if "dir_fd" in kwargs:
+                    raise TypeError("dir_fd is unavailable")
+                return real_open(path, flags, *args, **kwargs)
+
+            with importer.CacheRoot.open(output) as cache:
+                with mock.patch.object(
+                    importer.os,
+                    "open",
+                    side_effect=reject_dir_fd,
+                ):
+                    with self.assertRaisesRegex(
+                        importer.ImportFailure,
+                        "directory-relative.*manifest.json",
+                    ):
+                        cache.atomic_write("manifest.json", b"manifest")
+
+            self.assertEqual([], list(output.iterdir()))
+
+    def test_rejects_symlinked_managed_cache_artifacts_before_io(self):
+        importer = load_importer()
+        catalog = canonical_catalog_html()
+        managed_artifacts = (
+            ("manifest.json", b'{"catalog": {}, "patterns": {}}'),
+            ("catalog.html", catalog),
+            ("state.html", b"cached state"),
+            ("requests.jsonl", b"existing log\n"),
+        )
+
+        for artifact_name, outside_content in managed_artifacts:
+            with self.subTest(artifact_name=artifact_name):
+                with tempfile.TemporaryDirectory() as temporary:
+                    temporary_path = Path(temporary)
+                    output = temporary_path / "cache"
+                    output.mkdir()
+                    outside = temporary_path / f"outside-{artifact_name}"
+                    outside.write_bytes(outside_content)
+                    (output / artifact_name).symlink_to(outside)
+                    opener = RecordingOpener([])
+                    client = importer.ImportClient(opener=opener)
+
+                    with self.assertRaisesRegex(
+                        importer.ImportFailure,
+                        re.escape(str(output / artifact_name)),
+                    ):
+                        importer.run_import(output, client=client)
+
+                    self.assertEqual([], opener.requests)
+                    self.assertEqual(outside_content, outside.read_bytes())
+                    self.assertTrue((output / artifact_name).is_symlink())
+
+    def test_rejects_non_regular_managed_cache_artifacts_before_io(self):
+        importer = load_importer()
+        for artifact_name in (
+            "manifest.json",
+            "catalog.html",
+            "state.html",
+            "requests.jsonl",
+        ):
+            with self.subTest(artifact_name=artifact_name):
+                with tempfile.TemporaryDirectory() as temporary:
+                    output = Path(temporary) / "cache"
+                    output.mkdir()
+                    (output / artifact_name).mkdir()
+                    opener = RecordingOpener([])
+                    client = importer.ImportClient(opener=opener)
+
+                    with self.assertRaisesRegex(
+                        importer.ImportFailure,
+                        re.escape(str(output / artifact_name)),
+                    ):
+                        importer.run_import(output, client=client)
+
+                    self.assertEqual([], opener.requests)
+                    self.assertTrue((output / artifact_name).is_dir())
+
+    def test_accepts_a_symlink_as_the_selected_output_root(self):
+        importer = load_importer()
+        catalog = canonical_catalog_html()
+        responses = [ByteResponse(catalog)] + [
+            ByteResponse(pattern.slug.encode())
+            for pattern in load_pattern_catalog().PATTERNS
+        ]
+        clock = FakeClock()
+        client = importer.ImportClient(
+            opener=RecordingOpener(responses),
+            monotonic=clock.monotonic,
+            sleep=clock.sleep,
+        )
+
+        with tempfile.TemporaryDirectory() as temporary:
+            temporary_path = Path(temporary)
+            real_output = temporary_path / "real-cache"
+            real_output.mkdir()
+            selected_output = temporary_path / "selected-cache"
+            selected_output.symlink_to(real_output, target_is_directory=True)
+
+            manifest = importer.run_import(selected_output, client=client)
+
+            self.assertEqual(22, len(manifest["patterns"]))
+            self.assertTrue(selected_output.is_symlink())
+            self.assertTrue((real_output / "manifest.json").is_file())
+
     def test_cache_validation_rejects_traversal_before_reading_outside(self):
         importer = load_importer()
         with tempfile.TemporaryDirectory() as temporary:
@@ -617,8 +913,9 @@ class CacheAndImportTests(unittest.TestCase):
             client = importer.ImportClient(opener=opener)
 
             with mock.patch.object(
-                importer.Path,
+                importer.CacheRoot,
                 "read_bytes",
+                autospec=True,
                 side_effect=PermissionError("denied"),
             ):
                 with self.assertRaisesRegex(
@@ -650,10 +947,23 @@ class CacheAndImportTests(unittest.TestCase):
             opener = RecordingOpener([])
             client = importer.ImportClient(opener=opener)
 
+            original_read_cache_bytes = importer.CacheRoot.read_bytes
+
+            def deny_catalog(cache, filename, *args, **kwargs):
+                if filename == "catalog.html":
+                    raise PermissionError("denied")
+                return original_read_cache_bytes(
+                    cache,
+                    filename,
+                    *args,
+                    **kwargs,
+                )
+
             with mock.patch.object(
-                importer.Path,
+                importer.CacheRoot,
                 "read_bytes",
-                side_effect=PermissionError("denied"),
+                autospec=True,
+                side_effect=deny_catalog,
             ):
                 with self.assertRaisesRegex(
                     importer.ImportFailure,
@@ -800,8 +1110,9 @@ class CacheAndImportTests(unittest.TestCase):
                 importer.load_manifest(output)
 
             with mock.patch.object(
-                importer.Path,
-                "read_text",
+                importer.CacheRoot,
+                "read_bytes",
+                autospec=True,
                 side_effect=PermissionError("denied"),
             ):
                 with self.assertRaisesRegex(

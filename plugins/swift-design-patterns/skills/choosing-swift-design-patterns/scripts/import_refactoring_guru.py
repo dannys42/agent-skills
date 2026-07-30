@@ -2,14 +2,17 @@
 """Politely and resumably import Swift examples from Refactoring.Guru."""
 
 import argparse
+from contextlib import contextmanager
 import hashlib
 from html.parser import HTMLParser
 import json
 import math
+import os
 from pathlib import Path
 import re
+import secrets
+import stat
 import sys
-import tempfile
 import time
 from datetime import datetime, timezone
 from urllib.error import HTTPError, URLError
@@ -29,6 +32,14 @@ DEFAULT_USER_AGENT = (
     "(contact: https://github.com/dannys42/agent-skills)"
 )
 CANONICAL_SLUGS = frozenset(pattern.slug for pattern in PATTERNS)
+MANAGED_CACHE_FILENAMES = (
+    "manifest.json",
+    "catalog.html",
+    "requests.jsonl",
+    *(f"{pattern.slug}.html" for pattern in PATTERNS),
+)
+MAXIMUM_REQUEST_LOG_BYTES = 16 * 1024 * 1024
+_STATUS_NOT_PROVIDED = object()
 SWIFT_EXAMPLE_PATH = re.compile(
     r"^/design-patterns/([a-z-]+)/swift/example$"
 )
@@ -40,6 +51,323 @@ def utc_timestamp():
 
 class ImportFailure(Exception):
     """Importer input or persisted state is unsafe to continue from."""
+
+
+class CacheRoot:
+    """A resolved cache directory retained as a descriptor for anchored I/O."""
+
+    def __init__(self, path, descriptor):
+        self.path = Path(path)
+        self.descriptor = descriptor
+
+    @classmethod
+    def open(cls, output, create=False):
+        selected_path = Path(output)
+        descriptor = None
+        try:
+            if create:
+                selected_path.mkdir(parents=True, exist_ok=True)
+            resolved_path = selected_path.resolve(strict=True)
+            expected_status = resolved_path.lstat()
+            if not stat.S_ISDIR(expected_status.st_mode):
+                raise ImportFailure(
+                    f"cache output root is not a directory: {selected_path}"
+                )
+            flags = (
+                os.O_RDONLY
+                | getattr(os, "O_DIRECTORY", 0)
+                | getattr(os, "O_CLOEXEC", 0)
+                | getattr(os, "O_NOFOLLOW", 0)
+                | getattr(os, "O_NONBLOCK", 0)
+            )
+            descriptor = os.open(resolved_path, flags)
+            opened_status = os.fstat(descriptor)
+            expected_identity = (
+                expected_status.st_dev,
+                expected_status.st_ino,
+            )
+            opened_identity = (
+                opened_status.st_dev,
+                opened_status.st_ino,
+            )
+            if (
+                not stat.S_ISDIR(opened_status.st_mode)
+                or opened_identity != expected_identity
+            ):
+                raise ImportFailure(
+                    f"cache output root changed while opening: {selected_path}"
+                )
+        except ImportFailure:
+            if descriptor is not None:
+                os.close(descriptor)
+            raise
+        except OSError as error:
+            if descriptor is not None:
+                os.close(descriptor)
+            raise ImportFailure(
+                f"cannot use cache output root {selected_path}: {error}"
+            ) from error
+        return cls(resolved_path, descriptor)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exception_type, exception, traceback):
+        self.close()
+
+    def close(self):
+        if self.descriptor is not None:
+            os.close(self.descriptor)
+            self.descriptor = None
+
+    def _require_open_descriptor(self):
+        descriptor = self.descriptor
+        if descriptor is None:
+            raise ImportFailure(f"cache output root is closed: {self.path}")
+        return descriptor
+
+    def artifact_path(self, filename):
+        if filename not in MANAGED_CACHE_FILENAMES:
+            raise ValueError(
+                f"not an importer-managed cache artifact: {filename}"
+            )
+        return self.path / filename
+
+    def _stat(self, filename):
+        path = self.artifact_path(filename)
+        root_descriptor = self._require_open_descriptor()
+        try:
+            return os.stat(
+                filename,
+                dir_fd=root_descriptor,
+                follow_symlinks=False,
+            )
+        except FileNotFoundError:
+            return None
+        except (TypeError, NotImplementedError) as error:
+            raise ImportFailure(
+                f"safe directory-relative inspection is unavailable for {path}"
+            ) from error
+        except OSError as error:
+            raise ImportFailure(
+                f"cannot inspect cache artifact {path}: {error}"
+            ) from error
+
+    def _validate_status(self, filename, file_status):
+        path = self.artifact_path(filename)
+        if file_status is None:
+            return
+        if stat.S_ISLNK(file_status.st_mode):
+            raise ImportFailure(
+                f"unsafe cache artifact {path}: symbolic links are not allowed"
+            )
+        if not stat.S_ISREG(file_status.st_mode):
+            raise ImportFailure(
+                f"unsafe cache artifact {path}: expected a regular file"
+            )
+        if file_status.st_nlink != 1:
+            raise ImportFailure(
+                f"unsafe cache artifact {path}: hard link count must be one"
+            )
+
+    def validate(self, filename):
+        file_status = self._stat(filename)
+        self._validate_status(filename, file_status)
+        return file_status
+
+    def validate_all(self):
+        for filename in MANAGED_CACHE_FILENAMES:
+            self.validate(filename)
+
+    @staticmethod
+    def _identity(file_status):
+        if file_status is None:
+            return None
+        return (file_status.st_dev, file_status.st_ino)
+
+    def _open_file(
+        self,
+        filename,
+        allow_missing=False,
+        expected_status=_STATUS_NOT_PROVIDED,
+    ):
+        path = self.artifact_path(filename)
+        root_descriptor = self._require_open_descriptor()
+        if expected_status is _STATUS_NOT_PROVIDED:
+            expected_status = self.validate(filename)
+        if expected_status is None and allow_missing:
+            return None
+        flags = (
+            os.O_RDONLY
+            | getattr(os, "O_CLOEXEC", 0)
+            | getattr(os, "O_NOFOLLOW", 0)
+            | getattr(os, "O_NONBLOCK", 0)
+        )
+        try:
+            descriptor = os.open(
+                filename,
+                flags,
+                dir_fd=root_descriptor,
+            )
+        except FileNotFoundError as error:
+            if expected_status is None and allow_missing:
+                return None
+            raise ImportFailure(
+                f"cache artifact {path} disappeared while opening"
+            ) from error
+        except (TypeError, NotImplementedError) as error:
+            raise ImportFailure(
+                f"safe directory-relative opening is unavailable for {path}"
+            ) from error
+        except OSError as error:
+            raise ImportFailure(
+                f"cannot open cache artifact {path}: {error}"
+            ) from error
+        try:
+            opened_status = os.fstat(descriptor)
+            self._validate_status(filename, opened_status)
+            current_status = self.validate(filename)
+            if self._identity(opened_status) != self._identity(current_status):
+                raise ImportFailure(
+                    f"unsafe cache artifact {path}: path changed while opening"
+                )
+            return descriptor
+        except (ImportFailure, OSError):
+            os.close(descriptor)
+            raise
+
+    def read_bytes(self, filename, allow_missing=False, maximum_size=None):
+        path = self.artifact_path(filename)
+        initial_status = self.validate(filename)
+        if (
+            initial_status is not None
+            and maximum_size is not None
+            and initial_status.st_size > maximum_size
+        ):
+            raise ImportFailure(
+                f"cache artifact {path} exceeds {maximum_size} bytes"
+            )
+        descriptor = self._open_file(
+            filename,
+            allow_missing=allow_missing,
+            expected_status=initial_status,
+        )
+        if descriptor is None:
+            return None
+        cache_file = None
+        try:
+            cache_file = os.fdopen(descriptor, "rb")
+            descriptor = None
+            with cache_file:
+                content = cache_file.read(
+                    -1 if maximum_size is None else maximum_size + 1
+                )
+        except OSError as error:
+            if descriptor is not None:
+                os.close(descriptor)
+            raise ImportFailure(
+                f"cannot read cache artifact {path}: {error}"
+            ) from error
+        if maximum_size is not None and len(content) > maximum_size:
+            raise ImportFailure(
+                f"cache artifact {path} exceeds {maximum_size} bytes"
+            )
+        return content
+
+    def _same_destination(self, filename, expected_status):
+        current_status = self.validate(filename)
+        if self._identity(current_status) != self._identity(expected_status):
+            raise ImportFailure(
+                f"cache artifact {self.artifact_path(filename)} "
+                "changed while writing"
+            )
+
+    def atomic_write(self, filename, content):
+        path = self.artifact_path(filename)
+        root_descriptor = self._require_open_descriptor()
+        expected_status = self.validate(filename)
+        temporary_name = None
+        descriptor = None
+        try:
+            for _ in range(100):
+                candidate = f".{filename}.{secrets.token_hex(12)}.tmp"
+                try:
+                    descriptor = os.open(
+                        candidate,
+                        os.O_WRONLY
+                        | os.O_CREAT
+                        | os.O_EXCL
+                        | getattr(os, "O_CLOEXEC", 0)
+                        | getattr(os, "O_NOFOLLOW", 0)
+                        | getattr(os, "O_NONBLOCK", 0),
+                        0o600,
+                        dir_fd=root_descriptor,
+                    )
+                    temporary_name = candidate
+                    break
+                except FileExistsError:
+                    continue
+                except (TypeError, NotImplementedError) as error:
+                    raise ImportFailure(
+                        "safe directory-relative temporary creation is "
+                        f"unavailable for {path}"
+                    ) from error
+            if descriptor is None:
+                raise ImportFailure(
+                    f"cannot create unique temporary file for {path}"
+                )
+            opened_status = os.fstat(descriptor)
+            if (
+                not stat.S_ISREG(opened_status.st_mode)
+                or opened_status.st_nlink != 1
+            ):
+                raise ImportFailure(
+                    f"unsafe temporary cache artifact for {path}"
+                )
+            remaining = memoryview(content)
+            while remaining:
+                written = os.write(descriptor, remaining)
+                if written == 0:
+                    raise OSError("zero-byte write")
+                remaining = remaining[written:]
+            os.close(descriptor)
+            descriptor = None
+            self._same_destination(filename, expected_status)
+            try:
+                os.replace(
+                    temporary_name,
+                    filename,
+                    src_dir_fd=root_descriptor,
+                    dst_dir_fd=root_descriptor,
+                )
+            except (TypeError, NotImplementedError) as error:
+                raise ImportFailure(
+                    f"safe directory-relative replacement is unavailable for {path}"
+                ) from error
+            temporary_name = None
+        except ImportFailure:
+            raise
+        except OSError as error:
+            raise ImportFailure(
+                f"cannot atomically write cache artifact {path}: {error}"
+            ) from error
+        finally:
+            if descriptor is not None:
+                os.close(descriptor)
+            if temporary_name is not None:
+                try:
+                    os.unlink(temporary_name, dir_fd=root_descriptor)
+                except (OSError, TypeError, NotImplementedError):
+                    pass
+
+
+@contextmanager
+def _using_cache_root(output, create=False):
+    if isinstance(output, CacheRoot):
+        yield output
+        return
+    with CacheRoot.open(output, create=create) as cache:
+        yield cache
 
 
 class RestrictedRedirectHandler(HTTPRedirectHandler):
@@ -308,82 +636,79 @@ def sha256_bytes(content):
 
 
 def load_manifest(output):
-    manifest_path = Path(output) / "manifest.json"
-    try:
-        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    except FileNotFoundError:
-        return {"catalog": {}, "patterns": {}}
-    except (OSError, UnicodeError, json.JSONDecodeError) as error:
-        raise ImportFailure(
-            f"cannot load manifest {manifest_path}: {error}"
-        ) from error
-    if not isinstance(manifest, dict):
-        raise ImportFailure(
-            f"cannot load manifest {manifest_path}: root must be an object"
-        )
-    if not isinstance(manifest.get("catalog", {}), dict):
-        raise ImportFailure(
-            f"cannot load manifest {manifest_path}: catalog must be an object"
-        )
-    if not isinstance(manifest.get("patterns", {}), dict):
-        raise ImportFailure(
-            f"cannot load manifest {manifest_path}: patterns must be an object"
-        )
-    manifest.setdefault("catalog", {})
-    manifest.setdefault("patterns", {})
-    return manifest
+    with _using_cache_root(output) as cache:
+        manifest_path = cache.artifact_path("manifest.json")
+        try:
+            content = cache.read_bytes(
+                "manifest.json",
+                allow_missing=True,
+            )
+            if content is None:
+                return {"catalog": {}, "patterns": {}}
+            manifest = json.loads(content.decode("utf-8"))
+        except ImportFailure:
+            raise
+        except (OSError, UnicodeError, json.JSONDecodeError) as error:
+            raise ImportFailure(
+                f"cannot load manifest {manifest_path}: {error}"
+            ) from error
+        if not isinstance(manifest, dict):
+            raise ImportFailure(
+                f"cannot load manifest {manifest_path}: root must be an object"
+            )
+        if not isinstance(manifest.get("catalog", {}), dict):
+            raise ImportFailure(
+                f"cannot load manifest {manifest_path}: catalog must be an object"
+            )
+        if not isinstance(manifest.get("patterns", {}), dict):
+            raise ImportFailure(
+                f"cannot load manifest {manifest_path}: patterns must be an object"
+            )
+        manifest.setdefault("catalog", {})
+        manifest.setdefault("patterns", {})
+        return manifest
 
 
 def pattern_page_path(output, slug):
     if slug not in CANONICAL_SLUGS:
         raise ValueError(f"not a canonical slug: {slug}")
-    return Path(output) / f"{slug}.html"
+    with _using_cache_root(output) as cache:
+        return cache.artifact_path(f"{slug}.html")
 
 
 def cached_page_is_valid(output, slug, manifest):
-    page_path = pattern_page_path(output, slug)
-    metadata = manifest.get("patterns", {}).get(slug)
-    if not isinstance(metadata, dict):
-        return False
-    expected_checksum = metadata.get("sha256")
-    if not isinstance(expected_checksum, str):
-        return False
-    try:
-        content = page_path.read_bytes()
-    except FileNotFoundError:
-        return False
-    except OSError as error:
-        raise ImportFailure(
-            f"cannot read cached page {page_path}: {error}"
-        ) from error
-    return sha256_bytes(content) == expected_checksum
+    with _using_cache_root(output) as cache:
+        page_filename = f"{slug}.html"
+        page_path = pattern_page_path(cache, slug)
+        metadata = manifest.get("patterns", {}).get(slug)
+        if not isinstance(metadata, dict):
+            return False
+        expected_checksum = metadata.get("sha256")
+        if not isinstance(expected_checksum, str):
+            return False
+        try:
+            content = cache.read_bytes(page_filename, allow_missing=True)
+            if content is None:
+                return False
+        except ImportFailure:
+            raise
+        except OSError as error:
+            raise ImportFailure(
+                f"cannot read cached page {page_path}: {error}"
+            ) from error
+        return sha256_bytes(content) == expected_checksum
 
 
-def _atomic_write(path, content):
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    temporary_path = None
-    try:
-        with tempfile.NamedTemporaryFile(
-            dir=path.parent,
-            prefix=f".{path.name}.",
-            suffix=".tmp",
-            delete=False,
-        ) as temporary:
-            temporary.write(content)
-            temporary.flush()
-            temporary_path = Path(temporary.name)
-        temporary_path.replace(path)
-    finally:
-        if temporary_path is not None and temporary_path.exists():
-            temporary_path.unlink()
+def _atomic_write(output, filename, content):
+    with _using_cache_root(output) as cache:
+        cache.atomic_write(filename, content)
 
 
-def _atomic_write_json(path, value):
+def _atomic_write_json(output, filename, value):
     content = (
         json.dumps(value, indent=2, sort_keys=True) + "\n"
     ).encode("utf-8")
-    _atomic_write(path, content)
+    _atomic_write(output, filename, content)
 
 
 def _page_metadata(requested_url, final_url, content, status):
@@ -406,51 +731,68 @@ def import_pattern(
     manifest,
     refresh=False,
 ):
-    page_path = pattern_page_path(output, slug)
-    expected_url = (
-        f"https://refactoring.guru/design-patterns/{slug}/swift/example"
-    )
-    if source_url != expected_url:
-        raise ValueError(
-            f"source URL does not match canonical pattern URL for {slug}: "
-            f"{source_url}"
+    if slug not in CANONICAL_SLUGS:
+        raise ValueError(f"not a canonical slug: {slug}")
+    with _using_cache_root(output) as cache:
+        page_filename = f"{slug}.html"
+        expected_url = (
+            f"https://refactoring.guru/design-patterns/{slug}/swift/example"
         )
-    if not refresh and cached_page_is_valid(output, slug, manifest):
-        return manifest["patterns"][slug]
-    content = client.fetch(source_url)
-    _atomic_write(page_path, content)
-    return _page_metadata(
-        source_url,
-        client.last_response_url,
-        content,
-        client.last_status,
-    )
+        if source_url != expected_url:
+            raise ValueError(
+                f"source URL does not match canonical pattern URL for {slug}: "
+                f"{source_url}"
+            )
+        if not refresh and cached_page_is_valid(cache, slug, manifest):
+            return manifest["patterns"][slug]
+        content = client.fetch(source_url)
+        _atomic_write(cache, page_filename, content)
+        return _page_metadata(
+            source_url,
+            client.last_response_url,
+            content,
+            client.last_status,
+        )
 
 
 def _catalog_cache_is_valid(output, manifest):
-    metadata = manifest.get("catalog")
-    if not isinstance(metadata, dict):
-        return False
-    expected_checksum = metadata.get("sha256")
-    if not isinstance(expected_checksum, str):
-        return False
-    catalog_path = Path(output) / "catalog.html"
-    try:
-        content = catalog_path.read_bytes()
-    except FileNotFoundError:
-        return False
-    except OSError as error:
-        raise ImportFailure(
-            f"cannot read cached catalog {catalog_path}: {error}"
-        ) from error
-    return sha256_bytes(content) == expected_checksum
+    with _using_cache_root(output) as cache:
+        metadata = manifest.get("catalog")
+        if not isinstance(metadata, dict):
+            return False
+        expected_checksum = metadata.get("sha256")
+        if not isinstance(expected_checksum, str):
+            return False
+        catalog_path = cache.artifact_path("catalog.html")
+        try:
+            content = cache.read_bytes("catalog.html", allow_missing=True)
+            if content is None:
+                return False
+        except ImportFailure:
+            raise
+        except OSError as error:
+            raise ImportFailure(
+                f"cannot read cached catalog {catalog_path}: {error}"
+            ) from error
+        return sha256_bytes(content) == expected_checksum
 
 
-def _request_log_writer(path):
+def _request_log_writer(cache):
     def append(entry):
-        with path.open("a", encoding="utf-8") as request_log:
-            request_log.write(json.dumps(entry, sort_keys=True) + "\n")
-            request_log.flush()
+        cache._require_open_descriptor()
+        existing = cache.read_bytes(
+            "requests.jsonl",
+            allow_missing=True,
+            maximum_size=MAXIMUM_REQUEST_LOG_BYTES,
+        )
+        line = (json.dumps(entry, sort_keys=True) + "\n").encode("utf-8")
+        payload = (existing or b"") + line
+        if len(payload) > MAXIMUM_REQUEST_LOG_BYTES:
+            raise ImportFailure(
+                f"request log {cache.artifact_path('requests.jsonl')} "
+                f"exceeds {MAXIMUM_REQUEST_LOG_BYTES} bytes"
+            )
+        cache.atomic_write("requests.jsonl", payload)
 
     return append
 
@@ -462,24 +804,24 @@ def run_import(
     client=None,
     timeout=DEFAULT_TIMEOUT,
 ):
-    output = Path(output)
-    output.mkdir(parents=True, exist_ok=True)
-    manifest = load_manifest(output)
-    if client is None:
-        client = ImportClient(min_interval=min_interval, timeout=timeout)
-    run_logger = _request_log_writer(output / "requests.jsonl")
-    client.add_attempt_logger(run_logger)
-    try:
-        return _run_import(output, refresh, client, manifest)
-    finally:
-        client.remove_attempt_logger(run_logger)
+    with CacheRoot.open(output, create=True) as cache:
+        cache.validate_all()
+        manifest = load_manifest(cache)
+        if client is None:
+            client = ImportClient(min_interval=min_interval, timeout=timeout)
+        run_logger = _request_log_writer(cache)
+        client.add_attempt_logger(run_logger)
+        try:
+            return _run_import(cache, refresh, client, manifest)
+        finally:
+            client.remove_attempt_logger(run_logger)
 
 
 def _run_import(output, refresh, client, manifest):
     if refresh or not _catalog_cache_is_valid(output, manifest):
         catalog_html = client.fetch(CATALOG_URL)
         pattern_urls = discover_pattern_urls(catalog_html)
-        _atomic_write(output / "catalog.html", catalog_html)
+        _atomic_write(output, "catalog.html", catalog_html)
         manifest["catalog"] = _page_metadata(
             CATALOG_URL,
             client.last_response_url,
@@ -489,9 +831,9 @@ def _run_import(output, refresh, client, manifest):
         manifest["catalog_url"] = CATALOG_URL
         manifest["content_usage_policy_url"] = CONTENT_POLICY_URL
         manifest["fetched_at"] = utc_timestamp()
-        _atomic_write_json(output / "manifest.json", manifest)
+        _atomic_write_json(output, "manifest.json", manifest)
     else:
-        catalog_html = (output / "catalog.html").read_bytes()
+        catalog_html = output.read_bytes("catalog.html")
         pattern_urls = discover_pattern_urls(catalog_html)
 
     manifest["catalog_url"] = CATALOG_URL
@@ -512,7 +854,7 @@ def _run_import(output, refresh, client, manifest):
             refresh=refresh,
         )
         manifest["patterns"][pattern.slug] = metadata
-        _atomic_write_json(output / "manifest.json", manifest)
+        _atomic_write_json(output, "manifest.json", manifest)
     return manifest
 
 
