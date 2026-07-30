@@ -1,0 +1,50 @@
+[
+  {
+    "id": "greenfield-pricing",
+    "mode": "greenfield",
+    "prompt": "Design a Swift shipping calculator with three small interchangeable formulas selected at startup.",
+    "expected": "Prefer a closure or generic function; Strategy is secondary if algorithms gain state or runtime substitution."
+  },
+  {
+    "id": "review-small-state",
+    "mode": "review",
+    "prompt": "Review a Swift media control with enum State { case stopped, playing, paused } and one exhaustive switch containing one line per case.",
+    "expected": "Keep the enum and switch; reject State as unnecessary."
+  },
+  {
+    "id": "greenfield-product-family",
+    "mode": "greenfield",
+    "prompt": "Design a charting package that must create compatible axis, legend, and renderer implementations for SVG and Metal backends.",
+    "expected": "Recommend Abstract Factory after comparing a generic configuration."
+  },
+  {
+    "id": "review-scattered-coordination",
+    "mode": "review",
+    "prompt": "Review three call sites that repeat file loading, format detection, decoding, metadata extraction, and persistence.",
+    "expected": "Recommend a focused Facade because subsystem coordination is repeated."
+  },
+  {
+    "id": "greenfield-undo",
+    "mode": "greenfield",
+    "prompt": "Design reversible text edits that can be queued, replayed, undone, and redone.",
+    "expected": "Recommend Command and explain why a bare closure becomes insufficient."
+  },
+  {
+    "id": "review-event-stream",
+    "mode": "review",
+    "prompt": "Review a Swift sensor service that manually maintains an array of observer objects only to broadcast typed readings.",
+    "expected": "Prefer AsyncStream or Observation when lifecycle semantics fit; Observer is secondary."
+  },
+  {
+    "id": "named-visitor",
+    "mode": "named",
+    "prompt": "Use Visitor for a closed Swift enum representing five expression cases and two operations.",
+    "expected": "Challenge the requested pattern and prefer exhaustive enum switches unless operations greatly outnumber stable cases."
+  },
+  {
+    "id": "review-no-change",
+    "mode": "review",
+    "prompt": "Review a value-semantic configuration struct with a direct memberwise initializer and no branching creation logic.",
+    "expected": "Recommend no change and reject Builder and Factory Method."
+  }
+]
