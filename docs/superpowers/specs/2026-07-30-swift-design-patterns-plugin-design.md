@@ -1,7 +1,7 @@
 # Portable Swift Design Patterns Plugin — Design Specification
 
 **Date:** 2026-07-30
-**Status:** Approved in conversation; awaiting written-spec review
+**Status:** Approved
 **Target plugin:** `swift-design-patterns`
 
 ## Summary
