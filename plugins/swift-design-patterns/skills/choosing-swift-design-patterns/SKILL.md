@@ -26,7 +26,15 @@ greenfield design and existing-code review:
    collaborators. Do not make any recommendation about existing code you have
    not inspected; request the missing context instead.
 3. Apply the priority above. When no change or an obvious Swift-native approach
-   resolves the pressure, stop; do not load the index or a pattern reference.
+   resolves the pressure, stop; do not load the index or a pattern reference,
+   and omit the References section.
+   For a small set of stateless, single-operation behaviors, prefer an injected
+   closure or generic function. Use an enum-owned switch when closed identity
+   or exhaustiveness is itself the pressure; startup decoding alone does not
+   require the enum to own the algorithms.
+   For typed events, prefer `AsyncSequence` when consumers are asynchronous or
+   Observation for current state. Choose Combine only when the project already
+   uses it or its operators and delivery semantics are required.
 4. For a direct named-pattern request, resolve and load that pattern's file
    under `references/` directly. Do not open the broad index unless comparison
    is needed. Challenge the requested pattern against the same priority and
@@ -36,13 +44,20 @@ greenfield design and existing-code review:
    not mechanical answers, and load only the one or two strongest candidate
    references.
 6. Recommend one primary approach. Name at most two lower-ranked alternatives.
+   Every non-primary approach named anywhere—including rejected patterns and
+   approaches in costs or contraindications—counts. Before responding, merge or
+   remove entries until no more than two remain. The approach being replaced
+   consumes one slot, so if named, offer at most one other.
 7. State why the primary fits, why alternatives rank lower, its costs, and its
    contraindications. Include relevant indirection, extra types, ownership,
    actor isolation, reference semantics, and test complexity.
 
 For implementation work, produce a project-specific design before changing
-code. When a reference was loaded, cite the internal guide and its linked
-source.
+code. Before responding, compare References with the files you opened. If any
+file under `references/` was loaded, a References section is mandatory: list
+every loaded `references/...` path exactly, then each detailed guide's
+attributed external source separately. Never label an external URL as an
+internal guide.
 
 ## Quick response template
 
