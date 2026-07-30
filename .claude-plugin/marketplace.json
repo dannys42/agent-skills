@@ -25,6 +25,27 @@
         "testing",
         "swift"
       ]
+    },
+    {
+      "name": "swift-design-patterns",
+      "source": "./plugins/swift-design-patterns",
+      "version": "1.0.0",
+      "description": "Original Swift design-pattern selection guidance informed by and attributed to Refactoring.Guru",
+      "category": "architecture",
+      "keywords": [
+        "swift",
+        "ios",
+        "macos",
+        "architecture",
+        "design-patterns",
+        "refactoring",
+        "agent-skills"
+      ],
+      "tags": [
+        "swift",
+        "architecture",
+        "design-patterns"
+      ]
     }
   ]
 }

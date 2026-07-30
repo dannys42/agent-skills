@@ -11,6 +11,17 @@
       "name": "swift-testing",
       "source": "plugins/swift-testing",
       "description": "Explicit contract naming for Swift Testing and XCTest"
+    },
+    {
+      "name": "swift-design-patterns",
+      "source": "plugins/swift-design-patterns",
+      "version": "1.0.0",
+      "description": "Original Swift design-pattern selection guidance informed by and attributed to Refactoring.Guru",
+      "keywords": [
+        "swift",
+        "architecture",
+        "design-patterns"
+      ]
     }
   ]
 }

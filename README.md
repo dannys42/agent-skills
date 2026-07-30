@@ -7,8 +7,21 @@ Portable agent skills for Swift and Apple-platform development.
 | Plugin | Skills | Description |
 |---|---|---|
 | `swift-testing` | `naming-swift-tests` | Explicit contract naming for Swift Testing and XCTest |
+| `swift-design-patterns` | `choosing-swift-design-patterns` | Swift-native-first selection and review across 22 common design patterns |
 
 ## Skills
+
+### `choosing-swift-design-patterns`
+
+Selects among all 22 patterns in the Refactoring.Guru Swift catalog for
+greenfield Swift design and existing-code review while preferring no change or
+a clearer Swift-native construct. A compact decision index routes the request,
+then progressive disclosure loads only the one or two detailed pattern guides
+needed for trade-offs and contraindications.
+The original guidance is informed by and attributed to the
+[Refactoring.Guru Swift design-pattern catalog](https://refactoring.guru/design-patterns/swift)
+under its [Content Usage Policy](https://refactoring.guru/content-usage-policy);
+source code and illustrations are not redistributed.
 
 ### `naming-swift-tests`
 
@@ -154,12 +167,51 @@ Zoo Code uses `roo` because it supports Roo-compatible skill directories. In
 ZCode, open **Settings → Skills** after installation to refresh and enable the
 skill.
 
+## Install `choosing-swift-design-patterns`
+
+Canonical source:
+[plugins/swift-design-patterns/skills/choosing-swift-design-patterns](https://github.com/dannys42/agent-skills/tree/main/plugins/swift-design-patterns/skills/choosing-swift-design-patterns)
+
+### Claude Code
+
+Install the complete `swift-design-patterns` plugin:
+
+```bash
+claude plugin marketplace add dannys42/agent-skills
+claude plugin install swift-design-patterns@danny-sung-agent-skills
+```
+
+### Codex
+
+Install the complete `swift-design-patterns` plugin:
+
+```bash
+codex plugin marketplace add dannys42/agent-skills
+codex plugin add swift-design-patterns@danny-sung-agent-skills
+```
+
+### Other agents
+
+Install the individual skill with the open `skills` installer:
+
+```bash
+npx skills add dannys42/agent-skills \
+  --skill choosing-swift-design-patterns \
+  --global \
+  --agent <agent>
+```
+
+Use the `<agent>` values in the table above for Cursor, Gemini CLI, GitHub
+Copilot, OpenCode, Roo Code, Zoo Code, ZCode, and Zed.
+
 ## Marketplace adapters and open registries
 
 - Claude marketplace: `.claude-plugin/marketplace.json`
 - Codex marketplace: `.agents/plugins/marketplace.json`
 - Cursor marketplace: `.cursor-plugin/marketplace.json`
-- Gemini extension metadata: `plugins/swift-testing/gemini-extension.json`
+- Gemini extension metadata:
+  `plugins/swift-testing/gemini-extension.json` and
+  `plugins/swift-design-patterns/gemini-extension.json`
 - Ready for skills.sh, SkillsMD, and mdskills.ai indexing
 
 Direct installation does not require marketplace submission. These files are
