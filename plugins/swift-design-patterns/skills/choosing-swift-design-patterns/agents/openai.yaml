@@ -1,0 +1,4 @@
+interface:
+  display_name: "Choosing Swift Design Patterns"
+  short_description: "Choose clear Swift architecture"
+  default_prompt: "Use $choosing-swift-design-patterns to choose or review a Swift design."
