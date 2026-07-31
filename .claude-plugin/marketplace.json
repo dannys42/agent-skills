@@ -46,6 +46,20 @@
         "architecture",
         "design-patterns"
       ]
+    },
+    {
+      "name": "skill-development-optimizer",
+      "source": "./plugins/skill-development-optimizer",
+      "version": "1.0.0",
+      "description": "Risk-proportional validation and reproducible evidence for developing agent skills",
+      "keywords": [
+        "agent-skills",
+        "skill-development",
+        "validation",
+        "evaluation",
+        "testing",
+        "optimization"
+      ]
     }
   ]
 }

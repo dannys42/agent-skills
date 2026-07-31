@@ -1,6 +1,7 @@
 # Danny Sung's Agent Skills
 
-Portable agent skills for Swift and Apple-platform development.
+Portable agent skills for Swift, Apple-platform development, and agent-skill
+engineering.
 
 ## Plugins
 
@@ -8,8 +9,18 @@ Portable agent skills for Swift and Apple-platform development.
 |---|---|---|
 | `swift-testing` | `naming-swift-tests` | Explicit contract naming for Swift Testing and XCTest |
 | `swift-design-patterns` | `choosing-swift-design-patterns` | Swift-native-first selection and review across 22 common design patterns |
+| `skill-development-optimizer` | `optimizing-skill-development` | Risk-proportional validation and reproducible evidence for agent skills |
 
 ## Skills
+
+### `optimizing-skill-development`
+
+Chooses the smallest validation profile that covers the actual risk of a new
+or changed agent skill. It separates packaging, content, behavioral, importer,
+and release risk; runs only configured bounded checks; freezes behavioral
+artifacts; and keeps rubric-scored evaluation evidence tied to one artifact
+hash. It complements `skill-creator` and `writing-skills` and requires only
+Python, not a Swift toolchain.
 
 ### `choosing-swift-design-patterns`
 
@@ -204,14 +215,51 @@ npx skills add dannys42/agent-skills \
 Use the `<agent>` values in the table above for Cursor, Gemini CLI, GitHub
 Copilot, OpenCode, Roo Code, Zoo Code, ZCode, and Zed.
 
+## Install `optimizing-skill-development`
+
+Canonical source:
+[plugins/skill-development-optimizer/skills/optimizing-skill-development](https://github.com/dannys42/agent-skills/tree/main/plugins/skill-development-optimizer/skills/optimizing-skill-development)
+
+### Claude Code
+
+Install the complete `skill-development-optimizer` plugin:
+
+```bash
+claude plugin marketplace add dannys42/agent-skills
+claude plugin install skill-development-optimizer@danny-sung-agent-skills
+```
+
+### Codex
+
+Install the complete `skill-development-optimizer` plugin:
+
+```bash
+codex plugin marketplace add dannys42/agent-skills
+codex plugin add skill-development-optimizer@danny-sung-agent-skills
+```
+
+### Other agents
+
+Install the individual skill with the open `skills` installer:
+
+```bash
+npx skills add dannys42/agent-skills \
+  --skill optimizing-skill-development \
+  --global \
+  --agent codex
+```
+
+Replace `codex` with another supported agent value when needed.
+
 ## Marketplace adapters and open registries
 
 - Claude marketplace: `.claude-plugin/marketplace.json`
 - Codex marketplace: `.agents/plugins/marketplace.json`
 - Cursor marketplace: `.cursor-plugin/marketplace.json`
 - Gemini extension metadata:
-  `plugins/swift-testing/gemini-extension.json` and
-  `plugins/swift-design-patterns/gemini-extension.json`
+  `plugins/swift-testing/gemini-extension.json`,
+  `plugins/swift-design-patterns/gemini-extension.json`, and
+  `plugins/skill-development-optimizer/gemini-extension.json`
 - Ready for skills.sh, SkillsMD, and mdskills.ai indexing
 
 Direct installation does not require marketplace submission. These files are
