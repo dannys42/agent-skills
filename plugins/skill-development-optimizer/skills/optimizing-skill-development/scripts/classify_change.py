@@ -306,7 +306,11 @@ def collect_git_paths(repository: Path, base: str) -> tuple[str, ...]:
 
 
 def render_json(classification: Classification) -> str:
-    return json.dumps(asdict(classification), indent=2, sort_keys=True)
+    return json.dumps(
+        {"schema_version": 1, **asdict(classification)},
+        indent=2,
+        sort_keys=True,
+    )
 
 
 def render_human(classification: Classification) -> str:

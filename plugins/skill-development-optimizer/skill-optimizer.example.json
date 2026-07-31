@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "target": "plugins/skill-development-optimizer/skills/optimizing-skill-development",
+  "distributable": {
+    "include": [
+      "SKILL.md",
+      "agents/**/*.yaml",
+      "references/**/*.md",
+      "scripts/**/*.py"
+    ],
+    "exclude": [
+      "**/__pycache__/**",
+      "**/*.pyc"
+    ]
+  },
+  "commands": {
+    "optimizer-tests": {
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "plugins/skill-development-optimizer/tests",
+        "-v"
+      ],
+      "cwd": ".",
+      "timeout_seconds": 120,
+      "max_output_bytes": 1048576,
+      "network": false,
+      "timing_kind": "work"
+    }
+  },
+  "profiles": {
+    "quick": [
+      "optimizer-tests"
+    ],
+    "content": [
+      "optimizer-tests"
+    ],
+    "behavior": [
+      "optimizer-tests"
+    ],
+    "importer": [
+      "optimizer-tests"
+    ],
+    "full": [
+      "optimizer-tests"
+    ]
+  },
+  "evaluations": {
+    "cases": "plugins/skill-development-optimizer/tests/evaluation-cases.json",
+    "rubric": "plugins/skill-development-optimizer/tests/evaluation-rubric.json"
+  }
+}

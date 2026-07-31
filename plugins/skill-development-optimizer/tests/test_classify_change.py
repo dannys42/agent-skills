@@ -449,6 +449,7 @@ class ClassifierCliTests(unittest.TestCase):
         self.assertEqual(
             json.loads(first.stdout),
             {
+                "schema_version": 1,
                 "categories": ["behavior"],
                 "paths": ["skills/example/SKILL.md"],
                 "profile": "behavior",

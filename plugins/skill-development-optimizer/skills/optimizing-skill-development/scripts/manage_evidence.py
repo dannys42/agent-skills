@@ -26,6 +26,7 @@ evidence_store = _load_sibling("evidence_store")
 
 EvidenceError = evidence_schema.EvidenceError
 initialize_evidence = evidence_store.initialize_evidence
+complete_evidence = evidence_store.complete_evidence
 validate_evidence = evidence_store.validate_evidence
 summarize = evidence_schema.summarize
 
@@ -47,7 +48,13 @@ def _print_json(value):
 
 def _print_diagnostics(diagnostics, as_json):
     if as_json:
-        _print_json({"diagnostics": diagnostics, "valid": not diagnostics})
+        _print_json(
+            {
+                "schema_version": 1,
+                "diagnostics": diagnostics,
+                "valid": not diagnostics,
+            }
+        )
     elif diagnostics:
         sys.stdout.write("".join(f"{item}\n" for item in diagnostics))
     else:
@@ -65,6 +72,23 @@ def main(argv=None):
     init_parser.add_argument("rubric")
     init_parser.add_argument("output")
     init_parser.add_argument("--cohort", required=True)
+    complete_parser = commands.add_parser(
+        "complete",
+        description=(
+            "Publish completion text in a new immutable generation. Completion "
+            "runs identify cases without supplying run ids; managed draft run "
+            "ids are preserved."
+        ),
+    )
+    complete_parser.add_argument("evidence")
+    complete_parser.add_argument("cases")
+    complete_parser.add_argument("rubric")
+    complete_parser.add_argument(
+        "completion",
+        help=(
+            "schema-1 JSON with exact keys schema_version, cohort_id, and runs"
+        ),
+    )
     verify_parser = commands.add_parser("verify")
     verify_parser.add_argument("evidence")
     verify_parser.add_argument("cases")
@@ -85,7 +109,15 @@ def main(argv=None):
     paths = [
         value
         for name, value in vars(arguments).items()
-        if name in ("artifact", "cases", "rubric", "output", "evidence")
+        if name
+        in (
+            "artifact",
+            "cases",
+            "rubric",
+            "output",
+            "evidence",
+            "completion",
+        )
     ]
     try:
         if arguments.command == "init":
@@ -95,6 +127,15 @@ def main(argv=None):
                 Path(arguments.rubric),
                 Path(arguments.output),
                 arguments.cohort,
+            )
+            _print_json(result)
+            return 0
+        if arguments.command == "complete":
+            result = complete_evidence(
+                Path(arguments.evidence),
+                Path(arguments.cases),
+                Path(arguments.rubric),
+                Path(arguments.completion),
             )
             _print_json(result)
             return 0
@@ -119,7 +160,7 @@ def main(argv=None):
             return 0
         result = summarize(evidence, rubric)
         if arguments.as_json:
-            _print_json(result)
+            _print_json({"schema_version": 1, **result})
         else:
             sys.stdout.write(
                 f"passed: {result['passed']}\ntotal: {result['total']}\n"

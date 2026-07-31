@@ -1840,6 +1840,539 @@ raise SystemExit(manage_evidence.main([
                     )
 
 
+class CompletionTests(unittest.TestCase):
+    def setUp(self):
+        self.temporary_directory = tempfile.TemporaryDirectory()
+        self.root = Path(self.temporary_directory.name).resolve()
+        self.artifact = self.root / "artifact.json"
+        self.cases = self.root / "cases.json"
+        self.rubric = self.root / "rubric.json"
+        self.output = self.root / "evidence" / "evidence.json"
+        self.completion = self.root / "completion.json"
+        self.artifact.write_text(
+            json.dumps(artifact_manifest(), sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+        self.cases.write_text(
+            json.dumps(list(CASES), sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+        self.rubric.write_text(
+            json.dumps(list(RUBRIC), sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+        self.draft = manage_evidence.initialize_evidence(
+            self.artifact,
+            self.cases,
+            self.rubric,
+            self.output,
+            "final",
+        )
+
+    def tearDown(self):
+        self.temporary_directory.cleanup()
+
+    def completion_document(self, **changes):
+        value = {
+            "schema_version": 1,
+            "cohort_id": "final",
+            "runs": [
+                {
+                    "case_id": "case-1",
+                    "response": "Use the quick profile.\n",
+                    "files_read": "SKILL.md\nreferences/guide.md\n",
+                    "files_read_kind": "agent-reported",
+                    "rubric": {
+                        "correct_profile": True,
+                        "mandatory_checks_present": True,
+                    },
+                }
+            ],
+        }
+        value.update(changes)
+        return value
+
+    def write_completion(self, value=None):
+        self.completion.write_text(
+            json.dumps(
+                self.completion_document() if value is None else value,
+                sort_keys=True,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+    def generation_path(self, evidence):
+        relative = evidence["artifact"]["manifest"]
+        return self.output.parent / Path(relative).parent
+
+    def generation_snapshot(self, generation):
+        return {
+            path.relative_to(generation).as_posix(): path.read_bytes()
+            for path in sorted(generation.rglob("*"))
+            if path.is_file()
+        }
+
+    def test_complete_publishes_new_immutable_generation_and_verifies(self):
+        self.write_completion()
+        draft_generation = self.generation_path(self.draft)
+        draft_snapshot = self.generation_snapshot(draft_generation)
+
+        completed = manage_evidence.complete_evidence(
+            self.output,
+            self.cases,
+            self.rubric,
+            self.completion,
+        )
+
+        completed_generation = self.generation_path(completed)
+        self.assertNotEqual(completed_generation, draft_generation)
+        self.assertEqual(
+            self.generation_snapshot(draft_generation),
+            draft_snapshot,
+        )
+        self.assertEqual(
+            manage_evidence.validate_evidence(
+                self.output.parent,
+                completed,
+                CASES,
+                RUBRIC,
+            ),
+            [],
+        )
+        self.assertEqual(
+            manage_evidence.summarize(completed, RUBRIC),
+            {"passed": 2, "total": 2},
+        )
+        run = completed["cohorts"][0]["runs"][0]
+        self.assertEqual(run["id"], self.draft["cohorts"][0]["runs"][0]["id"])
+        self.assertEqual(
+            (self.output.parent / run["response"]).read_bytes(),
+            b"Use the quick profile.\n",
+        )
+        self.assertEqual(
+            (self.output.parent / run["files_read"]).read_bytes(),
+            b"SKILL.md\nreferences/guide.md\n",
+        )
+        self.assertEqual(
+            completed["artifact"]["digest"],
+            self.draft["artifact"]["digest"],
+        )
+
+    def test_completion_rejects_missing_duplicate_unknown_and_malformed_runs(self):
+        run = self.completion_document()["runs"][0]
+        invalid_values = [
+            {**self.completion_document(), "runs": []},
+            {**self.completion_document(), "runs": [run, run]},
+            {
+                **self.completion_document(),
+                "runs": [{**run, "case_id": "unknown"}],
+            },
+            {
+                **self.completion_document(),
+                "runs": [{**run, "response": ""}],
+            },
+            {
+                **self.completion_document(),
+                "runs": [{**run, "files_read": ""}],
+            },
+            {
+                **self.completion_document(),
+                "runs": [{**run, "files_read_kind": "private-path"}],
+            },
+            {
+                **self.completion_document(),
+                "runs": [{**run, "rubric": {"correct_profile": True}}],
+            },
+            {
+                **self.completion_document(),
+                "runs": [
+                    {
+                        **run,
+                        "rubric": {
+                            "correct_profile": True,
+                            "mandatory_checks_present": 1,
+                        },
+                    }
+                ],
+            },
+            {**self.completion_document(), "schema_version": True},
+        ]
+        original = self.output.read_bytes()
+
+        for index, value in enumerate(invalid_values):
+            with self.subTest(index=index):
+                self.write_completion(value)
+                with self.assertRaises(manage_evidence.EvidenceError):
+                    manage_evidence.complete_evidence(
+                        self.output,
+                        self.cases,
+                        self.rubric,
+                        self.completion,
+                    )
+                self.assertEqual(self.output.read_bytes(), original)
+
+    def test_completion_rejects_duplicate_json_keys_invalid_utf8_and_extra_paths(self):
+        invalid_bytes = [
+            (
+                b'{"schema_version":1,"schema_version":1,'
+                b'"cohort_id":"final","runs":[]}'
+            ),
+            b"\xff",
+            (
+                b'{"schema_version":1,"cohort_id":"final","runs":[],'
+                b'"evidence_path":".evidence-data/private"}'
+            ),
+        ]
+        original = self.output.read_bytes()
+
+        for content in invalid_bytes:
+            with self.subTest(content=content):
+                self.completion.write_bytes(content)
+                with self.assertRaises(manage_evidence.EvidenceError):
+                    manage_evidence.complete_evidence(
+                        self.output,
+                        self.cases,
+                        self.rubric,
+                        self.completion,
+                    )
+                self.assertEqual(self.output.read_bytes(), original)
+
+    def test_completion_requires_matching_draft_cohort_and_rejects_recompletion(self):
+        self.write_completion(
+            self.completion_document(cohort_id="different")
+        )
+        with self.assertRaisesRegex(manage_evidence.EvidenceError, "cohort"):
+            manage_evidence.complete_evidence(
+                self.output,
+                self.cases,
+                self.rubric,
+                self.completion,
+            )
+
+        self.write_completion()
+        completed = manage_evidence.complete_evidence(
+            self.output,
+            self.cases,
+            self.rubric,
+            self.completion,
+        )
+        with self.assertRaisesRegex(manage_evidence.EvidenceError, "draft"):
+            manage_evidence.complete_evidence(
+                self.output,
+                self.cases,
+                self.rubric,
+                self.completion,
+            )
+        self.assertEqual(
+            json.loads(self.output.read_text(encoding="utf-8")),
+            completed,
+        )
+
+    def test_completion_rejects_changed_cases_rubric_and_artifact_digest(self):
+        self.write_completion()
+        original = self.output.read_bytes()
+        changed_cases = self.root / "changed-cases.json"
+        changed_cases.write_text(
+            json.dumps([{"id": "case-1", "prompt": "Changed prompt."}]),
+            encoding="utf-8",
+        )
+        changed_rubric = self.root / "changed-rubric.json"
+        changed_rubric.write_text(
+            json.dumps(["correct_profile", "different_check"]),
+            encoding="utf-8",
+        )
+
+        for cases, rubric in (
+            (changed_cases, self.rubric),
+            (self.cases, changed_rubric),
+        ):
+            with self.subTest(cases=cases.name, rubric=rubric.name):
+                with self.assertRaises(manage_evidence.EvidenceError):
+                    manage_evidence.complete_evidence(
+                        self.output,
+                        cases,
+                        rubric,
+                        self.completion,
+                    )
+                self.assertEqual(self.output.read_bytes(), original)
+
+        corrupted = json.loads(original)
+        corrupted["artifact"]["digest"] = "b" * 64
+        self.output.write_text(json.dumps(corrupted), encoding="utf-8")
+        with self.assertRaisesRegex(manage_evidence.EvidenceError, "artifact"):
+            manage_evidence.complete_evidence(
+                self.output,
+                self.cases,
+                self.rubric,
+                self.completion,
+            )
+
+    def run_crashing_completion(self, crash_point):
+        program = r"""
+import os
+import sys
+from pathlib import Path
+sys.path.insert(0, sys.argv[1])
+import manage_evidence
+real_replace = manage_evidence.evidence_store.os.replace
+real_fsync = manage_evidence.evidence_store.os.fsync
+point = sys.argv[6]
+def crashing_replace(source, destination, *args, **kwargs):
+    result = real_replace(source, destination, *args, **kwargs)
+    generation_commit = (
+        isinstance(destination, str)
+        and destination.startswith("final-")
+        and kwargs.get("dst_dir_fd") is not None
+    )
+    evidence_commit = (
+        isinstance(source, str)
+        and source.startswith(".evidence.json.")
+        and destination == "evidence.json"
+    )
+    if (point == "generation" and generation_commit) or (
+        point == "evidence" and evidence_commit
+    ):
+        os._exit(91)
+    return result
+manage_evidence.evidence_store.os.replace = crashing_replace
+def crashing_fsync(descriptor):
+    result = real_fsync(descriptor)
+    try:
+        names = set(os.listdir(descriptor))
+    except OSError:
+        names = set()
+    staged = {
+        "artifact.json",
+        "evidence.json",
+        "evidence.previous",
+        "generation.json",
+        "runs",
+    }.issubset(names)
+    commit = any(
+        name.startswith(".evidence.json.") and name.endswith(".commit")
+        for name in names
+    )
+    if (point == "stage-fsync" and staged) or (
+        point == "commit-fsync" and commit
+    ):
+        os._exit(92)
+    return result
+manage_evidence.evidence_store.os.fsync = crashing_fsync
+manage_evidence.complete_evidence(
+    Path(sys.argv[2]),
+    Path(sys.argv[3]),
+    Path(sys.argv[4]),
+    Path(sys.argv[5]),
+)
+"""
+        return subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                program,
+                str(SCRIPTS_ROOT),
+                str(self.output),
+                str(self.cases),
+                str(self.rubric),
+                str(self.completion),
+                crash_point,
+            ],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+
+    def test_crash_after_stage_fsync_reclaims_owned_stage_on_retry(self):
+        self.write_completion()
+        draft_bytes = self.output.read_bytes()
+
+        crashed = self.run_crashing_completion("stage-fsync")
+
+        self.assertEqual(crashed.returncode, 92)
+        self.assertEqual(self.output.read_bytes(), draft_bytes)
+        manage_evidence.complete_evidence(
+            self.output,
+            self.cases,
+            self.rubric,
+            self.completion,
+        )
+        namespace = self.generation_path(
+            json.loads(self.output.read_text(encoding="utf-8"))
+        ).parent
+        self.assertFalse(
+            any(path.name.endswith(".stage") for path in namespace.iterdir())
+        )
+
+    def test_crash_after_commit_fsync_reclaims_owned_commit_on_retry(self):
+        self.write_completion()
+        draft_bytes = self.output.read_bytes()
+
+        crashed = self.run_crashing_completion("commit-fsync")
+
+        self.assertEqual(crashed.returncode, 92)
+        self.assertEqual(self.output.read_bytes(), draft_bytes)
+        manage_evidence.complete_evidence(
+            self.output,
+            self.cases,
+            self.rubric,
+            self.completion,
+        )
+        namespace = self.generation_path(
+            json.loads(self.output.read_text(encoding="utf-8"))
+        ).parent
+        self.assertFalse(
+            any(path.name.endswith(".commit") for path in namespace.iterdir())
+        )
+
+    def test_retry_never_deletes_unowned_stage_or_commit_names(self):
+        self.write_completion()
+        namespace = self.generation_path(self.draft).parent
+        unowned_stage = namespace / (
+            ".evidence.json." + ("a" * 32) + ".stage"
+        )
+        unowned_stage.mkdir(mode=0o700)
+        (unowned_stage / "transaction.json").write_text(
+            "{}\n",
+            encoding="utf-8",
+        )
+        (unowned_stage / "private.txt").write_text(
+            "unowned\n",
+            encoding="utf-8",
+        )
+        unowned_commit = namespace / (
+            ".evidence.json." + ("b" * 32) + ".commit"
+        )
+        unowned_commit.write_text("{}\n", encoding="utf-8")
+
+        manage_evidence.complete_evidence(
+            self.output,
+            self.cases,
+            self.rubric,
+            self.completion,
+        )
+
+        self.assertEqual(
+            (unowned_stage / "private.txt").read_text(encoding="utf-8"),
+            "unowned\n",
+        )
+        self.assertEqual(
+            unowned_commit.read_text(encoding="utf-8"),
+            "{}\n",
+        )
+
+    def test_crash_before_pointer_keeps_draft_and_recovers_completed_orphan(self):
+        self.write_completion()
+        draft_bytes = self.output.read_bytes()
+
+        crashed = self.run_crashing_completion("generation")
+
+        self.assertEqual(crashed.returncode, 91)
+        self.assertEqual(self.output.read_bytes(), draft_bytes)
+        completed = manage_evidence.complete_evidence(
+            self.output,
+            self.cases,
+            self.rubric,
+            self.completion,
+        )
+        self.assertEqual(
+            manage_evidence.validate_evidence(
+                self.output.parent,
+                completed,
+                CASES,
+                RUBRIC,
+            ),
+            [],
+        )
+        namespace = self.generation_path(completed).parent
+        referenced = {
+            Path(completed["artifact"]["manifest"]).parts[2],
+            Path(self.draft["artifact"]["manifest"]).parts[2],
+        }
+        generations = {
+            path.name for path in namespace.iterdir() if path.name != ".lock"
+        }
+        self.assertEqual(generations, referenced)
+
+    def test_crash_after_pointer_leaves_verified_completed_generation(self):
+        self.write_completion()
+
+        crashed = self.run_crashing_completion("evidence")
+
+        self.assertEqual(crashed.returncode, 91)
+        completed = json.loads(self.output.read_text(encoding="utf-8"))
+        self.assertEqual(
+            manage_evidence.validate_evidence(
+                self.output.parent,
+                completed,
+                CASES,
+                RUBRIC,
+            ),
+            [],
+        )
+        self.assertEqual(
+            manage_evidence.summarize(completed, RUBRIC),
+            {"passed": 2, "total": 2},
+        )
+
+    def test_concurrent_completion_serializes_to_exactly_one_success(self):
+        self.write_completion()
+
+        def complete():
+            try:
+                manage_evidence.complete_evidence(
+                    self.output,
+                    self.cases,
+                    self.rubric,
+                    self.completion,
+                )
+                return "ok"
+            except manage_evidence.EvidenceError as error:
+                return str(error)
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+            results = list(executor.map(lambda _: complete(), range(2)))
+
+        self.assertEqual(results.count("ok"), 1)
+        self.assertEqual(sum("draft" in result for result in results), 1)
+
+    def test_complete_cli_processes_serialize_and_do_not_leak_private_paths(self):
+        self.write_completion()
+        command = [
+            sys.executable,
+            str(SCRIPTS_ROOT / "manage_evidence.py"),
+            "complete",
+            str(self.output),
+            str(self.cases),
+            str(self.rubric),
+            str(self.completion),
+        ]
+        first = subprocess.Popen(
+            command,
+            cwd=self.root,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        second = subprocess.Popen(
+            command,
+            cwd=self.root,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        first_output = first.communicate()
+        second_output = second.communicate()
+
+        self.assertEqual(sorted((first.returncode, second.returncode)), [0, 2])
+        combined_stdout = first_output[0] + second_output[0]
+        combined_stderr = first_output[1] + second_output[1]
+        successful = json.loads(combined_stdout)
+        self.assertEqual(successful["schema_version"], 1)
+        self.assertIn("draft", combined_stderr)
+        self.assertNotIn(str(self.root), combined_stdout + combined_stderr)
+
+
 class CommandLineTests(unittest.TestCase):
     def setUp(self):
         self.temporary_directory = tempfile.TemporaryDirectory()
@@ -1872,7 +2405,10 @@ class CommandLineTests(unittest.TestCase):
         human = self.run_cli("verify", self.evidence, self.cases, self.rubric)
         machine = self.run_cli("verify", self.evidence, self.cases, self.rubric, "--json")
         self.assertEqual((human.returncode, human.stdout), (0, "evidence verified\n"))
-        self.assertEqual(json.loads(machine.stdout), {"diagnostics": [], "valid": True})
+        self.assertEqual(
+            json.loads(machine.stdout),
+            {"schema_version": 1, "diagnostics": [], "valid": True},
+        )
 
         evidence = valid_evidence()
         evidence["cohorts"][0]["artifact_digest"] = "b" * 64
@@ -1899,7 +2435,10 @@ class CommandLineTests(unittest.TestCase):
             "--json",
         )
         self.assertEqual((human.returncode, human.stdout), (0, "passed: 2\ntotal: 2\n"))
-        self.assertEqual(json.loads(machine.stdout), {"passed": 2, "total": 2})
+        self.assertEqual(
+            json.loads(machine.stdout),
+            {"schema_version": 1, "passed": 2, "total": 2},
+        )
 
     def test_summarize_incomplete_or_missing_file_returns_diagnostic_exit_one(self):
         draft = valid_evidence()
@@ -2028,7 +2567,10 @@ class CommandLineTests(unittest.TestCase):
                 ]
             )
         self.assertEqual(status, 0)
-        self.assertEqual(json.loads(stdout.getvalue()), {"passed": 2, "total": 2})
+        self.assertEqual(
+            json.loads(stdout.getvalue()),
+            {"schema_version": 1, "passed": 2, "total": 2},
+        )
 
 
 if __name__ == "__main__":

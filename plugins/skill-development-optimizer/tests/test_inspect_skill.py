@@ -105,6 +105,7 @@ class SkillInventoryTests(unittest.TestCase):
         self.assertEqual(
             inventory,
             {
+                "schema_version": 1,
                 "target": "skills/example",
                 "skill": {
                     "name": "example",

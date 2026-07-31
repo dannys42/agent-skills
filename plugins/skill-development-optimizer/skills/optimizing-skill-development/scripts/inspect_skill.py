@@ -212,6 +212,7 @@ def inspect(config: OptimizerConfig) -> dict[str, object]:
     else:
         tests_root = target_root.parent / "tests"
     return {
+        "schema_version": 1,
         "target": _repository_relative(target_root, repository_root),
         "skill": {
             "name": target_root.name,

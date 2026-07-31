@@ -38,6 +38,14 @@ _THREAD_LOCKS_GUARD = threading.Lock()
 _GENERATION_NAME = re.compile(
     r"[A-Za-z0-9][A-Za-z0-9._-]*-[0-9a-f]{32}\Z"
 )
+_TRANSACTION_TOKEN = re.compile(r"[0-9a-f]{32}\Z")
+_TRANSACTION_KEYS = {
+    "schema_version",
+    "output_key",
+    "stage_name",
+    "generation_name",
+    "run_ids",
+}
 
 
 def _directory_flags():
@@ -326,6 +334,7 @@ def validate_evidence(
     rubric_items,
     *,
     _root_descriptor=None,
+    allow_drafts=False,
 ):
     diagnostics = []
     if not isinstance(evidence, dict):
@@ -451,9 +460,10 @@ def validate_evidence(
                             f"run '{display_run}' prompt does not match declared case prompt"
                         )
                 if is_draft:
-                    diagnostics.append(
-                        f"run '{display_run}' is incomplete: missing response, files_read, files_read_kind, rubric"
-                    )
+                    if not allow_drafts:
+                        diagnostics.append(
+                            f"run '{display_run}' is incomplete: missing response, files_read, files_read_kind, rubric"
+                        )
                     continue
                 if "response" in run and root_descriptor is not None:
                     _append_file_diagnostic(
@@ -591,7 +601,13 @@ def _cohort_generation(cohort, output_key):
     return next(iter(generations))
 
 
-def _validate_owned_existing(root, evidence, output_key):
+def _validate_owned_existing(
+    root,
+    evidence,
+    output_key,
+    *,
+    allow_draft_headline=False,
+):
     if not isinstance(evidence, dict) or set(evidence) != _EVIDENCE_KEYS:
         raise EvidenceError("existing evidence has unexpected keys")
     cohorts = evidence.get("cohorts")
@@ -635,6 +651,10 @@ def _validate_owned_existing(root, evidence, output_key):
                 marker["cases"],
                 marker["rubric"],
                 _root_descriptor=root_descriptor,
+                allow_drafts=(
+                    allow_draft_headline
+                    and cohort.get("status") == "headline"
+                ),
             )
             if diagnostics:
                 raise EvidenceError(
@@ -669,7 +689,7 @@ def _validate_owned_existing(root, evidence, output_key):
     _schema.validate_structure(
         evidence,
         headline_marker["rubric"],
-        allow_drafts=False,
+        allow_drafts=allow_draft_headline,
     )
     return cohorts
 
@@ -931,10 +951,15 @@ def _cleanup_stage(
                 except (FileNotFoundError, EvidenceError, OSError):
                     continue
                 try:
-                    try:
-                        os.unlink("prompt.md", dir_fd=run_descriptor)
-                    except OSError:
-                        pass
+                    for filename in (
+                        "prompt.md",
+                        "response.md",
+                        "files-read.txt",
+                    ):
+                        try:
+                            os.unlink(filename, dir_fd=run_descriptor)
+                        except OSError:
+                            pass
                 finally:
                     os.close(run_descriptor)
                 try:
@@ -953,6 +978,7 @@ def _cleanup_stage(
         "evidence.json",
         "artifact.previous",
         "evidence.previous",
+        "transaction.json",
     ):
         try:
             os.unlink(name, dir_fd=stage_descriptor)
@@ -968,6 +994,197 @@ def _cleanup_stage(
         )
     except OSError:
         pass
+
+
+def _transaction_marker(
+    output_key,
+    stage_name,
+    generation_name,
+    run_ids,
+):
+    return {
+        "schema_version": 1,
+        "output_key": output_key,
+        "stage_name": stage_name,
+        "generation_name": generation_name,
+        "run_ids": list(run_ids),
+    }
+
+
+def _validate_transaction_marker(value, output_key, stage_name):
+    if not isinstance(value, dict) or set(value) != _TRANSACTION_KEYS:
+        raise EvidenceError("transaction marker has unexpected keys")
+    if type(value.get("schema_version")) is not int or value["schema_version"] != 1:
+        raise EvidenceError("transaction marker schema_version must be 1")
+    if value.get("output_key") != output_key:
+        raise EvidenceError("transaction marker output key does not match")
+    if value.get("stage_name") != stage_name:
+        raise EvidenceError("transaction marker stage name does not match")
+    generation_name = value.get("generation_name")
+    if (
+        not isinstance(generation_name, str)
+        or _GENERATION_NAME.fullmatch(generation_name) is None
+    ):
+        raise EvidenceError("transaction marker generation name is invalid")
+    run_ids = value.get("run_ids")
+    if (
+        not isinstance(run_ids, list)
+        or not run_ids
+        or any(not _is_safe_id(run_id) for run_id in run_ids)
+        or len(set(run_ids)) != len(run_ids)
+    ):
+        raise EvidenceError("transaction marker run ids are invalid")
+    return generation_name, run_ids
+
+
+def _transaction_name_matches(name, output_name, suffix):
+    prefix = f".{output_name}."
+    if not name.startswith(prefix) or not name.endswith(suffix):
+        return False
+    token = name[len(prefix) : -len(suffix)]
+    return _TRANSACTION_TOKEN.fullmatch(token) is not None
+
+
+def _owned_stale_stage(
+    namespace_descriptor,
+    name,
+    output_key,
+):
+    descriptor, _, identity = _open_child_directory(
+        namespace_descriptor,
+        name,
+    )
+    try:
+        if stat.S_IMODE(identity.st_mode) & 0o077:
+            raise EvidenceError("stale stage is not private")
+        marker_metadata = os.stat(
+            "transaction.json",
+            dir_fd=descriptor,
+            follow_symlinks=False,
+        )
+        if (
+            not stat.S_ISREG(marker_metadata.st_mode)
+            or marker_metadata.st_nlink != 1
+        ):
+            raise EvidenceError("stale stage marker is not private")
+        marker = _decode_json(
+            _read_anchored(
+                descriptor,
+                "transaction.json",
+                "stale stage marker",
+            ),
+            "stale stage marker",
+        )
+        _, run_ids = _validate_transaction_marker(
+            marker,
+            output_key,
+            name,
+        )
+        allowed = {
+            "artifact.json",
+            "evidence.json",
+            "evidence.previous",
+            "generation.json",
+            "runs",
+            "transaction.json",
+        }
+        entries = set(os.listdir(descriptor))
+        if entries - allowed:
+            raise EvidenceError("stale stage contains unknown entries")
+        if "runs" in entries:
+            runs_descriptor, _, _ = _open_child_directory(descriptor, "runs")
+            try:
+                run_entries = set(os.listdir(runs_descriptor))
+                if run_entries - set(run_ids):
+                    raise EvidenceError("stale stage contains unknown runs")
+                for run_id in run_entries:
+                    run_descriptor, _, _ = _open_child_directory(
+                        runs_descriptor,
+                        run_id,
+                    )
+                    try:
+                        if set(os.listdir(run_descriptor)) - {
+                            "prompt.md",
+                            "response.md",
+                            "files-read.txt",
+                        }:
+                            raise EvidenceError(
+                                "stale stage run contains unknown entries"
+                            )
+                    finally:
+                        os.close(run_descriptor)
+            finally:
+                os.close(runs_descriptor)
+        return descriptor, identity, run_ids
+    except BaseException:
+        os.close(descriptor)
+        raise
+
+
+def _remove_owned_stale_transactions(
+    namespace_descriptor,
+    output_parent,
+    existing,
+    output_key,
+    output_name,
+):
+    names = os.listdir(namespace_descriptor)
+    for name in names:
+        if not _transaction_name_matches(name, output_name, ".stage"):
+            continue
+        try:
+            descriptor, identity, run_ids = _owned_stale_stage(
+                namespace_descriptor,
+                name,
+                output_key,
+            )
+        except (EvidenceError, OSError, NotImplementedError, TypeError):
+            continue
+        _cleanup_stage(
+            namespace_descriptor,
+            name,
+            descriptor,
+            identity,
+            run_ids,
+        )
+
+    for name in names:
+        if not _transaction_name_matches(name, output_name, ".commit"):
+            continue
+        try:
+            metadata = os.stat(
+                name,
+                dir_fd=namespace_descriptor,
+                follow_symlinks=False,
+            )
+            if not stat.S_ISREG(metadata.st_mode) or metadata.st_nlink != 1:
+                continue
+            content = _read_anchored(
+                namespace_descriptor,
+                name,
+                "stale evidence commit",
+            )
+            candidate = _decode_json(content, "stale evidence commit")
+            _validate_owned_existing(
+                output_parent,
+                candidate,
+                output_key,
+            )
+            if (
+                candidate.get("headline_cohort")
+                != existing.get("headline_cohort")
+                or candidate.get("artifact", {}).get("digest")
+                != existing.get("artifact", {}).get("digest")
+            ):
+                continue
+            _unlink_if_identity(
+                namespace_descriptor,
+                name,
+                metadata,
+            )
+        except (EvidenceError, OSError, NotImplementedError, TypeError):
+            continue
+    os.fsync(namespace_descriptor)
 
 
 def _referenced_generations(evidence):
@@ -1034,13 +1251,27 @@ def _owned_orphan_run_ids(descriptor, output_key, generation_name):
         marker["rubric"],
         allow_drafts=True,
     )
+    expected_manifest = (
+        f".evidence-data/{output_key}/{generation_name}/artifact.json"
+    )
+    if orphan["artifact"] != {
+        "algorithm": marker["artifact"]["algorithm"],
+        "digest": marker["artifact"]["digest"],
+        "manifest": expected_manifest,
+    }:
+        raise EvidenceError("orphan generation artifact pointer is invalid")
     if orphan["headline_cohort"] != marker["cohort_id"]:
         raise EvidenceError("orphan generation headline does not match marker")
     headline = next(cohort for cohort in cohorts if cohort["status"] == "headline")
-    if any(
-        set(run) != _DRAFT_RUN_KEYS
-        for run in headline["runs"]
-    ) or _cohort_generation(headline, output_key) != generation_name:
+    run_key_sets = {frozenset(run) for run in headline["runs"]}
+    if (
+        run_key_sets
+        not in (
+            {frozenset(_DRAFT_RUN_KEYS)},
+            {frozenset(_RUN_KEYS)},
+        )
+        or _cohort_generation(headline, output_key) != generation_name
+    ):
         raise EvidenceError("orphan generation contains nonlocal managed runs")
     allowed = {
         "artifact.json",
@@ -1048,24 +1279,78 @@ def _owned_orphan_run_ids(descriptor, output_key, generation_name):
         "evidence.previous",
         "generation.json",
         "runs",
+        "transaction.json",
     }
-    if set(os.listdir(descriptor)) - allowed:
+    generation_entries = set(os.listdir(descriptor))
+    if generation_entries - allowed:
         raise EvidenceError("orphan generation contains unknown entries")
     runs_descriptor, _, _ = _open_child_directory(descriptor, "runs")
     try:
         expected = {run["id"] for run in headline["runs"]}
+        if "transaction.json" in generation_entries:
+            transaction = _decode_json(
+                _read_anchored(
+                    descriptor,
+                    "transaction.json",
+                    "orphan transaction marker",
+                ),
+                "orphan transaction marker",
+            )
+            owned_generation, transaction_run_ids = (
+                _validate_transaction_marker(
+                    transaction,
+                    output_key,
+                    transaction.get("stage_name"),
+                )
+            )
+            if (
+                owned_generation != generation_name
+                or set(transaction_run_ids) != expected
+            ):
+                raise EvidenceError("orphan transaction marker is invalid")
+        case_by_id = {case["id"]: case for case in marker["cases"]}
         if set(os.listdir(runs_descriptor)) != expected:
             raise EvidenceError("orphan generation run entries are malformed")
         for run_id in expected:
             run_descriptor, _, _ = _open_child_directory(runs_descriptor, run_id)
             try:
-                if os.listdir(run_descriptor) != ["prompt.md"]:
+                run = next(
+                    item for item in headline["runs"] if item["id"] == run_id
+                )
+                expected_files = (
+                    {"prompt.md"}
+                    if set(run) == _DRAFT_RUN_KEYS
+                    else {"prompt.md", "response.md", "files-read.txt"}
+                )
+                if set(os.listdir(run_descriptor)) != expected_files:
                     raise EvidenceError("orphan generation run contains unknown entries")
-                _read_anchored(
+                prompt = _read_anchored(
                     run_descriptor,
                     "prompt.md",
                     "orphan generation prompt",
                 )
+                case = case_by_id.get(run["case_id"])
+                if case is None:
+                    raise EvidenceError("orphan generation case id is unknown")
+                if prompt != (case["prompt"] + "\n").encode("utf-8"):
+                    raise EvidenceError("orphan generation prompt is invalid")
+                if set(run) == _RUN_KEYS:
+                    for filename in ("response.md", "files-read.txt"):
+                        content = _read_anchored(
+                            run_descriptor,
+                            filename,
+                            f"orphan generation {filename}",
+                        )
+                        if not content:
+                            raise EvidenceError(
+                                f"orphan generation {filename} is empty"
+                            )
+                        try:
+                            content.decode("utf-8")
+                        except UnicodeDecodeError as error:
+                            raise EvidenceError(
+                                f"orphan generation {filename} is invalid UTF-8"
+                            ) from error
             finally:
                 os.close(run_descriptor)
     finally:
@@ -1542,6 +1827,529 @@ def initialize_evidence(
                     ),
                 )
                 parent_process_lock = None
+            if namespace_descriptor is not None:
+                attempt_cleanup(
+                    "namespace descriptor close",
+                    lambda: os.close(namespace_descriptor),
+                )
+            if data_descriptor is not None:
+                attempt_cleanup(
+                    "data descriptor close",
+                    lambda: os.close(data_descriptor),
+                )
+            if chain:
+                attempt_cleanup(
+                    "output directory chain close",
+                    lambda: _close_directory_chain(chain),
+                )
+            elif standalone_parent_descriptor is not None:
+                attempt_cleanup(
+                    "output parent descriptor close",
+                    lambda: os.close(standalone_parent_descriptor),
+                )
+
+        cleanup_diagnostics = list(cleanup_failures)
+        if recovery_names:
+            cleanup_diagnostics.append(
+                "prior evidence preserved as " + ", ".join(recovery_names)
+            )
+        if primary_error is not None:
+            if cleanup_diagnostics and hasattr(primary_error, "add_note"):
+                primary_error.add_note(
+                    "evidence cleanup failed: " + "; ".join(cleanup_diagnostics)
+                )
+        elif cleanup_diagnostics:
+            if committed:
+                raise EvidenceError(
+                    "evidence transaction committed but cleanup failed"
+                )
+            raise EvidenceError("evidence cleanup failed")
+
+
+def complete_evidence(
+    evidence_path,
+    cases_path,
+    rubric_path,
+    completion_path,
+):
+    """Publish text completions while preserving each draft run's managed id."""
+    cases = _validate_cases(_load_json(cases_path, "cases"))
+    rubric_items = _validate_rubric(_load_json(rubric_path, "rubric"))
+    completion = _schema.validate_completion(
+        _load_json(completion_path, "completion"),
+        cases,
+        rubric_items,
+    )
+    output = Path(evidence_path)
+    if not output.name or output.name in (".", ".."):
+        raise EvidenceError("evidence path must end in a simple filename")
+
+    chain = []
+    standalone_parent_descriptor = None
+    stage_descriptor = None
+    evidence_installed = None
+    evidence_temporary_identity = None
+    evidence_temporary_name = None
+    data_descriptor = None
+    namespace_descriptor = None
+    generation_installed = False
+    completed_runs = []
+    committed = False
+    process_lock = None
+    lock_descriptor = None
+    lock_identity = None
+    parent_process_lock = None
+    try:
+        _, chain = _open_absolute_directory_chain(output.parent)
+        if chain:
+            parent_descriptor = chain[-1][2]
+        else:
+            standalone_parent_descriptor = os.open(os.sep, _directory_flags())
+            parent_descriptor = standalone_parent_descriptor
+        _verify_directory_chain(chain)
+        parent_process_lock, _ = _acquire_parent_evidence_lock(parent_descriptor)
+        output_key = hashlib.sha256(output.name.encode("utf-8")).hexdigest()
+        data_descriptor, _, data_identity = _open_child_directory(
+            parent_descriptor,
+            ".evidence-data",
+        )
+        namespace_descriptor, _, namespace_identity = _open_child_directory(
+            data_descriptor,
+            output_key,
+        )
+        if stat.S_IMODE(namespace_identity.st_mode) & 0o077:
+            raise EvidenceError("evidence output namespace is not private")
+        process_lock, lock_descriptor, lock_identity = _acquire_evidence_lock(
+            namespace_descriptor,
+            output_key,
+        )
+        _verify_evidence_lock(namespace_descriptor, lock_descriptor, lock_identity)
+        existing_content = _optional_regular_at(
+            parent_descriptor,
+            output.name,
+            "existing evidence",
+        )
+        if existing_content is None:
+            raise EvidenceError("existing evidence is missing")
+        existing = _decode_json(existing_content, "existing evidence")
+        cohorts = _validate_owned_existing(
+            output.parent,
+            existing,
+            output_key,
+            allow_draft_headline=True,
+        )
+        headline = next(
+            cohort for cohort in cohorts if cohort["status"] == "headline"
+        )
+        if any(set(run) != _DRAFT_RUN_KEYS for run in headline["runs"]):
+            raise EvidenceError("headline cohort is not a draft")
+        if completion["cohort_id"] != headline["id"]:
+            raise EvidenceError("completion cohort does not match draft cohort")
+
+        draft_generation = _cohort_generation(headline, output_key)
+        draft_prefix = f".evidence-data/{output_key}/{draft_generation}"
+        marker = _schema.validate_generation_marker(
+            _decode_json(
+                _read_anchored(
+                    parent_descriptor,
+                    f"{draft_prefix}/generation.json",
+                    "draft generation marker",
+                ),
+                "draft generation marker",
+            ),
+            output_key,
+            draft_generation,
+        )
+        if marker["cases"] != cases:
+            raise EvidenceError("cases do not match draft generation")
+        if marker["rubric"] != rubric_items:
+            raise EvidenceError("rubric does not match draft generation")
+        manifest_content = _read_anchored(
+            parent_descriptor,
+            f"{draft_prefix}/artifact.json",
+            "draft artifact manifest",
+        )
+        manifest = _validate_manifest(
+            _decode_json(manifest_content, "draft artifact manifest")
+        )
+        if (
+            manifest["algorithm"] != marker["artifact"]["algorithm"]
+            or manifest["digest"] != marker["artifact"]["digest"]
+            or manifest["digest"] != existing["artifact"]["digest"]
+        ):
+            raise EvidenceError("draft artifact does not match evidence")
+
+        _verify_directory_entry(
+            parent_descriptor,
+            ".evidence-data",
+            data_identity,
+        )
+        _verify_directory_entry(data_descriptor, output_key, namespace_identity)
+        _verify_evidence_lock(namespace_descriptor, lock_descriptor, lock_identity)
+        _remove_owned_stale_transactions(
+            namespace_descriptor,
+            output.parent,
+            existing,
+            output_key,
+            output.name,
+        )
+        _remove_unreferenced_generations(
+            namespace_descriptor,
+            existing,
+            output_key,
+        )
+
+        generation_name = (
+            f"{completion['cohort_id']}-{secrets.token_hex(16)}"
+        )
+        generation_prefix = f".evidence-data/{output_key}/{generation_name}"
+        completion_by_case = {
+            run["case_id"]: run for run in completion["runs"]
+        }
+        completed_runs = []
+        for draft_run in headline["runs"]:
+            run_completion = completion_by_case[draft_run["case_id"]]
+            run_id = draft_run["id"]
+            run_prefix = f"{generation_prefix}/runs/{run_id}"
+            completed_runs.append(
+                {
+                    "id": run_id,
+                    "case_id": draft_run["case_id"],
+                    "prompt": f"{run_prefix}/prompt.md",
+                    "response": f"{run_prefix}/response.md",
+                    "files_read": f"{run_prefix}/files-read.txt",
+                    "files_read_kind": run_completion["files_read_kind"],
+                    "rubric": dict(run_completion["rubric"]),
+                }
+            )
+        completed_headline = {
+            "id": headline["id"],
+            "status": "headline",
+            "artifact_digest": manifest["digest"],
+            "runs": completed_runs,
+        }
+        completed_cohorts = [
+            completed_headline if cohort["status"] == "headline" else cohort
+            for cohort in cohorts
+        ]
+        completed_evidence = {
+            "schema_version": 1,
+            "artifact": {
+                "algorithm": manifest["algorithm"],
+                "digest": manifest["digest"],
+                "manifest": f"{generation_prefix}/artifact.json",
+            },
+            "headline_cohort": headline["id"],
+            "cohorts": completed_cohorts,
+        }
+
+        for _ in range(16):
+            stage_name = f".{output.name}.{secrets.token_hex(16)}.stage"
+            try:
+                os.mkdir(stage_name, mode=0o700, dir_fd=namespace_descriptor)
+            except FileExistsError:
+                continue
+            break
+        else:
+            raise EvidenceError("cannot allocate completion staging directory")
+        stage_descriptor, _, stage_identity = _open_child_directory(
+            namespace_descriptor,
+            stage_name,
+        )
+        if stat.S_IMODE(stage_identity.st_mode) & 0o077:
+            raise EvidenceError("completion staging directory is not private")
+        transaction = _transaction_marker(
+            output_key,
+            stage_name,
+            generation_name,
+            [run["id"] for run in completed_runs],
+        )
+        _create_file_at(
+            stage_descriptor,
+            "transaction.json",
+            (json.dumps(transaction, sort_keys=True) + "\n").encode("utf-8"),
+        )
+        os.fsync(stage_descriptor)
+        stage_runs_descriptor, _, _ = _open_child_directory(
+            stage_descriptor,
+            "runs",
+            create=True,
+        )
+        try:
+            case_by_id = {case["id"]: case for case in cases}
+            for draft_run, completed_run in zip(
+                headline["runs"],
+                completed_runs,
+            ):
+                run_completion = completion_by_case[draft_run["case_id"]]
+                prompt_content = _read_anchored(
+                    parent_descriptor,
+                    draft_run["prompt"],
+                    f"draft run '{draft_run['id']}' prompt",
+                )
+                expected_prompt = (
+                    case_by_id[draft_run["case_id"]]["prompt"] + "\n"
+                ).encode("utf-8")
+                if prompt_content != expected_prompt:
+                    raise EvidenceError("draft prompt does not match cases")
+                run_descriptor, _, _ = _open_child_directory(
+                    stage_runs_descriptor,
+                    completed_run["id"],
+                    create=True,
+                )
+                try:
+                    _create_file_at(
+                        run_descriptor,
+                        "prompt.md",
+                        prompt_content,
+                    )
+                    _create_file_at(
+                        run_descriptor,
+                        "response.md",
+                        run_completion["response"].encode("utf-8"),
+                    )
+                    _create_file_at(
+                        run_descriptor,
+                        "files-read.txt",
+                        run_completion["files_read"].encode("utf-8"),
+                    )
+                    os.fsync(run_descriptor)
+                finally:
+                    os.close(run_descriptor)
+            os.fsync(stage_runs_descriptor)
+        finally:
+            os.close(stage_runs_descriptor)
+        _create_file_at(stage_descriptor, "artifact.json", manifest_content)
+        _create_file_at(
+            stage_descriptor,
+            "evidence.json",
+            (
+                json.dumps(completed_evidence, sort_keys=True) + "\n"
+            ).encode("utf-8"),
+        )
+        generation_marker = _schema.make_generation_marker(
+            output_key,
+            generation_name,
+            headline["id"],
+            cases,
+            rubric_items,
+            manifest,
+        )
+        _create_file_at(
+            stage_descriptor,
+            "generation.json",
+            (
+                json.dumps(generation_marker, sort_keys=True) + "\n"
+            ).encode("utf-8"),
+        )
+        _create_file_at(
+            stage_descriptor,
+            "evidence.previous",
+            existing_content,
+        )
+        existing_identity = os.stat(
+            output.name,
+            dir_fd=parent_descriptor,
+            follow_symlinks=False,
+        )
+        os.chmod(
+            "evidence.previous",
+            stat.S_IMODE(existing_identity.st_mode),
+            dir_fd=stage_descriptor,
+            follow_symlinks=False,
+        )
+        os.fsync(stage_descriptor)
+
+        _verify_directory_entry(
+            parent_descriptor,
+            ".evidence-data",
+            data_identity,
+        )
+        _verify_directory_entry(data_descriptor, output_key, namespace_identity)
+        _verify_evidence_lock(namespace_descriptor, lock_descriptor, lock_identity)
+        _verify_directory_chain(chain)
+        os.replace(
+            stage_name,
+            generation_name,
+            src_dir_fd=namespace_descriptor,
+            dst_dir_fd=namespace_descriptor,
+        )
+        generation_installed = True
+        os.fsync(namespace_descriptor)
+        _verify_directory_entry(
+            namespace_descriptor,
+            generation_name,
+            stage_identity,
+        )
+        os.unlink("transaction.json", dir_fd=stage_descriptor)
+        os.fsync(stage_descriptor)
+        os.fsync(namespace_descriptor)
+
+        for _ in range(16):
+            candidate = f".{output.name}.{secrets.token_hex(16)}.commit"
+            try:
+                evidence_temporary_identity = _create_file_at(
+                    namespace_descriptor,
+                    candidate,
+                    (
+                        json.dumps(completed_evidence, sort_keys=True) + "\n"
+                    ).encode("utf-8"),
+                )
+            except FileExistsError:
+                continue
+            evidence_temporary_name = candidate
+            break
+        if evidence_temporary_name is None:
+            raise EvidenceError("cannot allocate evidence commit file")
+        os.fsync(namespace_descriptor)
+        _verify_directory_chain(chain)
+        _verify_directory_entry(
+            parent_descriptor,
+            ".evidence-data",
+            data_identity,
+        )
+        _verify_directory_entry(data_descriptor, output_key, namespace_identity)
+        _verify_evidence_lock(namespace_descriptor, lock_descriptor, lock_identity)
+        os.fsync(data_descriptor)
+        os.replace(
+            evidence_temporary_name,
+            output.name,
+            src_dir_fd=namespace_descriptor,
+            dst_dir_fd=parent_descriptor,
+        )
+        evidence_temporary_name = None
+        evidence_installed = os.stat(
+            output.name,
+            dir_fd=parent_descriptor,
+            follow_symlinks=False,
+        )
+        if not _same_file(evidence_installed, evidence_temporary_identity):
+            evidence_installed = evidence_temporary_identity
+            raise EvidenceError("installed evidence changed during transaction")
+        _verify_directory_entry(
+            namespace_descriptor,
+            generation_name,
+            stage_identity,
+        )
+        os.fsync(parent_descriptor)
+        _verify_directory_chain(chain)
+        _verify_evidence_lock(namespace_descriptor, lock_descriptor, lock_identity)
+        committed = True
+        return completed_evidence
+    except EvidenceError:
+        raise
+    except (OSError, NotImplementedError, TypeError) as error:
+        reason = (
+            "descriptor-relative filesystem operations are unavailable"
+            if isinstance(error, TypeError)
+            else getattr(error, "strerror", None) or "operating system error"
+        )
+        raise EvidenceError(f"cannot complete evidence: {reason}") from error
+    finally:
+        primary_error = sys.exception()
+        cleanup_failures = []
+        recovery_names = []
+
+        def attempt_cleanup(label, operation):
+            try:
+                return operation()
+            except Exception:
+                cleanup_failures.append(label)
+                return None
+
+        if chain or standalone_parent_descriptor is not None:
+            parent_descriptor = (
+                chain[-1][2] if chain else standalone_parent_descriptor
+            )
+            attempt_cleanup(
+                "output directory verification",
+                lambda: _verify_directory_chain(chain),
+            )
+            if (
+                namespace_descriptor is not None
+                and lock_descriptor is not None
+                and lock_identity is not None
+            ):
+                attempt_cleanup(
+                    "namespace lock verification",
+                    lambda: _verify_evidence_lock(
+                        namespace_descriptor,
+                        lock_descriptor,
+                        lock_identity,
+                    ),
+                )
+            if evidence_temporary_name is not None:
+                attempt_cleanup(
+                    "temporary pointer removal",
+                    lambda: _unlink_if_identity(
+                        namespace_descriptor,
+                        evidence_temporary_name,
+                        evidence_temporary_identity,
+                    ),
+                )
+            if (
+                not committed
+                and generation_installed
+                and stage_descriptor is not None
+            ):
+                def restore_prior_pointer():
+                    recovery = _restore_entry(
+                        parent_descriptor,
+                        stage_descriptor,
+                        namespace_descriptor,
+                        output.name,
+                        "evidence.previous",
+                        evidence_installed,
+                    )
+                    if recovery is not None:
+                        recovery_names.append(recovery)
+
+                attempt_cleanup("prior pointer recovery", restore_prior_pointer)
+                attempt_cleanup(
+                    "post-recovery directory verification",
+                    lambda: _verify_directory_chain(chain),
+                )
+            if stage_descriptor is not None:
+                attempt_cleanup(
+                    "pre-stage-cleanup directory verification",
+                    lambda: _verify_directory_chain(chain),
+                )
+                if committed:
+                    attempt_cleanup(
+                        "generation descriptor close",
+                        lambda: os.close(stage_descriptor),
+                    )
+                else:
+                    attempt_cleanup(
+                        "staged generation cleanup",
+                        lambda: _cleanup_stage(
+                            namespace_descriptor,
+                            (
+                                generation_name
+                                if generation_installed
+                                else stage_name
+                            ),
+                            stage_descriptor,
+                            stage_identity,
+                            [run["id"] for run in completed_runs],
+                        ),
+                    )
+            if process_lock is not None and lock_descriptor is not None:
+                attempt_cleanup(
+                    "namespace lock release",
+                    lambda: _release_evidence_lock(
+                        process_lock,
+                        lock_descriptor,
+                    ),
+                )
+            if parent_process_lock is not None:
+                attempt_cleanup(
+                    "parent lock release",
+                    lambda: _release_parent_evidence_lock(
+                        parent_process_lock,
+                        parent_descriptor,
+                    ),
+                )
             if namespace_descriptor is not None:
                 attempt_cleanup(
                     "namespace descriptor close",

@@ -48,6 +48,14 @@ GENERATION_PATHS = {
     "artifact": "artifact.json",
     "runs": "runs",
 }
+COMPLETION_KEYS = {"schema_version", "cohort_id", "runs"}
+COMPLETION_RUN_KEYS = {
+    "case_id",
+    "response",
+    "files_read",
+    "files_read_kind",
+    "rubric",
+}
 
 
 class EvidenceError(ValueError):
@@ -175,6 +183,72 @@ def validate_rubric(value):
     if not items:
         raise EvidenceError("rubric must not be empty")
     return tuple(items)
+
+
+def validate_completion(value, cases, rubric_items):
+    if not isinstance(value, dict) or set(value) != COMPLETION_KEYS:
+        raise EvidenceError("completion has unexpected keys")
+    if type(value.get("schema_version")) is not int or value["schema_version"] != 1:
+        raise EvidenceError("completion schema_version must be 1")
+    cohort_id = value.get("cohort_id")
+    if not is_safe_id(cohort_id):
+        raise EvidenceError("completion cohort_id is not safe")
+    runs = value.get("runs")
+    if not isinstance(runs, list):
+        raise EvidenceError("completion runs must be a list")
+
+    case_ids = [case["id"] for case in cases]
+    declared_cases = set(case_ids)
+    rubric_set = set(rubric_items)
+    completions = {}
+    for index, run in enumerate(runs):
+        if not isinstance(run, dict) or set(run) != COMPLETION_RUN_KEYS:
+            raise EvidenceError(f"completion run at index {index} has unexpected keys")
+        case_id = run.get("case_id")
+        if not is_safe_id(case_id):
+            raise EvidenceError(f"completion run at index {index} case_id is not safe")
+        if case_id not in declared_cases:
+            raise EvidenceError(f"completion has unknown case id: {case_id}")
+        if case_id in completions:
+            raise EvidenceError(f"completion has duplicate case id: {case_id}")
+        for field in ("response", "files_read"):
+            text = run.get(field)
+            if not isinstance(text, str) or not text:
+                raise EvidenceError(
+                    f"completion case '{case_id}' {field} must be nonempty text"
+                )
+            try:
+                text.encode("utf-8")
+            except UnicodeEncodeError as error:
+                raise EvidenceError(
+                    f"completion case '{case_id}' {field} is not valid UTF-8"
+                ) from error
+        if run.get("files_read_kind") not in (
+            "agent-reported",
+            "independently-observed",
+        ):
+            raise EvidenceError(
+                f"completion case '{case_id}' files_read_kind is invalid"
+            )
+        scores = run.get("rubric")
+        if not isinstance(scores, dict) or set(scores) != rubric_set:
+            raise EvidenceError(
+                f"completion case '{case_id}' rubric keys do not match"
+            )
+        if any(type(score) is not bool for score in scores.values()):
+            raise EvidenceError(
+                f"completion case '{case_id}' rubric scores must be boolean"
+            )
+        completions[case_id] = run
+
+    missing = [case_id for case_id in case_ids if case_id not in completions]
+    if missing:
+        raise EvidenceError(f"completion is missing case id: {missing[0]}")
+    return {
+        "schema_version": 1,
+        "cohort_id": cohort_id,
+        "runs": tuple(completions[case_id] for case_id in case_ids),
+    }
 
 
 def validate_manifest(value):
