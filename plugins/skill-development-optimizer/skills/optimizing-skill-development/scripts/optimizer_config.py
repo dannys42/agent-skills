@@ -1,5 +1,6 @@
 import json
 import os
+import stat
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
@@ -41,6 +42,7 @@ class OptimizerConfig:
     commands: dict[str, Command]
     profiles: dict[str, tuple[str, ...]]
     evaluations: Evaluations
+    repository_identity: tuple[int, int] | None = None
 
 
 def _reject_duplicate_members(
@@ -197,6 +199,21 @@ def load_config(path: Path | str) -> OptimizerConfig:
         raise ConfigError("schema_version must be 1")
 
     repository_root = discover_repository_root(config_path.parent)
+    try:
+        repository_link_metadata = repository_root.lstat()
+        repository_metadata = repository_root.stat()
+    except OSError as error:
+        raise ConfigError("repository root is unavailable") from error
+    if (
+        stat.S_ISLNK(repository_link_metadata.st_mode)
+        or not stat.S_ISDIR(repository_link_metadata.st_mode)
+        or not stat.S_ISDIR(repository_metadata.st_mode)
+    ):
+        raise ConfigError("repository root must be a non-symlink directory")
+    repository_identity = (
+        repository_metadata.st_dev,
+        repository_metadata.st_ino,
+    )
     target_root = _contained_path(
         repository_root,
         config["target"],
@@ -346,4 +363,5 @@ def load_config(path: Path | str) -> OptimizerConfig:
         commands=commands,
         profiles=profiles,
         evaluations=evaluations,
+        repository_identity=repository_identity,
     )

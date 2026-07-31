@@ -99,6 +99,11 @@ class OptimizerConfigTests(unittest.TestCase):
             loaded.commands["quick-validate"].argv,
             ("python3", "validate.py"),
         )
+        repository_stat = self.repository.resolve().stat()
+        self.assertEqual(
+            loaded.repository_identity,
+            (repository_stat.st_dev, repository_stat.st_ino),
+        )
 
     def test_command_cwd_traversal_is_rejected(self):
         configuration = self.valid_configuration()
