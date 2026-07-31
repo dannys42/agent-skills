@@ -4,6 +4,7 @@ import argparse
 import importlib.util
 import json
 import os
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -52,6 +53,34 @@ MARKETPLACE_ADAPTERS = (
 
 class InspectionError(RuntimeError):
     pass
+
+
+_QUOTED_VALUE = re.compile(r"'([^']*)'")
+_WINDOWS_DRIVE_ROOT = re.compile(r"^[A-Za-z]:[\\/]")
+_UNQUOTED_CONTEXT_PATH = re.compile(
+    r"(?P<prefix>\bin )"
+    r"(?P<path>(?:/[^\r\n]*?|[A-Za-z]:[\\/][^\r\n]*?|[\\]+[^\r\n]*?))"
+    r"(?=: )"
+)
+
+
+def _sanitize_diagnostic(message: object) -> str:
+    """Redact absolute paths while preserving deterministic error context."""
+
+    def redact(match: re.Match[str]) -> str:
+        value = match.group(1)
+        is_absolute = (
+            value.startswith("/")
+            or value.startswith("\\")
+            or _WINDOWS_DRIVE_ROOT.match(value) is not None
+        )
+        return "'<absolute-path>'" if is_absolute else match.group(0)
+
+    sanitized = _QUOTED_VALUE.sub(redact, str(message))
+    return _UNQUOTED_CONTEXT_PATH.sub(
+        lambda match: f"{match.group('prefix')}<absolute-path>",
+        sanitized,
+    )
 
 
 def _is_regular_file(path: Path) -> bool:
@@ -285,7 +314,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         config = optimizer_config.load_config(arguments.config)
     except ConfigError as error:
-        print(f"inspect_skill: {error}", file=sys.stderr)
+        print(f"inspect_skill: {_sanitize_diagnostic(error)}", file=sys.stderr)
         return 2
 
     try:

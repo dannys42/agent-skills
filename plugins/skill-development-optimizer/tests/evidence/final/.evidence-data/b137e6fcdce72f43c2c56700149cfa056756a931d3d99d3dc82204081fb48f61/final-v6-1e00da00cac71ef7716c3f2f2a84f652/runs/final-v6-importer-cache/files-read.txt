@@ -1,0 +1,4 @@
+SKILL.md
+assets/skill-optimizer.example.json
+references/validation-profiles.md
+references/importer-threat-model.md

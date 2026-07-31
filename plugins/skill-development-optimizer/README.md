@@ -82,14 +82,16 @@ network. The optimizer itself does not initiate network requests automatically,
 but invoked configured commands may. It does not automatically install
 dependencies or perform destructive Git operations.
 
-The Importer profile also applies to the evidence tool because it owns a
-managed persistent store with immutable publication, locking, recovery, and
-ownership-checked cleanup. Its descriptor-relative capability boundary is
-POSIX-specific. When the required platform operations or identity guarantees
-are unavailable, evidence operations fail closed with a deterministic error;
-they do not fall back to unsafe path-based mutation. Local inspection,
-classification, hashing, validation, and timing remain ordinary Python tools.
-No Swift toolchain is required.
+Inspection, classification, and timing are portable ordinary Python workflows.
+Hashing additionally relies on secure descriptor-relative filesystem
+operations; validation relies on bounded subprocesses and POSIX process-group
+termination; and evidence owns a managed persistent store with immutable
+publication, locking, recovery, and ownership-checked cleanup. Those secure
+filesystem and process capabilities are POSIX-specific. When a required
+operation or identity guarantee is unavailable, hashing, validation, and
+evidence fail closed with a deterministic error; they do not fall back to
+unsafe path-based mutation or incomplete child cleanup. No Swift toolchain is
+required.
 
 ## Frozen evaluation evidence
 

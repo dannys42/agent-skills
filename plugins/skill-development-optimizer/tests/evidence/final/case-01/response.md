@@ -1,29 +1,21 @@
-Selected profile: **Quick**, conditional on an isolated diff changing only `interface.display_name` and/or `interface.short_description` in `agents/openai.yaml`. Changing `default_prompt` is behavioral and requires **Behavior** validation.
-
 Validation plan:
 
-1. Work from the repository root with `plugins/skill-development-optimizer/skill-optimizer.example.json`.
-2. Establish a clean base containing only the intended edit. The current classifier reports **Full** because the plugin and unrelated files are untracked/mixed; that result cannot validate the isolated metadata patch.
-3. Rerun deterministic inspection and classification with JSON output. Require a valid target and metadata-only/Quick classification.
-4. Review the one-file diff and verify:
-   - only `agents/openai.yaml` changed;
-   - YAML parses and all strings remain quoted;
-   - `short_description` is 25–64 characters;
-   - display text accurately represents `SKILL.md`;
-   - `default_prompt`, trigger metadata, instructions, references, scripts, manifests, and links are unchanged.
-5. Run only the configured Quick profile:
-   `python3 plugins/skill-development-optimizer/skills/optimizing-skill-development/scripts/run_validation.py plugins/skill-development-optimizer/skill-optimizer.example.json quick --output <report.json>`
-6. Preserve as evidence:
-   - exact one-file diff;
-   - inspector and classifier JSON;
-   - Quick validation report, command, exit status, and tool/runtime version;
-   - timing summary from `report_timing.py`;
-   - base and resulting commit SHAs when available.
-7. Skip artifact hashing/freezing, fresh-agent cohorts, rubric evaluations, importer/hostile-cache checks, live network checks, and whole-repository gates. They are unnecessary for isolated UI metadata.
+- Selected profile: **Quick**, assuming the isolated diff changes only UI-facing text in `agents/openai.yaml`.
+- Preflight evidence:
+  - `inspect_skill.py --json` confirms the configured skill exists and includes both `SKILL.md` and `agents/openai.yaml`.
+  - Re-run `classify_change.py --json` on the isolated patch; require metadata-only classification.
+- Run the configured Quick profile through `run_validation.py`. Its sole configured check is `optimizer-tests`, with networking disabled and a 120-second timeout.
+- Review the final diff to confirm only `agents/openai.yaml` display text changed.
+- Confirm YAML remains parseable, the existing interface keys remain present, and the revised text accurately reflects `SKILL.md`.
+- Changed-link validation is not applicable because no link changes are proposed.
+- No frozen behavioral artifact, evaluation cohort, importer threat checks, live network check, or distributable hash is needed for Quick.
+- Stop on a failed/missing mandatory check, YAML/schema failure, any additional changed path, or wording that affects triggering, selection, workflow, or judgment. Such behavioral or mixed scope escalates to Behavior or Full.
 
-Evidence status: inspection succeeded, but the current worktree classification is contaminated and reports Full; Quick evidence remains pending an isolated diff. No validation duration exists until the Quick report is run.
+Evidence status: planning only; no validation run or evidence bundle generated. Expected validation runtime is bounded by the configured 120-second test timeout.
 
-Stop and escalate if the diff is not one-file metadata-only, `default_prompt` changes semantically, classification remains Full/unknown, or any mandatory Quick check is missing or fails.
+Classifier caveat: the current worktree contains unrelated behavioral, content, production, test, and unknown changes, so its aggregate classifier output is Full. Quick is valid only after classification against an isolated metadata-only diff.
+
+No edit was made because replacement wording was not provided and the target skill instructs validation-plan requests not to edit.
 
 Relative skill files actually read:
 

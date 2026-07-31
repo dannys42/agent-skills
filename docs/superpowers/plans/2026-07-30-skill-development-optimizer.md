@@ -236,7 +236,7 @@ git commit -m "test(skill-optimizer): capture validation baseline"
 Run:
 
 ```bash
-python3 /Users/dannys/.codex/skills/.system/skill-creator/scripts/init_skill.py \
+python3 "${CODEX_HOME:-$HOME/.codex}/skills/.system/skill-creator/scripts/init_skill.py" \
   optimizing-skill-development \
   --path plugins/skill-development-optimizer/skills \
   --resources scripts,references \
@@ -1624,7 +1624,7 @@ Then require:
 Run:
 
 ```bash
-python3 /Users/dannys/.codex/skills/.system/skill-creator/scripts/generate_openai_yaml.py \
+python3 "${CODEX_HOME:-$HOME/.codex}/skills/.system/skill-creator/scripts/generate_openai_yaml.py" \
   plugins/skill-development-optimizer/skills/optimizing-skill-development \
   --interface display_name="Optimizing Skill Development" \
   --interface short_description="Choose proportional skill validation" \
@@ -1646,7 +1646,7 @@ Run:
 
 ```bash
 UV_CACHE_DIR=/tmp/codex-uv-cache uv run --with pyyaml python \
-  /Users/dannys/.codex/skills/.system/skill-creator/scripts/quick_validate.py \
+  "${CODEX_HOME:-$HOME/.codex}/skills/.system/skill-creator/scripts/quick_validate.py" \
   plugins/skill-development-optimizer/skills/optimizing-skill-development
 wc -w plugins/skill-development-optimizer/skills/optimizing-skill-development/SKILL.md
 ```
@@ -1810,7 +1810,7 @@ python3 -m json.tool .agents/plugins/marketplace.json >/dev/null
 python3 -m json.tool .claude-plugin/marketplace.json >/dev/null
 python3 -m json.tool .cursor-plugin/marketplace.json >/dev/null
 UV_CACHE_DIR=/tmp/codex-uv-cache uv run --with pyyaml python \
-  /Users/dannys/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py \
+  "${CODEX_HOME:-$HOME/.codex}/skills/.system/plugin-creator/scripts/validate_plugin.py" \
   plugins/skill-development-optimizer
 ```
 
@@ -1852,10 +1852,10 @@ Run:
 
 ```bash
 UV_CACHE_DIR=/tmp/codex-uv-cache uv run --with pyyaml python \
-  /Users/dannys/.codex/skills/.system/skill-creator/scripts/quick_validate.py \
+  "${CODEX_HOME:-$HOME/.codex}/skills/.system/skill-creator/scripts/quick_validate.py" \
   plugins/skill-development-optimizer/skills/optimizing-skill-development
 UV_CACHE_DIR=/tmp/codex-uv-cache uv run --with pyyaml python \
-  /Users/dannys/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py \
+  "${CODEX_HOME:-$HOME/.codex}/skills/.system/plugin-creator/scripts/validate_plugin.py" \
   plugins/skill-development-optimizer
 ```
 
@@ -1873,7 +1873,7 @@ python3 plugins/skill-development-optimizer/skills/optimizing-skill-development/
 python3 plugins/skill-development-optimizer/skills/optimizing-skill-development/scripts/manage_evidence.py \
   verify \
   plugins/skill-development-optimizer/tests/evidence/final/evidence.json \
-  plugins/skill-development-optimizer/tests/evaluation-cases.json \
+  plugins/skill-development-optimizer/tests/evidence/final/cases.json \
   plugins/skill-development-optimizer/tests/evaluation-rubric.json
 ```
 

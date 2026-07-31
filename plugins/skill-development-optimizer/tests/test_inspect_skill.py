@@ -578,6 +578,94 @@ class SkillInventoryTests(unittest.TestCase):
             r"^inspect_skill: cannot read configuration ",
         )
 
+    def test_missing_absolute_config_path_is_not_disclosed(self):
+        private_config = self.repository / "private-user" / "absent.json"
+
+        result = self.run_cli(str(private_config), "--json")
+
+        self.assertEqual(result.returncode, 2)
+        self.assertEqual(result.stdout, "")
+        self.assertEqual(
+            result.stderr,
+            "inspect_skill: cannot read configuration '<absolute-path>': "
+            "No such file or directory\n",
+        )
+        self.assertNotIn(str(self.repository), result.stderr)
+
+    def test_config_errors_redact_portable_absolute_path_forms(self):
+        private_paths = (
+            "/Users/private/skill-optimizer.json",
+            r"C:\\Users\\private\\skill-optimizer.json",
+            r"\\\\server\\private\\skill-optimizer.json",
+            r"\\Users\\private\\skill-optimizer.json",
+        )
+        for private_path in private_paths:
+            with self.subTest(private_path=private_path):
+                stdout = io.StringIO()
+                stderr = io.StringIO()
+                with mock.patch.object(
+                    inspect_skill.optimizer_config,
+                    "load_config",
+                    side_effect=inspect_skill.ConfigError(
+                        f"cannot read configuration '{private_path}': denied"
+                    ),
+                ):
+                    with redirect_stdout(stdout), redirect_stderr(stderr):
+                        result = inspect_skill.main(["config.json", "--json"])
+
+                self.assertEqual(result, 2)
+                self.assertEqual(stdout.getvalue(), "")
+                self.assertEqual(
+                    stderr.getvalue(),
+                    "inspect_skill: cannot read configuration "
+                    "'<absolute-path>': denied\n",
+                )
+                self.assertNotIn(private_path, stderr.getvalue())
+
+    def test_malformed_json_does_not_disclose_absolute_config_path(self):
+        self.config_path.write_text("{malformed", encoding="utf-8")
+
+        result = self.run_cli(str(self.config_path), "--json")
+
+        self.assertEqual(result.returncode, 2)
+        self.assertEqual(result.stdout, "")
+        self.assertEqual(
+            result.stderr,
+            "inspect_skill: invalid JSON in <absolute-path>: "
+            "Expecting property name enclosed in double quotes\n",
+        )
+        self.assertNotIn(str(self.repository), result.stderr)
+
+    def test_unquoted_config_errors_redact_portable_absolute_path_forms(self):
+        private_paths = (
+            "/Users/private/skill-optimizer.json",
+            r"C:\\Users\\private\\skill-optimizer.json",
+            r"\\\\server\\private\\skill-optimizer.json",
+            r"\\Users\\private\\skill-optimizer.json",
+        )
+        for private_path in private_paths:
+            with self.subTest(private_path=private_path):
+                stdout = io.StringIO()
+                stderr = io.StringIO()
+                with mock.patch.object(
+                    inspect_skill.optimizer_config,
+                    "load_config",
+                    side_effect=inspect_skill.ConfigError(
+                        f"invalid JSON in {private_path}: malformed document"
+                    ),
+                ):
+                    with redirect_stdout(stdout), redirect_stderr(stderr):
+                        result = inspect_skill.main(["config.json", "--json"])
+
+                self.assertEqual(result, 2)
+                self.assertEqual(stdout.getvalue(), "")
+                self.assertEqual(
+                    stderr.getvalue(),
+                    "inspect_skill: invalid JSON in <absolute-path>: "
+                    "malformed document\n",
+                )
+                self.assertNotIn(private_path, stderr.getvalue())
+
 
 if __name__ == "__main__":
     unittest.main()

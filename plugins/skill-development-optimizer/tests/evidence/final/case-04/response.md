@@ -1,53 +1,45 @@
-Selected profile: `importer`.
+Validation plan
 
-Retry pacing and managed cache writes are both importer risks, so they do not by themselves require `full`. Structural inspection succeeded. The current classifier returned `full` only because the worktree contains unrelated untracked unknown paths; re-run classification against the isolated implementation diff. If it still reports unknown or mixed categories, retain `full`.
+- Provisional minimum profile: `importer`, because retry pacing and managed cache writes are both explicitly importer risks.
+- Final profile selection requires the actual importer target/config. The available optimizer configuration targets the optimizer skill itself, so its current `full` classification does not classify the hypothetical external-research importer.
+- Before implementation, run `inspect_skill.py` and `classify_change.py` against the importer’s configuration. Escalate to `full` for mixed categories, unknown paths, or incomplete inspection.
 
-Validation plan:
+Stopping criteria, declared before validation:
 
-1. Establish stopping criteria before implementation:
-   - Stop for failed inspection, missing configuration/checks, unknown paths, a newly mixed category, or unapproved live-network access.
-   - Stop if a RED test does not fail for the intended reason.
-   - Stop on any mandatory threat without deterministic coverage, artifact/evidence mismatch, nondeterminism, or unsanitized local identifiers.
+- Stop on any failed or missing mandatory check.
+- Stop on artifact/hash mismatch, an unknown or newly mixed change category, or unsupported secure filesystem operations.
+- Do not perform live network validation without explicit approval.
 
-2. Follow test-first development:
-   - Add focused failing tests before changing production code.
-   - Use an injected monotonic clock, fake sleep, scripted transport, temporary directories, and injected filesystem failures—no real sleeps or network.
+Checks and evidence:
 
-3. Validate retry pacing:
-   - Assert the new pacing rule across ordinary requests, every retry, redirects, response-read failures, and immediately raised transport failures.
-   - Assert attempt timestamps, not only sleep calls.
-   - Verify `Retry-After` can lengthen but never shorten the configured minimum.
-   - Retain bounded retry/redirect behavior and exact HTTPS origin/path enforcement.
-   - Cover invalid/nonfinite `Retry-After`, exhausted retries, and response closure.
+1. Use TDD: add each deterministic regression test first and confirm the expected RED failure.
+2. Retry pacing with a fake monotonic clock and scripted transport:
+   - Minimum interval covers every outbound attempt, including retries, redirects, and attempts following failures.
+   - A shorter `Retry-After` cannot reduce the minimum; a longer value extends it.
+   - Retry and redirect counts remain bounded.
+3. Request-policy regression coverage:
+   - Redirects must remain HTTPS on the exact allowed origin and path family.
+   - Reject userinfo, alternate ports, lookalike hosts, encoded escapes, and cross-family redirects.
+4. Hostile-cache coverage using temporary directories and injected failures:
+   - Reject traversal, symlinks, hardlinks, FIFOs, devices, and directories.
+   - Ancestor/root replacement cannot redirect reads, logs, staging, or publication.
+   - Temporary files are exclusive and anchored to a retained directory boundary.
+   - Interrupted writes expose either the previous valid manifest/page pair or the new pair, never a mixture.
+   - Cleanup removes only owned objects and preserves unowned lookalikes.
+   - Closed handles and unsupported secure operations fail deterministically.
+5. Run only commands configured for the selected `importer` profile through `run_validation.py`; avoid unrelated whole-repository, content, and behavioral evaluations.
+6. Hash the final distributable with `hash_artifact.py`. Preserve the exact command, commit SHA, artifact hash, tool versions, exit status, concise output, threat-to-test mapping, and work/wait timing.
+7. At an explicit milestone only, request approval for one small, paced live check restricted to the configured origin. Network unavailability must not invalidate deterministic importer evidence.
 
-4. Validate cache writes:
-   - Exercise page, manifest, catalog, and request-log writes.
-   - Inject interruption at temporary creation, partial write, file flush, replacement, and directory flush boundaries.
-   - Prove readers see the previous valid manifest/page pair or the new pair, never a mixed pair.
-   - Verify exclusive in-boundary temporary files, correct durability ordering, and cleanup only of importer-owned staging files.
-   - Re-run hostile-cache cases: traversal, symlink, hardlink, FIFO/device/directory, ancestor replacement, concurrent destination replacement, closed handles, and unsupported descriptor-relative operations.
-   - Confirm failures preserve prior valid data and unowned lookalikes.
+Evidence status: planned; no importer implementation or mandatory validation was run. `frozen-evaluations.md` was intentionally skipped because this is importer work, not a behavioral-skill evaluation.
 
-5. Validation tiers:
-   - During RED/GREEN, run only the newly affected pacing or publication tests.
-   - After each seam stabilizes, run the complete importer test module.
-   - After the final production change, run only the configured importer profile through `run_validation.py`; do not add behavior evaluations, content checks, or whole-repository gates unless classification escalates.
-   - Because pacing is timing-sensitive, repeat the deterministic importer profile after final integration if instability appears; do not introduce elapsed-time assertions.
-
-6. Evidence:
-   - Record exact command, final commit SHA, configuration identity, Python version, exit status, warnings, work duration, and concise machine-readable validation output.
-   - Maintain a threat-to-test matrix covering pacing, redirects, cache attacks, ancestor replacement, interrupted publication, cleanup ownership, closed handles, and unsupported operations.
-   - Pin evidence to the final production SHA and reject personal paths or machine identifiers.
-   - No frozen behavioral artifact or behavioral cohort is required unless skill instructions/triggering behavior also changes.
-   - Run a small, paced live check only at an explicit milestone with approval. Record origin, redirect outcome, attempt timing, and cache publication result. If unavailable, mark live acceptance blocked rather than passed.
-
-Current baseline identity: commit `1bd71265be7e3b7534af6c0068b5f5c5cb34d680`; importer SHA-256 `e1d84689d6154b543aab90fb103b1a790148b158dc59dad8109c271b1463f3b0`; Python `3.14.6`. Validation evidence is planned, not executed, because no implementation patch exists yet.
-
-Relative optimizer skill files actually read:
+Relative skill files actually read
 
 - `SKILL.md`
+- `assets/skill-optimizer.example.json`
 - `references/validation-profiles.md`
 - `references/importer-threat-model.md`
-- `assets/skill-optimizer.example.json`
+- `scripts/classify_change.py` (matched excerpts only)
+- `scripts/optimizer_config.py` (matched excerpt only)
 
-`references/frozen-evaluations.md` was intentionally not read because this is not a behavioral-profile change.
+A temporary `scripts/graphify-out/` directory generated during inspection was removed; it contained only reproducible graph artifacts.

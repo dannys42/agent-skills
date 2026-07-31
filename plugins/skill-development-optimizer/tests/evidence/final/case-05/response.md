@@ -1,110 +1,46 @@
-## Validation plan
+Selected profile: `full`.
 
-**Profile: `full`.** Deterministic inspection found the skill, four plugin manifests, 18 script entries, and 181 tests. Classification reported `behavior`, `content`, `metadata`, `production`, `tests`, and `unknown`. A new plugin release, mixed categories, and unknown paths each independently require `full`.
+Deterministic inspection found the configured skill, three marketplace adapters, four plugin manifests, 184 tests, and the optimizer configuration. Classification returned `full` with `behavior`, `content`, `metadata`, `production`, `tests`, and `unknown` categories. A release plus mixed SKILL/reference/script/manifest changes independently requires Full.
 
-Applicable risks:
+Validation plan:
 
-- **Quick:** marketplace/plugin manifests, adapter metadata, package structure, paths, JSON/YAML, changed links.
-- **Content:** changed references, examples, attribution, source accuracy, originality.
-- **Behavior:** any `SKILL.md` edit may alter triggering, selection, workflow, judgment, or stopping criteria.
-- **Importer:** applicable because the scripts manage durable evidence publication, locking, and recovery. There is no external acquisition in the described scope, so network threats and live importer checks are **not applicable**, not “passing.”
-- **Executable tooling:** script changes require test-first evidence under TDD.
-
-### Release gate sequence
-
-1. **Declare stopping criteria before validation.** Stop on any failed or missing mandatory check, unresolved unknown path, unapproved live network requirement, artifact/evidence mismatch, mixed evaluation cohort, or distributable change after freezing.
-
-2. **Clean and classify the exact release diff.**
-   - Remove generated `__pycache__`, `.pyc`, transient `.evidence-data`, and similar files from the release package; ignore them where appropriate.
-   - Resolve every `unknown` path explicitly.
-   - Re-run from repository root:
-
-     ```bash
-     python3 plugins/skill-development-optimizer/skills/optimizing-skill-development/scripts/inspect_skill.py \
-       plugins/skill-development-optimizer/skill-optimizer.example.json --json
-
-     python3 plugins/skill-development-optimizer/skills/optimizing-skill-development/scripts/classify_change.py \
-       plugins/skill-development-optimizer/skill-optimizer.example.json --base <release-base> --json
-     ```
-
-3. **Make the configured `full` profile complete.** The current configuration maps every profile only to `optimizer-tests`; that alone does not demonstrate all mandatory evidence. Before release, declare focused commands covering:
-   - Skill structure/frontmatter and `agents/openai.yaml` consistency.
-   - JSON/YAML/schema parsing for `.claude-plugin`, `.codex-plugin`, `.cursor-plugin`, Gemini, and marketplace manifests.
-   - Manifest identity/version/path parity and referenced-file existence.
-   - Local plugin packaging/install/discovery smoke tests.
-   - Changed links. If reachability requires live network access, pause for approval.
-   - Content contracts, executable example accuracy, attribution/source checks, and originality.
-   - Deterministic tests for every changed script.
-   - Managed-store threats: traversal, symlinks, hardlinks, FIFOs/devices/directories, ancestor replacement, retained-boundary I/O, interrupted publication, cleanup ownership, closed handles, and unsupported operations.
-
-4. **Preserve TDD evidence.**
-   - For scripts: retain the failing test output from before implementation, expected failure reason, passing focused test, and passing regression run.
-   - For skill behavior: retain pre-change/skill-absent RED cases, then run the same class of cases against the new skill. A post-hoc passing test does not replace missing RED evidence.
-
-5. **Run only the configured union.**
-
+1. Establish stopping criteria before validation: stop on any mandatory failure or omission, unresolved unknown path, artifact/evidence mismatch, mixed cohort, distributable edit after freezing, or need for unapproved network access.
+2. Resolve classifier noise and unknowns first. Remove generated `__pycache__`/`.pyc` from release inputs, inspect every remaining unknown path, and rerun `inspect_skill.py` and `classify_change.py` from the repository root. Do not downgrade.
+3. Confirm TDD provenance:
+   - Skill behavior changes have genuine pre-edit RED/baseline evidence.
+   - Script behavior has tests that failed for the intended reason before implementation.
+   - Do not fabricate retroactive RED evidence.
+4. Run only the configured Full gate:
    ```bash
    python3 plugins/skill-development-optimizer/skills/optimizing-skill-development/scripts/run_validation.py \
-     plugins/skill-development-optimizer/skill-optimizer.example.json full \
-     --output <evidence-dir>/full-validation.json
+     plugins/skill-development-optimizer/skill-optimizer.example.json \
+     full \
+     --output <full-validation-report.json>
    ```
-
-   Do not add unrelated whole-repository checks. Do not use `--continue-on-failure` for the release gate.
-
-6. **Freeze the behavioral artifact after deterministic checks pass.**
-
+   The configured command runs the optimizer unit/integration suite once. Capture exact command, commit SHA, Python/tool versions, exit status, warnings, full temporary log, and concise machine-readable report.
+5. Require the Full union’s evidence:
+   - Quick: skill/plugin structure; all marketplace and plugin JSON parse; adapter source/version/name parity; changed links; focused packaging tests.
+   - Content: content contracts, example accuracy, attribution/source-link verification, and originality checks. Missing attribution or unverifiable examples fail.
+   - Behavior: triggering, profile selection, mandatory workflows, judgment, escalation, and stopping behavior.
+   - Importer: deterministic hostile-filesystem tests for the managed evidence store—traversal, symlinks, hardlinks, FIFOs/devices/directories, ancestor replacement, retained-boundary anchoring, interrupted publication, cleanup ownership, closed handles, and unsupported operations.
+   - Network threats/live checks are `not applicable`, not passing, because this target has no external acquisition. If acquisition appears, stop and request approval for a small milestone live check.
+6. After deterministic checks pass, freeze and hash the exact distributable:
    ```bash
    python3 plugins/skill-development-optimizer/skills/optimizing-skill-development/scripts/hash_artifact.py \
      plugins/skill-development-optimizer/skill-optimizer.example.json \
-     --json --output <evidence-dir>/artifact.json
+     --json --output <artifact.json>
    ```
+   Record the `sha256-length-framed-v1` identity and selected files.
+7. Initialize exactly one headline cohort against that hash. Run every declared case with a fresh agent receiving only its prompt and frozen skill. Capture prompt, verbatim response, run ID, files-read report separately, and every declared boolean rubric result.
+8. Complete, verify, and summarize with `manage_evidence.py`. Reject incomplete runs, prompt/rubric mismatch, duplicate IDs, missing file references, artifact mismatch, or mixed cohorts. Any distributable-byte change makes the cohort historical and requires rerunning every headline case.
+9. Use `report_timing.py` to report work versus waiting time. Release only when the Full report passes, evidence verifies against the current artifact hash, manifests agree, the working tree contains no generated junk, and evidence contains no personal/local identifiers.
 
-   Record the `sha256-length-framed-v1` identity. Also record the release commit and packaged-plugin checksum because the configured behavioral hash targets the skill directory rather than all marketplace manifests.
+Evidence status: inspection and classification were run; the Full validation gate and frozen cohort were not run in this planning pass. Existing evidence must not be reused until its artifact hash and cohort verify against the final distributable.
 
-7. **Create one fresh behavioral cohort.**
-   - Freeze cases and rubric before initialization.
-   - Cover triggering/non-triggering, selector boundaries, mandatory workflow, stopping behavior, mixed-release classification, content handling, and importer/store judgment.
-   - Initialize one cohort with `manage_evidence.py init`.
-   - Give each fresh agent only the case prompt and frozen skill.
-   - Capture prompt, verbatim response, generated run ID, files-read report, and every rubric Boolean.
-   - Publish with `complete`, then run `verify` and `summarize`.
-   - If any distributable byte changes, mark the cohort historical and restart every headline case. Never aggregate across artifact hashes.
-
-8. **Record release-package evidence.**
-   - Exact manifest files and versions.
-   - Marketplace entry identity and ordering.
-   - Package file inventory proving generated caches/evidence are excluded.
-   - Local install/discovery smoke-test logs.
-   - Link-check results or explicit approval-required status.
-   - Validation report, artifact hash, cohort verification/summary, commit, and package checksum.
-
-9. **Record duration.**
-   - Preserve per-command work/wait timing from validation reports.
-   - Summarize with:
-
-     ```bash
-     python3 plugins/skill-development-optimizer/skills/optimizing-skill-development/scripts/report_timing.py \
-       <evidence-dir>/*.json --json
-     ```
-
-10. **Release only when** all mandatory applicable checks pass, the frozen cohort verifies against the exact artifact, manifests/package agree on identity and version, no unknown paths remain, and evidence is complete.
-
-### Current evidence status
-
-Only deterministic preflight inspection and classification were run. No configured `full` validation, artifact hash, fresh cohort, package smoke test, or timing report was produced, so none should be reported as passing. Existing cohorts must not be reused unless their artifact hash exactly matches the final distributable.
-
-## Relative skill files actually read
-
-Relative to `plugins/skill-development-optimizer/skills/optimizing-skill-development/`:
+Relative target-skill files actually read:
 
 - `SKILL.md`
+- `assets/skill-optimizer.example.json`
 - `references/validation-profiles.md`
 - `references/frozen-evaluations.md`
 - `references/importer-threat-model.md`
-- `assets/skill-optimizer.example.json`
-
-Required supporting skill instructions also read:
-
-- `~/.codex/skills/.system/skill-creator/SKILL.md`
-- `~/.agents/skills/writing-skills/SKILL.md`
-- `~/.agents/skills/test-driven-development/SKILL.md`

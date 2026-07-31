@@ -1,0 +1,4 @@
+agents/openai.yaml
+SKILL.md
+references/validation-profiles.md
+assets/skill-optimizer.example.json

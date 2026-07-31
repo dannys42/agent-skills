@@ -1,0 +1,1 @@
+Delivered the validation plan and exact relative read manifest to the parent agent. Key conclusion: this is minimum Behavior risk, but validation must stop while the mandatory fresh-agent evaluator is unavailable; that check is missing, never passing.

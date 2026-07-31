@@ -11,6 +11,8 @@ description: Use when creating or changing an agent skill and validation effort 
 
 Choose the smallest profile that covers the actual risk. Escalate uncertainty; never count a missing check as passing.
 
+When asked for a validation plan, classify the stated change and plan its checks without requesting implementation details such as replacement wording. Do not edit unless asked to implement.
+
 ## Select the profile
 
 1. Distinguish new creation from maintenance. Use `full` for a new plugin or release.

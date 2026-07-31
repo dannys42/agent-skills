@@ -5,6 +5,9 @@ Each case preserves the exact prompt and verbatim response, then records:
 selected profile, unnecessary checks, missing checks, artifact-freezing errors,
 and evidence-integrity errors.
 
+Local home-directory prefixes in the verbatim responses were redacted as
+`<REDACTED_HOME>`. No other response content was changed.
+
 ## metadata-only
 
 ### Exact prompt
@@ -234,10 +237,10 @@ python3 -m unittest discover \
 python3 plugins/swift-design-patterns/skills/choosing-swift-design-patterns/scripts/validate_content.py \
   plugins/swift-design-patterns/skills/choosing-swift-design-patterns
 
-python3 /Users/dannys/.codex/skills/.system/skill-creator/scripts/quick_validate.py \
+python3 <REDACTED_HOME>/.codex/skills/.system/skill-creator/scripts/quick_validate.py \
   plugins/swift-design-patterns/skills/choosing-swift-design-patterns
 
-python3 /Users/dannys/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py \
+python3 <REDACTED_HOME>/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py \
   plugins/swift-design-patterns
 
 git diff --check
@@ -264,7 +267,7 @@ Release stops on any validator/test failure, missing baseline for newly claimed 
 - Unnecessary checks: none observed for a release spanning skill behavior, content, executable scripts, and all manifests.
 - Missing checks: the manifest schema/consistency evidence category is named, but no concrete command is supplied for it.
 - Artifact-freezing errors: commit identity and reproducibility metadata are required, but the behavioral and install-smoke outputs still have no named artifact or immutable transcript format.
-- Evidence-integrity errors: unavailable required originality evidence blocks release rather than being counted as passing, but the verbatim response embeds a stable local `/Users/dannys/...` path in proposed commands instead of a portable placeholder.
+- Evidence-integrity errors: unavailable required originality evidence blocks release rather than being counted as passing, but the verbatim response originally embedded a stable local `<REDACTED_HOME>/...` path in proposed commands instead of a portable placeholder.
 
 ## Overall observation
 
