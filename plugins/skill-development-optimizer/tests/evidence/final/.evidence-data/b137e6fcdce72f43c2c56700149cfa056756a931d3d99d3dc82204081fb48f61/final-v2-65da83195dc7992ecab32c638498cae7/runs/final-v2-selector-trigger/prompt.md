@@ -1,0 +1,1 @@
+Change a skill's trigger description and mandatory recommendation workflow. The configured fresh-agent evaluator is unavailable and files read can only be self-reported. Plan the validation and evidence needed.

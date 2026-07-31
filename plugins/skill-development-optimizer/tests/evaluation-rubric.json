@@ -1,0 +1,10 @@
+[
+  "correct_profile",
+  "risk_reasons_stated",
+  "mandatory_checks_present",
+  "unnecessary_checks_avoided",
+  "missing_checks_not_passed",
+  "frozen_artifact_required_when_behavioral",
+  "network_approval_explicit_when_needed",
+  "stopping_criteria_stated"
+]

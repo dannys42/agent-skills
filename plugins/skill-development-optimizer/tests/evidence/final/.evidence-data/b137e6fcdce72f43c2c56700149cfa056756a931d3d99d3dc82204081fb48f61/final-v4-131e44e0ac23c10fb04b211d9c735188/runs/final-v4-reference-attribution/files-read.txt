@@ -1,0 +1,6 @@
+plugins/skill-development-optimizer/skills/optimizing-skill-development/SKILL.md
+plugins/skill-development-optimizer/skills/optimizing-skill-development/references/validation-profiles.md
+plugins/skill-development-optimizer/skills/optimizing-skill-development/assets/skill-optimizer.example.json
+~/.codex/skills/.system/skill-creator/SKILL.md
+~/.agents/skills/writing-skills/SKILL.md
+~/.agents/skills/test-driven-development/SKILL.md

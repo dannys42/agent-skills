@@ -1,0 +1,3 @@
+SKILL.md
+agents/openai.yaml
+references/validation-profiles.md

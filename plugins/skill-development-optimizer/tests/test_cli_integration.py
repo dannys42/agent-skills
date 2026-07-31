@@ -12,6 +12,13 @@ from pathlib import Path, PureWindowsPath
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 EXAMPLE_CONFIG = PLUGIN_ROOT / "skill-optimizer.example.json"
+BOOTSTRAP_CONFIG = (
+    PLUGIN_ROOT
+    / "skills"
+    / "optimizing-skill-development"
+    / "assets"
+    / "skill-optimizer.example.json"
+)
 SCRIPTS_ROOT = (
     PLUGIN_ROOT / "skills" / "optimizing-skill-development" / "scripts"
 )
@@ -33,6 +40,7 @@ class ExampleConfigurationTests(unittest.TestCase):
                     "include": [
                         "SKILL.md",
                         "agents/**/*.yaml",
+                        "assets/**/*.json",
                         "references/**/*.md",
                         "scripts/**/*.py",
                     ],
@@ -77,6 +85,29 @@ class ExampleConfigurationTests(unittest.TestCase):
                     ),
                 },
             },
+        )
+
+    def test_bundled_bootstrap_uses_repository_relative_example_paths(self):
+        configuration = json.loads(BOOTSTRAP_CONFIG.read_text(encoding="utf-8"))
+
+        self.assertEqual(configuration["schema_version"], 1)
+        self.assertEqual(configuration["target"], "skills/example-skill")
+        self.assertEqual(
+            configuration["evaluations"],
+            {
+                "cases": "tests/evaluation-cases.json",
+                "rubric": "tests/evaluation-rubric.json",
+            },
+        )
+        self.assertIn("assets/**/*.json", configuration["distributable"]["include"])
+        self.assertFalse(
+            any(
+                Path(value).is_absolute()
+                for value in (
+                    configuration["target"],
+                    *configuration["evaluations"].values(),
+                )
+            )
         )
 
 

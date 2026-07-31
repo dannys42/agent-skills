@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "target": "plugins/skill-development-optimizer/skills/optimizing-skill-development",
+  "target": "skills/example-skill",
   "distributable": {
     "include": [
       "SKILL.md",
@@ -15,14 +15,14 @@
     ]
   },
   "commands": {
-    "optimizer-tests": {
+    "skill-tests": {
       "argv": [
         "python3",
         "-m",
         "unittest",
         "discover",
         "-s",
-        "plugins/skill-development-optimizer/tests",
+        "tests",
         "-v"
       ],
       "cwd": ".",
@@ -33,24 +33,14 @@
     }
   },
   "profiles": {
-    "quick": [
-      "optimizer-tests"
-    ],
-    "content": [
-      "optimizer-tests"
-    ],
-    "behavior": [
-      "optimizer-tests"
-    ],
-    "importer": [
-      "optimizer-tests"
-    ],
-    "full": [
-      "optimizer-tests"
-    ]
+    "quick": ["skill-tests"],
+    "content": ["skill-tests"],
+    "behavior": ["skill-tests"],
+    "importer": ["skill-tests"],
+    "full": ["skill-tests"]
   },
   "evaluations": {
-    "cases": "plugins/skill-development-optimizer/tests/evaluation-cases.json",
-    "rubric": "plugins/skill-development-optimizer/tests/evaluation-rubric.json"
+    "cases": "tests/evaluation-cases.json",
+    "rubric": "tests/evaluation-rubric.json"
   }
 }

@@ -1,10 +1,12 @@
 # Importer Threat Model
 
-Apply this profile only when a skill contains external acquisition or cache
-code. Do not add importer checks to a skill that only contains instructions,
-local deterministic tools, or static references. When the profile applies,
-exercise request policy and managed filesystem behavior with deterministic
-tests before any live network milestone.
+Apply this profile only when a skill contains external acquisition or managed
+persistent storage code. Managed storage includes cache-like stores and durable
+publication, locking, or recovery such as an evidence store. Do not add importer
+checks to ordinary source/document editing, instructions, static references, or
+local tools that own no persistent store. Exercise every applicable threat with
+deterministic tests. Without external acquisition, network threats and live
+checks are not applicable; managed-store filesystem threats remain mandatory.
 
 ## Required threats
 

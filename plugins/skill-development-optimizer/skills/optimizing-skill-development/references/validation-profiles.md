@@ -32,11 +32,14 @@ Freeze the exact distributable artifact and evaluate it with fresh cases. Record
 the case prompts, run IDs, responses, files reported as read, and declared
 rubric results. Follow `frozen-evaluations.md` for cohort integrity.
 
-Use **Importer** only for external acquisition or cache code. Run deterministic
-tests for request policy and hostile filesystem state. Read
-`importer-threat-model.md` and cover every applicable threat. Perform a live
-network check only at an explicit milestone and only after obtaining required
-approval.
+Use **Importer** only for external acquisition or managed persistent storage
+code. Managed storage includes cache-like stores plus publication, locking, and
+recovery such as a durable evidence store. Ordinary source or documentation
+editing is not importer work. Run deterministic tests for every applicable
+request-policy or hostile-filesystem threat. Read `importer-threat-model.md`;
+without external acquisition, mark network threats and live checks not
+applicable rather than passing. Perform a live network check only at an explicit
+milestone and only after obtaining required approval.
 
 Use **Full** for a new plugin, a release, multiple risk categories, or paths the
 classifier cannot establish safely. Full means the union of every applicable

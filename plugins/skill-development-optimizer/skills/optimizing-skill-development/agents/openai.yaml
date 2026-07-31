@@ -1,0 +1,4 @@
+interface:
+  display_name: "Optimizing Skill Development"
+  short_description: "Choose proportional skill validation"
+  default_prompt: "Use $optimizing-skill-development to optimize creation or maintenance of this skill."
