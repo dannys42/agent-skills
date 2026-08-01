@@ -66,12 +66,29 @@ class PluginContractTests(unittest.TestCase):
                 ]
                 self.assertEqual(1, len(matches))
 
+    def test_cursor_marketplace_uses_supported_entry_fields(self):
+        marketplace = load_json(
+            REPOSITORY_ROOT / ".cursor-plugin" / "marketplace.json"
+        )
+        supported_fields = {
+            "name",
+            "source",
+            "description",
+            "minClientVersions",
+        }
+        for plugin in marketplace["plugins"]:
+            with self.subTest(plugin=plugin["name"]):
+                self.assertLessEqual(set(plugin), supported_fields)
+
     def test_plugin_documentation_names_skill_and_license(self):
         readme = (PLUGIN_ROOT / "README.md").read_text(encoding="utf-8")
         changelog = (PLUGIN_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
         license_text = (PLUGIN_ROOT / "LICENSE").read_text(encoding="utf-8")
+        reference_license = (
+            REPOSITORY_ROOT / "plugins" / "swift-testing" / "LICENSE"
+        ).read_text(encoding="utf-8")
         self.assertIn("`organizing-swift-files`", readme)
-        self.assertIn("2026 Danny Sung", license_text)
+        self.assertEqual(reference_license, license_text)
         self.assertIn("1.0.0", changelog)
 
     def test_openai_metadata_is_complete(self):

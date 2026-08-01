@@ -15,38 +15,17 @@
     {
       "name": "swift-design-patterns",
       "source": "plugins/swift-design-patterns",
-      "version": "1.0.0",
-      "description": "Original Swift design-pattern selection guidance informed by and attributed to Refactoring.Guru",
-      "keywords": [
-        "swift",
-        "architecture",
-        "design-patterns"
-      ]
+      "description": "Original Swift design-pattern selection guidance informed by and attributed to Refactoring.Guru"
     },
     {
       "name": "skill-development-optimizer",
       "source": "plugins/skill-development-optimizer",
-      "version": "1.0.0",
-      "description": "Risk-proportional validation and reproducible evidence for developing agent skills",
-      "keywords": [
-        "agent-skills",
-        "skill-development",
-        "validation",
-        "evaluation",
-        "testing",
-        "optimization"
-      ]
+      "description": "Risk-proportional validation and reproducible evidence for developing agent skills"
     },
     {
       "name": "swift-code-organization",
       "source": "plugins/swift-code-organization",
-      "version": "1.0.0",
-      "description": "Personal Swift file, directory, and structural-commit organization conventions",
-      "keywords": [
-        "swift",
-        "organization",
-        "refactoring"
-      ]
+      "description": "Personal Swift file, directory, and structural-commit organization conventions"
     }
   ]
 }
