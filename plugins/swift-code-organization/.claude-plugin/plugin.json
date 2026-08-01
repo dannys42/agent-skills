@@ -1,0 +1,18 @@
+{
+  "name": "swift-code-organization",
+  "version": "1.0.0",
+  "description": "Personal Swift file, directory, and structural-commit organization conventions",
+  "license": "MIT",
+  "author": {
+    "name": "Danny Sung"
+  },
+  "keywords": [
+    "swift",
+    "ios",
+    "macos",
+    "file-organization",
+    "project-structure",
+    "refactoring",
+    "agent-skills"
+  ]
+}

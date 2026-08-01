@@ -36,6 +36,17 @@
         "testing",
         "optimization"
       ]
+    },
+    {
+      "name": "swift-code-organization",
+      "source": "plugins/swift-code-organization",
+      "version": "1.0.0",
+      "description": "Personal Swift file, directory, and structural-commit organization conventions",
+      "keywords": [
+        "swift",
+        "organization",
+        "refactoring"
+      ]
     }
   ]
 }

@@ -1,0 +1,27 @@
+{
+  "name": "swift-code-organization",
+  "displayName": "Swift Code Organization",
+  "version": "1.0.0",
+  "description": "Personal Swift file, directory, and structural-commit organization conventions",
+  "license": "MIT",
+  "author": {
+    "name": "Danny Sung"
+  },
+  "repository": "https://github.com/dannys42/agent-skills",
+  "keywords": [
+    "swift",
+    "ios",
+    "macos",
+    "file-organization",
+    "project-structure",
+    "refactoring",
+    "agent-skills"
+  ],
+  "category": "developer-tools",
+  "tags": [
+    "swift",
+    "organization",
+    "refactoring"
+  ],
+  "skills": "./skills/"
+}

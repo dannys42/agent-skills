@@ -39,6 +39,41 @@ class PluginContractTests(unittest.TestCase):
         self.assertEqual("AVAILABLE", matches[0]["policy"]["installation"])
         self.assertEqual("ON_INSTALL", matches[0]["policy"]["authentication"])
 
+    def test_portable_plugin_manifests_match_name_and_version(self):
+        for relative_path in (
+            ".claude-plugin/plugin.json",
+            ".cursor-plugin/plugin.json",
+            "gemini-extension.json",
+        ):
+            with self.subTest(path=relative_path):
+                manifest = load_json(PLUGIN_ROOT / relative_path)
+                self.assertEqual("swift-code-organization", manifest["name"])
+                self.assertEqual("1.0.0", manifest["version"])
+
+    def test_repository_marketplaces_expose_plugin_once(self):
+        marketplace_paths = (
+            REPOSITORY_ROOT / ".agents" / "plugins" / "marketplace.json",
+            REPOSITORY_ROOT / ".claude-plugin" / "marketplace.json",
+            REPOSITORY_ROOT / ".cursor-plugin" / "marketplace.json",
+        )
+        for path in marketplace_paths:
+            with self.subTest(path=path):
+                marketplace = load_json(path)
+                matches = [
+                    plugin
+                    for plugin in marketplace["plugins"]
+                    if plugin["name"] == "swift-code-organization"
+                ]
+                self.assertEqual(1, len(matches))
+
+    def test_plugin_documentation_names_skill_and_license(self):
+        readme = (PLUGIN_ROOT / "README.md").read_text(encoding="utf-8")
+        changelog = (PLUGIN_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+        license_text = (PLUGIN_ROOT / "LICENSE").read_text(encoding="utf-8")
+        self.assertIn("`organizing-swift-files`", readme)
+        self.assertIn("2026 Danny Sung", license_text)
+        self.assertIn("1.0.0", changelog)
+
     def test_openai_metadata_is_complete(self):
         metadata = (
             SKILL_ROOT / "agents" / "openai.yaml"
