@@ -34,6 +34,8 @@ class PluginContractTests(unittest.TestCase):
             "./plugins/swift-code-organization",
             matches[0]["source"]["path"],
         )
+        self.assertEqual("local", matches[0]["source"]["source"])
+        self.assertEqual("Developer Tools", matches[0]["category"])
         self.assertEqual("AVAILABLE", matches[0]["policy"]["installation"])
         self.assertEqual("ON_INSTALL", matches[0]["policy"]["authentication"])
 
@@ -41,12 +43,14 @@ class PluginContractTests(unittest.TestCase):
         metadata = (
             SKILL_ROOT / "agents" / "openai.yaml"
         ).read_text(encoding="utf-8")
-        self.assertIn('display_name: "Organizing Swift Files"', metadata)
-        self.assertIn(
-            'short_description: "Keep Swift source trees concept-focused"',
+        self.assertEqual(
+            """interface:
+  display_name: "Organizing Swift Files"
+  short_description: "Keep Swift source trees concept-focused"
+  default_prompt: "Use $organizing-swift-files to organize or review Swift source files."
+""",
             metadata,
         )
-        self.assertIn("$organizing-swift-files", metadata)
 
     def test_evaluation_corpus_covers_required_boundaries(self):
         cases = load_json(PLUGIN_ROOT / "tests" / "evaluation-cases.json")
@@ -64,6 +68,51 @@ class PluginContractTests(unittest.TestCase):
             },
             {case["id"] for case in cases},
         )
+
+    def test_skill_frontmatter_has_discoverable_trigger(self):
+        skill = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
+        self.assertTrue(skill.startswith("---\nname: organizing-swift-files\n"))
+        self.assertIn("description: Use when", skill)
+        self.assertIn("creating", skill.split("---", 2)[1])
+        self.assertIn("reviewing", skill.split("---", 2)[1])
+        self.assertIn(
+            "reviewing Swift physical organization",
+            skill.split("---", 2)[1],
+        )
+        self.assertIn("reorganizing Swift", skill.split("---", 2)[1])
+
+    def test_skill_preserves_primary_type_and_supporting_type_rules(self):
+        skill = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
+        for declaration in ("`struct`", "`class`", "`actor`"):
+            self.assertIn(declaration, skill)
+        self.assertIn("own correspondingly named Swift file", skill)
+        self.assertIn("supporting `enum` or `typealias`", skill)
+        self.assertIn("Never apply this exception to another", skill)
+
+    def test_skill_covers_nested_types_extensions_and_directories(self):
+        skill = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("EnclosingType+NestedType.swift", skill)
+        self.assertIn("TypeName+Concern.swift", skill)
+        self.assertIn("extension of the enclosing type", skill)
+        self.assertIn("feature or domain concept", skill)
+        self.assertIn("declaration kind", skill)
+
+    def test_skill_covers_commit_sequence_and_authority(self):
+        skill = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("reorganize first", skill)
+        self.assertIn("behavioral change first", skill)
+        self.assertIn("separate clean commit", skill)
+        self.assertIn("not authorized", skill)
+
+    def test_skill_limits_proactive_scope(self):
+        skill = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("new or meaningfully modified", skill)
+        self.assertIn("unrelated repository-wide refactor", skill)
+
+    def test_skill_has_no_scaffold_placeholders(self):
+        skill = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
+        for placeholder in ("TODO", "TBD", "[TODO:"):
+            self.assertNotIn(placeholder, skill)
 
 
 if __name__ == "__main__":
