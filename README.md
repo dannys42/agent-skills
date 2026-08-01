@@ -9,9 +9,16 @@ engineering.
 |---|---|---|
 | `swift-testing` | `naming-swift-tests` | Explicit contract naming for Swift Testing and XCTest |
 | `swift-design-patterns` | `choosing-swift-design-patterns` | Swift-native-first selection and review across 22 common design patterns |
+| `swift-code-organization` | `organizing-swift-files` | Focused Swift files, concept directories, and clean structural commits |
 | `skill-development-optimizer` | `optimizing-skill-development` | Risk-proportional validation and reproducible evidence for agent skills |
 
 ## Skills
+
+### `organizing-swift-files`
+
+Organizes Swift source so every struct, class, and actor has a focused file,
+related files live in feature or domain directories, and structural refactors
+remain reviewable separately from behavioral changes.
 
 ### `optimizing-skill-development`
 
@@ -178,6 +185,45 @@ Zoo Code uses `roo` because it supports Roo-compatible skill directories. In
 ZCode, open **Settings → Skills** after installation to refresh and enable the
 skill.
 
+## Install `organizing-swift-files`
+
+Canonical source:
+[plugins/swift-code-organization/skills/organizing-swift-files](https://github.com/dannys42/agent-skills/tree/main/plugins/swift-code-organization/skills/organizing-swift-files)
+
+### Claude Code
+
+Install the complete `swift-code-organization` plugin:
+
+```bash
+claude plugin marketplace add dannys42/agent-skills
+claude plugin install swift-code-organization@danny-sung-agent-skills
+```
+
+### Codex
+
+Install the complete `swift-code-organization` plugin:
+
+```bash
+codex plugin marketplace add dannys42/agent-skills
+codex plugin add swift-code-organization@danny-sung-agent-skills
+```
+
+### Other agents
+
+Install the individual skill with the open `skills` installer:
+
+```bash
+npx skills add dannys42/agent-skills \
+  --skill organizing-swift-files \
+  --global \
+  --agent <agent>
+```
+
+Use the `<agent>` values in the table above. Gemini CLI is supported through
+this installer with `gemini-cli`, or by installing or linking
+`plugins/swift-code-organization/` as the local extension root. Use the plugin
+directory, not the monorepo repository root, as the Gemini extension root.
+
 ## Install `choosing-swift-design-patterns`
 
 Canonical source:
@@ -258,7 +304,8 @@ Replace `codex` with another supported agent value when needed.
 - Cursor marketplace: `.cursor-plugin/marketplace.json`
 - Gemini extension metadata:
   `plugins/swift-testing/gemini-extension.json`,
-  `plugins/swift-design-patterns/gemini-extension.json`, and
+  `plugins/swift-design-patterns/gemini-extension.json`,
+  `plugins/swift-code-organization/gemini-extension.json`, and
   `plugins/skill-development-optimizer/gemini-extension.json`
 - Ready for skills.sh, SkillsMD, and mdskills.ai indexing
 

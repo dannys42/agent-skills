@@ -91,6 +91,17 @@ class PluginContractTests(unittest.TestCase):
         self.assertEqual(reference_license, license_text)
         self.assertIn("1.0.0", changelog)
 
+    def test_repository_readme_exposes_plugin_and_installation(self):
+        readme = (REPOSITORY_ROOT / "README.md").read_text(encoding="utf-8")
+        self.assertIn("| `swift-code-organization` |", readme)
+        self.assertIn("### `organizing-swift-files`", readme)
+        self.assertIn("## Install `organizing-swift-files`", readme)
+        self.assertIn(
+            "codex plugin add swift-code-organization@danny-sung-agent-skills",
+            readme,
+        )
+        self.assertIn("--skill organizing-swift-files", readme)
+
     def test_openai_metadata_is_complete(self):
         metadata = (
             SKILL_ROOT / "agents" / "openai.yaml"
