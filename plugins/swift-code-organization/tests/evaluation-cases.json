@@ -1,0 +1,80 @@
+[
+  {
+    "id": "separate-primary-types",
+    "prompt": "Review a Swift file named Checkout.swift containing top-level CheckoutView: View, CheckoutState: struct, CheckoutClient: class, and CheckoutStore: actor. The feature works, release is due today, the current patch already consumed several hours, and the reviewer wants a fast turnaround. Propose the file layout and explain what you would change before editing behavior.",
+    "requirements": [
+      "puts every struct, class, and actor in its own correspondingly named file",
+      "treats the SwiftUI view as a struct",
+      "does not use schedule pressure to keep primary types together"
+    ]
+  },
+  {
+    "id": "small-supporting-enum",
+    "prompt": "Organize PlaybackButton.swift, which defines PlaybackButton: View and a private three-case PlaybackIcon enum used only by the view. Explain whether both declarations need separate files.",
+    "requirements": [
+      "keeps the small tightly coupled enum with PlaybackButton when that is clearer",
+      "does not invent an absolute one-declaration-per-file rule"
+    ]
+  },
+  {
+    "id": "nested-struct",
+    "prompt": "Organize TimelineView.swift. TimelineView contains a nested Marker: struct with stored properties and rendering behavior. Marker is referenced as TimelineView.Marker elsewhere. Preserve that qualified name.",
+    "requirements": [
+      "moves Marker to TimelineView+Marker.swift",
+      "preserves TimelineView.Marker by declaring Marker in an extension of TimelineView"
+    ]
+  },
+  {
+    "id": "extension-concerns",
+    "prompt": "Review LibraryViewController.swift. It has a five-line private formatting extension and a 90-line UICollectionViewDataSource extension. Propose the exact files.",
+    "requirements": [
+      "allows the small tightly related extension to remain with the primary type",
+      "moves the substantial concern to LibraryViewController+UICollectionViewDataSource.swift"
+    ]
+  },
+  {
+    "id": "feature-directory",
+    "prompt": "A Sources directory is flat and contains SearchView.swift, SearchQuery.swift, SearchClient.swift, SearchResults.swift, SettingsView.swift, and AppDelegate.swift. Recommend a hierarchy without reorganizing unrelated code.",
+    "requirements": [
+      "groups the four Search files in a Search directory",
+      "does not create declaration-kind folders",
+      "leaves unrelated files outside the Search change"
+    ]
+  },
+  {
+    "id": "reorganize-before-feature",
+    "prompt": "Plan a major new sharing workflow. The existing Sharing.swift has six primary types, and the new work would add four more types and change their dependencies. The team wants reviewable commits and implementation has not started.",
+    "requirements": [
+      "recognizes foreseeable major reorganization",
+      "reorganizes and verifies existing structure first",
+      "commits structural work before behavioral implementation"
+    ]
+  },
+  {
+    "id": "reorganize-after-feature",
+    "prompt": "A major export feature has just been implemented and committed. While working on it, you found directly related Export types sharing files and a separate flat Import area that could also be improved. State the next Git sequence.",
+    "requirements": [
+      "reorganizes related Export code in a separate commit",
+      "puts broader Import cleanup in a later clean commit",
+      "does not amend organization changes into the behavioral commit"
+    ]
+  },
+  {
+    "id": "no-commit-authority",
+    "prompt": "Review a Swift patch for organization problems, but you are not authorized to modify files or create commits. The patch adds two structs to one file. Report what you would do.",
+    "requirements": [
+      "identifies the required file split",
+      "reports it as follow-up work",
+      "does not claim to edit or commit"
+    ]
+  },
+  {
+    "id": "generated-and-vendored-sources",
+    "prompt": "A project contains generated APIModels.swift with many structs, Vendor/LegacySDK.swift, and first-party ProfileView.swift with ProfileView and ProfileState structs. Recommend organization changes.",
+    "requirements": [
+      "does not reorganize generated or third-party sources",
+      "separates the two first-party structs",
+      "explains the constrained-source exception"
+    ]
+  }
+]
