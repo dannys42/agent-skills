@@ -1,0 +1,36 @@
+{
+  "name": "swift-code-organization",
+  "version": "1.0.0",
+  "description": "Personal Swift file, directory, and structural-commit organization conventions",
+  "license": "MIT",
+  "skills": "./skills/",
+  "author": {
+    "name": "Danny Sung",
+    "url": "https://github.com/dannys42"
+  },
+  "repository": "https://github.com/dannys42/agent-skills",
+  "keywords": [
+    "swift",
+    "ios",
+    "macos",
+    "file-organization",
+    "project-structure",
+    "refactoring",
+    "agent-skills"
+  ],
+  "interface": {
+    "displayName": "Swift Code Organization",
+    "shortDescription": "Keep Swift source trees concept-focused",
+    "longDescription": "Organize Swift types into focused files and concept directories while preserving reviewable structural and behavioral commits.",
+    "developerName": "Danny Sung",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Swift file organization",
+      "Feature directory organization",
+      "Structural refactoring sequencing"
+    ],
+    "defaultPrompt": [
+      "Organize or review these Swift source files and preserve clean commit boundaries."
+    ]
+  }
+}

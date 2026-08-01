@@ -1,0 +1,4 @@
+interface:
+  display_name: "Organizing Swift Files"
+  short_description: "Keep Swift source trees concept-focused"
+  default_prompt: "Use $organizing-swift-files to organize or review Swift source files."
