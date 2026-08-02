@@ -41,10 +41,9 @@ without semantic, API, access-level, or ownership changes.
   implementation requires separate authorization.
 
 Do not widen access or hand-write conformances solely to satisfy layout.
-Explain every exception. For every move or retained exception, verify compilation
-with relevant builds and tests and report the result.
-Always end every organization recommendation, including no-change exceptions,
-with the verification to run.
+Explain exceptions; verify compilation for moves and retained exceptions.
+When the project is available, run relevant builds and tests and report actual results.
+Otherwise state the exact verification to run without implying it ran.
 
 ## Directories
 

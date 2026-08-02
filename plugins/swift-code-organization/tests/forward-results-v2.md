@@ -27,13 +27,25 @@ let result = parse("abc")
 print(result)
 ```
 
-Verification command: `swiftc -typecheck ${TMPDIR}/swift-org-function-local-fixture.swift`
+Captured `swift --version`:
+`swift-driver version: 1.148.6 Apple Swift version 6.3.3 (swiftlang-6.3.3.1.3 clang-2100.1.1.101)`.
+
+Captured target triple: `arm64-apple-macosx26.0`.
+Captured platform and architecture: `macosx`, `arm64`.
+
+Verification command: `swiftc -warnings-as-errors -typecheck ${TMPDIR}/swift-org-durable-fixture.swift`
 
 Fixture type-check exit: `0`.
+Compiler stdout: empty.
+Compiler stderr: empty.
+Warning status: none; `-warnings-as-errors` was enabled.
 
-The check ran on 2026-08-01 from source commit
-`e0acf75444be95aa3966edaec041f1c7a1e46445`. The temporary fixture and compiler
-artifacts were not retained.
+Fixture SHA-256: `9eef2a2312c70d66f768a49e75dab67de71bbca8bf0db44a3523dfbb958e5b8c`.
+Base revision: `377f19593c1384cd4cce81abd77f7e7945227c5d`.
+
+The capture ran on 2026-08-01. The base revision plus the displayed fixture
+content and SHA-256 precisely identify the compiled snapshot. The temporary
+fixture and compiler artifacts were not retained.
 
 ## Pre-fix compiler-feasibility RED cohort
 
@@ -54,10 +66,7 @@ No rubric, requirements, repository tests, implementation plan, specification,
 prior response, or intended answer was supplied. The snapshot contained only
 the current skill directory, and evaluator artifacts were removed afterward.
 
-Evaluated source commit: `eb3342c6b16bfb452956cefcaeceffa80f47d525`.
-
-Evaluated `SKILL.md` SHA-256:
-`b3b5e3c4e23574a5131ef37a56b0a1f7103694866e19ba3e9c1d6a5415edbcfc`.
+Pre-fix snapshot: commit `eb3342c6b16bfb452956cefcaeceffa80f47d525`, skill SHA-256 `b3b5e3c4e23574a5131ef37a56b0a1f7103694866e19ba3e9c1d6a5415edbcfc`.
 
 Case-derived run labels:
 
@@ -142,15 +151,14 @@ prior response, or intended answer was supplied. The isolated snapshot contained
 only the skill directory. Evaluator artifacts were removed afterward.
 
 This final aggregate is a transparent composite of immutable skill snapshots.
-Eight unaffected cases remain pinned to source commit
-`eb3342c6b16bfb452956cefcaeceffa80f47d525` and `SKILL.md` SHA-256
-`c5b61e6b1ebfa44690c478eb91c3e8a6fefe50ace1faed600d65d9469dcfa13d`.
-The four cases affected by the corrected function-local prompt or narrowed
-conformance authorization guidance were rerun against source commit
-`e0acf75444be95aa3966edaec041f1c7a1e46445` plus the task-local skill correction,
-with `SKILL.md` SHA-256
-`4c43e4939492f1ac52bcb41c03248dd66565bf5f06db304729ae5bbf8f935579`.
-Only the corresponding isolated skill directory was visible to each evaluator.
+Unaffected snapshot: commit `e0acf75444be95aa3966edaec041f1c7a1e46445`, skill SHA-256 `c5b61e6b1ebfa44690c478eb91c3e8a6fefe50ace1faed600d65d9469dcfa13d`.
+Corrected snapshot: base commit `e0acf75444be95aa3966edaec041f1c7a1e46445`, skill SHA-256 `4c43e4939492f1ac52bcb41c03248dd66565bf5f06db304729ae5bbf8f935579`.
+Eight unaffected cases used the first snapshot. The four cases affected by the
+corrected function-local prompt or narrowed conformance authorization guidance
+used the second snapshot. Only the corresponding isolated skill directory was
+visible to each evaluator.
+
+Post-evidence wording snapshot: base commit `377f19593c1384cd4cce81abd77f7e7945227c5d`, skill SHA-256 `b0a299020e6f78574a5d5034f8381c1a7c5e10cea9ae4974bf77acb680546d6b`; not evaluated by the final cohort.
 
 Case-derived run labels:
 
