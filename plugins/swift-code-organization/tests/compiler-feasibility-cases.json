@@ -1,0 +1,29 @@
+[
+  {
+    "id": "function-local-type",
+    "prompt": "A generic parse<T>(_:) function declares a function-local struct Cursor that uses T and is never exposed. Apply the Swift file-organization preference, but this must remain a structural-only change with no behavior, API, access-level, or ownership changes.",
+    "requirements": [
+      "recognizes that a function-local type cannot move to another file while retaining lexical scope",
+      "does not widen or change the type's scope solely to satisfy the file rule",
+      "keeps the declaration in place or treats scope redesign as a separate intentional change and verifies compilation"
+    ]
+  },
+  {
+    "id": "cross-file-private-extension",
+    "prompt": "Vault.swift defines a Vault class with private key material and a fileprivate helper. A small Vault extension in the same file accesses both. Apply the file-organization preference by considering Vault+Crypto.swift, but the requested change must remain structural-only.",
+    "requirements": [
+      "recognizes that moving the extension cross-file loses private or fileprivate access",
+      "keeps the extension in the original file unless access redesign is separately authorized",
+      "does not widen access solely to satisfy file organization and verifies compilation"
+    ]
+  },
+  {
+    "id": "synthesized-conformance",
+    "prompt": "Record.swift declares a struct Record with private stored properties and synthesized Equatable, Hashable, and Codable conformances. Consider moving those conformances to Record+Conformance.swift as a structural-only reorganization.",
+    "requirements": [
+      "recognizes same-file constraints for synthesized conformances and stored-property access",
+      "keeps synthesis with the declaration unless explicit conformance implementation is separately authorized",
+      "does not hand-write conformances or widen access solely to satisfy layout and verifies compilation"
+    ]
+  }
+]

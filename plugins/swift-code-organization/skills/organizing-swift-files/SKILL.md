@@ -21,7 +21,29 @@ nested type in an extension of the enclosing type.
 ## Extensions
 
 - Keep a small, tightly related extension with the primary type.
-- Move a substantial or distinct concern to `TypeName+Concern.swift`.
+- Move a substantial or distinct concern to `TypeName+Concern.swift`; for
+  protocol conformance, use `TypeName+ProtocolName.swift`.
+
+## Preserve compiler feasibility
+
+Before moving a declaration, extension, or conformance, verify it can compile
+without semantic, API, access-level, or ownership changes.
+
+- Keep function-local and other lexically scoped types in place when moving
+  them would break lexical scope. Treat scope redesign as a separate,
+  intentional change.
+- Keep an extension in its original file when a cross-file move would lose
+  `private` or `fileprivate` access.
+- Keep synthesized `Equatable`, `Hashable`, and `Codable` conformances with the
+  original declaration when synthesis or stored-property access requires it;
+  explicit implementations require separate authorization.
+  State in every conformance recommendation that authorization is required.
+
+Do not widen access or hand-write conformances solely to satisfy layout.
+Explain every exception. For every move or retained exception, verify compilation
+with relevant builds and tests and report the result.
+Always end every organization recommendation, including no-change exceptions,
+with the verification to run.
 
 ## Directories
 

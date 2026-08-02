@@ -132,6 +132,21 @@ class PluginContractTests(unittest.TestCase):
             {case["id"] for case in cases},
         )
 
+    def test_compiler_feasibility_corpus_has_unique_required_cases(self):
+        cases = load_json(
+            PLUGIN_ROOT / "tests" / "compiler-feasibility-cases.json"
+        )
+        identifiers = [case["id"] for case in cases]
+        self.assertEqual(
+            {
+                "function-local-type",
+                "cross-file-private-extension",
+                "synthesized-conformance",
+            },
+            set(identifiers),
+        )
+        self.assertEqual(len(identifiers), len(set(identifiers)))
+
     def test_skill_frontmatter_has_discoverable_trigger(self):
         skill = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
         self.assertTrue(skill.startswith("---\nname: organizing-swift-files\n"))
@@ -156,6 +171,7 @@ class PluginContractTests(unittest.TestCase):
         skill = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
         self.assertIn("EnclosingType+NestedType.swift", skill)
         self.assertIn("TypeName+Concern.swift", skill)
+        self.assertIn("TypeName+ProtocolName.swift", skill)
         self.assertIn("extension of the enclosing type", skill)
         self.assertIn("feature or domain concept", skill)
         self.assertIn("declaration kind", skill)
@@ -176,6 +192,32 @@ class PluginContractTests(unittest.TestCase):
         skill = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
         for placeholder in ("TODO", "TBD", "[TODO:"):
             self.assertNotIn(placeholder, skill)
+
+    def test_skill_preserves_swift_compiler_feasibility(self):
+        skill = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
+        for guidance in (
+            "function-local",
+            "lexical scope",
+            "private",
+            "fileprivate",
+            "synthesized",
+            "separate authorization",
+            "Do not widen access",
+            "verify compilation",
+        ):
+            self.assertIn(guidance, skill)
+        self.assertIn(
+            "For every move or retained exception, verify compilation",
+            skill,
+        )
+        self.assertIn(
+            "Always end every organization recommendation",
+            skill,
+        )
+        self.assertIn(
+            "State in every conformance recommendation",
+            skill,
+        )
 
 
 if __name__ == "__main__":
