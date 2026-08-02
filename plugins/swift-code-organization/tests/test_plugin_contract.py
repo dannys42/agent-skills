@@ -8,6 +8,22 @@ from pathlib import Path
 PLUGIN_ROOT = Path(__file__).parents[1]
 REPOSITORY_ROOT = PLUGIN_ROOT.parents[1]
 SKILL_ROOT = PLUGIN_ROOT / "skills" / "organizing-swift-files"
+PLUGIN_NAME = "swift-code-organization"
+PLUGIN_VERSION = "1.0.0"
+PLUGIN_DESCRIPTION = (
+    "Personal Swift file, directory, and structural-commit organization "
+    "conventions"
+)
+PLUGIN_REPOSITORY = "https://github.com/dannys42/agent-skills"
+PLUGIN_KEYWORDS = [
+    "swift",
+    "ios",
+    "macos",
+    "file-organization",
+    "project-structure",
+    "refactoring",
+    "agent-skills",
+]
 
 
 def load_json(path):
@@ -17,10 +33,37 @@ def load_json(path):
 class PluginContractTests(unittest.TestCase):
     def test_codex_manifest_identifies_skill_plugin(self):
         manifest = load_json(PLUGIN_ROOT / ".codex-plugin" / "plugin.json")
-        self.assertEqual("swift-code-organization", manifest["name"])
-        self.assertEqual("1.0.0", manifest["version"])
+        self.assertEqual("MIT", manifest["license"])
         self.assertEqual("./skills/", manifest["skills"])
-        self.assertEqual("Developer Tools", manifest["interface"]["category"])
+        self.assertEqual(
+            {"name": "Danny Sung", "url": "https://github.com/dannys42"},
+            manifest["author"],
+        )
+        self.assertEqual(PLUGIN_REPOSITORY, manifest["repository"])
+        self.assertEqual(PLUGIN_KEYWORDS, manifest["keywords"])
+        self.assertEqual(
+            {
+                "displayName": "Swift Code Organization",
+                "shortDescription": "Keep Swift source trees concept-focused",
+                "longDescription": (
+                    "Organize Swift types into focused files and concept "
+                    "directories while preserving reviewable structural and "
+                    "behavioral commits."
+                ),
+                "developerName": "Danny Sung",
+                "category": "Developer Tools",
+                "capabilities": [
+                    "Swift file organization",
+                    "Feature directory organization",
+                    "Structural refactoring sequencing",
+                ],
+                "defaultPrompt": [
+                    "Organize or review these Swift source files and preserve "
+                    "clean commit boundaries."
+                ],
+            },
+            manifest["interface"],
+        )
 
     def test_codex_marketplace_exposes_plugin_once(self):
         marketplace = load_json(
@@ -29,28 +72,68 @@ class PluginContractTests(unittest.TestCase):
         matches = [
             plugin
             for plugin in marketplace["plugins"]
-            if plugin["name"] == "swift-code-organization"
+            if plugin["name"] == PLUGIN_NAME
         ]
-        self.assertEqual(1, len(matches))
         self.assertEqual(
-            "./plugins/swift-code-organization",
-            matches[0]["source"]["path"],
+            [
+                {
+                    "name": PLUGIN_NAME,
+                    "source": {
+                        "source": "local",
+                        "path": "./plugins/swift-code-organization",
+                    },
+                    "policy": {
+                        "installation": "AVAILABLE",
+                        "authentication": "ON_INSTALL",
+                    },
+                    "category": "Developer Tools",
+                }
+            ],
+            matches,
         )
-        self.assertEqual("local", matches[0]["source"]["source"])
-        self.assertEqual("Developer Tools", matches[0]["category"])
-        self.assertEqual("AVAILABLE", matches[0]["policy"]["installation"])
-        self.assertEqual("ON_INSTALL", matches[0]["policy"]["authentication"])
 
-    def test_portable_plugin_manifests_match_name_and_version(self):
+    def test_portable_plugin_manifests_share_canonical_identity(self):
         for relative_path in (
+            ".codex-plugin/plugin.json",
             ".claude-plugin/plugin.json",
             ".cursor-plugin/plugin.json",
             "gemini-extension.json",
         ):
             with self.subTest(path=relative_path):
                 manifest = load_json(PLUGIN_ROOT / relative_path)
-                self.assertEqual("swift-code-organization", manifest["name"])
-                self.assertEqual("1.0.0", manifest["version"])
+                self.assertEqual(PLUGIN_NAME, manifest["name"])
+                self.assertEqual(PLUGIN_VERSION, manifest["version"])
+                self.assertEqual(PLUGIN_DESCRIPTION, manifest["description"])
+
+    def test_claude_manifest_uses_provider_metadata(self):
+        manifest = load_json(PLUGIN_ROOT / ".claude-plugin" / "plugin.json")
+        self.assertEqual("MIT", manifest["license"])
+        self.assertEqual({"name": "Danny Sung"}, manifest["author"])
+        self.assertEqual(PLUGIN_KEYWORDS, manifest["keywords"])
+
+    def test_cursor_manifest_uses_provider_metadata(self):
+        manifest = load_json(PLUGIN_ROOT / ".cursor-plugin" / "plugin.json")
+        self.assertEqual("Swift Code Organization", manifest["displayName"])
+        self.assertEqual("MIT", manifest["license"])
+        self.assertEqual({"name": "Danny Sung"}, manifest["author"])
+        self.assertEqual(PLUGIN_REPOSITORY, manifest["repository"])
+        self.assertEqual(PLUGIN_KEYWORDS, manifest["keywords"])
+        self.assertEqual("developer-tools", manifest["category"])
+        self.assertEqual(
+            ["swift", "organization", "refactoring"], manifest["tags"]
+        )
+        self.assertEqual("./skills/", manifest["skills"])
+
+    def test_gemini_manifest_contains_only_canonical_identity(self):
+        manifest = load_json(PLUGIN_ROOT / "gemini-extension.json")
+        self.assertEqual(
+            {
+                "name": PLUGIN_NAME,
+                "version": PLUGIN_VERSION,
+                "description": PLUGIN_DESCRIPTION,
+            },
+            manifest,
+        )
 
     def test_repository_marketplaces_expose_plugin_once(self):
         marketplace_paths = (
@@ -64,9 +147,49 @@ class PluginContractTests(unittest.TestCase):
                 matches = [
                     plugin
                     for plugin in marketplace["plugins"]
-                    if plugin["name"] == "swift-code-organization"
+                    if plugin["name"] == PLUGIN_NAME
                 ]
                 self.assertEqual(1, len(matches))
+
+    def test_claude_marketplace_uses_canonical_plugin_entry(self):
+        marketplace = load_json(
+            REPOSITORY_ROOT / ".claude-plugin" / "marketplace.json"
+        )
+        entry = next(
+            plugin
+            for plugin in marketplace["plugins"]
+            if plugin["name"] == PLUGIN_NAME
+        )
+        self.assertEqual(
+            {
+                "name": PLUGIN_NAME,
+                "source": "./plugins/swift-code-organization",
+                "version": PLUGIN_VERSION,
+                "description": PLUGIN_DESCRIPTION,
+                "category": "developer-tools",
+                "keywords": PLUGIN_KEYWORDS,
+                "tags": ["swift", "organization", "refactoring"],
+            },
+            entry,
+        )
+
+    def test_cursor_marketplace_uses_canonical_plugin_entry(self):
+        marketplace = load_json(
+            REPOSITORY_ROOT / ".cursor-plugin" / "marketplace.json"
+        )
+        entry = next(
+            plugin
+            for plugin in marketplace["plugins"]
+            if plugin["name"] == PLUGIN_NAME
+        )
+        self.assertEqual(
+            {
+                "name": PLUGIN_NAME,
+                "source": "plugins/swift-code-organization",
+                "description": PLUGIN_DESCRIPTION,
+            },
+            entry,
+        )
 
     def test_cursor_marketplace_uses_supported_entry_fields(self):
         marketplace = load_json(
