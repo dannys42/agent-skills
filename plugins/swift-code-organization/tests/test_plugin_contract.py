@@ -1,3 +1,4 @@
+import hashlib
 import json
 import unittest
 from pathlib import Path
@@ -147,6 +148,121 @@ class PluginContractTests(unittest.TestCase):
         )
         self.assertEqual(len(identifiers), len(set(identifiers)))
 
+    def test_compiler_feasibility_corpus_matches_canonical_cases(self):
+        cases = load_json(
+            PLUGIN_ROOT / "tests" / "compiler-feasibility-cases.json"
+        )
+        self.assertEqual(
+            [
+                {
+                    "id": "function-local-type",
+                    "prompt": (
+                        "A non-generic parse(_:) function declares a "
+                        "function-local struct Cursor with an index and "
+                        "advance() method. Cursor is used only inside parse "
+                        "and is never exposed. Apply the Swift "
+                        "file-organization preference, but this must remain "
+                        "a structural-only change with no behavior, API, "
+                        "access-level, or ownership changes."
+                    ),
+                    "requirements": [
+                        "recognizes that a function-local type cannot move "
+                        "to another file while retaining lexical scope",
+                        "does not widen or change the type's scope solely to "
+                        "satisfy the file rule",
+                        "keeps the declaration in place or treats scope "
+                        "redesign as a separate intentional change and "
+                        "verifies compilation",
+                    ],
+                },
+                {
+                    "id": "cross-file-private-extension",
+                    "prompt": (
+                        "Vault.swift defines a Vault class with private key "
+                        "material and a fileprivate helper. A small Vault "
+                        "extension in the same file accesses both. Apply the "
+                        "file-organization preference by considering "
+                        "Vault+Crypto.swift, but the requested change must "
+                        "remain structural-only."
+                    ),
+                    "requirements": [
+                        "recognizes that moving the extension cross-file "
+                        "loses private or fileprivate access",
+                        "keeps the extension in the original file unless "
+                        "access redesign is separately authorized",
+                        "does not widen access solely to satisfy file "
+                        "organization and verifies compilation",
+                    ],
+                },
+                {
+                    "id": "synthesized-conformance",
+                    "prompt": (
+                        "Record.swift declares a struct Record with private "
+                        "stored properties and synthesized Equatable, "
+                        "Hashable, and Codable conformances. Consider moving "
+                        "those conformances to Record+Conformance.swift as a "
+                        "structural-only reorganization."
+                    ),
+                    "requirements": [
+                        "recognizes same-file constraints for synthesized "
+                        "conformances and stored-property access",
+                        "keeps synthesis with the declaration unless "
+                        "explicit conformance implementation is separately "
+                        "authorized",
+                        "does not hand-write conformances or widen access "
+                        "solely to satisfy layout and verifies compilation",
+                    ],
+                },
+            ],
+            cases,
+        )
+
+    def test_compiler_feasibility_evidence_has_integrity(self):
+        report = (
+            PLUGIN_ROOT / "tests" / "forward-results-v2.md"
+        ).read_text(encoding="utf-8")
+        pre_fix, final = report.split("## Final 12-case cohort", 1)
+
+        self.assertEqual(3, pre_fix.count("#### Verbatim response"))
+        self.assertEqual(3, pre_fix.count("#### Requirement scoring"))
+        self.assertEqual(12, final.count("#### Verbatim response"))
+        self.assertEqual(12, final.count("#### Requirement scoring"))
+        self.assertIn("eb3342c6b16bfb452956cefcaeceffa80f47d525", pre_fix)
+        self.assertIn(
+            "b3b5e3c4e23574a5131ef37a56b0a1f7103694866e19ba3e9c1d6a5415edbcfc",
+            pre_fix,
+        )
+        self.assertIn("e0acf75444be95aa3966edaec041f1c7a1e46445", final)
+        self.assertIn(
+            "c5b61e6b1ebfa44690c478eb91c3e8a6fefe50ace1faed600d65d9469dcfa13d",
+            final,
+        )
+
+        skill = (SKILL_ROOT / "SKILL.md").read_bytes()
+        self.assertIn(hashlib.sha256(skill).hexdigest(), final)
+        corrected_prompt = (
+            "A non-generic parse(_:) function declares a function-local "
+            "struct Cursor with an index and advance() method."
+        )
+        self.assertEqual(2, report.count(corrected_prompt))
+        self.assertIn("swiftc -typecheck", report)
+        self.assertIn("func parse(_ input: String) -> Int", report)
+        self.assertIn("Fixture type-check exit: `0`", report)
+
+        for section, case_count in ((pre_fix, 3), (final, 12)):
+            pass_count = section.count("- PASS —")
+            fail_count = section.count("- FAIL —")
+            requirement_count = pass_count + fail_count
+            self.assertIn(
+                f"**{pass_count} PASS and {fail_count} FAIL across "
+                f"{requirement_count} requirements;",
+                section,
+            )
+            fully_passing = section.count(
+                "of " + str(case_count) + " cases fully passed"
+            )
+            self.assertEqual(1, fully_passing)
+
     def test_skill_frontmatter_has_discoverable_trigger(self):
         skill = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
         self.assertTrue(skill.startswith("---\nname: organizing-swift-files\n"))
@@ -195,6 +311,7 @@ class PluginContractTests(unittest.TestCase):
 
     def test_skill_preserves_swift_compiler_feasibility(self):
         skill = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
+        normalized_skill = " ".join(skill.split())
         for guidance in (
             "function-local",
             "lexical scope",
@@ -214,10 +331,13 @@ class PluginContractTests(unittest.TestCase):
             "Always end every organization recommendation",
             skill,
         )
+        self.assertNotIn("every conformance recommendation", skill)
         self.assertIn(
-            "State in every conformance recommendation",
-            skill,
+            "access widening or manual conformance implementation requires "
+            "separate authorization",
+            normalized_skill,
         )
+        self.assertIn("When synthesis would break, state", skill)
 
 
 if __name__ == "__main__":

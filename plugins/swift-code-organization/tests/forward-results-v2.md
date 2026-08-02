@@ -3,6 +3,38 @@
 This report preserves a pre-fix behavioral RED cohort and a fresh final cohort
 for compiler-feasibility guidance in `organizing-swift-files`.
 
+## Compiler-feasibility fixture
+
+The corrected function-local prompt was grounded in this compiling Swift
+fixture:
+
+```swift
+func parse(_ input: String) -> Int {
+    struct Cursor {
+        var index: Int
+
+        mutating func advance() {
+            index += 1
+        }
+    }
+
+    var cursor = Cursor(index: input.startIndex == input.endIndex ? 0 : 1)
+    cursor.advance()
+    return cursor.index
+}
+
+let result = parse("abc")
+print(result)
+```
+
+Verification command: `swiftc -typecheck ${TMPDIR}/swift-org-function-local-fixture.swift`
+
+Fixture type-check exit: `0`.
+
+The check ran on 2026-08-01 from source commit
+`e0acf75444be95aa3966edaec041f1c7a1e46445`. The temporary fixture and compiler
+artifacts were not retained.
+
 ## Pre-fix compiler-feasibility RED cohort
 
 ### Aggregate results
@@ -29,7 +61,7 @@ Evaluated `SKILL.md` SHA-256:
 
 Case-derived run labels:
 
-- `function-local-type`: `red_function_local`
+- `function-local-type`: `corrected_pre_function`
 - `cross-file-private-extension`: `red_private_extension`
 - `synthesized-conformance`: `red_synthesized`
 
@@ -46,14 +78,18 @@ scorer or adjudication was used.
 
 ### function-local-type
 
+Canonical prompt: A non-generic parse(_:) function declares a function-local struct Cursor with an index and advance() method. Cursor is used only inside parse and is never exposed. Apply the Swift file-organization preference, but this must remain a structural-only change with no behavior, API, access-level, or ownership changes.
+
 #### Verbatim response
 
-Leave `Cursor` function-local. Extracting it would require a file-scoped generic type, changing lexical ownership and scope. Under the structural-only constraint, this is a necessary exception to the one-struct-per-file preference; no code change is appropriate.
+Leave `Cursor` declared inside `parse(_:)`.
+
+Moving it to its own file would require promoting it from function-local scope to file or type scope, changing its ownership and visibility boundary. Because the change must remain structural-only with no ownership, API, access-level, or behavior changes, this is a necessary exception to the one-struct-per-file preference.
 
 #### Requirement scoring
 
-- PASS — `recognizes that a function-local type cannot move to another file while retaining lexical scope`: The response says extraction would require file scope and change lexical ownership and scope.
-- PASS — `does not widen or change the type's scope solely to satisfy the file rule`: It rejects extraction under the structural-only constraint.
+- PASS — `recognizes that a function-local type cannot move to another file while retaining lexical scope`: The response says movement requires promotion from function-local to file or type scope.
+- PASS — `does not widen or change the type's scope solely to satisfy the file rule`: It rejects promotion because it changes ownership and visibility.
 - FAIL — `keeps the declaration in place or treats scope redesign as a separate intentional change and verifies compilation`: It keeps the declaration local but does not require compilation verification.
 
 ### cross-file-private-extension
@@ -105,41 +141,44 @@ No rubric, requirements, repository tests, implementation plan, specification,
 prior response, or intended answer was supplied. The isolated snapshot contained
 only the skill directory. Evaluator artifacts were removed afterward.
 
-Evaluated source commit: `eb3342c6b16bfb452956cefcaeceffa80f47d525`.
-The evaluated tree was an uncommitted task-local state containing the skill fix,
-contract tests, feasibility corpus, and this evidence report; only the isolated
-skill directory was visible to evaluators.
-
-Evaluated `SKILL.md` SHA-256:
+This final aggregate is a transparent composite of immutable skill snapshots.
+Eight unaffected cases remain pinned to source commit
+`eb3342c6b16bfb452956cefcaeceffa80f47d525` and `SKILL.md` SHA-256
 `c5b61e6b1ebfa44690c478eb91c3e8a6fefe50ace1faed600d65d9469dcfa13d`.
+The four cases affected by the corrected function-local prompt or narrowed
+conformance authorization guidance were rerun against source commit
+`e0acf75444be95aa3966edaec041f1c7a1e46445` plus the task-local skill correction,
+with `SKILL.md` SHA-256
+`4c43e4939492f1ac52bcb41c03248dd66565bf5f06db304729ae5bbf8f935579`.
+Only the corresponding isolated skill directory was visible to each evaluator.
 
 Case-derived run labels:
 
 - `separate-primary-types`: `done_separate`
 - `small-supporting-enum`: `done_enum`
 - `nested-struct`: `done_nested`
-- `extension-concerns`: `done_extensions`
+- `extension-concerns`: `finalhash_extensions`
 - `feature-directory`: `done_feature`
-- `reorganize-before-feature`: `done_before`
+- `reorganize-before-feature`: `finalhash_before`
 - `reorganize-after-feature`: `done_after`
 - `no-commit-authority`: `done_noauth`
 - `generated-and-vendored-sources`: `done_generated`
-- `function-local-type`: `done_function`
+- `function-local-type`: `finalhash_function`
 - `cross-file-private-extension`: `done_private`
-- `synthesized-conformance`: `done_synth`
+- `synthesized-conformance`: `finalhash_synth`
 
 ### Evidence limitations
 
-This cohort used one stochastic run per canonical case. The 33/33 result is
-directional and does not prove reliable, general, or causal behavior. Earlier
-candidate-skill cohorts were discarded after failures and are not part of this
-final aggregate. The exact internal model identity and stable external run IDs
-were unavailable. No independent raw tool transcript or scorer artifact was
-retained; the response blocks below are the sole retained response record, so
-verbatim and isolation claims are not independently auditable. Scoring was
-performed after generation by the implementing agent and was rubric-blind only
-for evaluators, not for the scorer. No independent blinded scorer or
-adjudication was used.
+Each retained case has one stochastic run, but this corrected aggregate spans
+the two immutable skill hashes disclosed above. The 33/33 result is directional
+and does not prove reliable, general, or causal behavior. Earlier failed
+candidate cohorts were discarded. The exact internal model identity and stable
+external run IDs were unavailable. No independent raw tool transcript or scorer
+artifact was retained; the response blocks below are the sole retained response
+record, so verbatim and isolation claims are not independently auditable.
+Scoring was performed after generation by the implementing agent and was
+rubric-blind only for evaluators, not for the scorer. No independent blinded
+scorer or adjudication was used.
 
 ### separate-primary-types
 
@@ -208,10 +247,10 @@ Afterward, run the relevant build and test suite to verify compilation and uncha
 
 Proposed files:
 
-- `LibraryViewController.swift` — `LibraryViewController` and the five-line private formatting extension.
-- `LibraryViewController+UICollectionViewDataSource.swift` — the 90-line `UICollectionViewDataSource` conformance.
+- `LibraryViewController.swift` — keep the main class and the five-line private formatting extension together.
+- `LibraryViewController+UICollectionViewDataSource.swift` — move the substantial 90-line data-source conformance here.
 
-The conformance move requires authorization and must not break access to `private` or `fileprivate` members; otherwise retain it in the original file. Verify with the relevant target build and tests.
+Before moving, confirm the data-source extension does not rely on `private` or `fileprivate` declarations from the original file; if it does, retain it unless an access redesign is separately authorized. Then run the relevant build and tests.
 
 #### Requirement scoring
 
@@ -249,13 +288,18 @@ Make this a movement-only change—no behavioral edits—and preserve Xcode targ
 
 #### Verbatim response
 
-Reorganize before implementation because the planned dependency changes make structural churn foreseeable.
+Reorganize before implementing the new workflow. With six existing primary types, four planned types, and changing dependencies, this is foreseeable major structural work.
 
-1. Split the six existing primary `struct`, `class`, and `actor` declarations into correspondingly named Swift files, grouped in a `Sharing/` feature directory. Keep only tiny, tightly coupled supporting enums/typealiases with a primary type. Before moving anything, check `private`/`fileprivate` dependencies, lexical scope, synthesized conformances, and Xcode target membership; retain and document anything that cannot move without semantic changes. Verify with the relevant build and test suite, then commit this behavior-preserving reorganization alone.
+Plan:
 
-2. Add each of the four new primary types in its own correspondingly named file under `Sharing/`. If any is nested, use `EnclosingType+NestedType.swift` and preserve qualified naming through an extension. Implement dependency and behavioral changes in later reviewable commits, without mixing file moves into them. Verify each commit with the relevant build and tests.
+1. Create a feature-level `Sharing/` directory.
+2. Move each existing `struct`, `class`, and `actor` from `Sharing.swift` into its own correspondingly named file.
+3. Keep only small, tightly coupled supporting enums/typealiases beside a primary type; give independently meaningful supporting types their own files.
+4. Before moving extensions or conformances, check `private`/`fileprivate` access and synthesized `Equatable`, `Hashable`, or `Codable` requirements. Retain compiler-sensitive declarations in place rather than widening access or hand-writing conformances merely for layout.
+5. Build and run the relevant tests, then commit this behavior-preserving reorganization alone.
+6. Add the four new types—each in its own named file—and dependency changes in subsequent reviewable behavioral commits.
 
-Any recommendation to move synthesized `Equatable`, `Hashable`, or `Codable` conformances requires separate authorization; otherwise keep them with their declarations.
+After both the structural commit and each implementation commit, run the relevant project build and sharing-workflow tests.
 
 #### Requirement scoring
 
@@ -327,19 +371,21 @@ Recommendations:
 
 ### function-local-type
 
+Canonical prompt: A non-generic parse(_:) function declares a function-local struct Cursor with an index and advance() method. Cursor is used only inside parse and is never exposed. Apply the Swift file-organization preference, but this must remain a structural-only change with no behavior, API, access-level, or ownership changes.
+
 #### Verbatim response
 
-Keep `Cursor` inside `parse<T>(_:)`.
+Keep `Cursor` declared inside `parse(_:)`.
 
-Although structs normally receive their own file, this is the skill’s lexical-scope exception: moving `Cursor` would prevent it from using the function’s `T`. Making `Cursor` independently generic or nesting it under another owner would change its declaration, ownership, and potentially API/access semantics, exceeding a structural-only reorganization.
+Although structs normally receive their own files, this is an explicit lexical-scope exception: moving `Cursor` would change its scope/ownership and expose it beyond `parse`, violating the structural-only constraint. Make no organization change.
 
-No organization change is appropriate. Verify by running the project’s relevant build and parse tests; the existing code should compile and behave unchanged.
+Verification: run the relevant build and parser tests to confirm compilation and unchanged behavior.
 
 #### Requirement scoring
 
-- PASS — `recognizes that a function-local type cannot move to another file while retaining lexical scope`: It identifies loss of the function generic parameter.
-- PASS — `does not widen or change the type's scope solely to satisfy the file rule`: It rejects independent generic or ownership redesign.
-- PASS — `keeps the declaration in place or treats scope redesign as a separate intentional change and verifies compilation`: It keeps Cursor local and requires build/tests.
+- PASS — `recognizes that a function-local type cannot move to another file while retaining lexical scope`: It identifies the function-local scope and exposure caused by movement.
+- PASS — `does not widen or change the type's scope solely to satisfy the file rule`: It rejects movement because scope and ownership would change.
+- PASS — `keeps the declaration in place or treats scope redesign as a separate intentional change and verifies compilation`: It keeps Cursor local and explicitly requires build/parser tests.
 
 ### cross-file-private-extension
 
@@ -361,11 +407,13 @@ Verification to run: the relevant Swift build and tests, confirming the unchange
 
 #### Verbatim response
 
-Do not move the synthesized conformances.
+Do not move these conformances to `Record+Conformance.swift`.
 
-`Record` should keep `Equatable`, `Hashable`, and `Codable` on its primary declaration in `Record.swift`. Declaring them in `Record+Conformance.swift` would prevent automatic synthesis across the file boundary, particularly because the stored properties are `private`. Preserving compilation would require widening access or writing explicit conformance implementations, which is a behavioral/API change and requires separate authorization—not a structural-only reorganization.
+Synthesized `Equatable`, `Hashable`, and `Codable` conformances must remain in the same source file as `Record` when synthesis depends on its stored properties; the private properties also aren’t accessible from a cross-file extension. Keep the conformances on the declaration in `Record.swift`, or in same-file extensions if desired.
 
-Verification to run: build the affected target and run its relevant tests.
+Moving them would require widening access or manually implementing the conformances, which is a semantic/API change requiring separate authorization—not a structural-only reorganization.
+
+Verification: run the relevant build and test suite after any same-file reorganization.
 
 #### Requirement scoring
 

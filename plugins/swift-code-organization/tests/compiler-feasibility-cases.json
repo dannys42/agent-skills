@@ -1,7 +1,7 @@
 [
   {
     "id": "function-local-type",
-    "prompt": "A generic parse<T>(_:) function declares a function-local struct Cursor that uses T and is never exposed. Apply the Swift file-organization preference, but this must remain a structural-only change with no behavior, API, access-level, or ownership changes.",
+    "prompt": "A non-generic parse(_:) function declares a function-local struct Cursor with an index and advance() method. Cursor is used only inside parse and is never exposed. Apply the Swift file-organization preference, but this must remain a structural-only change with no behavior, API, access-level, or ownership changes.",
     "requirements": [
       "recognizes that a function-local type cannot move to another file while retaining lexical scope",
       "does not widen or change the type's scope solely to satisfy the file rule",

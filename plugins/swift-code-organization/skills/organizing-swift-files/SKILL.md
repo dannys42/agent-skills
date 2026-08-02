@@ -8,10 +8,10 @@ description: Use when creating or substantially editing Swift source files, or w
 ## Core rule
 
 Give every `struct`, `class`, and `actor` its own correspondingly named Swift file.
-Treat every SwiftUI view as a struct under this rule.
+SwiftUI views are structs under this rule.
 
 Allow a supporting `enum` or `typealias` to remain with the primary type only
-when it is a few lines, tightly coupled, and has no useful independent role.
+when it is a few lines, tightly coupled, and has no independent role.
 Never apply this exception to another `struct`, `class`, or `actor`.
 
 For a nested `struct`, `class`, or `actor`, name its file
@@ -35,9 +35,10 @@ without semantic, API, access-level, or ownership changes.
 - Keep an extension in its original file when a cross-file move would lose
   `private` or `fileprivate` access.
 - Keep synthesized `Equatable`, `Hashable`, and `Codable` conformances with the
-  original declaration when synthesis or stored-property access requires it;
-  explicit implementations require separate authorization.
-  State in every conformance recommendation that authorization is required.
+  original declaration when synthesis or stored-property access requires it.
+  Ordinary compiler-safe requested conformance moves need no authorization.
+  When synthesis would break, state that access widening or manual conformance
+  implementation requires separate authorization.
 
 Do not widen access or hand-write conformances solely to satisfy layout.
 Explain every exception. For every move or retained exception, verify compilation
