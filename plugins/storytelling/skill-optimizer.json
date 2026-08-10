@@ -1,13 +1,23 @@
 {
   "schema_version": 1,
-  "target": "plugins/storytelling/skills/crafting-compelling-stories",
+  "target": "plugins/storytelling",
   "distributable": {
     "include": [
-      "SKILL.md",
-      "agents/**/*.yaml",
-      "references/**/*.txt"
+      ".codex-plugin/plugin.json",
+      ".claude-plugin/plugin.json",
+      ".cursor-plugin/plugin.json",
+      "gemini-extension.json",
+      "README.md",
+      "CHANGELOG.md",
+      "LICENSE",
+      "THIRD_PARTY_NOTICES.md",
+      "skills/crafting-compelling-stories/SKILL.md",
+      "skills/crafting-compelling-stories/agents/**/*.yaml",
+      "skills/crafting-compelling-stories/references/**/*.txt"
     ],
     "exclude": [
+      "skill-optimizer.json",
+      "tests/**",
       "**/__pycache__/**",
       "**/*.pyc"
     ]

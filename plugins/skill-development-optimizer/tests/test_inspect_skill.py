@@ -126,6 +126,27 @@ class SkillInventoryTests(unittest.TestCase):
             },
         )
 
+    def test_plugin_root_target_inspects_its_single_nested_skill(self):
+        target = self.create_plugin(Path("plugins/storytelling"))
+        self.write_file(target / "references" / "guide.txt")
+        self.write_file("plugins/storytelling/tests/test_contract.py")
+        self.write_configuration("plugins/storytelling")
+
+        inventory = inspect_skill.inspect(self.load_configuration())
+
+        self.assertEqual(inventory["target"], "plugins/storytelling")
+        self.assertEqual(
+            inventory["skill"],
+            {
+                "name": "example",
+                "has_skill_md": True,
+                "has_openai_yaml": True,
+                "references": 1,
+                "scripts": 0,
+            },
+        )
+        self.assertEqual(inventory["tests"], 1)
+
     def test_standalone_skill_uses_tests_adjacent_to_target(self):
         self.write_file("standalone/SKILL.md")
         self.write_file("standalone/references/guide.md")

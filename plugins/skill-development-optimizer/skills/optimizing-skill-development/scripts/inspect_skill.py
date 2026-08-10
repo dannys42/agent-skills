@@ -141,6 +141,34 @@ def _discover_plugin_root(config: OptimizerConfig) -> Path | None:
         candidate = candidate.parent
 
 
+def _inspection_skill_root(
+    target_root: Path,
+    plugin_root: Path | None,
+) -> Path:
+    if _is_regular_file(target_root / "SKILL.md"):
+        return target_root
+    if plugin_root != target_root:
+        return target_root
+
+    skills_root = target_root / "skills"
+    if skills_root.is_symlink() or not skills_root.is_dir():
+        return target_root
+    try:
+        nested_skills = sorted(
+            candidate
+            for candidate in skills_root.iterdir()
+            if not candidate.is_symlink()
+            and candidate.is_dir()
+            and _is_regular_file(candidate / "SKILL.md")
+        )
+    except OSError as error:
+        reason = error.strerror or type(error).__name__
+        raise InspectionError(f"cannot inspect nested skills: {reason}") from error
+    if len(nested_skills) == 1:
+        return nested_skills[0]
+    return target_root
+
+
 def _repository_relative(path: Path, repository_root: Path) -> str:
     return path.relative_to(repository_root).as_posix()
 
@@ -211,6 +239,7 @@ def inspect(config: OptimizerConfig) -> dict[str, object]:
     repository_root = config.repository_root
     target_root = config.target_root
     plugin_root = _discover_plugin_root(config)
+    skill_root = _inspection_skill_root(target_root, plugin_root)
 
     plugin_manifests = []
     if plugin_root is not None:
@@ -244,17 +273,17 @@ def inspect(config: OptimizerConfig) -> dict[str, object]:
         "schema_version": 1,
         "target": _repository_relative(target_root, repository_root),
         "skill": {
-            "name": target_root.name,
-            "has_skill_md": _is_regular_file(target_root / "SKILL.md"),
+            "name": skill_root.name,
+            "has_skill_md": _is_regular_file(skill_root / "SKILL.md"),
             "has_openai_yaml": _is_regular_file(
-                target_root / "agents" / "openai.yaml"
+                skill_root / "agents" / "openai.yaml"
             ),
             "references": _count_regular_files(
-                target_root / "references",
+                skill_root / "references",
                 repository_root,
             ),
             "scripts": _count_regular_files(
-                target_root / "scripts",
+                skill_root / "scripts",
                 repository_root,
             ),
         },
