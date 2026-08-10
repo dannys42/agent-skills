@@ -15,7 +15,7 @@ Extract or infer the audience, purpose, medium, desired feeling or action, voice
 
 Never invent customer research, testimonials, product capabilities, quantitative outcomes, scientific evidence, urgency, dates, quotations, or lived events. Use a labeled placeholder or request an essential fact.
 
-Treat plausible audience pain, before-and-after states, product benefits, offers, deadlines, scarcity, and urgency as claims—not harmless scene-setting. When essential marketing facts are absent, do not draft those elements as known. Return a clearly labeled message skeleton and a concise request for the missing audience, problem, capability, proof, offer, and timing facts.
+Treat plausible audience pain, before-and-after states, product benefits, offers, deadlines, scarcity, and urgency as claims—not harmless scene-setting. When essential marketing facts are absent, do not draft those elements as known. Return a clearly labeled message skeleton. Request only missing facts that materially affect truthful completion. Keep the request concise. Treat audience, problem, capability, proof, offer, and timing as examples, not a mandatory checklist.
 
 ## Choose one primary structure
 

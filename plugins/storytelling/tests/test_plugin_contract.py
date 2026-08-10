@@ -637,9 +637,11 @@ class PluginContractTests(unittest.TestCase):
             "harmless scene-setting",
             "When essential marketing facts are absent, do not draft those "
             "elements as known",
-            "Return a clearly labeled message skeleton and a concise request "
-            "for the missing audience, problem, capability, proof, offer, and "
-            "timing facts",
+            "Return a clearly labeled message skeleton",
+            "Request only missing facts that materially affect truthful "
+            "completion",
+            "Treat audience, problem, capability, proof, offer, and timing as "
+            "examples, not a mandatory checklist",
             "Ensure every pain, benefit, result, offer, urgency claim, and CTA "
             "is supplied or visibly marked as a placeholder",
             "Do not imply \"start now\", early access, scarcity, or a deadline "
