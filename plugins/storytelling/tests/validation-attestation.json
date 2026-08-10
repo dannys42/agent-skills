@@ -1,0 +1,59 @@
+{
+  "artifact": {
+    "algorithm": "sha256-length-framed-v1",
+    "digest": "fa42d7250035e5d803525e2d8ebeb701cda604868ed6e515012117f3ed886f2d",
+    "manifest_path": "plugins/storytelling/tests/artifact.json",
+    "manifest_sha256": "1d4095cc707afa384f11a1ba411fa5e7c28d9db3b6ecfa78afa3e33000c60273"
+  },
+  "evidence": {
+    "byte_deterministic": false,
+    "characterization": "timestamped observational evidence",
+    "raw_validation_path": "plugins/storytelling/tests/validation-results.json"
+  },
+  "optimizer": {
+    "config_path": "plugins/storytelling/skill-optimizer.json",
+    "config_sha256": "09b9684ca1d8b40fe74fd5149129fb34b78d61d97595ac8a56fc7b0e2aa708d1",
+    "scripts": [
+      {
+        "path": "plugins/skill-development-optimizer/skills/optimizing-skill-development/scripts/classify_change.py",
+        "sha256": "d3a9147834f505d3593c537507cee1c2573344ad163b20ff00bd28f41fe6dbc5"
+      },
+      {
+        "path": "plugins/skill-development-optimizer/skills/optimizing-skill-development/scripts/hash_artifact.py",
+        "sha256": "e93b2fa0370be1b172ec59c08f799725789b1f9bfcc932902db3bc3d4c2c4d2f"
+      },
+      {
+        "path": "plugins/skill-development-optimizer/skills/optimizing-skill-development/scripts/inspect_skill.py",
+        "sha256": "7a3bc16618757d94b7b4d05b0fcf2f7deaa781c6d893df5a523b1f77b7c73f91"
+      },
+      {
+        "path": "plugins/skill-development-optimizer/skills/optimizing-skill-development/scripts/optimizer_config.py",
+        "sha256": "eda3919f1ac3755a5cef20ed41704bad5c7f7da86b78c781a91e83d76e499dfd"
+      },
+      {
+        "path": "plugins/skill-development-optimizer/skills/optimizing-skill-development/scripts/run_validation.py",
+        "sha256": "bd9d22a6552c6e56bdad536a2f1acc707911b9653528f93731b7508601441c54"
+      }
+    ]
+  },
+  "profile": "full",
+  "runtime": {
+    "python": {
+      "executable": "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "implementation": "CPython",
+      "version": "3.14.6"
+    }
+  },
+  "schema_version": 1,
+  "source_revision": "44f6d2bb3fc3f89bc21e0b12a9972b5e62991d03",
+  "validation": {
+    "command": {
+      "id": "storytelling-contracts",
+      "status": "passed",
+      "test_count": 20
+    },
+    "importer": "not_applicable",
+    "network": "not_applicable",
+    "results_sha256": "fba6fdecc9c31d115b12eeb0b1b2d7c1a9d45b096d7c54ea9340c4dd4e045c53"
+  }
+}
