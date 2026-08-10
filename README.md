@@ -1,7 +1,7 @@
 # Danny Sung's Agent Skills
 
-Portable agent skills for Swift, Apple-platform development, and agent-skill
-engineering.
+Portable agent skills for Swift and Apple-platform development, agent-skill
+engineering, storytelling, and writing.
 
 ## Plugins
 
@@ -38,7 +38,7 @@ attributed [Joanna Wiebe presentation](https://www.youtube.com/watch?v=oCnxnaVg0
 without fabricating facts, outcomes, quotations, or evidence. The archived
 transcript is provenance, not runtime instructions, and not independently
 validated science; it remains subject to the third-party redistribution caveat
-in the plugin's `THIRD_PARTY_NOTICES.md`.
+in [THIRD_PARTY_NOTICES.md](plugins/storytelling/THIRD_PARTY_NOTICES.md).
 
 ### `choosing-swift-design-patterns`
 
@@ -353,7 +353,7 @@ Replace `codex` with another supported agent value when needed.
 - Gemini extension metadata:
   `plugins/swift-testing/gemini-extension.json`,
   `plugins/swift-design-patterns/gemini-extension.json`,
-  `plugins/swift-code-organization/gemini-extension.json`, and
+  `plugins/swift-code-organization/gemini-extension.json`,
   `plugins/skill-development-optimizer/gemini-extension.json`, and
   `plugins/storytelling/gemini-extension.json`
 - Ready for skills.sh, SkillsMD, and mdskills.ai indexing
@@ -364,4 +364,6 @@ gallery.
 
 ## License
 
-MIT
+Repository-authored content is licensed under MIT. The repository MIT license
+does not cover the archival transcript; its redistribution rights are not
+established.

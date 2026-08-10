@@ -33,6 +33,10 @@ PLUGIN_KEYWORDS = [
     "fiction",
     "agent-skills",
 ]
+REPOSITORY_DESCRIPTION = (
+    "Portable agent skills for Swift and Apple-platform development, "
+    "agent-skill engineering, storytelling, and writing."
+)
 SOURCE_URL = "https://www.youtube.com/watch?v=oCnxnaVg0bY"
 STORYTELLING_TABLE_ROW = (
     "| `storytelling` | `crafting-compelling-stories` | Audience-aware "
@@ -156,6 +160,10 @@ def normalize_shell_command(command):
     return re.sub(r"\\\s*\n\s*", "", command).strip()
 
 
+def normalize_whitespace(value):
+    return " ".join(value.split())
+
+
 def parse_skill_frontmatter(skill):
     frontmatter = re.match(
         r"\A---\n"
@@ -221,6 +229,37 @@ def parse_frontmatter_string(raw_value, key):
 
 
 class PluginContractTests(unittest.TestCase):
+    def test_repository_descriptions_share_canonical_scope(self):
+        readme = (REPOSITORY_ROOT / "README.md").read_text(encoding="utf-8")
+        readme_intro = extract_markdown_section(
+            readme,
+            "# Danny Sung's Agent Skills",
+            r"## ",
+        )
+        self.assertEqual(
+            REPOSITORY_DESCRIPTION,
+            normalize_whitespace(readme_intro),
+        )
+
+        claude_marketplace = load_json(
+            REPOSITORY_ROOT / ".claude-plugin" / "marketplace.json"
+        )
+        self.assertEqual(
+            {
+                "description": REPOSITORY_DESCRIPTION,
+                "version": "1.0.0",
+            },
+            claude_marketplace["metadata"],
+        )
+
+        cursor_marketplace = load_json(
+            REPOSITORY_ROOT / ".cursor-plugin" / "marketplace.json"
+        )
+        self.assertEqual(
+            {"description": REPOSITORY_DESCRIPTION},
+            cursor_marketplace["metadata"],
+        )
+
     def test_repository_marketplaces_expose_plugin_once(self):
         marketplace_paths = (
             REPOSITORY_ROOT / ".agents" / "plugins" / "marketplace.json",
@@ -318,6 +357,12 @@ class PluginContractTests(unittest.TestCase):
 
     def test_repository_readme_exposes_plugin_and_installation(self):
         readme = (REPOSITORY_ROOT / "README.md").read_text(encoding="utf-8")
+        overview_heading = "### `crafting-compelling-stories`"
+        install_heading = "## Install `crafting-compelling-stories`"
+        self.assertEqual(1, readme.count(STORYTELLING_TABLE_ROW))
+        self.assertEqual(1, readme.count(overview_heading))
+        self.assertEqual(1, readme.count(install_heading))
+
         plugins_section = extract_markdown_section(
             readme,
             "## Plugins",
@@ -325,12 +370,12 @@ class PluginContractTests(unittest.TestCase):
         )
         overview = extract_markdown_section(
             readme,
-            "### `crafting-compelling-stories`",
+            overview_heading,
             r"### ",
         )
         install = extract_markdown_section(
             readme,
-            "## Install `crafting-compelling-stories`",
+            install_heading,
             r"## ",
         )
         marketplace_inventory = extract_markdown_section(
@@ -338,20 +383,28 @@ class PluginContractTests(unittest.TestCase):
             "## Marketplace adapters and open registries",
             r"## ",
         )
+        license_section = extract_markdown_section(
+            readme,
+            "## License",
+            r"## ",
+        )
 
         self.assertIn(STORYTELLING_TABLE_ROW, plugins_section)
+        normalized_overview = normalize_whitespace(overview)
         for required_text in (
-            "stories, marketing and conversion\ncopy, speeches, talks, scripts, and fiction",
+            "stories, marketing and conversion copy, speeches, talks, "
+            "scripts, and fiction",
             "selectively synthesizes",
             "without fabricating facts, outcomes, quotations, or evidence",
             "Joanna Wiebe",
             SOURCE_URL,
             "transcript is provenance, not runtime instructions",
-            "not independently\nvalidated science",
+            "not independently validated science",
             "third-party redistribution caveat",
+            "[THIRD_PARTY_NOTICES.md](plugins/storytelling/THIRD_PARTY_NOTICES.md)",
         ):
             with self.subTest(required_text=required_text):
-                self.assertIn(required_text, overview)
+                self.assertIn(required_text, normalized_overview)
 
         command_blocks = re.findall(r"```bash\n(.*?)\n```", install, re.DOTALL)
         normalized_commands = [
@@ -375,6 +428,18 @@ class PluginContractTests(unittest.TestCase):
             "crafting-compelling-stories --global --agent <agent>",
             normalized_commands,
         )
+        gemini_inventory_match = re.search(
+            r"(?ms)^- Gemini extension metadata:\n(?P<body>.*?)(?=^- )",
+            marketplace_inventory,
+        )
+        self.assertIsNotNone(gemini_inventory_match)
+        gemini_inventory = gemini_inventory_match.group("body")
+        self.assertEqual(1, gemini_inventory.count("and"))
+        self.assertIn(
+            "`plugins/skill-development-optimizer/gemini-extension.json`, "
+            "and `plugins/storytelling/gemini-extension.json`",
+            normalize_whitespace(gemini_inventory),
+        )
         self.assertEqual(
             [
                 "plugins/swift-testing/gemini-extension.json",
@@ -385,8 +450,17 @@ class PluginContractTests(unittest.TestCase):
             ],
             re.findall(
                 r"`(plugins/[^`]+/gemini-extension\.json)`",
-                marketplace_inventory,
+                gemini_inventory,
             ),
+        )
+        normalized_license = normalize_whitespace(license_section)
+        self.assertIn(
+            "The repository MIT license does not cover the archival transcript",
+            normalized_license,
+        )
+        self.assertIn(
+            "redistribution rights are not established",
+            normalized_license,
         )
 
     def test_portable_manifests_share_exact_canonical_identity(self):
