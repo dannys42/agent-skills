@@ -1,0 +1,1 @@
+At 2:13 Tuesday, the dashboard went red. This was inconvenient. We had, after all, promised the board that red dashboards were mostly a historical artifact. The office ficus remained neutral. Our incident log did not.

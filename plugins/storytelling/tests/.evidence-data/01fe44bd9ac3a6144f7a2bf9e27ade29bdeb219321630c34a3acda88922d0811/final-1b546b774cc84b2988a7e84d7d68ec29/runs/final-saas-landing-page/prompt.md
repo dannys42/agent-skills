@@ -1,0 +1,1 @@
+Write the narrative opening and CTA for a landing page for Briefly, a meeting-summary tool. Audience: engineering managers. Supplied facts only: it turns an uploaded transcript into a summary; Acme's pilot reduced its weekly recap-writing time from 90 minutes to 25 minutes; Acme approved use of its name. Do not add product capabilities or results.

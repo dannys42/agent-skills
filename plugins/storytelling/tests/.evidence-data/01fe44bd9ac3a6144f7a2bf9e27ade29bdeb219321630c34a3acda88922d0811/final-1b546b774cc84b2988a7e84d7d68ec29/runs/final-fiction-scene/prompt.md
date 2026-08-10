@@ -1,0 +1,1 @@
+Rewrite this slow opening as a vivid 180-word scene while preserving third-person limited voice and the fact that Mara is avoiding a letter: 'Mara was nervous. The room was old and unpleasant. There was a letter on the table that she did not want to read.'

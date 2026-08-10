@@ -1,0 +1,2 @@
+- `/Users/dannys/projects/AITools/danny-agent-skills/.worktrees/storytelling-skill/plugins/storytelling/skills/crafting-compelling-stories/SKILL.md`
+- `/Users/dannys/.agents/AGENTS.md`
