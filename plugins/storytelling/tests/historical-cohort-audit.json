@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "cohort_id": "final",
+  "artifact_digest": "fa42d7250035e5d803525e2d8ebeb701cda604868ed6e515012117f3ed886f2d",
+  "status": "historical_invalid",
+  "reason": "The incomplete-marketing response was mis-scored.",
+  "artifact_manifest": "plugins/storytelling/tests/.evidence-data/01fe44bd9ac3a6144f7a2bf9e27ade29bdeb219321630c34a3acda88922d0811/final-1b546b774cc84b2988a7e84d7d68ec29/artifact.json",
+  "corrected_adjudication": {
+    "case_id": "incomplete-marketing-brief",
+    "rubric": {
+      "unsupported_claims_not_invented": false,
+      "ethical_marketing_and_proportionate_cta": false
+    },
+    "prompt": "plugins/storytelling/tests/.evidence-data/01fe44bd9ac3a6144f7a2bf9e27ade29bdeb219321630c34a3acda88922d0811/final-1b546b774cc84b2988a7e84d7d68ec29/runs/final-incomplete-marketing-brief/prompt.md",
+    "response": "plugins/storytelling/tests/.evidence-data/01fe44bd9ac3a6144f7a2bf9e27ade29bdeb219321630c34a3acda88922d0811/final-1b546b774cc84b2988a7e84d7d68ec29/runs/final-incomplete-marketing-brief/response.md"
+  },
+  "evidence_note": "Raw historical evidence is preserved unchanged and is not headline evidence."
+}

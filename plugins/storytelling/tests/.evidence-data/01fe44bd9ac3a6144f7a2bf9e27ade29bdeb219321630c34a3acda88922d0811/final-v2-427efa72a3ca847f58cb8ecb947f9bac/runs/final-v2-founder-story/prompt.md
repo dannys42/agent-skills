@@ -1,0 +1,1 @@
+Turn these notes into a 250-word founder story: Mina ran a neighborhood bakery; a freezer failed at 4:40 a.m. before a wedding order; handwritten inventory made it hard to see what could be remade; she later built a simple batch tracker with her brother. Do not invent quotations, dates, customers, or outcomes.

@@ -1,0 +1,60 @@
+{
+  "artifact": {
+    "algorithm": "sha256-length-framed-v1",
+    "digest": "fa42d7250035e5d803525e2d8ebeb701cda604868ed6e515012117f3ed886f2d"
+  },
+  "cases": [
+    {
+      "id": "saas-landing-page",
+      "prompt": "Write the narrative opening and CTA for a landing page for Briefly, a meeting-summary tool. Audience: engineering managers. Supplied facts only: it turns an uploaded transcript into a summary; Acme's pilot reduced its weekly recap-writing time from 90 minutes to 25 minutes; Acme approved use of its name. Do not add product capabilities or results."
+    },
+    {
+      "id": "founder-story",
+      "prompt": "Turn these notes into a 250-word founder story: Mina ran a neighborhood bakery; a freezer failed at 4:40 a.m. before a wedding order; handwritten inventory made it hard to see what could be remade; she later built a simple batch tracker with her brother. Do not invent quotations, dates, customers, or outcomes."
+    },
+    {
+      "id": "speech-opening",
+      "prompt": "Write a 90-second opening for a talk to first-time managers about giving useful feedback. Desired feeling: recognized, then hopeful. Avoid sales language."
+    },
+    {
+      "id": "fiction-scene",
+      "prompt": "Rewrite this slow opening as a vivid 180-word scene while preserving third-person limited voice and the fact that Mara is avoiding a letter: 'Mara was nervous. The room was old and unpleasant. There was a letter on the table that she did not want to read.'"
+    },
+    {
+      "id": "incomplete-marketing-brief",
+      "prompt": "Write launch copy for a new meal-planning app. I have not supplied its features, audience research, testimonials, price, results, or launch date. Make it persuasive and urgent."
+    },
+    {
+      "id": "preserve-voice-edit",
+      "prompt": "Tighten this copy without changing its dry, understated voice: 'At 2:13 on Tuesday, the dashboard went red. This was inconvenient. We had, after all, promised the board that red dashboards were now mostly a historical artifact. The office ficus remained neutral. Our incident log did not.' Remove details that do not earn a place, but preserve any detail that establishes tone or pays off."
+    },
+    {
+      "id": "grammar-only-negative-trigger",
+      "prompt": "Correct grammar only: 'The reports is ready and it were sent yesterday.' Do not introduce narrative or marketing language."
+    },
+    {
+      "id": "factual-prose-negative-trigger",
+      "prompt": "Summarize these facts in two plain sentences without storytelling: Water freezes at 0°C at standard atmospheric pressure. Dissolved solutes can lower the freezing point."
+    }
+  ],
+  "cohort_id": "final",
+  "generation_id": "final-1b546b774cc84b2988a7e84d7d68ec29",
+  "output_key": "01fe44bd9ac3a6144f7a2bf9e27ade29bdeb219321630c34a3acda88922d0811",
+  "paths": {
+    "artifact": "artifact.json",
+    "evidence": "evidence.json",
+    "runs": "runs"
+  },
+  "rubric": [
+    "appropriate_triggering",
+    "audience_goal_medium_constraints_handled",
+    "structure_adapted_to_task",
+    "principles_applied_selectively",
+    "orientation_imagery_details_payoff_ending_effective",
+    "supplied_voice_and_facts_preserved",
+    "unsupported_claims_not_invented",
+    "ethical_marketing_and_proportionate_cta",
+    "deliverable_first_without_framework_lecture"
+  ],
+  "schema_version": 1
+}

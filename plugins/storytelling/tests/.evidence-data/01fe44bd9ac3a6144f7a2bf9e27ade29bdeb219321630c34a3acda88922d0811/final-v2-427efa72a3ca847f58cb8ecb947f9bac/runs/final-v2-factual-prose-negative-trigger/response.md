@@ -1,0 +1,1 @@
+Water freezes at 0°C under standard atmospheric pressure. Dissolved solutes can lower its freezing point.
