@@ -1,6 +1,6 @@
 ---
 name: crafting-compelling-stories
-description: Use when creating, reshaping, or critiquing narrative-driven marketing copy, founder or product stories, customer stories, case studies, speeches, talks, scripts, educational explanations, fiction, hooks, story openings, narrative arcs, tension, concrete imagery, or endings
+description: Use when creating, reshaping, or critiquing stories, narrative writing, marketing or conversion copy, founder, product, customer, or brand stories, case studies, speeches, talks, scripts, narrative-driven educational explanations, fiction, hooks, story openings, narrative arcs, tension, concrete imagery, or endings; not for grammar-only correction, literal transcription, code, or ordinary factual prose without narrative intent
 ---
 
 # Crafting Compelling Stories
@@ -35,13 +35,13 @@ Apply only the principles that serve the assignment:
 3. Use concrete, imaginable language.
 4. Use recognizable but nonmechanical structure.
 5. Ensure every emphasized detail both has a job and resolves the promise it creates.
-6. Make the obstacle concrete without dehumanization or fear.
+6. Define the obstacle concretely without dehumanizing people or manufacturing fear.
 7. Carry necessary information through conflict, humor, movement, personality, or example.
 8. Return to the opening image, question, or belief with a coherent, non-obvious ending.
 
 ## Convert only when relevant
 
-For conversion work, establish awareness, outcome, value proposition, objections, proof, offer, and a proportionate CTA. Use proof that supports the specific claim. Make the antagonist a problem, constraint, failed approach, or harmful system; never shame the audience. Preserve qualifications. Omit conversion machinery from fiction, speeches, and personal work unless it is relevant.
+For conversion work, establish awareness, outcome, value proposition, objections, proof, offer, and a proportionate CTA. Use proof that supports the specific claim. Make the antagonist a problem, constraint, failed approach, or harmful system; never shame the audience. Do not vilify protected or identifiable groups. Preserve qualifications. Omit conversion machinery from fiction, speeches, and personal work unless it is relevant.
 
 ## Draft and edit
 

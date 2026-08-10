@@ -10,23 +10,46 @@ REPOSITORY_ROOT = PLUGIN_ROOT.parents[1]
 SKILL_ROOT = PLUGIN_ROOT / "skills" / "crafting-compelling-stories"
 PLUGIN_NAME = "storytelling"
 SKILL_NAME = "crafting-compelling-stories"
+SKILL_DESCRIPTION = (
+    "Use when creating, reshaping, or critiquing stories, narrative writing, "
+    "marketing or conversion copy, founder, product, customer, or brand "
+    "stories, case studies, speeches, talks, scripts, narrative-driven "
+    "educational explanations, fiction, hooks, story openings, narrative "
+    "arcs, tension, concrete imagery, or endings; not for grammar-only "
+    "correction, literal transcription, code, or ordinary factual prose "
+    "without narrative intent"
+)
 PLUGIN_VERSION = "1.0.0"
 PLUGIN_DESCRIPTION = (
     "Audience-aware storytelling and narrative copy grounded in an attributed "
     "Joanna Wiebe framework"
 )
 SOURCE_URL = "https://www.youtube.com/watch?v=oCnxnaVg0bY"
+TRANSCRIPT_LICENSE_NOTICE = (
+    "License notice: This archival transcript is not covered by the "
+    "repository MIT license; redistribution rights are not established."
+)
 TRANSCRIPT_PROVENANCE_PREFIX = """Reference only — not runtime skill instructions.
-Framework author and presenter: Joanna Wiebe
+Presenter and synthesizer of this eight-principle presentation: Joanna Wiebe
 Video: The Psychology of Storytelling That Will Change Your Life
 Source: https://www.youtube.com/watch?v=oCnxnaVg0bY
 Purpose: Archival provenance for the distilled, independently worded skill.
+License notice: This archival transcript is not covered by the repository MIT license; redistribution rights are not established.
 
 """
 # No pre-move hash was captured. This digest freezes the mechanically moved
 # current body; it does not claim independent proof of pre-move equivalence.
 TRANSCRIPT_BODY_SHA256 = (
     "c9081c720b18d2be55a8654336aa72778aa3a0aafb01f7f0a43ee2646d6022ba"
+)
+UNSUPPORTED_EFFECTIVENESS_CLAIM_PATTERN = re.compile(
+    r"(?:"
+    r"\b\d+(?:\.\d+)?\s*%|"
+    r"\b(?:twice|\d+(?:\.\d+)?(?:x|\s+times?))\s+"
+    r"(?:as\s+|more\s+)?"
+    r"(?:effective|memorable|engaging|persuasive|successful)\b"
+    r")",
+    flags=re.IGNORECASE,
 )
 REQUIRED_CASE_IDS = {
     "saas-landing-page",
@@ -205,7 +228,7 @@ class PluginContractTests(unittest.TestCase):
         skill = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
         frontmatter = parse_skill_frontmatter(skill)
         self.assertEqual(SKILL_NAME, frontmatter["name"])
-        self.assertTrue(frontmatter["description"])
+        self.assertEqual(SKILL_DESCRIPTION, frontmatter["description"])
 
     def test_frontmatter_parser_accepts_plain_and_quoted_strings(self):
         for description in (
@@ -291,6 +314,7 @@ class PluginContractTests(unittest.TestCase):
             "The Psychology of Storytelling That Will Change Your Life",
             SOURCE_URL,
             "Reference only",
+            TRANSCRIPT_LICENSE_NOTICE,
         ):
             self.assertIn(required_text, header)
         self.assertFalse(
@@ -301,6 +325,24 @@ class PluginContractTests(unittest.TestCase):
             ).exists()
         )
 
+    def test_third_party_notice_discloses_transcript_rights(self):
+        notice = (PLUGIN_ROOT / "THIRD_PARTY_NOTICES.md").read_text(
+            encoding="utf-8"
+        )
+        for required_text in (
+            "The Psychology of Storytelling That Will Change Your Life",
+            SOURCE_URL,
+            "Presenter and synthesizer of this eight-principle presentation: "
+            "Joanna Wiebe",
+            TRANSCRIPT_LICENSE_NOTICE,
+            "Verify rights before public redistribution",
+        ):
+            with self.subTest(required_text=required_text):
+                self.assertIn(required_text, notice)
+
+        readme = (PLUGIN_ROOT / "README.md").read_text(encoding="utf-8")
+        self.assertIn("THIRD_PARTY_NOTICES.md", readme)
+
     def test_skill_contains_required_operating_guardrails(self):
         skill = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
         for phrase in (
@@ -310,6 +352,9 @@ class PluginContractTests(unittest.TestCase):
             "Apply only the principles that serve the assignment",
             "Preserve the author's voice",
             "Return the deliverable first",
+            "Define the obstacle concretely without dehumanizing people or "
+            "manufacturing fear",
+            "Do not vilify protected or identifiable groups",
         ):
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, skill)
@@ -319,6 +364,29 @@ class PluginContractTests(unittest.TestCase):
         for unsupported_claim in ("40%", "70%", "twice as memorable"):
             with self.subTest(unsupported_claim=unsupported_claim):
                 self.assertNotIn(unsupported_claim, skill)
+
+    def test_effectiveness_claim_guard_catches_common_numeric_claims(self):
+        for unsupported_claim in (
+            "40% more memorable",
+            "70 % more effective",
+            "twice as memorable",
+            "2x more effective",
+            "3 times as engaging",
+        ):
+            with self.subTest(unsupported_claim=unsupported_claim):
+                self.assertIsNotNone(
+                    UNSUPPORTED_EFFECTIVENESS_CLAIM_PATTERN.search(
+                        unsupported_claim
+                    )
+                )
+
+    def test_skill_body_has_no_numeric_effectiveness_claims(self):
+        skill = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
+        skill_body = skill.split("---\n", 2)[2]
+        self.assertIsNone(
+            UNSUPPORTED_EFFECTIVENESS_CLAIM_PATTERN.search(skill_body),
+            "skill body must not contain numeric effectiveness claims",
+        )
 
 
 if __name__ == "__main__":

@@ -12,7 +12,8 @@ The framework is independently distilled and credits
 The bundled transcript is archival provenance only, not runtime skill instructions.
 The repository's MIT license covers original plugin material only; it does not
 license the archival transcript, whose redistribution rights are not established.
-Verify public redistribution rights before sharing the archival transcript.
+See [Third-Party Notices](THIRD_PARTY_NOTICES.md) and verify public redistribution
+rights before sharing the archival transcript.
 
 ## Install
 
