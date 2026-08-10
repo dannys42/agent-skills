@@ -1,27 +1,36 @@
 # Storytelling Baseline Results
 
-These six runs used separately spawned fresh agents that did not load a
-storytelling skill. Each agent received only the exact case prompt below: no
-framework, rubric, expected result, or other case-specific context. The agents
-did not report reading any files; no files are named in their responses.
+Execution date: 2026-08-10. Source revision at the start of baseline execution:
+`38bd3a919d3379714be96aabb7dc3e1a920160cd` (`38bd3a9`,
+`docs: use validated storytelling plugin scaffold`).
+
+Each case ran through `collaboration.spawn_agent` as a separately spawned fresh
+agent with `fork_turns` set to `none`. The spawn message was exactly the case's
+canonical prompt, with no framework, rubric, expected result, future skill, or
+other case-specific context. Runs were sequential: after each spawned task
+returned its final response, the next task was spawned. Responses below are the
+verbatim final-response payloads.
+
+Exact internal model and runtime identities were not captured. The spawning
+interface did not expose either identity in the returned task result. Files-read
+statements below are agent-reported only and were not independently instrumented.
 
 ## Recurring failure patterns
 
-- **Supplied-fact drift:** The founder-story response adds habitual pre-sunrise
-  work, dough, ovens, and broader order patterns. The fiction response assigns
-  the letter to Mara's brother and adds a particular room history. Those
-  invented details make prose vivid but breach source-grounding constraints.
+- **Unsupported biographical assertions:** The founder-story response states
+  that Mina's days began before sunrise, describes her routine with dough and
+  ovens, and assigns intended behavior to the later tracker. None of those
+  claims appears in the supplied notes. Unlike fictional scene-setting, these
+  details are presented as facts about a named founder and product origin.
 - **Persuasion from an empty brief:** The incomplete marketing brief invents
   product behavior (using ingredients, schedules, and tastes), benefits, and
   a call to action before noting that the supporting information is missing.
   This is a meaningful gap: the required restraint is not reliably
   self-triggered under a request for urgency.
-- **Constraint precision is not explicit:** The speech opening is a strong
-  audience-aware opening, but it does not show timing calibration; the fiction
-  response also treats the requested 180-word target as approximate. A skill
-  should make goal, medium, and constraints deliberate before drafting.
 
 ## saas-landing-page
+
+**Run/task identifier:** `/root/task1_baseline/baseline_saas`
 
 ### Exact prompt
 
@@ -41,11 +50,12 @@ In Acme’s pilot, weekly recap-writing time fell from 90 minutes to 25 minutes.
 
 *Get a summary from the meeting record.*
 
-### Agent-reported files read
-
-No files reported.
+**Files read (agent-reported):** None reported. This was not independently
+instrumented.
 
 ## founder-story
+
+**Run/task identifier:** `/root/task1_baseline/baseline_founder`
 
 ### Exact prompt
 
@@ -65,11 +75,12 @@ That experience shaped what came later. Rather than beginning with an abstract i
 
 The tracker grew from a bakery floor, not from a distant plan. Its starting point was straightforward: make it easier to see what was in progress, what had been recorded, and what still needed attention. For Mina, the work was grounded in the memory of a pre-dawn freezer failure and the pressure of deciding what to do next.
 
-### Agent-reported files read
-
-No files reported.
+**Files read (agent-reported):** None reported. This was not independently
+instrumented.
 
 ## speech-opening
+
+**Run/task identifier:** `/root/task1_baseline/baseline_speech`
 
 ### Exact prompt
 
@@ -91,11 +102,12 @@ That can be a relief—for them and for you.
 
 Today, we’ll focus on feedback that is specific, timely, and grounded in respect: feedback that helps people improve without losing trust.
 
-### Agent-reported files read
-
-No files reported.
+**Files read (agent-reported):** None reported. This was not independently
+instrumented.
 
 ## fiction-scene
+
+**Run/task identifier:** `/root/task1_baseline/baseline_fiction`
 
 ### Exact prompt
 
@@ -109,11 +121,12 @@ Mara stood in the doorway with one hand still on the brass knob, listening to th
 
 She did not step closer. Instead, Mara rubbed her thumb over the knob until the metal warmed beneath her skin. The seal was unbroken. That mattered. So long as it remained whole, whatever waited inside had not happened yet. A floorboard sighed behind her. Mara flinched, then laughed once, softly, as if the house had told a joke. Still she watched the letter, willing the rain to rise, the walls to collapse, anyone to call her away. But the parlor held its breath, and the envelope waited, patient as a wound beneath the bandage.
 
-### Agent-reported files read
-
-No files reported.
+**Files read (agent-reported):** None reported. This was not independently
+instrumented.
 
 ## incomplete-marketing-brief
+
+**Run/task identifier:** `/root/task1_baseline/baseline_incomplete`
 
 ### Exact prompt
 
@@ -133,11 +146,12 @@ Plan with less stress. Shop with more confidence. Make dinnertime easier—start
 
 To make this genuinely persuasive and urgent, we’ll need the audience, core features, launch timing, pricing, and any proof points. Until then, avoid inventing scarcity, results, or testimonials.
 
-### Agent-reported files read
-
-No files reported.
+**Files read (agent-reported):** None reported. This was not independently
+instrumented.
 
 ## preserve-voice-edit
+
+**Run/task identifier:** `/root/task1_baseline/baseline_voice`
 
 ### Exact prompt
 
@@ -149,6 +163,5 @@ Tighten this copy without changing its dry, understated voice: 'At 2:13 on Tuesd
 
 “At 2:13 Tuesday, the dashboard went red. Inconvenient: we’d promised the board red dashboards were mostly historical artifacts. The office ficus stayed neutral. Our incident log did not.”
 
-### Agent-reported files read
-
-No files reported.
+**Files read (agent-reported):** None reported. This was not independently
+instrumented.
