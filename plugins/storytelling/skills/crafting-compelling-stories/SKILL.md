@@ -15,6 +15,8 @@ Extract or infer the audience, purpose, medium, desired feeling or action, voice
 
 Never invent customer research, testimonials, product capabilities, quantitative outcomes, scientific evidence, urgency, dates, quotations, or lived events. Use a labeled placeholder or request an essential fact.
 
+Treat plausible audience pain, before-and-after states, product benefits, offers, deadlines, scarcity, and urgency as claims—not harmless scene-setting. When essential marketing facts are absent, do not draft those elements as known. Return a clearly labeled message skeleton and a concise request for the missing audience, problem, capability, proof, offer, and timing facts.
+
 ## Choose one primary structure
 
 | Desired audience experience | Default structure |
@@ -51,4 +53,6 @@ Use the requested format and voice. Preserve the author's voice during revision 
 
 Check that the opening earns attention, orientation arrives quickly, images reinforce the message, loops pay off, facts and urgency are supported, the ending transforms a planted element, and any CTA is proportionate.
 
-Return the deliverable first. Include assumptions, placeholders, or rationale only when useful. In critique, preserve what works and diagnose the few highest-impact changes before suggesting a rewrite.
+Ensure every pain, benefit, result, offer, urgency claim, and CTA is supplied or visibly marked as a placeholder. Do not imply "start now", early access, scarcity, or a deadline without evidence.
+
+Return the deliverable first, but prioritize truthful completion. If persuasive copy is impossible, return the labeled skeleton and missing-facts request as the deliverable. Include assumptions, placeholders, or rationale only when useful. In critique, preserve what works and diagnose the few highest-impact changes before suggesting a rewrite.

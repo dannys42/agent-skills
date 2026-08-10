@@ -629,6 +629,28 @@ class PluginContractTests(unittest.TestCase):
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, skill)
 
+    def test_skill_guards_incomplete_marketing_briefs(self):
+        skill = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
+        for phrase in (
+            "Treat plausible audience pain, before-and-after states, product "
+            "benefits, offers, deadlines, scarcity, and urgency as claims—not "
+            "harmless scene-setting",
+            "When essential marketing facts are absent, do not draft those "
+            "elements as known",
+            "Return a clearly labeled message skeleton and a concise request "
+            "for the missing audience, problem, capability, proof, offer, and "
+            "timing facts",
+            "Ensure every pain, benefit, result, offer, urgency claim, and CTA "
+            "is supplied or visibly marked as a placeholder",
+            "Do not imply \"start now\", early access, scarcity, or a deadline "
+            "without evidence",
+            "Return the deliverable first, but prioritize truthful completion",
+            "If persuasive copy is impossible, return the labeled skeleton and "
+            "missing-facts request as the deliverable",
+        ):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, skill)
+
     def test_skill_does_not_make_unsupported_effectiveness_claims(self):
         skill = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
         for unsupported_claim in ("40%", "70%", "twice as memorable"):
