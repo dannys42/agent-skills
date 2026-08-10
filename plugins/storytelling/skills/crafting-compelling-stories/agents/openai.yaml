@@ -1,0 +1,4 @@
+interface:
+  display_name: "Crafting Compelling Stories"
+  short_description: "Shape vivid stories and narrative copy"
+  default_prompt: "Use $crafting-compelling-stories to shape this material into an audience-aware story."

@@ -1,0 +1,27 @@
+{
+  "name": "storytelling",
+  "displayName": "Storytelling",
+  "version": "1.0.0",
+  "description": "Audience-aware storytelling and narrative copy grounded in an attributed Joanna Wiebe framework",
+  "license": "MIT",
+  "author": {
+    "name": "Danny Sung"
+  },
+  "repository": "https://github.com/dannys42/agent-skills",
+  "keywords": [
+    "storytelling",
+    "copywriting",
+    "marketing",
+    "narrative",
+    "speeches",
+    "fiction",
+    "agent-skills"
+  ],
+  "category": "writing",
+  "tags": [
+    "storytelling",
+    "copywriting",
+    "narrative"
+  ],
+  "skills": "./skills/"
+}

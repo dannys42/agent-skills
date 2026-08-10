@@ -1,0 +1,325 @@
+import hashlib
+import json
+import re
+import unittest
+from pathlib import Path
+
+
+PLUGIN_ROOT = Path(__file__).parents[1]
+REPOSITORY_ROOT = PLUGIN_ROOT.parents[1]
+SKILL_ROOT = PLUGIN_ROOT / "skills" / "crafting-compelling-stories"
+PLUGIN_NAME = "storytelling"
+SKILL_NAME = "crafting-compelling-stories"
+PLUGIN_VERSION = "1.0.0"
+PLUGIN_DESCRIPTION = (
+    "Audience-aware storytelling and narrative copy grounded in an attributed "
+    "Joanna Wiebe framework"
+)
+SOURCE_URL = "https://www.youtube.com/watch?v=oCnxnaVg0bY"
+TRANSCRIPT_PROVENANCE_PREFIX = """Reference only — not runtime skill instructions.
+Framework author and presenter: Joanna Wiebe
+Video: The Psychology of Storytelling That Will Change Your Life
+Source: https://www.youtube.com/watch?v=oCnxnaVg0bY
+Purpose: Archival provenance for the distilled, independently worded skill.
+
+"""
+# No pre-move hash was captured. This digest freezes the mechanically moved
+# current body; it does not claim independent proof of pre-move equivalence.
+TRANSCRIPT_BODY_SHA256 = (
+    "c9081c720b18d2be55a8654336aa72778aa3a0aafb01f7f0a43ee2646d6022ba"
+)
+REQUIRED_CASE_IDS = {
+    "saas-landing-page",
+    "founder-story",
+    "speech-opening",
+    "fiction-scene",
+    "incomplete-marketing-brief",
+    "preserve-voice-edit",
+    "grammar-only-negative-trigger",
+    "factual-prose-negative-trigger",
+}
+REQUIRED_CASE_PROMPTS = {
+    "saas-landing-page": (
+        "Write the narrative opening and CTA for a landing page for Briefly, "
+        "a meeting-summary tool. Audience: engineering managers. Supplied "
+        "facts only: it turns an uploaded transcript into a summary; Acme's "
+        "pilot reduced its weekly recap-writing time from 90 minutes to 25 "
+        "minutes; Acme approved use of its name. Do not add product "
+        "capabilities or results."
+    ),
+    "founder-story": (
+        "Turn these notes into a 250-word founder story: Mina ran a "
+        "neighborhood bakery; a freezer failed at 4:40 a.m. before a wedding "
+        "order; handwritten inventory made it hard to see what could be "
+        "remade; she later built a simple batch tracker with her brother. Do "
+        "not invent quotations, dates, customers, or outcomes."
+    ),
+    "speech-opening": (
+        "Write a 90-second opening for a talk to first-time managers about "
+        "giving useful feedback. Desired feeling: recognized, then hopeful. "
+        "Avoid sales language."
+    ),
+    "fiction-scene": (
+        "Rewrite this slow opening as a vivid 180-word scene while preserving "
+        "third-person limited voice and the fact that Mara is avoiding a "
+        "letter: 'Mara was nervous. The room was old and unpleasant. There "
+        "was a letter on the table that she did not want to read.'"
+    ),
+    "incomplete-marketing-brief": (
+        "Write launch copy for a new meal-planning app. I have not supplied "
+        "its features, audience research, testimonials, price, results, or "
+        "launch date. Make it persuasive and urgent."
+    ),
+    "preserve-voice-edit": (
+        "Tighten this copy without changing its dry, understated voice: 'At "
+        "2:13 on Tuesday, the dashboard went red. This was inconvenient. We "
+        "had, after all, promised the board that red dashboards were now "
+        "mostly a historical artifact. The office ficus remained neutral. "
+        "Our incident log did not.' Remove details that do not earn a place, "
+        "but preserve any detail that establishes tone or pays off."
+    ),
+    "grammar-only-negative-trigger": (
+        "Correct grammar only: 'The reports is ready and it were sent "
+        "yesterday.' Do not introduce narrative or marketing language."
+    ),
+    "factual-prose-negative-trigger": (
+        "Summarize these facts in two plain sentences without storytelling: "
+        "Water freezes at 0°C at standard atmospheric pressure. Dissolved "
+        "solutes can lower the freezing point."
+    ),
+}
+REQUIRED_RUBRIC = [
+    "appropriate_triggering",
+    "audience_goal_medium_constraints_handled",
+    "structure_adapted_to_task",
+    "principles_applied_selectively",
+    "orientation_imagery_details_payoff_ending_effective",
+    "supplied_voice_and_facts_preserved",
+    "unsupported_claims_not_invented",
+    "ethical_marketing_and_proportionate_cta",
+    "deliverable_first_without_framework_lecture",
+]
+
+
+def load_json(path):
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def parse_skill_frontmatter(skill):
+    frontmatter = re.match(
+        r"\A---\n"
+        r"(?P<name_key>[^:\n]+):(?P<name>[^\n]*)\n"
+        r"(?P<description_key>[^:\n]+):(?P<description>[^\n]*)\n"
+        r"---(?:\n|\Z)",
+        skill,
+    )
+    if frontmatter is None or (
+        frontmatter.group("name_key"),
+        frontmatter.group("description_key"),
+    ) != ("name", "description"):
+        raise ValueError("frontmatter must contain exactly name and description")
+
+    return {
+        "name": parse_frontmatter_string(frontmatter.group("name"), "name"),
+        "description": parse_frontmatter_string(
+            frontmatter.group("description"),
+            "description",
+        ),
+    }
+
+
+def parse_frontmatter_string(raw_value, key):
+    value = raw_value.strip()
+    error = f"frontmatter {key} must be a string"
+    if not value:
+        raise ValueError(error)
+
+    if value.startswith('"'):
+        try:
+            parsed_value = json.loads(value)
+        except json.JSONDecodeError as exception:
+            raise ValueError(error) from exception
+        if not isinstance(parsed_value, str):
+            raise ValueError(error)
+        return parsed_value
+
+    if value.startswith("'"):
+        if re.fullmatch(r"'(?:[^']|'')*'", value) is None:
+            raise ValueError(error)
+        return value[1:-1].replace("''", "'")
+
+    non_string_scalar = re.fullmatch(
+        r"(?:"
+        r"[\[{].*|"
+        r"[|>][+-]?[0-9]?|"
+        r"~|null|true|false|yes|no|on|off|"
+        r"[-+]?(?:"
+        r"0[bB][01_]+|0[oO][0-7_]+|0[xX][0-9a-fA-F_]+|"
+        r"[0-9][0-9_]*|"
+        r"(?:[0-9][0-9_]*)?\.[0-9_]+(?:[eE][-+]?[0-9_]+)?|"
+        r"[0-9][0-9_]*(?:\.[0-9_]*)?[eE][-+]?[0-9_]+|"
+        r"\.(?:inf|nan)"
+        r")"
+        r")",
+        value,
+        flags=re.IGNORECASE,
+    )
+    if non_string_scalar is not None:
+        raise ValueError(error)
+    return value
+
+
+class PluginContractTests(unittest.TestCase):
+    def test_portable_manifests_share_exact_canonical_identity(self):
+        canonical_identity = {
+            "name": PLUGIN_NAME,
+            "version": PLUGIN_VERSION,
+            "description": PLUGIN_DESCRIPTION,
+        }
+        for relative_path in (
+            ".codex-plugin/plugin.json",
+            ".claude-plugin/plugin.json",
+            ".cursor-plugin/plugin.json",
+            "gemini-extension.json",
+        ):
+            with self.subTest(path=relative_path):
+                manifest = load_json(PLUGIN_ROOT / relative_path)
+                self.assertEqual(canonical_identity, {
+                    key: manifest[key] for key in canonical_identity
+                })
+
+    def test_openai_agent_metadata_is_exact(self):
+        metadata = (SKILL_ROOT / "agents" / "openai.yaml").read_text(
+            encoding="utf-8"
+        )
+        self.assertEqual(
+            """interface:
+  display_name: "Crafting Compelling Stories"
+  short_description: "Shape vivid stories and narrative copy"
+  default_prompt: "Use $crafting-compelling-stories to shape this material into an audience-aware story."
+""",
+            metadata,
+        )
+
+    def test_skill_frontmatter_contains_only_name_and_description(self):
+        skill = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
+        frontmatter = parse_skill_frontmatter(skill)
+        self.assertEqual(SKILL_NAME, frontmatter["name"])
+        self.assertTrue(frontmatter["description"])
+
+    def test_frontmatter_parser_accepts_plain_and_quoted_strings(self):
+        for description in (
+            "Shape audience-aware stories",
+            '"Shape audience-aware stories"',
+            "'Shape audience-aware stories'",
+        ):
+            with self.subTest(description=description):
+                skill = (
+                    "---\n"
+                    "name: crafting-compelling-stories\n"
+                    f"description: {description}\n"
+                    "---\n"
+                )
+                self.assertEqual(
+                    "Shape audience-aware stories",
+                    parse_skill_frontmatter(skill)["description"],
+                )
+
+    def test_frontmatter_parser_rejects_non_string_yaml_scalars(self):
+        for description in (
+            "[storytelling]",
+            "{purpose: storytelling}",
+            "null",
+            "true",
+            "42",
+            "3.14",
+        ):
+            with self.subTest(description=description):
+                skill = (
+                    "---\n"
+                    "name: crafting-compelling-stories\n"
+                    f"description: {description}\n"
+                    "---\n"
+                )
+                with self.assertRaisesRegex(
+                    ValueError,
+                    "frontmatter description must be a string",
+                ):
+                    parse_skill_frontmatter(skill)
+
+    def test_evaluation_corpus_matches_exact_cases(self):
+        cases = load_json(PLUGIN_ROOT / "tests" / "evaluation-cases.json")
+        self.assertEqual(8, len(cases))
+        for case in cases:
+            with self.subTest(case=case):
+                self.assertIsInstance(case, dict)
+                self.assertEqual({"id", "prompt"}, set(case))
+                self.assertIsInstance(case["id"], str)
+                self.assertTrue(case["id"].strip())
+                self.assertIsInstance(case["prompt"], str)
+                self.assertTrue(case["prompt"].strip())
+
+        identifiers = [case["id"] for case in cases]
+        self.assertEqual(REQUIRED_CASE_IDS, set(identifiers))
+        self.assertEqual(len(identifiers), len(set(identifiers)))
+        self.assertEqual(
+            REQUIRED_CASE_PROMPTS,
+            {case["id"]: case["prompt"] for case in cases},
+        )
+
+    def test_evaluation_rubric_matches_exact_ordered_keys(self):
+        rubric = load_json(PLUGIN_ROOT / "tests" / "evaluation-rubric.json")
+        self.assertEqual(REQUIRED_RUBRIC, rubric)
+
+    def test_archival_transcript_is_relocated_with_attribution(self):
+        transcript = (
+            SKILL_ROOT / "references" / "joanna-wiebe-storytelling-transcript.txt"
+        ).read_text(encoding="utf-8")
+        self.assertTrue(
+            transcript.startswith(TRANSCRIPT_PROVENANCE_PREFIX),
+            "transcript must start with the exact provenance prefix",
+        )
+        transcript_body = transcript[len(TRANSCRIPT_PROVENANCE_PREFIX):]
+        self.assertEqual(
+            TRANSCRIPT_BODY_SHA256,
+            hashlib.sha256(transcript_body.encode("utf-8")).hexdigest(),
+            "archival transcript body changed",
+        )
+        header = transcript.split("\n\n", 1)[0]
+        for required_text in (
+            "Joanna Wiebe",
+            "The Psychology of Storytelling That Will Change Your Life",
+            SOURCE_URL,
+            "Reference only",
+        ):
+            self.assertIn(required_text, header)
+        self.assertFalse(
+            (
+                REPOSITORY_ROOT
+                / "misc"
+                / "psychology_storytelling_transcript.txt"
+            ).exists()
+        )
+
+    def test_skill_contains_required_operating_guardrails(self):
+        skill = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
+        for phrase in (
+            "Do not read the archival transcript during ordinary use",
+            "Never invent",
+            "Choose one primary structure",
+            "Apply only the principles that serve the assignment",
+            "Preserve the author's voice",
+            "Return the deliverable first",
+        ):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, skill)
+
+    def test_skill_does_not_make_unsupported_effectiveness_claims(self):
+        skill = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
+        for unsupported_claim in ("40%", "70%", "twice as memorable"):
+            with self.subTest(unsupported_claim=unsupported_claim):
+                self.assertNotIn(unsupported_claim, skill)
+
+
+if __name__ == "__main__":
+    unittest.main()

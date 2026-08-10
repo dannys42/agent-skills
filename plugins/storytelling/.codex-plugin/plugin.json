@@ -1,0 +1,36 @@
+{
+  "name": "storytelling",
+  "version": "1.0.0",
+  "description": "Audience-aware storytelling and narrative copy grounded in an attributed Joanna Wiebe framework",
+  "license": "MIT",
+  "skills": "./skills/",
+  "author": {
+    "name": "Danny Sung",
+    "url": "https://github.com/dannys42"
+  },
+  "repository": "https://github.com/dannys42/agent-skills",
+  "keywords": [
+    "storytelling",
+    "copywriting",
+    "marketing",
+    "narrative",
+    "speeches",
+    "fiction",
+    "agent-skills"
+  ],
+  "interface": {
+    "displayName": "Storytelling",
+    "shortDescription": "Shape vivid stories and narrative copy",
+    "longDescription": "Plan, draft, and edit audience-aware stories across marketing, speeches, education, scripts, and fiction without inventing support.",
+    "developerName": "Danny Sung",
+    "category": "Writing",
+    "capabilities": [
+      "Narrative structure selection",
+      "Story and marketing copy drafting",
+      "Story-focused editing and critique"
+    ],
+    "defaultPrompt": [
+      "Shape this material into an audience-aware story while preserving supplied facts and voice."
+    ]
+  }
+}
