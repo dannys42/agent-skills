@@ -39,7 +39,7 @@
   "profile": "full",
   "runtime": {
     "python": {
-      "executable": "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "executable": "python3",
       "implementation": "CPython",
       "version": "3.14.6"
     }
