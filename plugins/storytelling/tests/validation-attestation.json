@@ -1,9 +1,9 @@
 {
   "artifact": {
     "algorithm": "sha256-length-framed-v1",
-    "digest": "fa42d7250035e5d803525e2d8ebeb701cda604868ed6e515012117f3ed886f2d",
+    "digest": "76df4b0d3a5f59735b3958c5f269de46e35bafb0738e1c452c118504a19270af",
     "manifest_path": "plugins/storytelling/tests/artifact.json",
-    "manifest_sha256": "1d4095cc707afa384f11a1ba411fa5e7c28d9db3b6ecfa78afa3e33000c60273"
+    "manifest_sha256": "2932c3eb2b6480a2f16a35d6ac559a0ff30de43ff7ba63fd37aca5bf67b0a22a"
   },
   "evidence": {
     "byte_deterministic": false,
@@ -45,15 +45,15 @@
     }
   },
   "schema_version": 1,
-  "source_revision": "44f6d2bb3fc3f89bc21e0b12a9972b5e62991d03",
+  "source_revision": "5918b5470cf941c5ad5248fbf122e8f3c58c3ed3",
   "validation": {
     "command": {
       "id": "storytelling-contracts",
       "status": "passed",
-      "test_count": 20
+      "test_count": 21
     },
     "importer": "not_applicable",
     "network": "not_applicable",
-    "results_sha256": "fba6fdecc9c31d115b12eeb0b1b2d7c1a9d45b096d7c54ea9340c4dd4e045c53"
+    "results_sha256": "e23989dbe86075e2a268e9ffc38b17467a0514d0b5f6793e78acb72ae7fe72b2"
   }
 }
