@@ -187,15 +187,18 @@ git commit -m "test(storytelling): capture baseline behavior"
 - Move: `misc/psychology_storytelling_transcript.txt` to `plugins/storytelling/skills/crafting-compelling-stories/references/joanna-wiebe-storytelling-transcript.txt`
 - Modify: `plugins/storytelling/tests/test_plugin_contract.py`
 
-- [ ] **Step 1: Initialize the skill with the official scaffold**
+- [ ] **Step 1: Initialize the plugin and skill with the official scaffolds**
 
 Run from the repository worktree:
 
 ```bash
+python3 /Users/dannys/.codex/skills/.system/plugin-creator/scripts/create_basic_plugin.py storytelling --path plugins --with-skills --with-marketplace --marketplace-path .agents/plugins/marketplace.json --category Writing
 python3 /Users/dannys/.codex/skills/.system/skill-creator/scripts/init_skill.py crafting-compelling-stories --path plugins/storytelling/skills --resources references --interface 'display_name=Crafting Compelling Stories' --interface 'short_description=Shape vivid stories and narrative copy' --interface 'default_prompt=Use $crafting-compelling-stories to shape this material into an audience-aware story.'
 ```
 
-Expected: a new skill directory containing `SKILL.md`, `agents/openai.yaml`, and `references/`.
+Expected: a validated plugin root and Codex marketplace entry, followed by a
+new skill directory containing `SKILL.md`, `agents/openai.yaml`, and
+`references/`.
 
 - [ ] **Step 2: Create portable plugin manifests**
 
@@ -378,7 +381,7 @@ Expected: quick validation PASS and every plugin-local contract test PASS.
 - [ ] **Step 4: Commit the behavioral artifact**
 
 ```bash
-git add plugins/storytelling
+git add plugins/storytelling .agents/plugins/marketplace.json
 git commit -m "feat(storytelling): add audience-aware story workflow"
 ```
 
@@ -405,9 +408,9 @@ python3 -m unittest plugins/storytelling/tests/test_plugin_contract.py -v
 Expected: the new repository-integration tests FAIL while existing
 plugin-local tests remain PASS.
 
-- [ ] **Step 2: Add one canonical marketplace entry to each adapter**
+- [ ] **Step 2: Verify Codex and add the remaining canonical marketplace entries**
 
-Add this Codex marketplace entry:
+Verify that the plugin scaffold generated this Codex marketplace entry exactly:
 
 ```json
 {
@@ -441,6 +444,7 @@ python3 -m unittest plugins/storytelling/tests/test_plugin_contract.py -v
 python3 -m unittest discover -s plugins/skill-development-optimizer/tests -p 'test_*.py'
 python3 -m unittest discover -s plugins/swift-code-organization/tests -p 'test_*.py'
 python3 -m unittest discover -s plugins/swift-design-patterns/tests -p 'test_*.py'
+python3 /Users/dannys/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py plugins/storytelling
 ```
 
 Expected: all storytelling contracts PASS; existing suites remain at the clean baseline (250 passing with 1 skipped, 24 passing, 91 passing). The design-pattern suite may require permission to bind its temporary localhost socket.
