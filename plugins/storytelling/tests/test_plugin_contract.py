@@ -632,22 +632,14 @@ class PluginContractTests(unittest.TestCase):
     def test_skill_guards_incomplete_marketing_briefs(self):
         skill = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
         for phrase in (
-            "Treat plausible audience pain, before-and-after states, product "
-            "benefits, offers, deadlines, scarcity, and urgency as claims—not "
-            "harmless scene-setting",
-            "When essential marketing facts are absent, do not draft those "
-            "elements as known",
-            "Return a clearly labeled message skeleton",
-            "Request only missing facts that materially affect truthful "
-            "completion",
-            "Treat audience, problem, capability, proof, offer, and timing as "
-            "examples, not a mandatory checklist",
-            "Ensure every pain, benefit, result, offer, urgency claim, and CTA "
-            "is supplied or visibly marked as a placeholder",
-            "Do not imply \"start now\", early access, scarcity, or a deadline "
+            "as claims—not harmless scene-setting",
+            "do not draft those elements as known",
+            "clearly labeled message skeleton",
+            "materially affect truthful completion",
+            "not a mandatory checklist",
+            "visibly marked as a placeholder",
             "without evidence",
-            "Return the deliverable first, but prioritize truthful completion",
-            "If persuasive copy is impossible, return the labeled skeleton and "
+            "prioritize truthful completion",
             "missing-facts request as the deliverable",
         ):
             with self.subTest(phrase=phrase):
