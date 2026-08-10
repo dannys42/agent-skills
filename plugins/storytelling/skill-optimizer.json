@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "target": "plugins/storytelling/skills/crafting-compelling-stories",
+  "distributable": {
+    "include": [
+      "SKILL.md",
+      "agents/**/*.yaml",
+      "references/**/*.txt"
+    ],
+    "exclude": [
+      "**/__pycache__/**",
+      "**/*.pyc"
+    ]
+  },
+  "commands": {
+    "storytelling-contracts": {
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "plugins/storytelling/tests/test_plugin_contract.py",
+        "-v"
+      ],
+      "cwd": ".",
+      "timeout_seconds": 120,
+      "max_output_bytes": 1048576,
+      "network": false,
+      "timing_kind": "work"
+    }
+  },
+  "profiles": {
+    "quick": ["storytelling-contracts"],
+    "content": ["storytelling-contracts"],
+    "behavior": ["storytelling-contracts"],
+    "importer": [],
+    "full": ["storytelling-contracts"]
+  },
+  "evaluations": {
+    "cases": "plugins/storytelling/tests/evaluation-cases.json",
+    "rubric": "plugins/storytelling/tests/evaluation-rubric.json"
+  }
+}
