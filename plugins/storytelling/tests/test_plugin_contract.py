@@ -34,6 +34,11 @@ PLUGIN_KEYWORDS = [
     "agent-skills",
 ]
 SOURCE_URL = "https://www.youtube.com/watch?v=oCnxnaVg0bY"
+STORYTELLING_TABLE_ROW = (
+    "| `storytelling` | `crafting-compelling-stories` | Audience-aware "
+    "storytelling and narrative copy grounded in an attributed Joanna Wiebe "
+    "framework |"
+)
 TRANSCRIPT_LICENSE_NOTICE = (
     "License notice: This archival transcript is not covered by the "
     "repository MIT license; redistribution rights are not established."
@@ -135,6 +140,20 @@ REQUIRED_RUBRIC = [
 
 def load_json(path):
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def extract_markdown_section(markdown, heading, following_heading_pattern):
+    match = re.search(
+        rf"(?ms)^{re.escape(heading)}\n(?P<body>.*?)(?=^{following_heading_pattern}|\Z)",
+        markdown,
+    )
+    if match is None:
+        raise ValueError(f"missing Markdown section {heading}")
+    return match.group("body")
+
+
+def normalize_shell_command(command):
+    return re.sub(r"\\\s*\n\s*", "", command).strip()
 
 
 def parse_skill_frontmatter(skill):
@@ -299,24 +318,76 @@ class PluginContractTests(unittest.TestCase):
 
     def test_repository_readme_exposes_plugin_and_installation(self):
         readme = (REPOSITORY_ROOT / "README.md").read_text(encoding="utf-8")
-        self.assertIn("| `storytelling` |", readme)
-        self.assertIn("### `crafting-compelling-stories`", readme)
-        self.assertIn("## Install `crafting-compelling-stories`", readme)
+        plugins_section = extract_markdown_section(
+            readme,
+            "## Plugins",
+            r"## ",
+        )
+        overview = extract_markdown_section(
+            readme,
+            "### `crafting-compelling-stories`",
+            r"### ",
+        )
+        install = extract_markdown_section(
+            readme,
+            "## Install `crafting-compelling-stories`",
+            r"## ",
+        )
+        marketplace_inventory = extract_markdown_section(
+            readme,
+            "## Marketplace adapters and open registries",
+            r"## ",
+        )
+
+        self.assertIn(STORYTELLING_TABLE_ROW, plugins_section)
+        for required_text in (
+            "stories, marketing and conversion\ncopy, speeches, talks, scripts, and fiction",
+            "selectively synthesizes",
+            "without fabricating facts, outcomes, quotations, or evidence",
+            "Joanna Wiebe",
+            SOURCE_URL,
+            "transcript is provenance, not runtime instructions",
+            "not independently\nvalidated science",
+            "third-party redistribution caveat",
+        ):
+            with self.subTest(required_text=required_text):
+                self.assertIn(required_text, overview)
+
+        command_blocks = re.findall(r"```bash\n(.*?)\n```", install, re.DOTALL)
+        normalized_commands = [
+            normalize_shell_command(command) for command in command_blocks
+        ]
+        command_lines = [
+            line
+            for command in normalized_commands
+            for line in command.splitlines()
+        ]
         self.assertIn(
             "claude plugin install storytelling@danny-sung-agent-skills",
-            readme,
+            command_lines,
         )
         self.assertIn(
             "codex plugin add storytelling@danny-sung-agent-skills",
-            readme,
+            command_lines,
         )
-        self.assertIn("--skill crafting-compelling-stories", readme)
-        self.assertIn(SOURCE_URL, readme)
-        self.assertIn("Joanna Wiebe", readme)
-        self.assertIn("provenance", readme)
-        self.assertIn("not runtime instructions", readme)
-        self.assertRegex(readme, r"not independently\s+validated science")
-        self.assertIn("third-party redistribution caveat", readme)
+        self.assertIn(
+            "npx skills add dannys42/agent-skills --skill "
+            "crafting-compelling-stories --global --agent <agent>",
+            normalized_commands,
+        )
+        self.assertEqual(
+            [
+                "plugins/swift-testing/gemini-extension.json",
+                "plugins/swift-design-patterns/gemini-extension.json",
+                "plugins/swift-code-organization/gemini-extension.json",
+                "plugins/skill-development-optimizer/gemini-extension.json",
+                "plugins/storytelling/gemini-extension.json",
+            ],
+            re.findall(
+                r"`(plugins/[^`]+/gemini-extension\.json)`",
+                marketplace_inventory,
+            ),
+        )
 
     def test_portable_manifests_share_exact_canonical_identity(self):
         canonical_identity = {

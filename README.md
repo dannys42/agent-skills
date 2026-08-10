@@ -354,7 +354,8 @@ Replace `codex` with another supported agent value when needed.
   `plugins/swift-testing/gemini-extension.json`,
   `plugins/swift-design-patterns/gemini-extension.json`,
   `plugins/swift-code-organization/gemini-extension.json`, and
-  `plugins/skill-development-optimizer/gemini-extension.json`
+  `plugins/skill-development-optimizer/gemini-extension.json`, and
+  `plugins/storytelling/gemini-extension.json`
 - Ready for skills.sh, SkillsMD, and mdskills.ai indexing
 
 Direct installation does not require marketplace submission. These files are
