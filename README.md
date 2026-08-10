@@ -11,6 +11,7 @@ engineering.
 | `swift-design-patterns` | `choosing-swift-design-patterns` | Swift-native-first selection and review across 22 common design patterns |
 | `swift-code-organization` | `organizing-swift-files` | Focused Swift files, concept directories, and clean structural commits |
 | `skill-development-optimizer` | `optimizing-skill-development` | Risk-proportional validation and reproducible evidence for agent skills |
+| `storytelling` | `crafting-compelling-stories` | Audience-aware storytelling and narrative copy grounded in an attributed Joanna Wiebe framework |
 
 ## Skills
 
@@ -28,6 +29,16 @@ and release risk; runs only configured bounded checks; freezes behavioral
 artifacts; and keeps rubric-scored evaluation evidence tied to one artifact
 hash. It complements `skill-creator` and `writing-skills` and requires only
 Python, not a Swift toolchain.
+
+### `crafting-compelling-stories`
+
+Shapes supplied material into audience-aware stories, marketing and conversion
+copy, speeches, talks, scripts, and fiction. It selectively synthesizes an
+attributed [Joanna Wiebe presentation](https://www.youtube.com/watch?v=oCnxnaVg0bY)
+without fabricating facts, outcomes, quotations, or evidence. The archived
+transcript is provenance, not runtime instructions, and not independently
+validated science; it remains subject to the third-party redistribution caveat
+in the plugin's `THIRD_PARTY_NOTICES.md`.
 
 ### `choosing-swift-design-patterns`
 
@@ -223,6 +234,43 @@ Use the `<agent>` values in the table above. Gemini CLI is supported through
 this installer with `gemini-cli`, or by installing or linking
 `plugins/swift-code-organization/` as the local extension root. Use the plugin
 directory, not the monorepo repository root, as the Gemini extension root.
+
+## Install `crafting-compelling-stories`
+
+Canonical source:
+[plugins/storytelling/skills/crafting-compelling-stories](https://github.com/dannys42/agent-skills/tree/main/plugins/storytelling/skills/crafting-compelling-stories)
+
+### Claude Code
+
+Install the complete `storytelling` plugin:
+
+```bash
+claude plugin marketplace add dannys42/agent-skills
+claude plugin install storytelling@danny-sung-agent-skills
+```
+
+### Codex
+
+Install the complete `storytelling` plugin:
+
+```bash
+codex plugin marketplace add dannys42/agent-skills
+codex plugin add storytelling@danny-sung-agent-skills
+```
+
+### Other agents
+
+Install the individual skill with the open `skills` installer:
+
+```bash
+npx skills add dannys42/agent-skills \
+  --skill crafting-compelling-stories \
+  --global \
+  --agent <agent>
+```
+
+Use the `<agent>` values in the table above for Cursor, Gemini CLI, GitHub
+Copilot, OpenCode, Roo Code, Zoo Code, ZCode, and Zed.
 
 ## Install `choosing-swift-design-patterns`
 

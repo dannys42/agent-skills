@@ -26,6 +26,11 @@
       "name": "swift-code-organization",
       "source": "plugins/swift-code-organization",
       "description": "Personal Swift file, directory, and structural-commit organization conventions"
+    },
+    {
+      "name": "storytelling",
+      "source": "plugins/storytelling",
+      "description": "Audience-aware storytelling and narrative copy grounded in an attributed Joanna Wiebe framework"
     }
   ]
 }

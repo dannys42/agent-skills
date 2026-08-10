@@ -81,6 +81,27 @@
         "organization",
         "refactoring"
       ]
+    },
+    {
+      "name": "storytelling",
+      "source": "./plugins/storytelling",
+      "version": "1.0.0",
+      "description": "Audience-aware storytelling and narrative copy grounded in an attributed Joanna Wiebe framework",
+      "category": "writing",
+      "keywords": [
+        "storytelling",
+        "copywriting",
+        "marketing",
+        "narrative",
+        "speeches",
+        "fiction",
+        "agent-skills"
+      ],
+      "tags": [
+        "storytelling",
+        "copywriting",
+        "narrative"
+      ]
     }
   ]
 }

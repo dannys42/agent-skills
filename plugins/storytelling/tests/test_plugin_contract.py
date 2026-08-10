@@ -24,6 +24,15 @@ PLUGIN_DESCRIPTION = (
     "Audience-aware storytelling and narrative copy grounded in an attributed "
     "Joanna Wiebe framework"
 )
+PLUGIN_KEYWORDS = [
+    "storytelling",
+    "copywriting",
+    "marketing",
+    "narrative",
+    "speeches",
+    "fiction",
+    "agent-skills",
+]
 SOURCE_URL = "https://www.youtube.com/watch?v=oCnxnaVg0bY"
 TRANSCRIPT_LICENSE_NOTICE = (
     "License notice: This archival transcript is not covered by the "
@@ -193,6 +202,122 @@ def parse_frontmatter_string(raw_value, key):
 
 
 class PluginContractTests(unittest.TestCase):
+    def test_repository_marketplaces_expose_plugin_once(self):
+        marketplace_paths = (
+            REPOSITORY_ROOT / ".agents" / "plugins" / "marketplace.json",
+            REPOSITORY_ROOT / ".claude-plugin" / "marketplace.json",
+            REPOSITORY_ROOT / ".cursor-plugin" / "marketplace.json",
+        )
+        for path in marketplace_paths:
+            with self.subTest(path=path):
+                marketplace = load_json(path)
+                matches = [
+                    plugin
+                    for plugin in marketplace["plugins"]
+                    if plugin["name"] == PLUGIN_NAME
+                ]
+                self.assertEqual(1, len(matches))
+
+    def test_codex_marketplace_uses_canonical_plugin_entry(self):
+        marketplace = load_json(
+            REPOSITORY_ROOT / ".agents" / "plugins" / "marketplace.json"
+        )
+        entry = next(
+            plugin
+            for plugin in marketplace["plugins"]
+            if plugin["name"] == PLUGIN_NAME
+        )
+        self.assertEqual(
+            {
+                "name": PLUGIN_NAME,
+                "source": {
+                    "source": "local",
+                    "path": "./plugins/storytelling",
+                },
+                "policy": {
+                    "installation": "AVAILABLE",
+                    "authentication": "ON_INSTALL",
+                },
+                "category": "Writing",
+            },
+            entry,
+        )
+
+    def test_claude_marketplace_uses_canonical_plugin_entry(self):
+        marketplace = load_json(
+            REPOSITORY_ROOT / ".claude-plugin" / "marketplace.json"
+        )
+        entry = next(
+            plugin
+            for plugin in marketplace["plugins"]
+            if plugin["name"] == PLUGIN_NAME
+        )
+        self.assertEqual(
+            {
+                "name": PLUGIN_NAME,
+                "source": "./plugins/storytelling",
+                "version": PLUGIN_VERSION,
+                "description": PLUGIN_DESCRIPTION,
+                "category": "writing",
+                "keywords": PLUGIN_KEYWORDS,
+                "tags": ["storytelling", "copywriting", "narrative"],
+            },
+            entry,
+        )
+
+    def test_cursor_marketplace_uses_canonical_plugin_entry(self):
+        marketplace = load_json(
+            REPOSITORY_ROOT / ".cursor-plugin" / "marketplace.json"
+        )
+        entry = next(
+            plugin
+            for plugin in marketplace["plugins"]
+            if plugin["name"] == PLUGIN_NAME
+        )
+        self.assertEqual(
+            {
+                "name": PLUGIN_NAME,
+                "source": "plugins/storytelling",
+                "description": PLUGIN_DESCRIPTION,
+            },
+            entry,
+        )
+
+    def test_cursor_marketplace_uses_supported_entry_fields(self):
+        marketplace = load_json(
+            REPOSITORY_ROOT / ".cursor-plugin" / "marketplace.json"
+        )
+        supported_fields = {
+            "name",
+            "source",
+            "description",
+            "minClientVersions",
+        }
+        for plugin in marketplace["plugins"]:
+            with self.subTest(plugin=plugin["name"]):
+                self.assertLessEqual(set(plugin), supported_fields)
+
+    def test_repository_readme_exposes_plugin_and_installation(self):
+        readme = (REPOSITORY_ROOT / "README.md").read_text(encoding="utf-8")
+        self.assertIn("| `storytelling` |", readme)
+        self.assertIn("### `crafting-compelling-stories`", readme)
+        self.assertIn("## Install `crafting-compelling-stories`", readme)
+        self.assertIn(
+            "claude plugin install storytelling@danny-sung-agent-skills",
+            readme,
+        )
+        self.assertIn(
+            "codex plugin add storytelling@danny-sung-agent-skills",
+            readme,
+        )
+        self.assertIn("--skill crafting-compelling-stories", readme)
+        self.assertIn(SOURCE_URL, readme)
+        self.assertIn("Joanna Wiebe", readme)
+        self.assertIn("provenance", readme)
+        self.assertIn("not runtime instructions", readme)
+        self.assertRegex(readme, r"not independently\s+validated science")
+        self.assertIn("third-party redistribution caveat", readme)
+
     def test_portable_manifests_share_exact_canonical_identity(self):
         canonical_identity = {
             "name": PLUGIN_NAME,
