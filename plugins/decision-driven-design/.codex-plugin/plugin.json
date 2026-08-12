@@ -7,7 +7,7 @@
     "url": "https://github.com/dannys42"
   },
   "repository": "https://github.com/dannys42/agent-skills",
-  "license": "MIT",
+  "license": "GPL-3.0-or-later",
   "keywords": ["design", "architecture", "decision-making", "planning"],
   "skills": "./skills/",
   "interface": {

@@ -102,6 +102,26 @@
         "copywriting",
         "narrative"
       ]
+    },
+    {
+      "name": "decision-driven-design",
+      "source": "./plugins/decision-driven-design",
+      "skills": "./skills/",
+      "version": "0.1.0",
+      "description": "Interview-led design workflow for resolving consequential product and engineering decisions before implementation.",
+      "category": "productivity",
+      "keywords": [
+        "design",
+        "architecture",
+        "decision-making",
+        "planning",
+        "agent-skills"
+      ],
+      "tags": [
+        "design",
+        "architecture",
+        "planning"
+      ]
     }
   ]
 }

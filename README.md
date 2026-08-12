@@ -1,5 +1,7 @@
 # Danny Sung's Agent Skills
 
+[![skills.sh](https://skills.sh/b/dannys42/agent-skills)](https://skills.sh/dannys42/agent-skills)
+
 Portable agent skills for Swift and Apple-platform development, agent-skill
 engineering, storytelling, and writing.
 
