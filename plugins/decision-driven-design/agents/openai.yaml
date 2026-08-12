@@ -1,0 +1,6 @@
+interface:
+  display_name: "Decision-Driven Design"
+  short_description: "Resolve design decisions before implementation"
+  default_prompt: "Use $decision-driven-design to turn this feature idea into an implementation-ready design."
+policy:
+  allow_implicit_invocation: true

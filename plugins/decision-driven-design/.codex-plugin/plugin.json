@@ -1,0 +1,22 @@
+{
+  "name": "decision-driven-design",
+  "version": "0.1.0",
+  "description": "Interview-led design workflow for resolving consequential product and engineering decisions before implementation.",
+  "author": {
+    "name": "Danny Sung",
+    "url": "https://github.com/dannys42"
+  },
+  "repository": "https://github.com/dannys42/agent-skills",
+  "license": "MIT",
+  "keywords": ["design", "architecture", "decision-making", "planning"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Decision-Driven Design",
+    "shortDescription": "Resolve design decisions before implementation",
+    "longDescription": "Inspect the existing system, interview for high-leverage decisions, reconcile revisions, and produce an implementation-ready plan without speculative abstractions.",
+    "developerName": "Danny Sung",
+    "category": "Productivity",
+    "capabilities": ["Decision mapping", "Design interviews", "Architecture trade-offs", "Implementation plans"],
+    "defaultPrompt": ["Use $decision-driven-design to turn this feature idea into an implementation-ready design."]
+  }
+}

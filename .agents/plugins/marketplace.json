@@ -63,6 +63,18 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Writing"
+    },
+    {
+      "name": "decision-driven-design",
+      "source": {
+        "source": "local",
+        "path": "./plugins/decision-driven-design"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
     }
   ]
 }

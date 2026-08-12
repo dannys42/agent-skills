@@ -11,6 +11,7 @@ engineering, storytelling, and writing.
 | `swift-design-patterns` | `choosing-swift-design-patterns` | Swift-native-first selection and review across 22 common design patterns |
 | `swift-code-organization` | `organizing-swift-files` | Focused Swift files, concept directories, and clean structural commits |
 | `skill-development-optimizer` | `optimizing-skill-development` | Risk-proportional validation and reproducible evidence for agent skills |
+| `decision-driven-design` | `decision-driven-design` | Resolve consequential design decisions before implementation |
 | `storytelling` | `crafting-compelling-stories` | Audience-aware storytelling and narrative copy grounded in an attributed Joanna Wiebe framework |
 
 ## Skills
@@ -20,6 +21,10 @@ engineering, storytelling, and writing.
 Organizes Swift source so every struct, class, and actor has a focused file,
 related files live in feature or domain directories, and structural refactors
 remain reviewable separately from behavioral changes.
+
+### `decision-driven-design`
+
+Inspects an existing system, interviews for high-leverage product and engineering decisions, reconciles revisions, and produces dependency-ordered implementation tasks without speculative abstractions.
 
 ### `optimizing-skill-development`
 
