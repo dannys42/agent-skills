@@ -369,6 +369,6 @@ gallery.
 
 ## License
 
-Repository-authored content is licensed under MIT. The repository MIT license
+Repository-authored content is licensed under GPL-3.0-or-later. The repository license
 does not cover the archival transcript; its redistribution rights are not
 established.

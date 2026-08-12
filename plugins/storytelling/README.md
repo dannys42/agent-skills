@@ -10,7 +10,7 @@ speeches, education, scripts, and fiction while preserving supplied facts and vo
 The framework is independently distilled and credits
 [Joanna Wiebe's video, *The Psychology of Storytelling That Will Change Your Life*](https://www.youtube.com/watch?v=oCnxnaVg0bY).
 The bundled transcript is archival provenance only, not runtime skill instructions.
-The repository's MIT license covers original plugin material only; it does not
+The repository's GPL-3.0-or-later license covers original plugin material only; it does not
 license the archival transcript, whose redistribution rights are not established.
 See [Third-Party Notices](THIRD_PARTY_NOTICES.md) and verify public redistribution
 rights before sharing the archival transcript.

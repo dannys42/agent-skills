@@ -1,6 +1,7 @@
 ---
 name: optimizing-skill-development
 description: Use when creating or changing an agent skill and validation effort risks being disproportionate, incomplete, non-reproducible, or mixed across artifact versions.
+license: GPL-3.0-or-later
 ---
 
 # Optimizing Skill Development

@@ -1,6 +1,7 @@
 ---
 name: choosing-swift-design-patterns
 description: Use when designing or reviewing Swift code that may need a GoF design pattern, when comparing named patterns, or when code shows creation, interface, hierarchy, state, event, traversal, coordination, undo, behavior-variation, or access-control pressures.
+license: GPL-3.0-or-later
 ---
 
 # Choosing Swift Design Patterns

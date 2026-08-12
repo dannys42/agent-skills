@@ -3,7 +3,7 @@ Presenter and synthesizer of this eight-principle presentation: Joanna Wiebe
 Video: The Psychology of Storytelling That Will Change Your Life
 Source: https://www.youtube.com/watch?v=oCnxnaVg0bY
 Purpose: Archival provenance for the distilled, independently worded skill.
-License notice: This archival transcript is not covered by the repository MIT license; redistribution rights are not established.
+License notice: This archival transcript is not covered by the repository GPL-3.0-or-later license; redistribution rights are not established.
 
 Source: https://www.youtube.com/watch?v=oCnxnaVg0bY
 Summary: Joanna Wiebe explains how to craft compelling narratives using specific psychological principles, such as predictive processing and sensory anchors. Learn to structure stories effectively and build suspense to keep audiences engaged from beginning to end.

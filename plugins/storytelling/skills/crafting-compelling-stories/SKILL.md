@@ -1,6 +1,7 @@
 ---
 name: crafting-compelling-stories
 description: Use when creating, reshaping, or critiquing stories, narrative writing, marketing or conversion copy, founder, product, customer, or brand stories, case studies, speeches, talks, scripts, narrative-driven educational explanations, fiction, hooks, story openings, narrative arcs, tension, concrete imagery, or endings; not for grammar-only correction, literal transcription, code, or ordinary factual prose without narrative intent
+license: GPL-3.0-or-later
 ---
 
 # Crafting Compelling Stories

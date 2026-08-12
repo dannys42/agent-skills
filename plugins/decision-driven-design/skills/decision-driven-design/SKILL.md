@@ -1,6 +1,7 @@
 ---
 name: decision-driven-design
 description: Conduct an iterative design interview that resolves major product, data-model, architecture, persistence, migration, and delivery decisions before implementation. Use when a feature has meaningful ambiguity, the user wants recommendations with tradeoffs and concrete schema or interface examples, or the outcome should be an ordered set of self-contained implementation tasks. Inspect the repository first, track decisions, reconcile revisions, minimize speculative abstractions, and finish with a concise process retrospective.
+license: GPL-3.0-or-later
 ---
 
 # Decision-Driven Design

@@ -1,6 +1,7 @@
 ---
 name: organizing-swift-files
 description: Use when creating or substantially editing Swift source files, or when reviewing Swift physical organization or reorganizing Swift file, directory, nested-type, SwiftUI type, or extension placement.
+license: GPL-3.0-or-later
 ---
 
 # Organizing Swift Files

@@ -1,6 +1,7 @@
 ---
 name: naming-swift-tests
 description: Use when generating, editing, or reviewing names in Swift unit tests using Swift Testing or XCTest, including test files, suites, functions, variables, fixtures, helpers, and parameterized arguments.
+license: GPL-3.0-or-later
 ---
 
 # Naming Swift Tests

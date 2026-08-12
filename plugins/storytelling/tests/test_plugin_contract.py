@@ -45,14 +45,14 @@ STORYTELLING_TABLE_ROW = (
 )
 TRANSCRIPT_LICENSE_NOTICE = (
     "License notice: This archival transcript is not covered by the "
-    "repository MIT license; redistribution rights are not established."
+    "repository GPL-3.0-or-later license; redistribution rights are not established."
 )
 TRANSCRIPT_PROVENANCE_PREFIX = """Reference only — not runtime skill instructions.
 Presenter and synthesizer of this eight-principle presentation: Joanna Wiebe
 Video: The Psychology of Storytelling That Will Change Your Life
 Source: https://www.youtube.com/watch?v=oCnxnaVg0bY
 Purpose: Archival provenance for the distilled, independently worded skill.
-License notice: This archival transcript is not covered by the repository MIT license; redistribution rights are not established.
+License notice: This archival transcript is not covered by the repository GPL-3.0-or-later license; redistribution rights are not established.
 
 """
 # No pre-move hash was captured. This digest freezes the mechanically moved
@@ -169,6 +169,7 @@ def parse_skill_frontmatter(skill):
         r"\A---\n"
         r"(?P<name_key>[^:\n]+):(?P<name>[^\n]*)\n"
         r"(?P<description_key>[^:\n]+):(?P<description>[^\n]*)\n"
+        r"(?:(?P<license_key>[^:\n]+):(?P<license>[^\n]*)\n)?"
         r"---(?:\n|\Z)",
         skill,
     )
@@ -176,15 +177,23 @@ def parse_skill_frontmatter(skill):
         frontmatter.group("name_key"),
         frontmatter.group("description_key"),
     ) != ("name", "description"):
-        raise ValueError("frontmatter must contain exactly name and description")
+        raise ValueError("frontmatter must begin with name and description")
 
-    return {
+    result = {
         "name": parse_frontmatter_string(frontmatter.group("name"), "name"),
         "description": parse_frontmatter_string(
             frontmatter.group("description"),
             "description",
         ),
     }
+    if frontmatter.group("license_key") is not None:
+        if frontmatter.group("license_key") != "license":
+            raise ValueError("frontmatter license key must be license")
+        result["license"] = parse_frontmatter_string(
+            frontmatter.group("license"),
+            "license",
+        )
+    return result
 
 
 def parse_frontmatter_string(raw_value, key):
@@ -455,7 +464,7 @@ class PluginContractTests(unittest.TestCase):
         )
         normalized_license = normalize_whitespace(license_section)
         self.assertIn(
-            "The repository MIT license does not cover the archival transcript",
+            "The repository license does not cover the archival transcript",
             normalized_license,
         )
         self.assertIn(
@@ -494,11 +503,12 @@ class PluginContractTests(unittest.TestCase):
             metadata,
         )
 
-    def test_skill_frontmatter_contains_only_name_and_description(self):
+    def test_skill_frontmatter_declares_gpl_license(self):
         skill = (SKILL_ROOT / "SKILL.md").read_text(encoding="utf-8")
         frontmatter = parse_skill_frontmatter(skill)
         self.assertEqual(SKILL_NAME, frontmatter["name"])
         self.assertEqual(SKILL_DESCRIPTION, frontmatter["description"])
+        self.assertEqual("GPL-3.0-or-later", frontmatter["license"])
 
     def test_frontmatter_parser_accepts_plain_and_quoted_strings(self):
         for description in (
