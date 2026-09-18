@@ -27,6 +27,8 @@ For every proposed layer or type, ask: does behavior vary, does it concentrate r
 
 For a small reversible feature, resolve only decisions affecting user-visible behavior, public interfaces, persistence, migration, or task boundaries. Resolve the rest autonomously and state assumptions briefly.
 
+Before requiring exact preservation of a migrated value, check what it was actually attached to pre-migration — the entity, or a position/index/derived slot instead. A goal like "make X stick to the entity" implies it didn't before, which should lower the fidelity bar, not raise it.
+
 ## Failure modes
 
 - Asking repository-discoverable questions.
