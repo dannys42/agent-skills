@@ -31,6 +31,11 @@
       "name": "storytelling",
       "source": "plugins/storytelling",
       "description": "Audience-aware storytelling and narrative copy grounded in an attributed Joanna Wiebe framework"
+    },
+    {
+      "name": "auditing-token-efficiency",
+      "source": "plugins/auditing-token-efficiency",
+      "description": "Post-task retrospectives that turn token-inefficiency into scripts, MCP recommendations, and durable project documentation"
     }
   ]
 }

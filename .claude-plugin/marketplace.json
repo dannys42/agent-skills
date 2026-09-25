@@ -122,6 +122,25 @@
         "architecture",
         "planning"
       ]
+    },
+    {
+      "name": "auditing-token-efficiency",
+      "source": "./plugins/auditing-token-efficiency",
+      "version": "1.0.0",
+      "description": "Post-task retrospectives that turn token-inefficiency into scripts, MCP recommendations, and durable project documentation",
+      "category": "developer-tools",
+      "keywords": [
+        "agent-skills",
+        "token-efficiency",
+        "retrospective",
+        "documentation",
+        "developer-tools"
+      ],
+      "tags": [
+        "efficiency",
+        "documentation",
+        "retrospective"
+      ]
     }
   ]
 }

@@ -1,0 +1,16 @@
+{
+  "name": "auditing-token-efficiency",
+  "version": "1.0.0",
+  "description": "Post-task retrospectives that turn token-inefficiency into scripts, MCP recommendations, and durable project documentation",
+  "license": "MIT",
+  "author": {
+    "name": "Danny Sung"
+  },
+  "keywords": [
+    "agent-skills",
+    "token-efficiency",
+    "retrospective",
+    "documentation",
+    "developer-tools"
+  ]
+}
