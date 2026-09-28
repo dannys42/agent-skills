@@ -14,16 +14,18 @@ _Last updated: <date>_
 
 ## Objectives
 
-[What this project is for. Prefer the maintainer's own words — a README
-tagline, a CLAUDE.md statement of purpose — over a paraphrase. If this is
-inferred rather than stated by the user, say so explicitly and invite
+[What this project is for, durably — not current status or progress, which
+belongs to whatever file already tracks it (e.g. a TODO/backlog). Prefer the
+maintainer's own words — a README tagline, a CLAUDE.md statement of purpose —
+over a paraphrase. If inferred rather than stated, say so and invite
 correction rather than presenting it as settled.]
 
 ## Direction
 
-[Where this is headed next, if that's actually known from an existing
-roadmap, issue, or explicit statement. Leave this section out entirely
-rather than guessing when nothing is known.]
+[Where the project's purpose is headed next — a stated future goal or
+roadmap — not process (how tasks get done, verified, or tracked). Leave this
+section out entirely rather than guessing, or when all you have is
+process/workflow.]
 ```
 
 ## Structure.md

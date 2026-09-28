@@ -65,8 +65,11 @@ Documentation/
 Only create a subdirectory when there's actually something to put in it.
 
 Treat `Documentation/` as the source of truth for direction and organization,
-never for implementation — don't summarize what the code currently does; that
-goes stale, and the code is already the source of truth for it.
+never for implementation, current status, or process — the code, an existing
+backlog/TODO file, and the project's own agent-instructions file
+(CLAUDE.md/AGENTS.md, if anything) already own those, respectively. Each goes
+stale the moment the real thing moves on, which is exactly the failure mode
+this skill's own output must not fall into.
 
 ### First run in a project
 
@@ -82,10 +85,15 @@ thorough and expensive.
 
 ### Overview.md
 
-Durable objectives and direction. Read this before filtering recommendations.
-Write to it only when the completed task revealed an actual direction change
-or gap — and even then, add rather than silently overwrite: append a dated
-note the user can fold in, don't rewrite their prose.
+Durable objectives and direction — what the project is and why it exists, per
+the rule above. "Direction" means where its purpose is headed next (a stated
+future goal, a roadmap), not the day-to-day mechanics of how tasks get picked
+up, executed, or verified — that's process, not direction.
+
+Read this before filtering recommendations. Write to it only when the
+completed task revealed an actual direction change or gap — and even then,
+add rather than silently overwrite: append a dated note the user can fold in,
+don't rewrite their prose.
 
 ### Structure.md
 
