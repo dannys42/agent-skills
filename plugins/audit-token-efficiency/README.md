@@ -1,8 +1,8 @@
-# auditing-token-efficiency
+# audit-token-efficiency
 
 Portable guidance for turning a completed task's friction into cheaper future
-tasks. The plugin contains one skill, `auditing-token-efficiency`, invoked
-manually with `/auditing-token-efficiency` after finishing a task — it does
+tasks. The plugin contains one skill, `audit-token-efficiency`, invoked
+manually with `/audit-token-efficiency` after finishing a task — it does
 not auto-trigger, so it costs nothing until you ask for it.
 
 ## What it does
@@ -36,21 +36,21 @@ in them.
 
 ```bash
 claude plugin marketplace add dannys42/agent-skills
-claude plugin install auditing-token-efficiency@danny-sung-agent-skills
+claude plugin install audit-token-efficiency@danny-sung-agent-skills
 ```
 
 ### Codex
 
 ```bash
 codex plugin marketplace add dannys42/agent-skills
-codex plugin add auditing-token-efficiency@danny-sung-agent-skills
+codex plugin add audit-token-efficiency@danny-sung-agent-skills
 ```
 
 ### Other agents
 
 ```bash
 npx skills add dannys42/agent-skills \
-  --skill auditing-token-efficiency \
+  --skill audit-token-efficiency \
   --global \
   --agent <agent>
 ```

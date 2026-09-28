@@ -45,7 +45,7 @@ place when a task actually had to rediscover it.
 ```markdown
 # Token-Efficiency Backlog
 
-Recommendations from `/auditing-token-efficiency` runs. Check an item off
+Recommendations from `/audit-token-efficiency` runs. Check an item off
 only once it's actually done; move fully-completed sections to
 `Completed/TODO-TokenEfficiency.md`.
 ```

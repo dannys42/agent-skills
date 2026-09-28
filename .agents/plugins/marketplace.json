@@ -77,10 +77,10 @@
       "category": "Productivity"
     },
     {
-      "name": "auditing-token-efficiency",
+      "name": "audit-token-efficiency",
       "source": {
         "source": "local",
-        "path": "./plugins/auditing-token-efficiency"
+        "path": "./plugins/audit-token-efficiency"
       },
       "policy": {
         "installation": "AVAILABLE",

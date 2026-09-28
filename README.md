@@ -15,7 +15,7 @@ engineering, storytelling, and writing.
 | `skill-development-optimizer` | `optimizing-skill-development` | Risk-proportional validation and reproducible evidence for agent skills |
 | `decision-driven-design` | `decision-driven-design` | Resolve consequential design decisions before implementation |
 | `storytelling` | `crafting-compelling-stories` | Audience-aware storytelling and narrative copy grounded in an attributed Joanna Wiebe framework |
-| `auditing-token-efficiency` | `auditing-token-efficiency` | Post-task retrospectives that turn token-inefficiency into scripts, MCP recommendations, and durable project documentation |
+| `audit-token-efficiency` | `audit-token-efficiency` | Post-task retrospectives that turn token-inefficiency into scripts, MCP recommendations, and durable project documentation |
 
 ## Skills
 
@@ -38,7 +38,7 @@ artifacts; and keeps rubric-scored evaluation evidence tied to one artifact
 hash. It complements `skill-creator` and `writing-skills` and requires only
 Python, not a Swift toolchain.
 
-### `auditing-token-efficiency`
+### `audit-token-efficiency`
 
 Reviews the task just completed — its tool calls, searches, and edits — for
 token-efficiency opportunities: repeated discovery a script or documented
@@ -47,7 +47,7 @@ and wasted exploration caused by unwritten direction. Records findings in a
 `Documentation/` folder as durable direction (`Overview.md`), an
 organizational map (`Structure.md`), and an actionable, model-tagged backlog
 (`TODO-TokenEfficiency.md`). Manual invocation only, via
-`/auditing-token-efficiency`.
+`/audit-token-efficiency`.
 
 ### `crafting-compelling-stories`
 
@@ -364,27 +364,27 @@ npx skills add dannys42/agent-skills \
 
 Replace `codex` with another supported agent value when needed.
 
-## Install `auditing-token-efficiency`
+## Install `audit-token-efficiency`
 
 Canonical source:
-[plugins/auditing-token-efficiency/skills/auditing-token-efficiency](https://github.com/dannys42/agent-skills/tree/main/plugins/auditing-token-efficiency/skills/auditing-token-efficiency)
+[plugins/audit-token-efficiency/skills/audit-token-efficiency](https://github.com/dannys42/agent-skills/tree/main/plugins/audit-token-efficiency/skills/audit-token-efficiency)
 
 ### Claude Code
 
-Install the complete `auditing-token-efficiency` plugin:
+Install the complete `audit-token-efficiency` plugin:
 
 ```bash
 claude plugin marketplace add dannys42/agent-skills
-claude plugin install auditing-token-efficiency@danny-sung-agent-skills
+claude plugin install audit-token-efficiency@danny-sung-agent-skills
 ```
 
 ### Codex
 
-Install the complete `auditing-token-efficiency` plugin:
+Install the complete `audit-token-efficiency` plugin:
 
 ```bash
 codex plugin marketplace add dannys42/agent-skills
-codex plugin add auditing-token-efficiency@danny-sung-agent-skills
+codex plugin add audit-token-efficiency@danny-sung-agent-skills
 ```
 
 ### Other agents
@@ -393,7 +393,7 @@ Install the individual skill with the open `skills` installer:
 
 ```bash
 npx skills add dannys42/agent-skills \
-  --skill auditing-token-efficiency \
+  --skill audit-token-efficiency \
   --global \
   --agent <agent>
 ```
@@ -411,7 +411,7 @@ Use the `<agent>` values in the table above.
   `plugins/swift-code-organization/gemini-extension.json`,
   `plugins/skill-development-optimizer/gemini-extension.json`,
   `plugins/storytelling/gemini-extension.json`, and
-  `plugins/auditing-token-efficiency/gemini-extension.json`
+  `plugins/audit-token-efficiency/gemini-extension.json`
 - Ready for skills.sh, SkillsMD, and mdskills.ai indexing
 
 Direct installation does not require marketplace submission. These files are

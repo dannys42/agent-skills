@@ -1,5 +1,5 @@
 {
-  "name": "auditing-token-efficiency",
+  "name": "audit-token-efficiency",
   "version": "1.0.0",
   "description": "Post-task retrospectives that turn token-inefficiency into scripts, MCP recommendations, and durable project documentation"
 }

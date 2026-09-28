@@ -1,11 +1,11 @@
 ---
-name: auditing-token-efficiency
-description: Reviews the task just completed for token-efficiency opportunities — repeated searches or transforms a script could replace, hand-run work an MCP server could absorb, and missing project knowledge that caused rediscovery — then records durable findings in the project's Documentation folder. Invoke manually with /auditing-token-efficiency after finishing a task; it does not auto-trigger.
+name: audit-token-efficiency
+description: Reviews the task just completed for token-efficiency opportunities — repeated searches or transforms a script could replace, hand-run work an MCP server could absorb, and missing project knowledge that caused rediscovery — then records durable findings in the project's Documentation folder. Invoke manually with /audit-token-efficiency after finishing a task; it does not auto-trigger.
 disable-model-invocation: true
 license: GPL-3.0-or-later
 ---
 
-# Auditing Token Efficiency
+# Audit Token Efficiency
 
 Turn hindsight into cheaper future tasks. Look at what the just-completed task
 actually cost in tool calls, searches, and back-and-forth, and write down the

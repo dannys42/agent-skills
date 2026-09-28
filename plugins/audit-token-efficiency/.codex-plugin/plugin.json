@@ -1,5 +1,5 @@
 {
-  "name": "auditing-token-efficiency",
+  "name": "audit-token-efficiency",
   "version": "1.0.0",
   "description": "Post-task retrospectives that turn token-inefficiency into scripts, MCP recommendations, and durable project documentation",
   "license": "MIT",
@@ -14,7 +14,7 @@
     "developer-tools"
   ],
   "interface": {
-    "displayName": "Auditing Token Efficiency",
+    "displayName": "Audit Token Efficiency",
     "shortDescription": "Turn task friction into a durable efficiency backlog",
     "longDescription": "After a task finishes, review its tool calls and searches for repeated or expensive work, and record durable direction, structure, and an actionable token-efficiency backlog in the project's Documentation folder.",
     "developerName": "Danny Sung",
