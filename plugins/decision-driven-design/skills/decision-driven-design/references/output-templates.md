@@ -1,16 +1,27 @@
 # Output Templates
 
-## Decision ledger
+## Decision ledger file
+
+Path: `<DocDir>/Decision-<Topic>.md` (see SKILL.md, “Record and reconcile”).
+
+~~~markdown
+# Decision Ledger — <design title>
+
+Status: in progress | complete
+Scope: <current scope in one line>
+Future direction: <known direction and any preserved seams>
 
 ```yaml
 DNN:
   topic: <decision>
-  status: proposed | accepted | confirmed | superseded | deferred | evidence-required
+  status: proposed | accepted | superseded | deferred | evidence-required
   choice: <selected direction>
   rationale: <short reason>
   consequences: [<downstream effect>]
   revisit_when: [<condition>]
+  superseded_by: <DNN, only when superseded>
 ```
+~~~
 
 ## Implementation task
 
@@ -35,4 +46,4 @@ DNN:
 - User-rule candidate: <cross-project preference>, only if recurring or explicitly requested.
 ```
 
-Omit categories without a material, evidence-backed candidate.
+Omit categories without a material, evidence-backed candidate. Omit the whole section when no category has one.

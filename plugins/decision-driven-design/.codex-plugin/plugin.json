@@ -1,6 +1,6 @@
 {
   "name": "decision-driven-design",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Interview-led design workflow for resolving consequential product and engineering decisions before implementation.",
   "author": {
     "name": "Danny Sung",
