@@ -110,7 +110,7 @@ When the user accepts an option, record it, state the material consequence once,
 
 Stop interviewing when every major decision is accepted, deferred, or assigned an evidence gate; no accepted decisions conflict; current scope and future direction are distinct; authoritative data and derived projections are identified where relevant; and migration and failure behavior are defined where relevant.
 
-Generate dependency-ordered, self-contained tasks using the task template. Stabilize interface-defining and high-risk assumptions first; put prototypes and capability spikes before dependent migrations.
+Generate dependency-ordered, self-contained tasks using the task template. When the user wants a checklist or TODO file instead of (or alongside) standalone task documents, emit the tasks in the `tasklist` skill's format, citing decision IDs in each task's `Context` and the ledger path in `Source:`. Use the file the user names; otherwise follow that skill's default path. Stabilize interface-defining and high-risk assumptions first; put prototypes and capability spikes before dependent migrations.
 
 Repeat only task-relevant decisions so each task can be handed to another agent without reconstructing the interview. Preserve current behavior until replacement paths are proven. State generated-artifact and commit restrictions when relevant.
 

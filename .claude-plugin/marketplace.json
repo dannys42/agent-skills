@@ -57,7 +57,7 @@
     {
       "name": "task-workflow",
       "source": "./plugins/task-workflow",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "description": "Plan and execute work: resolve consequential design decisions before implementation, then break them into tasks",
       "category": "productivity",
       "keywords": [

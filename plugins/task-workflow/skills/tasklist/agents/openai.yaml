@@ -1,0 +1,6 @@
+interface:
+  display_name: "Tasklist"
+  short_description: "Write and maintain consistent TODO checklists"
+  default_prompt: "Use $tasklist to create or update the TODO.md task list for this work."
+policy:
+  allow_implicit_invocation: true

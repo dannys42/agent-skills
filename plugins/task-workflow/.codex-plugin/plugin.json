@@ -1,6 +1,6 @@
 {
   "name": "task-workflow",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Plan and execute work: resolve consequential design decisions before implementation, then break them into tasks",
   "license": "GPL-3.0-or-later",
   "skills": "./skills/",
@@ -27,10 +27,12 @@
       "Decision mapping",
       "Design interviews",
       "Architecture trade-offs",
-      "Implementation plans"
+      "Implementation plans",
+      "Task lists"
     ],
     "defaultPrompt": [
-      "Use $decision-driven-design to turn this feature idea into an implementation-ready design."
+      "Use $decision-driven-design to turn this feature idea into an implementation-ready design.",
+      "Use $tasklist to create or update the TODO.md task list for this work."
     ]
   }
 }

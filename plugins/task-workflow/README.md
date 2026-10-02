@@ -11,7 +11,13 @@ Inspects an existing system, interviews for high-leverage product and
 engineering decisions, reconciles revisions, and produces dependency-ordered
 implementation tasks without speculative abstractions.
 
-Checklist-creation and task-execution skills are planned for this plugin.
+### `tasklist`
+
+Creates and maintains `<DocDir>/TODO.md` with unique phase/group/task IDs,
+dependencies, minimum-model tiers, and standard markers (`OBSOLETE`, `INVALID`,
+`SUPERSEDED`, `DEFERRED`, `BLOCKED`) so any model can pick up a task.
+
+A task-execution skill is planned for this plugin.
 
 ## Install
 
