@@ -1,0 +1,26 @@
+{
+  "name": "task-workflow",
+  "displayName": "Task Workflow",
+  "version": "0.2.0",
+  "description": "Plan and execute work: resolve consequential design decisions before implementation, then break them into tasks",
+  "license": "GPL-3.0-or-later",
+  "author": {
+    "name": "Danny Sung"
+  },
+  "repository": "https://github.com/dannys42/agent-skills",
+  "keywords": [
+    "design",
+    "architecture",
+    "decision-making",
+    "planning",
+    "tasks",
+    "agent-skills"
+  ],
+  "category": "productivity",
+  "tags": [
+    "design",
+    "planning",
+    "tasks"
+  ],
+  "skills": "./skills/"
+}

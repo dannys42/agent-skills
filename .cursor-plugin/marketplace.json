@@ -8,34 +8,24 @@
   },
   "plugins": [
     {
-      "name": "swift-testing",
-      "source": "plugins/swift-testing",
-      "description": "Explicit contract naming for Swift Testing and XCTest"
+      "name": "swift-craft",
+      "source": "plugins/swift-craft",
+      "description": "Personal Swift conventions: test naming, design-pattern selection, and file organization"
     },
     {
-      "name": "swift-design-patterns",
-      "source": "plugins/swift-design-patterns",
-      "description": "Original Swift design-pattern selection guidance informed by and attributed to Refactoring.Guru"
+      "name": "agent-engineering",
+      "source": "plugins/agent-engineering",
+      "description": "Tools for developing agent skills and improving agent efficiency: proportional skill validation and token-efficiency retrospectives"
     },
     {
-      "name": "skill-development-optimizer",
-      "source": "plugins/skill-development-optimizer",
-      "description": "Risk-proportional validation and reproducible evidence for developing agent skills"
-    },
-    {
-      "name": "swift-code-organization",
-      "source": "plugins/swift-code-organization",
-      "description": "Personal Swift file, directory, and structural-commit organization conventions"
+      "name": "task-workflow",
+      "source": "plugins/task-workflow",
+      "description": "Plan and execute work: resolve consequential design decisions before implementation, then break them into tasks"
     },
     {
       "name": "storytelling",
       "source": "plugins/storytelling",
       "description": "Audience-aware storytelling and narrative copy grounded in an attributed Joanna Wiebe framework"
-    },
-    {
-      "name": "audit-token-efficiency",
-      "source": "plugins/audit-token-efficiency",
-      "description": "Post-task retrospectives that turn token-inefficiency into scripts, MCP recommendations, and durable project documentation"
     }
   ]
 }

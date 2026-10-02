@@ -1,0 +1,21 @@
+{
+  "name": "swift-craft",
+  "version": "1.0.0",
+  "description": "Personal Swift conventions: test naming, design-pattern selection, and file organization",
+  "license": "MIT",
+  "author": {
+    "name": "Danny Sung"
+  },
+  "keywords": [
+    "swift",
+    "ios",
+    "macos",
+    "unit-tests",
+    "xctest",
+    "design-patterns",
+    "architecture",
+    "file-organization",
+    "refactoring",
+    "agent-skills"
+  ]
+}

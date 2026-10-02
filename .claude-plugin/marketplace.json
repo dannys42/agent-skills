@@ -9,77 +9,69 @@
   },
   "plugins": [
     {
-      "name": "swift-testing",
-      "source": "./plugins/swift-testing",
+      "name": "swift-craft",
+      "source": "./plugins/swift-craft",
       "version": "1.0.0",
-      "description": "Explicit contract naming for Swift Testing and XCTest",
-      "category": "testing",
-      "keywords": [
-        "swift",
-        "ios",
-        "unit-tests",
-        "xctest",
-        "agent-skills"
-      ],
-      "tags": [
-        "testing",
-        "swift"
-      ]
-    },
-    {
-      "name": "swift-design-patterns",
-      "source": "./plugins/swift-design-patterns",
-      "version": "1.0.0",
-      "description": "Original Swift design-pattern selection guidance informed by and attributed to Refactoring.Guru",
-      "category": "architecture",
-      "keywords": [
-        "swift",
-        "ios",
-        "macos",
-        "architecture",
-        "design-patterns",
-        "refactoring",
-        "agent-skills"
-      ],
-      "tags": [
-        "swift",
-        "architecture",
-        "design-patterns"
-      ]
-    },
-    {
-      "name": "skill-development-optimizer",
-      "source": "./plugins/skill-development-optimizer",
-      "version": "1.0.0",
-      "description": "Risk-proportional validation and reproducible evidence for developing agent skills",
-      "keywords": [
-        "agent-skills",
-        "skill-development",
-        "validation",
-        "evaluation",
-        "testing",
-        "optimization"
-      ]
-    },
-    {
-      "name": "swift-code-organization",
-      "source": "./plugins/swift-code-organization",
-      "version": "1.0.0",
-      "description": "Personal Swift file, directory, and structural-commit organization conventions",
+      "description": "Personal Swift conventions: test naming, design-pattern selection, and file organization",
       "category": "developer-tools",
       "keywords": [
         "swift",
         "ios",
         "macos",
+        "unit-tests",
+        "xctest",
+        "design-patterns",
+        "architecture",
         "file-organization",
-        "project-structure",
         "refactoring",
         "agent-skills"
       ],
       "tags": [
         "swift",
-        "organization",
-        "refactoring"
+        "testing",
+        "architecture",
+        "organization"
+      ]
+    },
+    {
+      "name": "agent-engineering",
+      "source": "./plugins/agent-engineering",
+      "version": "1.0.0",
+      "description": "Tools for developing agent skills and improving agent efficiency: proportional skill validation and token-efficiency retrospectives",
+      "category": "developer-tools",
+      "keywords": [
+        "agent-skills",
+        "skill-development",
+        "validation",
+        "evaluation",
+        "token-efficiency",
+        "retrospective",
+        "developer-tools"
+      ],
+      "tags": [
+        "agent-skills",
+        "validation",
+        "efficiency"
+      ]
+    },
+    {
+      "name": "task-workflow",
+      "source": "./plugins/task-workflow",
+      "version": "0.2.0",
+      "description": "Plan and execute work: resolve consequential design decisions before implementation, then break them into tasks",
+      "category": "productivity",
+      "keywords": [
+        "design",
+        "architecture",
+        "decision-making",
+        "planning",
+        "tasks",
+        "agent-skills"
+      ],
+      "tags": [
+        "design",
+        "planning",
+        "tasks"
       ]
     },
     {
@@ -101,45 +93,6 @@
         "storytelling",
         "copywriting",
         "narrative"
-      ]
-    },
-    {
-      "name": "decision-driven-design",
-      "source": "./plugins/decision-driven-design",
-      "skills": "./skills/",
-      "version": "0.1.0",
-      "description": "Interview-led design workflow for resolving consequential product and engineering decisions before implementation.",
-      "category": "productivity",
-      "keywords": [
-        "design",
-        "architecture",
-        "decision-making",
-        "planning",
-        "agent-skills"
-      ],
-      "tags": [
-        "design",
-        "architecture",
-        "planning"
-      ]
-    },
-    {
-      "name": "audit-token-efficiency",
-      "source": "./plugins/audit-token-efficiency",
-      "version": "1.0.0",
-      "description": "Post-task retrospectives that turn token-inefficiency into scripts, MCP recommendations, and durable project documentation",
-      "category": "developer-tools",
-      "keywords": [
-        "agent-skills",
-        "token-efficiency",
-        "retrospective",
-        "documentation",
-        "developer-tools"
-      ],
-      "tags": [
-        "efficiency",
-        "documentation",
-        "retrospective"
       ]
     }
   ]

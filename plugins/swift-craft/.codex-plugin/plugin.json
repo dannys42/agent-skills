@@ -1,0 +1,39 @@
+{
+  "name": "swift-craft",
+  "version": "1.0.0",
+  "description": "Personal Swift conventions: test naming, design-pattern selection, and file organization",
+  "license": "MIT",
+  "skills": "./skills/",
+  "author": {
+    "name": "Danny Sung",
+    "url": "https://github.com/dannys42"
+  },
+  "repository": "https://github.com/dannys42/agent-skills",
+  "keywords": [
+    "swift",
+    "ios",
+    "macos",
+    "unit-tests",
+    "xctest",
+    "design-patterns",
+    "architecture",
+    "file-organization",
+    "refactoring",
+    "agent-skills"
+  ],
+  "interface": {
+    "displayName": "Swift Craft",
+    "shortDescription": "Swift naming, design, and organization conventions",
+    "longDescription": "Name Swift tests clearly, choose or review design patterns with Swift-native preference, and organize Swift files into focused, reviewable structures.",
+    "developerName": "Danny Sung",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Explicit test contract naming",
+      "Swift-native architecture selection",
+      "Swift file and directory organization"
+    ],
+    "defaultPrompt": [
+      "Apply Swift test naming, design-pattern, and file-organization conventions to this work."
+    ]
+  }
+}

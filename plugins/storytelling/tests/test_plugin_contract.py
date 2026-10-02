@@ -445,16 +445,15 @@ class PluginContractTests(unittest.TestCase):
         gemini_inventory = gemini_inventory_match.group("body")
         self.assertEqual(1, gemini_inventory.count("and"))
         self.assertIn(
-            "`plugins/skill-development-optimizer/gemini-extension.json`, "
+            "`plugins/task-workflow/gemini-extension.json`, "
             "and `plugins/storytelling/gemini-extension.json`",
             normalize_whitespace(gemini_inventory),
         )
         self.assertEqual(
             [
-                "plugins/swift-testing/gemini-extension.json",
-                "plugins/swift-design-patterns/gemini-extension.json",
-                "plugins/swift-code-organization/gemini-extension.json",
-                "plugins/skill-development-optimizer/gemini-extension.json",
+                "plugins/swift-craft/gemini-extension.json",
+                "plugins/agent-engineering/gemini-extension.json",
+                "plugins/task-workflow/gemini-extension.json",
                 "plugins/storytelling/gemini-extension.json",
             ],
             re.findall(

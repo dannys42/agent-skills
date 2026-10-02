@@ -9,13 +9,10 @@ engineering, storytelling, and writing.
 
 | Plugin | Skills | Description |
 |---|---|---|
-| `swift-testing` | `naming-swift-tests` | Explicit contract naming for Swift Testing and XCTest |
-| `swift-design-patterns` | `choosing-swift-design-patterns` | Swift-native-first selection and review across 22 common design patterns |
-| `swift-code-organization` | `organizing-swift-files` | Focused Swift files, concept directories, and clean structural commits |
-| `skill-development-optimizer` | `optimizing-skill-development` | Risk-proportional validation and reproducible evidence for agent skills |
-| `decision-driven-design` | `decision-driven-design` | Resolve consequential design decisions before implementation |
+| `swift-craft` | `naming-swift-tests`, `choosing-swift-design-patterns`, `organizing-swift-files` | Personal Swift conventions: explicit test naming, Swift-native design-pattern selection, and focused file organization |
+| `agent-engineering` | `optimizing-skill-development`, `audit-token-efficiency` | Risk-proportional skill validation with reproducible evidence, and post-task token-efficiency retrospectives |
+| `task-workflow` | `decision-driven-design` | Resolve consequential design decisions before implementation, then plan and execute the resulting tasks |
 | `storytelling` | `crafting-compelling-stories` | Audience-aware storytelling and narrative copy grounded in an attributed Joanna Wiebe framework |
-| `audit-token-efficiency` | `audit-token-efficiency` | Post-task retrospectives that turn token-inefficiency into scripts, MCP recommendations, and durable project documentation |
 
 ## Skills
 
@@ -168,24 +165,24 @@ Explicit contract naming makes those roles visible:
 ## Install `naming-swift-tests`
 
 Canonical source:
-[plugins/swift-testing/skills/naming-swift-tests](https://github.com/dannys42/agent-skills/tree/main/plugins/swift-testing/skills/naming-swift-tests)
+[plugins/swift-craft/skills/naming-swift-tests](https://github.com/dannys42/agent-skills/tree/main/plugins/swift-craft/skills/naming-swift-tests)
 
 ### Claude Code
 
-Install the complete `swift-testing` plugin:
+Install the complete `swift-craft` plugin:
 
 ```bash
 claude plugin marketplace add dannys42/agent-skills
-claude plugin install swift-testing@danny-sung-agent-skills
+claude plugin install swift-craft@danny-sung-agent-skills
 ```
 
 ### Codex
 
-Install the complete `swift-testing` plugin:
+Install the complete `swift-craft` plugin:
 
 ```bash
 codex plugin marketplace add dannys42/agent-skills
-codex plugin add swift-testing@danny-sung-agent-skills
+codex plugin add swift-craft@danny-sung-agent-skills
 ```
 
 ### Other agents
@@ -218,24 +215,24 @@ skill.
 ## Install `organizing-swift-files`
 
 Canonical source:
-[plugins/swift-code-organization/skills/organizing-swift-files](https://github.com/dannys42/agent-skills/tree/main/plugins/swift-code-organization/skills/organizing-swift-files)
+[plugins/swift-craft/skills/organizing-swift-files](https://github.com/dannys42/agent-skills/tree/main/plugins/swift-craft/skills/organizing-swift-files)
 
 ### Claude Code
 
-Install the complete `swift-code-organization` plugin:
+Install the complete `swift-craft` plugin:
 
 ```bash
 claude plugin marketplace add dannys42/agent-skills
-claude plugin install swift-code-organization@danny-sung-agent-skills
+claude plugin install swift-craft@danny-sung-agent-skills
 ```
 
 ### Codex
 
-Install the complete `swift-code-organization` plugin:
+Install the complete `swift-craft` plugin:
 
 ```bash
 codex plugin marketplace add dannys42/agent-skills
-codex plugin add swift-code-organization@danny-sung-agent-skills
+codex plugin add swift-craft@danny-sung-agent-skills
 ```
 
 ### Other agents
@@ -251,7 +248,7 @@ npx skills add dannys42/agent-skills \
 
 Use the `<agent>` values in the table above. Gemini CLI is supported through
 this installer with `gemini-cli`, or by installing or linking
-`plugins/swift-code-organization/` as the local extension root. Use the plugin
+`plugins/swift-craft/` as the local extension root. Use the plugin
 directory, not the monorepo repository root, as the Gemini extension root.
 
 ## Install `crafting-compelling-stories`
@@ -294,24 +291,24 @@ Copilot, OpenCode, Roo Code, Zoo Code, ZCode, and Zed.
 ## Install `choosing-swift-design-patterns`
 
 Canonical source:
-[plugins/swift-design-patterns/skills/choosing-swift-design-patterns](https://github.com/dannys42/agent-skills/tree/main/plugins/swift-design-patterns/skills/choosing-swift-design-patterns)
+[plugins/swift-craft/skills/choosing-swift-design-patterns](https://github.com/dannys42/agent-skills/tree/main/plugins/swift-craft/skills/choosing-swift-design-patterns)
 
 ### Claude Code
 
-Install the complete `swift-design-patterns` plugin:
+Install the complete `swift-craft` plugin:
 
 ```bash
 claude plugin marketplace add dannys42/agent-skills
-claude plugin install swift-design-patterns@danny-sung-agent-skills
+claude plugin install swift-craft@danny-sung-agent-skills
 ```
 
 ### Codex
 
-Install the complete `swift-design-patterns` plugin:
+Install the complete `swift-craft` plugin:
 
 ```bash
 codex plugin marketplace add dannys42/agent-skills
-codex plugin add swift-design-patterns@danny-sung-agent-skills
+codex plugin add swift-craft@danny-sung-agent-skills
 ```
 
 ### Other agents
@@ -331,24 +328,24 @@ Copilot, OpenCode, Roo Code, Zoo Code, ZCode, and Zed.
 ## Install `optimizing-skill-development`
 
 Canonical source:
-[plugins/skill-development-optimizer/skills/optimizing-skill-development](https://github.com/dannys42/agent-skills/tree/main/plugins/skill-development-optimizer/skills/optimizing-skill-development)
+[plugins/agent-engineering/skills/optimizing-skill-development](https://github.com/dannys42/agent-skills/tree/main/plugins/agent-engineering/skills/optimizing-skill-development)
 
 ### Claude Code
 
-Install the complete `skill-development-optimizer` plugin:
+Install the complete `agent-engineering` plugin:
 
 ```bash
 claude plugin marketplace add dannys42/agent-skills
-claude plugin install skill-development-optimizer@danny-sung-agent-skills
+claude plugin install agent-engineering@danny-sung-agent-skills
 ```
 
 ### Codex
 
-Install the complete `skill-development-optimizer` plugin:
+Install the complete `agent-engineering` plugin:
 
 ```bash
 codex plugin marketplace add dannys42/agent-skills
-codex plugin add skill-development-optimizer@danny-sung-agent-skills
+codex plugin add agent-engineering@danny-sung-agent-skills
 ```
 
 ### Other agents
@@ -367,24 +364,24 @@ Replace `codex` with another supported agent value when needed.
 ## Install `audit-token-efficiency`
 
 Canonical source:
-[plugins/audit-token-efficiency/skills/audit-token-efficiency](https://github.com/dannys42/agent-skills/tree/main/plugins/audit-token-efficiency/skills/audit-token-efficiency)
+[plugins/agent-engineering/skills/audit-token-efficiency](https://github.com/dannys42/agent-skills/tree/main/plugins/agent-engineering/skills/audit-token-efficiency)
 
 ### Claude Code
 
-Install the complete `audit-token-efficiency` plugin:
+Install the complete `agent-engineering` plugin:
 
 ```bash
 claude plugin marketplace add dannys42/agent-skills
-claude plugin install audit-token-efficiency@danny-sung-agent-skills
+claude plugin install agent-engineering@danny-sung-agent-skills
 ```
 
 ### Codex
 
-Install the complete `audit-token-efficiency` plugin:
+Install the complete `agent-engineering` plugin:
 
 ```bash
 codex plugin marketplace add dannys42/agent-skills
-codex plugin add audit-token-efficiency@danny-sung-agent-skills
+codex plugin add agent-engineering@danny-sung-agent-skills
 ```
 
 ### Other agents
@@ -400,18 +397,52 @@ npx skills add dannys42/agent-skills \
 
 Use the `<agent>` values in the table above.
 
+## Install `decision-driven-design`
+
+Canonical source:
+[plugins/task-workflow/skills/decision-driven-design](https://github.com/dannys42/agent-skills/tree/main/plugins/task-workflow/skills/decision-driven-design)
+
+### Claude Code
+
+Install the complete `task-workflow` plugin:
+
+```bash
+claude plugin marketplace add dannys42/agent-skills
+claude plugin install task-workflow@danny-sung-agent-skills
+```
+
+### Codex
+
+Install the complete `task-workflow` plugin:
+
+```bash
+codex plugin marketplace add dannys42/agent-skills
+codex plugin add task-workflow@danny-sung-agent-skills
+```
+
+### Other agents
+
+Install the individual skill with the open `skills` installer:
+
+```bash
+npx skills add dannys42/agent-skills \
+  --skill decision-driven-design \
+  --global \
+  --agent <agent>
+```
+
+Use the `<agent>` values in the table above.
+
 ## Marketplace adapters and open registries
 
 - Claude marketplace: `.claude-plugin/marketplace.json`
 - Codex marketplace: `.agents/plugins/marketplace.json`
 - Cursor marketplace: `.cursor-plugin/marketplace.json`
 - Gemini extension metadata:
-  `plugins/swift-testing/gemini-extension.json`,
-  `plugins/swift-design-patterns/gemini-extension.json`,
-  `plugins/swift-code-organization/gemini-extension.json`,
-  `plugins/skill-development-optimizer/gemini-extension.json`,
-  `plugins/storytelling/gemini-extension.json`, and
-  `plugins/audit-token-efficiency/gemini-extension.json`
+  `plugins/swift-craft/gemini-extension.json`,
+  `plugins/agent-engineering/gemini-extension.json`,
+  `plugins/task-workflow/gemini-extension.json`, and
+  `plugins/storytelling/gemini-extension.json`
 - Ready for skills.sh, SkillsMD, and mdskills.ai indexing
 
 Direct installation does not require marketplace submission. These files are

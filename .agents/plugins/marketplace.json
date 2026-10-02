@@ -5,10 +5,10 @@
   },
   "plugins": [
     {
-      "name": "swift-testing",
+      "name": "swift-craft",
       "source": {
         "source": "local",
-        "path": "./plugins/swift-testing"
+        "path": "./plugins/swift-craft"
       },
       "policy": {
         "installation": "AVAILABLE",
@@ -17,10 +17,10 @@
       "category": "Developer Tools"
     },
     {
-      "name": "swift-design-patterns",
+      "name": "agent-engineering",
       "source": {
         "source": "local",
-        "path": "./plugins/swift-design-patterns"
+        "path": "./plugins/agent-engineering"
       },
       "policy": {
         "installation": "AVAILABLE",
@@ -29,28 +29,16 @@
       "category": "Developer Tools"
     },
     {
-      "name": "skill-development-optimizer",
+      "name": "task-workflow",
       "source": {
         "source": "local",
-        "path": "./plugins/skill-development-optimizer"
+        "path": "./plugins/task-workflow"
       },
       "policy": {
         "installation": "AVAILABLE",
         "authentication": "ON_INSTALL"
       },
-      "category": "Developer Tools"
-    },
-    {
-      "name": "swift-code-organization",
-      "source": {
-        "source": "local",
-        "path": "./plugins/swift-code-organization"
-      },
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Developer Tools"
+      "category": "Productivity"
     },
     {
       "name": "storytelling",
@@ -63,30 +51,6 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Writing"
-    },
-    {
-      "name": "decision-driven-design",
-      "source": {
-        "source": "local",
-        "path": "./plugins/decision-driven-design"
-      },
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Productivity"
-    },
-    {
-      "name": "audit-token-efficiency",
-      "source": {
-        "source": "local",
-        "path": "./plugins/audit-token-efficiency"
-      },
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Developer Tools"
     }
   ]
 }

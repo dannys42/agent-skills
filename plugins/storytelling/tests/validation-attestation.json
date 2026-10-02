@@ -15,23 +15,23 @@
     "config_sha256": "09b9684ca1d8b40fe74fd5149129fb34b78d61d97595ac8a56fc7b0e2aa708d1",
     "scripts": [
       {
-        "path": "plugins/skill-development-optimizer/skills/optimizing-skill-development/scripts/classify_change.py",
+        "path": "plugins/agent-engineering/skills/optimizing-skill-development/scripts/classify_change.py",
         "sha256": "d3a9147834f505d3593c537507cee1c2573344ad163b20ff00bd28f41fe6dbc5"
       },
       {
-        "path": "plugins/skill-development-optimizer/skills/optimizing-skill-development/scripts/hash_artifact.py",
+        "path": "plugins/agent-engineering/skills/optimizing-skill-development/scripts/hash_artifact.py",
         "sha256": "e93b2fa0370be1b172ec59c08f799725789b1f9bfcc932902db3bc3d4c2c4d2f"
       },
       {
-        "path": "plugins/skill-development-optimizer/skills/optimizing-skill-development/scripts/inspect_skill.py",
+        "path": "plugins/agent-engineering/skills/optimizing-skill-development/scripts/inspect_skill.py",
         "sha256": "7a3bc16618757d94b7b4d05b0fcf2f7deaa781c6d893df5a523b1f77b7c73f91"
       },
       {
-        "path": "plugins/skill-development-optimizer/skills/optimizing-skill-development/scripts/optimizer_config.py",
+        "path": "plugins/agent-engineering/skills/optimizing-skill-development/scripts/optimizer_config.py",
         "sha256": "eda3919f1ac3755a5cef20ed41704bad5c7f7da86b78c781a91e83d76e499dfd"
       },
       {
-        "path": "plugins/skill-development-optimizer/skills/optimizing-skill-development/scripts/run_validation.py",
+        "path": "plugins/agent-engineering/skills/optimizing-skill-development/scripts/run_validation.py",
         "sha256": "bd9d22a6552c6e56bdad536a2f1acc707911b9653528f93731b7508601441c54"
       }
     ]

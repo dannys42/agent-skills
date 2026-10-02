@@ -1,0 +1,36 @@
+{
+  "name": "agent-engineering",
+  "version": "1.0.0",
+  "description": "Tools for developing agent skills and improving agent efficiency: proportional skill validation and token-efficiency retrospectives",
+  "license": "MIT",
+  "skills": "./skills/",
+  "author": {
+    "name": "Danny Sung",
+    "url": "https://github.com/dannys42"
+  },
+  "repository": "https://github.com/dannys42/agent-skills",
+  "keywords": [
+    "agent-skills",
+    "skill-development",
+    "validation",
+    "evaluation",
+    "token-efficiency",
+    "retrospective",
+    "developer-tools"
+  ],
+  "interface": {
+    "displayName": "Agent Engineering",
+    "shortDescription": "Validate skills and cut agent token waste",
+    "longDescription": "Classify skill-development risk, run proportional validation with reproducible evidence, and audit completed tasks for token-efficiency improvements.",
+    "developerName": "Danny Sung",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Skill change-risk classification",
+      "Frozen evaluation evidence",
+      "Token-efficiency retrospectives"
+    ],
+    "defaultPrompt": [
+      "Optimize this skill-development task while preserving adequate evidence."
+    ]
+  }
+}

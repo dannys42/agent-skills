@@ -1,0 +1,36 @@
+{
+  "name": "task-workflow",
+  "version": "0.2.0",
+  "description": "Plan and execute work: resolve consequential design decisions before implementation, then break them into tasks",
+  "license": "GPL-3.0-or-later",
+  "skills": "./skills/",
+  "author": {
+    "name": "Danny Sung",
+    "url": "https://github.com/dannys42"
+  },
+  "repository": "https://github.com/dannys42/agent-skills",
+  "keywords": [
+    "design",
+    "architecture",
+    "decision-making",
+    "planning",
+    "tasks",
+    "agent-skills"
+  ],
+  "interface": {
+    "displayName": "Task Workflow",
+    "shortDescription": "Decide, plan, and execute tasks",
+    "longDescription": "Inspect the existing system, interview for high-leverage decisions, reconcile revisions, and produce an implementation-ready plan without speculative abstractions.",
+    "developerName": "Danny Sung",
+    "category": "Productivity",
+    "capabilities": [
+      "Decision mapping",
+      "Design interviews",
+      "Architecture trade-offs",
+      "Implementation plans"
+    ],
+    "defaultPrompt": [
+      "Use $decision-driven-design to turn this feature idea into an implementation-ready design."
+    ]
+  }
+}
