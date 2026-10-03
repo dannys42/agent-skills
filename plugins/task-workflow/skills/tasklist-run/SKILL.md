@@ -99,7 +99,7 @@ Never dispatch them and never check them off yourself. Keep running independent 
 ## Committing
 
 - Stage the paths the implementer reported plus the TODO file, nothing else. Compare against the starting `git status` so unrelated dirty files stay out.
-- The commit message must stand on its own. The TODO is working state that is regularly cleared out, so task IDs in a message would dangle. Write what changed and why, in the project's style, with no `T7`-style references. The TODO edit that checks the task off rides along in the commit but is not the subject of it.
+- The commit message must stand on its own. The TODO is working state that is regularly cleared out, so task IDs in a message would dangle. Write what changed and why, in the project's style. Leave out `T7`-style IDs, any mention of the TODO or task list, and any mention of files that are not in the commit (such as unrelated untracked files). The TODO edit that checks the task off rides along in the commit but is never described in the message.
 - Follow the repo's conventions for attribution lines.
 - With `--confirm-commit`, show the commit message and `git diff --stat`, wait, and then continue the run if the user confirms. With `--no-commit`, stop after review passes.
 
