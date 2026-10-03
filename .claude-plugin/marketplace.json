@@ -36,7 +36,7 @@
     {
       "name": "agent-engineering",
       "source": "./plugins/agent-engineering",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "description": "Tools for developing agent skills and improving agent efficiency: proportional skill validation and token-efficiency retrospectives",
       "category": "developer-tools",
       "keywords": [

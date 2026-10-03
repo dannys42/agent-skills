@@ -19,10 +19,11 @@ Findings land in a `Documentation/` folder at the project root:
 - **`Overview.md`** — durable objectives and direction.
 - **`Structure.md`** — a map of the project's targets, their directories, and
   their scope.
-- **`TODO-TokenEfficiency.md`** — the actionable backlog: a checklist of
-  scripts, tools, MCP recommendations, and doc updates, each tagged with a
-  recommended model, broken into phases when a task is large enough to need
-  its own design work.
+- **`TODO-TokenEfficiency.md`** — the actionable backlog: a `tasklist`-format
+  checklist of scripts, tools, MCP recommendations, and doc updates, each with
+  a minimum model and a `Done when` check, broken into phases when a task is
+  large enough to need its own design work. A caller such as `tasklist-run`
+  can redirect findings into its own active TODO instead.
 
 `Documentation/` is a source of truth for direction and organization, never
 for implementation — it never summarizes what the code currently does, since

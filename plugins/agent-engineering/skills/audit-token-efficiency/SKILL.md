@@ -79,8 +79,8 @@ filled from what's actually discoverable — a README, CLAUDE.md, package
 manifests, an existing plugin or marketplace listing — rather than
 interviewing the user. Mark anything inferred rather than stated, so it's
 clear what still wants a human's confirmation. Create `TODO-TokenEfficiency.md`
-empty; it only gets content from actual findings. Spend a handful of tool
-calls on this, not a deep audit — thin and clearly-marked-as-inferred beats
+empty; it only gets content from actual findings (unless a target file
+override applies). Spend a handful of tool calls on this, not a deep audit — thin and clearly-marked-as-inferred beats
 thorough and expensive.
 
 ### Overview.md
@@ -112,59 +112,60 @@ already found documented — that's a sign it's working.
 
 ### TODO-TokenEfficiency.md
 
-The concrete backlog: not "direction," actual tasks a future invocation (of
-any model) can pick up and execute. Use a checklist so completion is visible
-at a glance:
+The concrete backlog: actual tasks a future invocation (of any model) can pick
+up and execute. Write it in the `tasklist` format (see the `tasklist` skill in
+the `task-workflow` plugin) so any executor, including `tasklist-run`, can
+take items as they are. In short:
+
+- Phases and groups are headings (`## P1 …`, `### G1 …`); tasks are
+  `- [ ] T1 <imperative outcome>` items with indented fields.
+- IDs are document-wide, never reused or renumbered. Find the next number by
+  scanning the whole file, including `Completed/TODO-TokenEfficiency.md`.
+- Every task has `Model: <tier> (<name>)`: `light (Haiku 4.5)` for
+  fully-specified deterministic steps, `standard (Sonnet 5.5)` for ordinary
+  script or feature work, `heavy (Opus 5.5)` only for genuinely ambiguous
+  design. Substitute equivalents when the backlog runs under another tool.
+- `Context` names the observed waste ("Found during T7: …") and the files
+  involved; `Done when` is an observable check. Add `Needs` only for a real
+  dependency.
 
 ```markdown
-- [ ] Write `scripts/list-untagged-releases.sh` to replace manually diffing `git tag` output against the changelog each release — recommended model: Haiku 4.5
-- [ ] Recommend an MCP server for GitHub PR review data instead of ad hoc `gh api` calls — recommended model: Sonnet 5
+### G1 Release scripts
+
+- [ ] T1 Write `scripts/list-untagged-releases.sh` to replace diffing `git tag` against the changelog
+  - Model: light (Haiku 4.5)
+  - Context: found while cutting the 0.3.0 release; the diff was rebuilt by hand in four tool calls.
+  - Done when: the script prints the tags missing from CHANGELOG.md on this repo.
+- [ ] T2 Recommend an MCP server for GitHub PR review data instead of ad hoc `gh api` calls
+  - Model: standard (Sonnet 5.5)
+  - Context: PR review data was fetched with six separate `gh api` calls.
+  - Done when: a recommendation names an existing server or states why a custom one is needed.
 ```
 
 When one recommendation is large enough to need its own design work (a new
-program, a custom MCP server, a nontrivial script) and other backlog items
-depend on it existing first, group the whole cluster into phases instead of
-flat items. Each phase is its own heading with its own checklist — not a
-sub-step nested under one task:
-
-```markdown
-## Phase 1
-- [ ] task 1
-- [ ] task 2
-
-## Phase 2 — Build a local search index for this repo's skills
-- [ ] pick an index format, prove it answers one real query
-- [ ] build the indexer script
-- [ ] wire it into a skill
-
-## Phase 3
-- [ ] task that depends on the Phase 2 index existing
-- [ ] task that depends on the Phase 2 index existing
-```
-
-Use as many or as few phases as the actual dependency chain needs — including
-none at all when nothing in the backlog depends on something larger being
-built first. Phases express "this can't start until that's built," not "this
-task deserves more sub-bullets."
+program, a custom MCP server, a nontrivial script) and other items depend on
+it existing first, use phases for the chain and `Needs` for the edges. Use as
+many or as few levels as the dependency chain needs, including none.
 
 Rules for this file:
 
-- Append; don't remove or rewrite existing unchecked items.
-- Before adding an item, check the file (including
+- Append; don't remove or rewrite existing open items.
+- Before adding an item, skim the file's titles (and
   `Completed/TODO-TokenEfficiency.md` if it exists) for something equivalent
-  already recorded — don't duplicate. Skim existing titles rather than
-  re-reading full context for each one; this check should stay cheap.
-- Never check off an item yourself. `[x]` means a human or a later task
-  confirmed it's actually done.
-- Recommend the smallest model that can execute the task correctly: a
-  fast/cheap tier (e.g. Haiku 4.5) for fully-specified, deterministic steps; a
-  mid tier (e.g. Sonnet 5) for ordinary feature or script work; reserve a
-  frontier tier (e.g. Opus 5.5) for genuinely ambiguous design work.
-  Substitute the equivalent tier when this backlog is executed under a
-  different tool.
-- When most of the file's items are checked off, move the completed ones into
+  already recorded. Don't duplicate; keep this check cheap.
+- This skill never checks off an item. `[x]` means an executor verified the
+  task's `Done when`, so only the executor that runs the item (a person,
+  a later task, or `tasklist-run`) marks it.
+- When most items are closed, move the closed ones into
   `Completed/TODO-TokenEfficiency.md` (creating it if needed) so the active
-  file stays short. Leave unchecked items in place.
+  file stays short. Leave open items in place.
+
+**Target file override.** When the caller names another TODO file, or a
+runner such as `tasklist-run` invokes this skill for its active list, append
+the findings there instead of creating or touching `TODO-TokenEfficiency.md`.
+Continue that file's IDs and layout, and put the new tasks in a
+`G<n> Token efficiency` group (a new group at the end of the current phase, or
+of the file if it has no phases) with "Found during <ID>" in `Context`.
 
 ## Choosing a script's language
 
