@@ -116,6 +116,7 @@ Three or more agents repeating one discovery, more than two correction rounds, o
 - Add the fix as tasks in the active TODO, in a `G<n> Token efficiency` group, following the style the `audit-token-efficiency` skill uses (document-wide IDs, `Model`, `Context` starting `Found during <ID>`, `Done when`). The audit skill is manual-only, so do this check yourself; if the waste looks deeper than three questions can judge, suggest the user run `/audit-token-efficiency` with this TODO as the target file.
 - Tell the user what you added and why, in a line or two. Never add silently.
 - **Small and useful now:** at most three tasks, none heavy or risky, and enough batches remain (roughly three or more) that the savings plausibly exceed the cost of the fix, which is itself a batch with an implementer and a reviewer. Say you are running them, then run them through the normal loop before the next batch.
+- **Wire the fix into what remains.** Agents do not discover new files on their own. After a fix that adds project knowledge (a README, a doc, a script), add a one-line pointer to the `Context` of each open task it applies to, or name it in the implementer prompt, so the saving actually reaches them. Specify fixes that remove the expensive part of the work, not just the boilerplate around it.
 - **Not useful for the remaining batches:** leave them queued and mention them in the final report.
 - **Large, or heavy/risky:** do not run them. If later batches would benefit, pause and ask the user to confirm; otherwise leave them queued.
 
