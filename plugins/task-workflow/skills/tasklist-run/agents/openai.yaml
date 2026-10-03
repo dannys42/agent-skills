@@ -1,0 +1,6 @@
+interface:
+  display_name: "Tasklist Run"
+  short_description: "Execute TODO.md tasks with implement, review, and commit loops"
+  default_prompt: "Use $tasklist-run to work through the open tasks in TODO.md."
+policy:
+  allow_implicit_invocation: true

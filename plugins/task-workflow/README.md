@@ -17,7 +17,14 @@ Creates and maintains `<DocDir>/TODO.md` with unique phase/group/task IDs,
 dependencies, minimum-model tiers, and standard markers (`OBSOLETE`, `INVALID`,
 `SUPERSEDED`, `DEFERRED`, `BLOCKED`) so any model can pick up a task.
 
-A task-execution skill is planned for this plugin.
+### `tasklist-run`
+
+Executes the open tasks in a `tasklist`-format `TODO.md`, one reviewable commit
+at a time: a subagent on the cheapest adequate model implements each batch, an
+Opus reviewer checks it against the task's intent, corrections loop back to the
+implementer, and the passing change is committed before the next batch. Supports
+one-task runs, named task/group/phase scope, no-commit, confirm-before-commit,
+and parallel worktrees, and queues token-efficiency fixes in the TODO.
 
 ## Install
 

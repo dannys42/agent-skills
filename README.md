@@ -11,7 +11,7 @@ engineering, storytelling, and writing.
 |---|---|---|
 | `swift-craft` | `naming-swift-tests`, `choosing-swift-design-patterns`, `organizing-swift-files` | Personal Swift conventions: explicit test naming, Swift-native design-pattern selection, and focused file organization |
 | `agent-engineering` | `optimizing-skill-development`, `audit-token-efficiency` | Risk-proportional skill validation with reproducible evidence, and post-task token-efficiency retrospectives |
-| `task-workflow` | `decision-driven-design`, `tasklist` | Resolve consequential design decisions before implementation, then plan and execute the resulting tasks |
+| `task-workflow` | `decision-driven-design`, `tasklist`, `tasklist-run` | Resolve consequential design decisions before implementation, then plan and execute the resulting tasks |
 | `storytelling` | `crafting-compelling-stories` | Audience-aware storytelling and narrative copy grounded in an attributed Joanna Wiebe framework |
 
 ## Skills
@@ -31,6 +31,13 @@ Inspects an existing system, interviews for high-leverage product and engineerin
 Writes and maintains a `TODO.md` checklist with document-wide unique phase,
 group, and task IDs, dependencies, minimum-model tiers, and standard markers
 for done, obsolete, invalid, superseded, deferred, and blocked work.
+
+### `tasklist-run`
+
+Runs the open tasks in a `TODO.md` serially: each batch is implemented by a
+subagent on the right model, verified by a reviewer subagent, corrected if
+needed, and committed on its own before the next batch. Scope, commit
+behavior, and parallel worktrees can be overridden per invocation.
 
 ### `optimizing-skill-development`
 
@@ -437,7 +444,7 @@ npx skills add dannys42/agent-skills \
   --agent <agent>
 ```
 
-To install the task-list skill alone, use `--skill tasklist`.
+To install the task-list skills alone, use `--skill tasklist` or `--skill tasklist-run`.
 
 Use the `<agent>` values in the table above.
 

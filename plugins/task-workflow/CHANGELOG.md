@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0
+
+- Added `tasklist-run` for executing a `TODO.md` task by task (invoke with `/tasklist-run`)
+  - Each batch is implemented by a subagent on the task's named model, reviewed by a separate reviewer subagent, corrected through the same implementer, and committed on its own
+  - Batches are sized for relevant, reviewable commits; oversized work is split with preparatory tasks first
+  - Overrides: one task, a named task/group/phase, no auto-commit, confirm before commit, parallel worktrees
+  - Queues token-efficiency fixes in the active TODO and tells the user before running them
+
 ## 0.3.0 — 2026-10-02
 
 - Added `tasklist` for writing and maintaining a `TODO.md` checklist (invoke with `/tasklist`)
