@@ -88,9 +88,21 @@ Size a task to one working session and one reviewable change with one verificati
 | `standard` | Multi-file change following existing patterns, some judgment, default for most work | Sonnet 5.5 |
 | `heavy` | Ambiguous spec, cross-cutting design, or risky and hard-to-reverse work (migrations, concurrency, security) | Opus 5.5 |
 
+Estimate from the task text, not the topic. A precise spec with enumerated tests is `light`, or `standard` when it spans files. Network, platform-API, or concurrency behaviour is `standard` at least (a reviewer is chosen for it separately). Rounds in practice come from what the text leaves silent, so fix the text (see below) before raising the tier.
+
 When unsure between two tiers, choose the higher one for risky or irreversible work and the lower one otherwise. If the user pins a different model, or the project uses another tool's models, put that name in the parentheses instead; the tier stays the same. When newer models ship, update the default column here so new lists stay current. Do not rewrite names in existing lists unless asked.
 
 Record these tier meanings here, not in the TODO. Include a legend in the file only when the user asks for one.
+
+## Say what the executor would otherwise guess
+
+When writing each task, check whether `Context` or `Done when` is silent on any of these, and add a line where it matters (skip the ones that cannot apply):
+
+- Degenerate input: empty, zero, NaN/infinite, huge, malformed.
+- Performance on long input.
+- Fixtures shaped like real data, not hand-made minimal ones.
+- Platform or network quirks the executor must verify (content types, error codes, defaults).
+- Behavioural choices: error vs. empty result, exit codes, usage text. Decide them now, in the task or a `Decisions:` line under the title, so an executor does not invent them.
 
 ## Steps only the user can do
 
@@ -183,4 +195,4 @@ The file is working state, not documentation. Leave out a "how to use this list"
 
 ## Before finishing
 
-Check the list yourself: every ID is unique and none is reused; every `Needs` target exists; there are no dependency cycles; every task has a `Model` (except `USER` tasks, which have lettered steps instead); every `[-]` has a reason word and a `Why:`; `Needs` appears only where there is a real dependency; no empty sections; no task bundles several verifications.
+Check the list yourself: every ID is unique and none is reused; every `Needs` target exists; there are no dependency cycles; every task has a `Model` (except `USER` tasks, which have lettered steps instead); every `[-]` has a reason word and a `Why:`; `Needs` appears only where there is a real dependency; no empty sections; no task bundles several verifications; robustness and behavioural choices are stated where they apply.

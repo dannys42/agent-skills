@@ -34,6 +34,8 @@ Stopping after one batch applies whenever the user scoped the run (named an ID, 
 1. Read the TODO once. From then on, work from the `Source`/`Goal` line plus the task blocks you need; do not re-read the whole file each loop.
 2. Run `git status --short` and remember it. Anything dirty that is not yours stays out of every commit. Stage by explicit path, never `git add -A` or `git commit -a`.
 3. Find the project's test/build command and commit style (recent `git log`) once, so subagents and commits do not rediscover them.
+4. Run that build/test command on the clean tree. If it already fails, stop and ask the user before dispatching anything; otherwise the first implementer pays for an environment problem.
+5. Start the run log: `<DocDir>/.tasklist-runlog.md` (hidden so the monitor does not read it as a TODO). It is never staged or committed.
 
 ## The loop
 
@@ -43,7 +45,7 @@ For each batch:
 2. **Size the batch** (below). Decide whether to run, merge, or split.
 3. **Implement** in one subagent (below).
 4. **Review** in one subagent (below). Loop corrections up to the limit.
-5. **Close and commit:** mark the tasks `[x]` in the TODO, then commit the code and the TODO change together.
+5. **Close and commit:** mark the tasks `[x]` in the TODO, append one line to the run log, then commit the code and the TODO change together.
 6. **Check efficiency** at the boundary (see [Token efficiency](#token-efficiency)), then go to step 1 unless the scope or an override says stop.
 
 Run subagents one at a time. A serial run means each agent starts from the last committed state, which removes merge conflicts and lets a later task build on an earlier one.
@@ -76,13 +78,14 @@ Keep the agent's ID. Corrections go back to the same agent with `SendMessage` so
 
 The reviewer checks that the change does what the task *intended*, not only that it passes. It is a fresh agent with no memory of the implementer's reasoning, which is the point: it catches wrong assumptions the implementer cannot see.
 
-- Model: `heavy` (Opus 5.5) by default. When the whole batch is `light`, use a `standard` reviewer, because a heavy reviewer on a mechanical change costs more than the risk it removes. A user-pinned reviewer wins.
-- Give it the task block(s) and the list of changed files, and tell it to run `git diff --stat` and `git diff` on those paths itself (plus read any untracked files the implementer created). Fetching the diff in the reviewer keeps it out of your context. Do not pass the implementer's transcript. Tell it to read surrounding code only as needed.
-- Ask it to judge: (1) does the diff satisfy each task's `Done when` and intent, including stated non-goals; (2) correctness and obvious regressions; (3) does it contain only relevant changes (stray edits, unrelated cleanup); (4) fit with the surrounding code's conventions. Ask for a verdict, `pass` or `fix`, with a short numbered list of required corrections and no style nitpicks beyond that.
+- Model: choose by risk in the task, not by the implementer's tier. Use `heavy` (Opus 5.5) when any task is `heavy`, touches network, concurrency, security, persistence/migrations, or platform-API behaviour, or has intent its `Done when` cannot verify. Otherwise use `standard` (Sonnet 5.5): pure logic or file I/O with a precise spec, docs, mechanical changes. A user-pinned reviewer wins. Record the choice and a few-word reason in the run log.
+- Give it the task block(s), the list of changed files, the implementer's reported concerns, and the trimmed `Done when` output. Tell it to run `git diff --stat` and `git diff` on those paths itself (plus read any untracked files the implementer created). Fetching the diff in the reviewer keeps it out of your context. Do not pass the implementer's transcript. Tell it to read surrounding code only as needed.
+- Tell it to verify platform or API behaviour it is unsure of by running a scratch script or command outside the repo, rather than reasoning about it.
+- Ask it to judge: (1) does the diff satisfy each task's `Done when` and intent, including stated non-goals; (2) correctness and obvious regressions; (3) does it contain only relevant changes (stray edits, unrelated cleanup); (4) fit with the surrounding code's conventions. Ask for a verdict, `pass` or `fix`, with a numbered list of findings, each marked `required` or `optional` and tagged `speculative` when it rests on a guess rather than something shown. No style nitpicks beyond that.
 
 ### Corrections
 
-On `fix`, send the numbered list to the implementer via `SendMessage`, then re-review the updated diff. Allow two correction rounds. If the third review still says `fix`, raise the task's `Model` one tier (per `tasklist`: raise the tier instead of retrying indefinitely), update that line in the TODO, and run the implementer once more on the higher model with the reviewer's findings. If that still fails, mark the task `BLOCKED(review: <reason>)` with a `Why:` line and today's date, leave the code uncommitted (or stash it and say where), and continue with independent work.
+On `fix`, triage the findings yourself: drop those tagged `speculative` or that contradict the task, noting each drop and its reason in the run log. Send the rest to the implementer in one `SendMessage`. Then re-review the updated diff only when a fix rewrote logic or a `required` finding was about correctness or platform behaviour. For a mechanical fix (a few lines, no logic change), re-run the build/test command yourself and skip the re-review; it still counts as a round. Allow two correction rounds. If the third review still says `fix`, raise the task's `Model` one tier (per `tasklist`: raise the tier instead of retrying indefinitely), update that line in the TODO, and run the implementer once more on the higher model with the reviewer's findings. If that still fails, mark the task `BLOCKED(review: <reason>)` with a `Why:` line and today's date, leave the code uncommitted (or stash it and say where), and continue with independent work.
 
 ## Handling outcomes
 
@@ -90,11 +93,23 @@ On `fix`, send the numbered list to the implementer via `SendMessage`, then re-r
 - **Task is `invalid` or already obsolete:** close it with `[-]`, the reason word, and a `Why:`. Then check the tasks that `Need` it, and re-point or close them per `tasklist`. If a replacement task you add keeps the original intent, carry on and run it. If it narrows or changes the intent (dropping a requirement, say), that is the user's call: record the question in the report and stop.
 - **Discovered work:** add a new task with the next unused ID and `Found during <ID>`. Do not enlarge the current batch.
 - **Heavy, irreversible, or risky work** (migrations, deleting data, security): pause and show the user the plan before dispatching, even in an unattended run.
-- **Stop** when no task qualifies, a merge conflict appears, repeated blocks stack up, or the requested scope is complete. End with a short report: what was committed (one line per commit), what is blocked and why, what `USER` tasks are waiting.
+- **Behavioural decision the TODO did not make** (error vs. empty result, exit code, usage text): make the call, keep it small, and record it in the run log for the report.
+- **Stop** when no task qualifies, a merge conflict appears, repeated blocks stack up, or the requested scope is complete. End with a short report: what was committed (one line per commit), the decisions you made that the TODO did not, what is blocked and why, what `USER` tasks are waiting. Then add the retrospective below.
 
 ### USER tasks
 
 Never dispatch them and never check them off yourself. Keep running independent tasks. When nothing else qualifies, or a batch's `Needs` is waiting on one, show all pending `USER` tasks together with their steps verbatim, and ask for the `Done when` confirmation. Mark `[x]` only after the user gives it.
+
+## Run log and retrospective
+
+One terse line per batch, appended after the commit: `T4 | impl standard | rev heavy (network) | rounds 1 | findings 3 kept/1 dropped | tokens 48k+52k | note`. Add `note` only for events: blocked, tier raised, preflight failure, decision made. Tokens come from subagent results when they report them; omit otherwise.
+
+At the end of the run, build the retrospective from the log, not from memory. Apply nothing; the user decides.
+
+1. **Summary** (a few lines): per task, was the tier too high, right, or too low, with the evidence; did any reviewer deviation from the default pay off; where rounds came from (spec gap, implementer error, environment); token hot spots (repeated discovery, re-reviews, reviewer cost vs. implementer cost).
+2. **Feedback prompt**: a fenced block the user can paste back to the maintainer of these skills, self-contained: skill version, the log lines, what the data supports vs. guesses, and concrete suggested edits to remaining `Model` lines or to the skills, aimed at lowering total cost without lowering accuracy.
+
+If nothing new stands out (rounds low, tiers matched, no waste), say so in one line and skip the prompt.
 
 ## Committing
 

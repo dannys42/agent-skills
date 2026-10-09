@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.6.0
+
+- `tasklist-run` now picks the reviewer by risk in the task (network, concurrency, security, persistence, platform behaviour, or a `Done when` that cannot verify intent) instead of by the implementer's tier; Sonnet is the default reviewer otherwise
+- Reviewers get the implementer's concerns and check output, verify platform behaviour with a scratch script, and tag findings `required`/`optional` and `speculative`
+- The orchestrator drops speculative findings, sends the rest in one message, and may skip the re-review of a mechanical fix after re-running build/test itself
+- Added a preflight: build/test must pass on the clean tree before the first batch
+- Added a run log (`<DocDir>/.tasklist-runlog.md`, never committed) and an end-of-run retrospective with a feedback prompt to paste back for tuning the skills; nothing is applied automatically
+- The final report lists decisions the orchestrator made that the TODO did not
+- `tasklist` gained tier-estimation guidance and a short checklist of things to state in a task (degenerate input, long-input performance, realistic fixtures, platform quirks, behavioural choices)
+
 ## 0.5.1
 
 - Fixed the `tasklist-monitor` pane staying on "No /tasklist-run yet." during a run
