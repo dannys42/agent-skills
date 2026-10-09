@@ -2,7 +2,7 @@ import { atom, read, update } from 'claude-code'
 import type { Register } from 'claude-code'
 
 import type { TaskRow, TasklistRun } from '../types'
-import { costOf, hasLiveAgents, fmtClock, fmtCost, fmtDuration, fmtTokens, layout, mergeTodo, summarize, taskIdsIn } from './todo'
+import { costOf, hasLiveAgents, modelColumn, modelLabel, fmtClock, fmtCost, fmtDuration, fmtTokens, layout, mergeTodo, parseTodo, summarize, taskIdsMentioned } from './todo'
 
 const PANE = 'tasklist-monitor'
 const run = atom({ plugin: 'task-workflow', key: 'run' } as const, null)
@@ -32,6 +32,9 @@ async function refresh($: any) {
   )
 }
 
+// Debug log only (`claude --debug`): never reaches the model, so diagnosing costs no tokens.
+const trace = ($: any, text: string) => $.ui.log(`task-workflow: ${text}`, { to: 'debug' })
+
 // Creates the run for the newest TODO. With isFresh false, a run already in memory is reactivated instead of reset.
 async function startRun($: any, isFresh: boolean): Promise<TasklistRun | undefined> {
   const existing: TasklistRun | null = await read($, run)
@@ -41,7 +44,10 @@ async function startRun($: any, isFresh: boolean): Promise<TasklistRun | undefin
     return { ...existing, isActive: true }
   }
   const file = await findTodo($)
-  if (!file) return undefined
+  if (!file) {
+    trace($, 'startRun: no TODO*.md found')
+    return undefined
+  }
   const now = await $.clock.now()
   const text = await $.fs.read(file).catch(() => '')
   const base: TasklistRun = {
@@ -52,6 +58,7 @@ async function startRun($: any, isFresh: boolean): Promise<TasklistRun | undefin
   const doneAtStart = first.tasks.filter(t => t.status === 'done' || t.status === 'closed').map(t => t.id)
   const started = { ...first, doneAtStart }
   await update($, run, () => started)
+  trace($, `startRun: ${file}, ${started.tasks.length} tasks, ${doneAtStart.length} done at start`)
   void $.ui.open({ id: PANE, title: 'Tasklist run' })
   return started
 }
@@ -72,30 +79,50 @@ export const register: Register = on => {
   })
 
   on('skill.prompt', async ($, e, next) => {
+    trace($, `skill.prompt skill=${JSON.stringify(e.skill)}`)
     if (e.skill.endsWith('tasklist-run')) await startRun($, true)
+    return next(e)
+  })
+
+  // A typed /task-workflow:tasklist-run may reach the engine as a command rather than a skill prompt.
+  on('command.run', async ($, e, next) => {
+    if (e.command.endsWith('tasklist-run')) {
+      trace($, `command.run command=${JSON.stringify(e.command)}`)
+      const existing = await read($, run)
+      if (!existing?.isActive) await startRun($, true)
+    }
     return next(e)
   })
 
   on('agent.spawn', async ($, e, next) => {
     const result = await next(e)
-    const ids = taskIdsIn(e.prompt)
-    if (ids.length === 0 || result.agentId === undefined) return result
-    // The skill hook may not have fired (or the run ended): task blocks in a spawn prompt mean a run is under way.
+    const mentioned = taskIdsMentioned(e.description, e.prompt)
+    trace($, `agent.spawn description=${JSON.stringify(e.description)} ids=[${mentioned}] agentId=${result.agentId}`)
+    if (mentioned.length === 0 || result.agentId === undefined) return result
+    // The skill hook may not have fired (or the run ended): task IDs in a spawn mean a run is under way.
+    // Only IDs the TODO has count, so a stray "T5" in an unrelated agent's description starts nothing.
+    const file = (await read($, run))?.file ?? (await findTodo($))
+    const known = new Set(parseTodo((file && (await $.fs.read(file).catch(() => ''))) || '').map(t => t.id))
+    const ids = mentioned.filter(id => known.has(id))
+    if (ids.length === 0) return result
     const current = await startRun($, false)
     if (!current) return result
     const now = await $.clock.now()
     const role: 'review' | 'implement' = /review/i.test(e.description) ? 'review' : 'implement'
     const agentId = result.agentId
+    const model: string | undefined = (result as { model?: string }).model
     await update($, run, (r: TasklistRun | null) =>
       r && {
         ...r,
         now,
-        agents: { ...r.agents, [agentId]: { taskIds: ids, role } },
-        tasks: r.tasks.map(t =>
-          ids.includes(t.id) && t.status === 'open'
-            ? { ...t, status: 'running' as const, startedAt: t.startedAt ?? now }
-            : t,
-        ),
+        agents: { ...r.agents, [agentId]: { taskIds: ids, role, model } },
+        tasks: r.tasks
+          .map(t =>
+            ids.includes(t.id) && t.status === 'open'
+              ? { ...t, status: 'running' as const, startedAt: t.startedAt ?? now }
+              : t,
+          )
+          .map(t => (ids.includes(t.id) && role === 'implement' && model ? { ...t, model } : t)),
       },
     )
     return result
@@ -137,11 +164,21 @@ export const register: Register = on => {
   on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {
     const { Box, Text } = $.ui.resolve(e)
     const r = await read($, run)
-    if (!r) return <Text dimColor>No /tasklist-run yet. Run it and this fills in.</Text>
+    if (!r) {
+      const todo = await findTodo($)
+      return (
+        <Text dimColor>
+          Waiting for /tasklist-run or an agent spawn that names a task ID. TODO found: {todo ?? 'none'}
+        </Text>
+      )
+    }
     const s = summarize(r)
     const width = (e as any).props?.bodyColumns ?? 80
-    const cols = (tok: number, usd: number, ms: number | undefined, at?: number) =>
-      `${(tok > 0 ? fmtTokens(tok) : '').padStart(7)} ${fmtCost(usd).padStart(7)} ${(ms === undefined ? '' : fmtDuration(ms)).padStart(7)} ${at ? fmtClock(at) : '     '}`
+    const mode = modelColumn(width)
+    const modelW = mode === 'long' ? 10 : 6
+    const cols = (tok: number, usd: number, ms: number | undefined, at?: number, model?: string) =>
+      (mode === 'none' ? '' : `${(model ? modelLabel(model, mode === 'short') : '').padEnd(modelW)} `) +
+      `${(tok > 0 ? fmtTokens(tok) : '').padStart(7)} ${fmtCost(usd).padStart(7)} ${(ms === undefined ? '' : fmtDuration(ms)).padStart(8)} ${at ? fmtClock(at) : '     '}`
     const row = (head: string, tail: string) => {
       const room = Math.max(10, width - tail.length - 1)
       return head.slice(0, room).padEnd(room) + ' ' + tail
@@ -151,8 +188,9 @@ export const register: Register = on => {
       <Box flexDirection="column">
         <Text bold>
           {r.isActive ? 'Running' : 'Finished'} {s.done}/{s.total} done · {fmtTokens(s.tokens)} tokens · {fmtCost(s.costUsd) || '$0'} est. · {fmtDuration(s.elapsedMs)}
+          {r.doneAtStart.length > 0 ? ` · ${r.doneAtStart.length} already done at start, not costed` : ''}
         </Text>
-        <Text dimColor>{row('', `${'tokens'.padStart(7)} ${'cost'.padStart(7)} ${'time'.padStart(7)} done `)}</Text>
+        <Text dimColor>{row('', `${mode === 'none' ? '' : 'model'.padEnd(modelW) + ' '}${'tokens'.padStart(7)} ${'cost'.padStart(7)} ${'duration'.padStart(8)} done `)}</Text>
         {lines.map(l => {
           if (l.kind === 'heading') {
             const ts = l.tasks
@@ -173,7 +211,7 @@ export const register: Register = on => {
               dimColor={t.status === 'done' || t.status === 'closed'}
               color={t.status === 'blocked' ? 'red' : t.status === 'running' ? 'yellow' : undefined}
             >
-              {row('  '.repeat(l.depth) + `${ICON[t.status]} ${t.id} ${t.title}`, cols(t.tokens, t.costUsd, ms, t.endedAt))}
+              {row('  '.repeat(l.depth) + `${ICON[t.status]} ${t.id} ${t.title}`, cols(t.tokens, t.costUsd, ms, t.endedAt, t.model))}
             </Text>
           )
         })}

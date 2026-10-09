@@ -47,6 +47,26 @@ export function taskIdsIn(prompt: string): string[] {
   return [...new Set(blocks)]
 }
 
+/** Task IDs named anywhere in a spawn's description or the start of its prompt ("T18: ...", "Implement T16 gitignore"). */
+export function taskIdsMentioned(description: string, prompt: string): string[] {
+  const found = `${description}\n${prompt.slice(0, 300)}`.match(/\bT\d+\b/g) ?? []
+  return [...new Set([...found, ...taskIdsIn(prompt)])]
+}
+
+/** "claude-opus-5-5" as "Opus 5.5", or "Opu5.5" when short; an alias without a version drops the number. */
+export function modelLabel(id: string, isShort: boolean): string {
+  const m = id.match(/(fable|opus|sonnet|haiku|mythos)(?:-(\d+)(?:-(\d))?)?/i)
+  if (!m) return id.slice(0, isShort ? 6 : 10)
+  const name = m[1]![0]!.toUpperCase() + m[1]!.slice(1).toLowerCase()
+  const version = m[2] === undefined ? '' : m[3] === undefined || m[3].length > 1 ? m[2] : `${m[2]}.${m[3]}`
+  return isShort ? `${name.slice(0, 3)}${version}` : `${name}${version ? ' ' + version : ''}`
+}
+
+/** Model column width by pane width: full names when roomy, 3 letters + version when tight, none when narrow. */
+export function modelColumn(width: number): 'long' | 'short' | 'none' {
+  return width >= 110 ? 'long' : width >= 70 ? 'short' : 'none'
+}
+
 /** Folds a fresh read of the TODO into the run, stamping tasks as they finish. */
 export function mergeTodo(run: TasklistRun, text: string, now: number): TasklistRun {
   const old = new Map(run.tasks.map(t => [t.id, t]))

@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.6.2
+
+- Fixed the `tasklist-monitor` pane staying empty when the orchestrator's spawn prompts paraphrased the tasks
+  - A spawn now starts the run when a task ID appears in its description or at the start of its prompt, as long as the TODO has that ID
+  - A typed `/task-workflow:tasklist-run` also starts the run through `command.run`
+- `tasklist-run` now has the orchestrator begin every implementer and reviewer prompt with the task ID(s)
+- The empty pane says what it is waiting for and which TODO it found
+- The header notes tasks already done when the run started, which have no token or cost data
+- The pane gains a model column before tokens: `Opus 5.5` when wide (110+ columns), `Opu5.5` when tight (70+), omitted when narrow; the `time` column is now `duration`
+- Hooks log to the debug log (`claude --debug`) only; the monitor makes no model calls and adds no token cost
+
 ## 0.6.1
 
 - Added run limits to `tasklist-run`: stop after more than 3 tasks added in one run, two consecutive blocked tasks, or a repeated identical failure across correction rounds; agents report `blocked` after about 15 tool calls without progress

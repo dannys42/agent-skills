@@ -1,5 +1,5 @@
 import { test, expect } from 'claude-code/testing'
-import { parseTodo, taskIdsIn, hasLiveAgents, summarize, layout, costOf } from './todo'
+import { parseTodo, taskIdsIn, hasLiveAgents, modelLabel, modelColumn, summarize, layout, costOf } from './todo'
 import type { TaskRow } from '../types'
 
 const TODO = `# TODO
@@ -58,4 +58,15 @@ test('hasLiveAgents is true until every spawned agent has finished', () => {
   expect(hasLiveAgents(run({}))).toBe(false)
   expect(hasLiveAgents(run({ a: { taskIds: ['T1'], role: 'implement' } }))).toBe(true)
   expect(hasLiveAgents(run({ a: { taskIds: ['T1'], role: 'implement', isDone: true } }))).toBe(false)
+})
+
+test('model labels are long or short by room', () => {
+  expect(modelLabel('claude-opus-5-5', false)).toBe('Opus 5.5')
+  expect(modelLabel('claude-opus-5-5', true)).toBe('Opu5.5')
+  expect(modelLabel('claude-fable-5-1', true)).toBe('Fab5.1')
+  expect(modelLabel('claude-sonnet-5-5', false)).toBe('Sonnet 5.5')
+  expect(modelLabel('haiku', false)).toBe('Haiku')
+  expect(modelColumn(120)).toBe('long')
+  expect(modelColumn(80)).toBe('short')
+  expect(modelColumn(50)).toBe('none')
 })

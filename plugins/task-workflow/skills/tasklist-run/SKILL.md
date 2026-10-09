@@ -65,7 +65,7 @@ The commit is the unit. A good commit holds one coherent, reviewable change, so 
 Pick the model from the task's `Model` line: the named model in parentheses, or the tier's default from the `tasklist` skill when no name is present. A mixed batch uses the highest tier among its tasks. If the user pinned a model, use that.
 
 Prompt the implementer with only:
-- the task block(s) verbatim, plus the group or phase `Goal`, plus any `Spec:` path they cite
+- the task ID(s) first, as the opening words of the prompt (`T18: ...`; the description starts `Implement T18 ...` or `Review T18 ...`), then the task block(s) verbatim, plus the group or phase `Goal`, plus any `Spec:` path they cite
 - the test/build command and commit-style notes you found
 - the instruction to make the change, run the task's `Done when` check, and **not** edit the TODO or commit
 
