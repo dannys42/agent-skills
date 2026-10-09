@@ -14,7 +14,7 @@ export type TaskRow = {
   endedAt?: number
 }
 
-export type AgentRow = { taskIds: string[]; role: 'implement' | 'review' }
+export type AgentRow = { taskIds: string[]; role: 'implement' | 'review'; isDone?: boolean }
 
 export type TasklistRun = {
   isActive: boolean

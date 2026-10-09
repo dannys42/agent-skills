@@ -2,7 +2,7 @@ import { atom, read, update } from 'claude-code'
 import type { Register } from 'claude-code'
 
 import type { TaskRow, TasklistRun } from '../types'
-import { costOf, fmtClock, fmtCost, fmtDuration, fmtTokens, layout, mergeTodo, summarize, taskIdsIn } from './todo'
+import { costOf, hasLiveAgents, fmtClock, fmtCost, fmtDuration, fmtTokens, layout, mergeTodo, summarize, taskIdsIn } from './todo'
 
 const PANE = 'tasklist-monitor'
 const run = atom({ plugin: 'task-workflow', key: 'run' } as const, null)
@@ -32,6 +32,30 @@ async function refresh($: any) {
   )
 }
 
+// Creates the run for the newest TODO. With isFresh false, a run already in memory is reactivated instead of reset.
+async function startRun($: any, isFresh: boolean): Promise<TasklistRun | undefined> {
+  const existing: TasklistRun | null = await read($, run)
+  if (existing?.isActive && !isFresh) return existing
+  if (existing && !isFresh) {
+    await update($, run, (r: TasklistRun | null) => r && { ...r, isActive: true })
+    return { ...existing, isActive: true }
+  }
+  const file = await findTodo($)
+  if (!file) return undefined
+  const now = await $.clock.now()
+  const text = await $.fs.read(file).catch(() => '')
+  const base: TasklistRun = {
+    isActive: true, file, startedAt: now, now, tasks: [], agents: {},
+    doneAtStart: [], orchestratorTokens: 0, orchestratorCostUsd: 0,
+  }
+  const first = mergeTodo(base, text, now)
+  const doneAtStart = first.tasks.filter(t => t.status === 'done' || t.status === 'closed').map(t => t.id)
+  const started = { ...first, doneAtStart }
+  await update($, run, () => started)
+  void $.ui.open({ id: PANE, title: 'Tasklist run' })
+  return started
+}
+
 export const register: Register = on => {
   on('session.start', async ($, e, next) => {
     await $.command.register({
@@ -48,28 +72,17 @@ export const register: Register = on => {
   })
 
   on('skill.prompt', async ($, e, next) => {
-    if (!e.skill.endsWith('tasklist-run')) return next(e)
-    const file = await findTodo($)
-    if (file) {
-      const now = await $.clock.now()
-      const text = await $.fs.read(file).catch(() => '')
-      const base: TasklistRun = {
-        isActive: true, file, startedAt: now, now, tasks: [], agents: {},
-        doneAtStart: [], orchestratorTokens: 0, orchestratorCostUsd: 0,
-      }
-      const first = mergeTodo(base, text, now)
-      const doneAtStart = first.tasks.filter(t => t.status === 'done' || t.status === 'closed').map(t => t.id)
-      await update($, run, () => ({ ...first, doneAtStart }))
-      void $.ui.open({ id: PANE, title: 'Tasklist run' })
-    }
+    if (e.skill.endsWith('tasklist-run')) await startRun($, true)
     return next(e)
   })
 
   on('agent.spawn', async ($, e, next) => {
     const result = await next(e)
     const ids = taskIdsIn(e.prompt)
-    const current = await read($, run)
-    if (!current?.isActive || ids.length === 0 || result.agentId === undefined) return result
+    if (ids.length === 0 || result.agentId === undefined) return result
+    // The skill hook may not have fired (or the run ended): task blocks in a spawn prompt mean a run is under way.
+    const current = await startRun($, false)
+    if (!current) return result
     const now = await $.clock.now()
     const role: 'review' | 'implement' = /review/i.test(e.description) ? 'review' : 'implement'
     const agentId = result.agentId
@@ -99,6 +112,7 @@ export const register: Register = on => {
         await update($, run, (r: TasklistRun | null) =>
           r && {
             ...r,
+            agents: { ...r.agents, [e.agentId!]: { ...agent, isDone: true } },
             tasks: r.tasks.map((t: TaskRow) =>
               agent.taskIds.includes(t.id)
                 ? { ...t, tokens: t.tokens + tokens / agent.taskIds.length, costUsd: t.costUsd + cost / agent.taskIds.length }
@@ -112,8 +126,9 @@ export const register: Register = on => {
           r && { ...r, orchestratorTokens: r.orchestratorTokens + tokens, orchestratorCostUsd: r.orchestratorCostUsd + cost },
         )
         await refresh($)
-        // the orchestrator's turn ended: the run is over
-        await update($, run, (r: TasklistRun | null) => r && { ...r, isActive: false })
+        // the orchestrator's turn ended: the run is over unless spawned agents are still working
+        // (it resumes when they finish, and its next turn end re-checks)
+        await update($, run, (r: TasklistRun | null) => r && (hasLiveAgents(r) ? r : { ...r, isActive: false }))
       }
     }
     return next(e)

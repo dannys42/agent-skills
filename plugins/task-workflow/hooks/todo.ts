@@ -38,6 +38,10 @@ export function parseTodo(text: string): Parsed[] {
   return rows
 }
 
+export function hasLiveAgents(run: TasklistRun): boolean {
+  return Object.values(run.agents).some(a => !a.isDone)
+}
+
 export function taskIdsIn(prompt: string): string[] {
   const blocks = [...prompt.matchAll(/^- \[[ x-]\] (T\d+)\b/gm)].map(m => m[1]!)
   return [...new Set(blocks)]

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.1
+
+- Fixed the `tasklist-monitor` pane staying on "No /tasklist-run yet." during a run
+  - A subagent spawn whose prompt contains task blocks now starts (or reactivates) the run, so it no longer depends on the `skill.prompt` hook having fired
+  - The run no longer ends when the orchestrator's turn ends while spawned agents are still working; it ends on the first orchestrator turn that finishes with none left
+- After updating, run `/reload-plugins` (or restart the session) to pick up the mod change
+
 ## 0.5.0
 
 - Added a Claude Code mod, `tasklist-monitor`, that opens a pane while `/tasklist-run` works (reopen with `/tasklist-monitor`)

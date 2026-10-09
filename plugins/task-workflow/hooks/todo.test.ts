@@ -1,5 +1,5 @@
 import { test, expect } from 'claude-code/testing'
-import { parseTodo, taskIdsIn, summarize, layout, costOf } from './todo'
+import { parseTodo, taskIdsIn, hasLiveAgents, summarize, layout, costOf } from './todo'
 import type { TaskRow } from '../types'
 
 const TODO = `# TODO
@@ -49,4 +49,13 @@ test('summary totals', () => {
   })
   expect(s.tokens).toBe(15)
   expect(s.costUsd).toBe(1.5)
+})
+
+test('hasLiveAgents is true until every spawned agent has finished', () => {
+  const run = (agents: Record<string, { taskIds: string[]; role: 'implement' | 'review'; isDone?: boolean }>) => ({
+    isActive: true, file: 'TODO.md', startedAt: 0, now: 0, tasks: [], agents, doneAtStart: [], orchestratorTokens: 0, orchestratorCostUsd: 0,
+  })
+  expect(hasLiveAgents(run({}))).toBe(false)
+  expect(hasLiveAgents(run({ a: { taskIds: ['T1'], role: 'implement' } }))).toBe(true)
+  expect(hasLiveAgents(run({ a: { taskIds: ['T1'], role: 'implement', isDone: true } }))).toBe(false)
 })
