@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.0
+
+- Added a Claude Code mod, `tasklist-monitor`, that opens a pane while `/tasklist-run` works (reopen with `/tasklist-monitor`)
+  - Shows each task's status, tokens, estimated cost, runtime, and completion time, with subtotals per group and phase
+  - The layout follows the list: phase > group > task, group > task, or tasks alone
+  - Reads the TODO on a local timer, so the pane costs no model tokens
+  - Cost is an estimate from published per-model rates and the token counts each subagent reports
+
 ## 0.4.0
 
 - Added `tasklist-run` for executing a `TODO.md` task by task (invoke with `/tasklist-run`)

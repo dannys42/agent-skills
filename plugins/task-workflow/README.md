@@ -26,6 +26,13 @@ implementer, and the passing change is committed before the next batch. Supports
 one-task runs, named task/group/phase scope, no-commit, confirm-before-commit,
 and parallel worktrees, and queues token-efficiency fixes in the TODO.
 
+### `tasklist-monitor` (Claude Code mod)
+
+Opens a pane during `/tasklist-run` showing each task's status, tokens,
+estimated cost, runtime, and completion time, with phase and group subtotals.
+It polls the TODO from a local timer and never calls the model, so it adds no
+token cost. Reopen it with `/tasklist-monitor`.
+
 ## Install
 
 See the repository [installation guide](../../README.md#install-decision-driven-design)
