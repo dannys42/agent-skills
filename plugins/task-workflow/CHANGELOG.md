@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.1
+
+- Added run limits to `tasklist-run`: stop after more than 3 tasks added in one run, two consecutive blocked tasks, or a repeated identical failure across correction rounds; agents report `blocked` after about 15 tool calls without progress
+- Replaced the 0.6.0 pre-run build check with a rule to stop and ask when a failure is environmental, so the common case pays nothing
+
 ## 0.6.0
 
 - `tasklist-run` now picks the reviewer by risk in the task (network, concurrency, security, persistence, platform behaviour, or a `Done when` that cannot verify intent) instead of by the implementer's tier; Sonnet is the default reviewer otherwise

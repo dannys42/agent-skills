@@ -34,8 +34,7 @@ Stopping after one batch applies whenever the user scoped the run (named an ID, 
 1. Read the TODO once. From then on, work from the `Source`/`Goal` line plus the task blocks you need; do not re-read the whole file each loop.
 2. Run `git status --short` and remember it. Anything dirty that is not yours stays out of every commit. Stage by explicit path, never `git add -A` or `git commit -a`.
 3. Find the project's test/build command and commit style (recent `git log`) once, so subagents and commits do not rediscover them.
-4. Run that build/test command on the clean tree. If it already fails, stop and ask the user before dispatching anything; otherwise the first implementer pays for an environment problem.
-5. Start the run log: `<DocDir>/.tasklist-runlog.md` (hidden so the monitor does not read it as a TODO). It is never staged or committed.
+4. Start the run log: `<DocDir>/.tasklist-runlog.md` (hidden so the monitor does not read it as a TODO). It is never staged or committed.
 
 ## The loop
 
@@ -91,6 +90,7 @@ On `fix`, triage the findings yourself: drop those tagged `speculative` or that 
 
 - **`Done when` cannot be run** (no simulator, needs a secret, needs hardware): do not mark `[x]`. Mark `BLOCKED(<reason>)` with `Why:` and move on.
 - **Task is `invalid` or already obsolete:** close it with `[-]`, the reason word, and a `Why:`. Then check the tasks that `Need` it, and re-point or close them per `tasklist`. If a replacement task you add keeps the original intent, carry on and run it. If it narrows or changes the intent (dropping a requirement, say), that is the user's call: record the question in the report and stop.
+- **Environment failure** (the build or test command fails for a reason unrelated to the task, such as a toolchain mismatch): do not spend correction rounds on it. Stop and ask the user.
 - **Discovered work:** add a new task with the next unused ID and `Found during <ID>`. Do not enlarge the current batch.
 - **Heavy, irreversible, or risky work** (migrations, deleting data, security): pause and show the user the plan before dispatching, even in an unattended run.
 - **Behavioural decision the TODO did not make** (error vs. empty result, exit code, usage text): make the call, keep it small, and record it in the run log for the report.
@@ -100,9 +100,18 @@ On `fix`, triage the findings yourself: drop those tagged `speculative` or that 
 
 Never dispatch them and never check them off yourself. Keep running independent tasks. When nothing else qualifies, or a batch's `Needs` is waiting on one, show all pending `USER` tasks together with their steps verbatim, and ask for the `Done when` confirmation. Mark `[x]` only after the user gives it.
 
+## Run limits
+
+These bound the whole run, on top of the per-task correction limit. Hitting one stops the run; report why and ask the user.
+
+- **Added work:** more than 3 tasks added in one run (efficiency fixes plus discovered work) stops it. Tasks added mid-run may not add further tasks.
+- **Blocks:** two `BLOCKED` tasks in a row stop it.
+- **Repeat failure:** if a correction round fails the same check with the same output as the one before, skip the remaining round: raise the tier or block at once.
+- **Stalled agents:** tell every subagent to report `blocked` instead of continuing after about 15 tool calls without progress, and to keep scratch experiments to a few commands.
+
 ## Run log and retrospective
 
-One terse line per batch, appended after the commit: `T4 | impl standard | rev heavy (network) | rounds 1 | findings 3 kept/1 dropped | tokens 48k+52k | note`. Add `note` only for events: blocked, tier raised, preflight failure, decision made. Tokens come from subagent results when they report them; omit otherwise.
+One terse line per batch, appended after the commit: `T4 | impl standard | rev heavy (network) | rounds 1 | findings 3 kept/1 dropped | tokens 48k+52k | note`. Add `note` only for events: blocked, tier raised, environment failure, decision made. Tokens come from subagent results when they report them; omit otherwise.
 
 At the end of the run, build the retrospective from the log, not from memory. Apply nothing; the user decides.
 
