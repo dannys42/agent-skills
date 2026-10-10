@@ -71,6 +71,8 @@ Headings carry no checkbox; a phase or group is complete when everything under i
 | `Model` | yes, except `USER` tasks | Minimum tier plus its named model, e.g. `standard (Sonnet 5.5)`; see below |
 | `Context` | unless the title says it all | The facts an executor cannot guess: why, which files or symbols, constraints, and decision IDs (for example `D04`). Point at files instead of pasting code |
 | `Needs` | only when dependent | Task IDs that must be closed first. Leave it out for independent tasks; most lists have several, and omitting it tells an executor the task can start now or run in parallel |
+| `Run` | only for a long job (over about a minute) | The exact command that starts it, with paths and arguments, so the executor starts it once and waits once instead of discovering and polling |
+| `Verify` | when the check is a command | The exact invocation(s) behind `Done when`, including the interpreter or venv path and any non-obvious tool. Saves the executor, and later the reviewer, from rediscovering CLI usage |
 | `Done when` | yes for anything non-trivial | The observable check: a test, a command, a behavior |
 | `Notes` / `Non-goals` | only when a trap exists | The one thing an executor would otherwise get wrong |
 
@@ -103,6 +105,7 @@ When writing each task, check whether `Context` or `Done when` is silent on any 
 - Fixtures shaped like real data, not hand-made minimal ones.
 - Platform or network quirks the executor must verify (content types, error codes, defaults).
 - Behavioural choices: error vs. empty result, exit codes, usage text. Decide them now, in the task or a `Decisions:` line under the title, so an executor does not invent them.
+- Commands and environment: the exact invocation for anything the task must run (`Run`, `Verify`), the venv or interpreter that has the needed packages, and tools known to be missing.
 
 ## Steps only the user can do
 

@@ -33,8 +33,9 @@ Stopping after one batch applies whenever the user scoped the run (named an ID, 
 
 1. Read the TODO once. From then on, work from the `Source`/`Goal` line plus the task blocks you need; do not re-read the whole file each loop.
 2. Run `git status --short` and remember it. Anything dirty that is not yours stays out of every commit. Stage by explicit path, never `git add -A` or `git commit -a`.
-3. Find the project's test/build command and commit style (recent `git log`) once, so subagents and commits do not rediscover them.
-4. Start the metrics log. Pick a run ID with `date -u +%Y%m%dT%H%M%SZ` and remember it literally (shell state does not persist). Append a `start` line (see [Metrics log and retrospective](#metrics-log-and-retrospective)). The log is `~/.local/state/danny-agent-skills/task-workflow/metrics.jsonl`, outside every repo, so it is never staged or committed.
+3. Find the project's test/build command and commit style (recent `git log`) once, so subagents and commits do not rediscover them. Note the environment gotchas you already know or the TODO states (venv or interpreter path, tools that are missing, exact CLI invocations); they go into every implementer prompt.
+4. Dates: for anything written into a document (freshness headers, `Why:` lines, changelogs), use the environment's stated date or local `date +%F`. UTC is only for the run ID and metrics timestamps, because UTC may already be the next day.
+5. Start the metrics log. Pick a run ID with `date -u +%Y%m%dT%H%M%SZ` and remember it literally (shell state does not persist). Append a `start` line (see [Metrics log and retrospective](#metrics-log-and-retrospective)). The log is `~/.local/state/danny-agent-skills/task-workflow/metrics.jsonl`, outside every repo, so it is never staged or committed.
 
 ## The loop
 
@@ -44,7 +45,7 @@ For each batch:
 2. **Size the batch** (below). Decide whether to run, merge, or split.
 3. **Implement** in one subagent (below).
 4. **Review** in one subagent (below). Loop corrections up to the limit.
-5. **Close and commit:** mark the tasks `[x]` in the TODO, append one `batch` line to the metrics log, then commit the code and the TODO change together.
+5. **Close and commit:** mark the tasks `[x]` in the TODO, then commit the code and the TODO change together and append the `batch` line, all in one Bash call (see [Committing](#committing)).
 6. **Check efficiency** at the boundary (see [Token efficiency](#token-efficiency)), then go to step 1 unless the scope or an override says stop.
 
 Run subagents one at a time. A serial run means each agent starts from the last committed state, which removes merge conflicts and lets a later task build on an earlier one.
@@ -67,7 +68,14 @@ Pick the model from the task's `Model` line: the named model in parentheses, or 
 Prompt the implementer with only:
 - the task ID(s) first, as the opening words of the prompt (`T18: ...`; the description starts `Implement T18 ...` or `Review T18 ...`), then the task block(s) verbatim, plus the group or phase `Goal`, plus any `Spec:` path they cite
 - the test/build command and commit-style notes you found
+- the task's `Run` and `Verify` commands pasted exactly, plus the environment gotchas from setup, so the agent does not look up CLI usage or hunt for an interpreter
 - the instruction to make the change, run the task's `Done when` check, and **not** edit the TODO or commit
+- the standing rules below, as written
+
+Standing rules for every implementer prompt:
+- **Bounded output.** Read files with `grep -n` or `offset`/`limit`, never a whole-file `cat` of a large file. Pipe `git diff` through `--stat` or a path filter. Send build, render and test output to a log file and show only the tail or the failing lines.
+- **Long jobs.** If the task has a `Run` command, or any command may exceed about a minute, start it once in the background with output to a log file, then block on a single `Monitor` or until-loop call that ends when the job finishes. Do not poll, `sleep`, or `echo waiting` across turns, and do not run it in the foreground against the 600 s limit. Each turn re-reads the whole context, so turns, not output size, drive cost.
+- **Finish what you start.** End or wait for your own background work before handing back, so no stray completion notices reach the orchestrator.
 
 Ask for a short structured reply: status (`done`, `blocked`, or `invalid`), files changed (exact paths), the trimmed output of the `Done when` check, and concerns or discovered work. A reply that long keeps your context small across many batches.
 
@@ -79,12 +87,13 @@ The reviewer checks that the change does what the task *intended*, not only that
 
 - Model: choose by risk in the task, not by the implementer's tier. Use `heavy` (Opus 5.5) when any task is `heavy`, touches network, concurrency, security, persistence/migrations, or platform-API behaviour, or has intent its `Done when` cannot verify. Otherwise use `standard` (Sonnet 5.5): pure logic or file I/O with a precise spec, docs, mechanical changes. A user-pinned reviewer wins. Record the choice in `rev` and a few-word reason in `rev_reason` in the metrics log.
 - Give it the task block(s), the list of changed files, the implementer's reported concerns, and the trimmed `Done when` output. Tell it to run `git diff --stat` and `git diff` on those paths itself (plus read any untracked files the implementer created). Fetching the diff in the reviewer keeps it out of your context. Do not pass the implementer's transcript. Tell it to read surrounding code only as needed.
+- Tell it to trust the implementer's trimmed output for deterministic checks (build, tests, validators, probes), spot-check only claims it doubts, and run anything the implementer could not. Pass the same `Verify` commands and environment gotchas, and the bounded-output rules. The reviewer's value is judging intent and finding stale wording or missed spots, not repeating the implementer's runs.
 - Tell it to verify platform or API behaviour it is unsure of by running a scratch script or command outside the repo, rather than reasoning about it.
 - Ask it to judge: (1) does the diff satisfy each task's `Done when` and intent, including stated non-goals; (2) correctness and obvious regressions; (3) does it contain only relevant changes (stray edits, unrelated cleanup); (4) fit with the surrounding code's conventions. Ask for a verdict, `pass` or `fix`, with a numbered list of findings, each marked `required` or `optional` and tagged `speculative` when it rests on a guess rather than something shown. No style nitpicks beyond that.
 
 ### Corrections
 
-On `fix`, triage the findings yourself: drop those tagged `speculative` or that contradict the task, counting them in `dropped` and giving the reasons in `note`. Send the rest to the implementer in one `SendMessage`. Then re-review the updated diff only when a fix rewrote logic or a `required` finding was about correctness or platform behaviour. For a mechanical fix (a few lines, no logic change), re-run the build/test command yourself and skip the re-review; it still counts as a round. Allow two correction rounds. If the third review still says `fix`, raise the task's `Model` one tier (per `tasklist`: raise the tier instead of retrying indefinitely), update that line in the TODO, and run the implementer once more on the higher model with the reviewer's findings. If that still fails, mark the task `BLOCKED(review: <reason>)` with a `Why:` line and today's date, leave the code uncommitted (or stash it and say where), and continue with independent work.
+On `fix`, triage the findings yourself: drop those tagged `speculative` or that contradict the task, counting them in `dropped` and giving the reasons in `note`. Send the rest to the implementer in one `SendMessage`. Then re-review the updated diff only when a fix rewrote logic or a `required` finding was about correctness or platform behaviour. For a mechanical fix (a few lines, no logic change), re-run the build/test command yourself and skip the re-review; it still counts as a round. One narrow exception to "you do not edit source": a finding that is documentation-only (a markdown or docs file: a date, a wording line, stale text) may be applied by you with one `Edit` instead of resuming the implementer, because a resume re-reads the implementer's whole context. Code and comments in code still go back to the implementer. Count these in `orch_fixes` so the log shows whether the exception pays. Allow two correction rounds. If the third review still says `fix`, raise the task's `Model` one tier (per `tasklist`: raise the tier instead of retrying indefinitely), update that line in the TODO, and run the implementer once more on the higher model with the reviewer's findings. If that still fails, mark the task `BLOCKED(review: <reason>)` with a `Why:` line and today's date, leave the code uncommitted (or stash it and say where), and continue with independent work.
 
 ## Handling outcomes
 
@@ -94,6 +103,7 @@ On `fix`, triage the findings yourself: drop those tagged `speculative` or that 
 - **Discovered work:** add a new task with the next unused ID and `Found during <ID>`. Do not enlarge the current batch.
 - **Heavy, irreversible, or risky work** (migrations, deleting data, security): pause and show the user the plan before dispatching, even in an unattended run.
 - **Behavioural decision the TODO did not make** (error vs. empty result, exit code, usage text): make the call, keep it small, and record it in `note` in the metrics log for the report.
+- **Repeat completion notice** for an agent you already closed (for example "stopped with background work of its own still running"): no response and no tool call. It is not new work.
 - **Stop** when no task qualifies, a merge conflict appears, repeated blocks stack up, or the requested scope is complete. Append the `end` line to the metrics log, then end with a short report: what was committed (one line per commit), the decisions you made that the TODO did not, what is blocked and why, what `USER` tasks are waiting. Then add the retrospective below.
 
 ### USER tasks
@@ -113,15 +123,15 @@ These bound the whole run, on top of the per-task correction limit. Hitting one 
 
 The log is one JSON object per line, appended with a single `mkdir -p ~/.local/state/danny-agent-skills/task-workflow && printf '%s\n' '<json>' >> ~/.local/state/danny-agent-skills/task-workflow/metrics.jsonl` call. It feeds this run's retrospective and, across runs and projects, the long-term tuning of tiers and reviewers. Keep each line compact and write it in the same call as the commit or the step it records, so it adds no turns.
 
-Every line carries `v` (1), `run` (the run ID), `ts` (`$(date -u +%FT%TZ)` in the same command), `skill` (`0.8.0`), `repo` (git root path), and `event`:
+Every line carries `v` (1), `run` (the run ID), `ts` (`$(date -u +%FT%TZ)` in the same command), `skill` (`0.9.0`), `repo` (git root path), and `event`:
 
 - `start`: `open` (open tasks at the start), `scope` (`all`, `one`, an ID, a group, a phase), and `flags` (any overrides).
-- `batch`, appended after the commit: `tasks` (IDs), `tiers` (their declared `Model` tiers, same order), `impl` and `rev` (models used: `haiku`, `sonnet`, `opus`), `rev_reason` (a few words), `rounds` (correction rounds, 0 if the first review passed; counted per batch, so a per-task comparison needs single-task batches), `resumed` (corrections sent to a live implementer with `SendMessage`, 0 if none), `impl_runs` (models of every implementer started, in order, only when more than one ran, e.g. after a tier raise), `files` and `lines` (files changed and insertions plus deletions, from `git diff --cached --shortstat` run in the commit call), `kept` and `dropped` (finding counts), `raised` (true if a tier was raised), `outcome` (`committed`, `blocked`, or `uncommitted`), `sha` (short, if committed), and `note` (only for events: blocked, tier raised, environment failure, decision made).
+- `batch`, appended after the commit: `tasks` (IDs), `tiers` (their declared `Model` tiers, same order), `impl` and `rev` (models used: `haiku`, `sonnet`, `opus`), `rev_reason` (a few words), `rounds` (correction rounds, 0 if the first review passed; counted per batch, so a per-task comparison needs single-task batches), `resumed` (corrections sent to a live implementer with `SendMessage`, 0 if none), `impl_runs` (models of every implementer started, in order, only when more than one ran, e.g. after a tier raise), `files` and `lines` (files changed and insertions plus deletions, from `git diff --cached --shortstat` run in the commit call), `kept` and `dropped` (finding counts), `agents` (one object per subagent that ran, `{"role":"impl|rev","tokens":<subagent_tokens>,"tools":<tool_uses>}`, copied from the task notifications when they report both; omit it when they do not), `orch_fixes` (doc-only fixes you applied yourself, 0 if none), `raised` (true if a tier was raised), `outcome` (`committed`, `blocked`, or `uncommitted`), `sha` (short, if committed), and `note` (only for events: blocked, tier raised, environment failure, decision made).
 - `end`: `stop` (`complete`, `scope`, `blocked`, `limit`, `environment`, `user`).
 
-Example: `{"v":1,"run":"20261009T201500Z","ts":"2026-10-09T20:31:02Z","skill":"0.8.0","repo":"/Users/me/proj","event":"batch","tasks":["T4","T5"],"tiers":["standard","standard"],"impl":"sonnet","rev":"opus","rev_reason":"network","rounds":1,"resumed":1,"files":4,"lines":212,"kept":3,"dropped":1,"raised":false,"outcome":"committed","sha":"a1b2c3d"}`
+Example: `{"v":1,"run":"20261009T201500Z","ts":"2026-10-09T20:31:02Z","skill":"0.9.0","repo":"/Users/me/proj","event":"batch","tasks":["T4","T5"],"tiers":["standard","standard"],"impl":"sonnet","rev":"opus","rev_reason":"network","rounds":1,"resumed":1,"agents":[{"role":"impl","tokens":61000,"tools":25},{"role":"rev","tokens":38000,"tools":9}],"orch_fixes":0,"files":4,"lines":212,"kept":3,"dropped":1,"raised":false,"outcome":"committed","sha":"a1b2c3d"}`
 
-Token counts are not logged by you: the orchestrator cannot see exact usage. `misc/tasklist-metrics/analyze_transcripts.py --append-tokens` adds a `tokens` event per batch to this same file afterwards, from the session transcripts, which are exact. Each `tokens` event also carries `cache_breaks` and `max_uncached` (turns with more than 100k uncached input, and the largest). Add an optional `tokens` field only if a subagent result reported usage and it costs nothing to copy.
+Token counts are not logged by you: the orchestrator cannot see exact usage. `misc/tasklist-metrics/analyze_transcripts.py --append-tokens` adds a `tokens` event per batch to this same file afterwards, from the session transcripts, which are exact. Each `tokens` event also carries `cache_breaks` and `max_uncached` (turns with more than 100k uncached input, and the largest). Per-agent `tokens` and `tools` in `agents` are the exception: they cost nothing to copy from the task notification and give per-agent cost and turn proxies without parsing transcripts.
 
 At the end of the run, build the retrospective from this run's lines (`grep '"run":"<id>"'` on the log), not from memory. Apply nothing; the user decides.
 
@@ -132,6 +142,7 @@ If nothing new stands out (rounds low, tiers matched, no waste), say so in one l
 
 ## Committing
 
+- Do the staging, `git diff --cached --shortstat`, commit and metrics append in one Bash call, so `lines` and `files` are never skipped. Take `lines` and `files` from that shortstat; never log 0 for a committed batch.
 - Stage the paths the implementer reported plus the TODO file, nothing else. Compare against the starting `git status` so unrelated dirty files stay out.
 - The commit message must stand on its own. The TODO is working state that is regularly cleared out, so task IDs in a message would dangle. Write what changed and why, in the project's style. Leave out `T7`-style IDs, any mention of the TODO or task list, and any mention of files that are not in the commit (such as unrelated untracked files). The TODO edit that checks the task off rides along in the commit but is never described in the message. A commit that changes only the TODO (re-planning a task) may say what the plan changed, but still without task IDs.
 - Follow the repo's conventions for attribution lines.

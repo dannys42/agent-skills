@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.9.0
+
+From a transcript audit of one run (3 tasks, 6 subagents): cost followed turn count, not result size, since every turn re-reads the agent's whole context.
+
+- `tasklist` gains optional `Run` (exact command for a long job) and `Verify` (exact check invocations, interpreter or venv) task fields
+- `tasklist-run` implementer prompts now paste `Run`/`Verify` and known environment gotchas, and carry standing rules: bounded output (`grep -n`, `offset`/`limit`, logs plus tail), one background start and a single blocking `Monitor` for long jobs, and finishing own background work before handing back
+- Reviewers trust the implementer's trimmed output for deterministic checks and re-run only what they doubt or the implementer could not
+- Doc-only or few-line fixes are applied by the orchestrator or reviewer instead of resuming the implementer
+- A repeat completion notice for a closed agent needs no response
+- Dates in documents come from the environment date or local `date +%F`; UTC is for run IDs and metrics only
+- The commit call must include `git diff --cached --shortstat` so `lines` and `files` are never logged as 0
+- Documentation-only review fixes may be applied by the orchestrator instead of resuming the implementer (the one exception to not editing; counted in `orch_fixes`)
+- `batch` lines carry per-subagent `agents` (`tokens`, `tools`) when the task notifications report them
+- Each change here is a hypothesis; `docs/task-workflow/feedback-ledger.md` records what to measure for each
+
 ## 0.8.0
 
 - `batch` metrics lines gain `files` and `lines` (size of the commit), `resumed` (corrections sent to a live implementer) and `impl_runs` (every implementer model when a tier raise started another), so tier, round and escalation questions can be answered from the log
