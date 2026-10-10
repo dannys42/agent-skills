@@ -34,7 +34,7 @@ Stopping after one batch applies whenever the user scoped the run (named an ID, 
 1. Read the TODO once. From then on, work from the `Source`/`Goal` line plus the task blocks you need; do not re-read the whole file each loop.
 2. Run `git status --short` and remember it. Anything dirty that is not yours stays out of every commit. Stage by explicit path, never `git add -A` or `git commit -a`.
 3. Find the project's test/build command and commit style (recent `git log`) once, so subagents and commits do not rediscover them.
-4. Start the run log: `<DocDir>/.tasklist-runlog.md` (hidden so the monitor does not read it as a TODO). It is never staged or committed.
+4. Start the metrics log. Pick a run ID with `date -u +%Y%m%dT%H%M%SZ` and remember it literally (shell state does not persist). Append a `start` line (see [Metrics log and retrospective](#metrics-log-and-retrospective)). The log is `~/.local/state/danny-agent-skills/task-workflow/metrics.jsonl`, outside every repo, so it is never staged or committed.
 
 ## The loop
 
@@ -44,7 +44,7 @@ For each batch:
 2. **Size the batch** (below). Decide whether to run, merge, or split.
 3. **Implement** in one subagent (below).
 4. **Review** in one subagent (below). Loop corrections up to the limit.
-5. **Close and commit:** mark the tasks `[x]` in the TODO, append one line to the run log, then commit the code and the TODO change together.
+5. **Close and commit:** mark the tasks `[x]` in the TODO, append one `batch` line to the metrics log, then commit the code and the TODO change together.
 6. **Check efficiency** at the boundary (see [Token efficiency](#token-efficiency)), then go to step 1 unless the scope or an override says stop.
 
 Run subagents one at a time. A serial run means each agent starts from the last committed state, which removes merge conflicts and lets a later task build on an earlier one.
@@ -77,14 +77,14 @@ Keep the agent's ID. Corrections go back to the same agent with `SendMessage` so
 
 The reviewer checks that the change does what the task *intended*, not only that it passes. It is a fresh agent with no memory of the implementer's reasoning, which is the point: it catches wrong assumptions the implementer cannot see.
 
-- Model: choose by risk in the task, not by the implementer's tier. Use `heavy` (Opus 5.5) when any task is `heavy`, touches network, concurrency, security, persistence/migrations, or platform-API behaviour, or has intent its `Done when` cannot verify. Otherwise use `standard` (Sonnet 5.5): pure logic or file I/O with a precise spec, docs, mechanical changes. A user-pinned reviewer wins. Record the choice and a few-word reason in the run log.
+- Model: choose by risk in the task, not by the implementer's tier. Use `heavy` (Opus 5.5) when any task is `heavy`, touches network, concurrency, security, persistence/migrations, or platform-API behaviour, or has intent its `Done when` cannot verify. Otherwise use `standard` (Sonnet 5.5): pure logic or file I/O with a precise spec, docs, mechanical changes. A user-pinned reviewer wins. Record the choice in `rev` and a few-word reason in `rev_reason` in the metrics log.
 - Give it the task block(s), the list of changed files, the implementer's reported concerns, and the trimmed `Done when` output. Tell it to run `git diff --stat` and `git diff` on those paths itself (plus read any untracked files the implementer created). Fetching the diff in the reviewer keeps it out of your context. Do not pass the implementer's transcript. Tell it to read surrounding code only as needed.
 - Tell it to verify platform or API behaviour it is unsure of by running a scratch script or command outside the repo, rather than reasoning about it.
 - Ask it to judge: (1) does the diff satisfy each task's `Done when` and intent, including stated non-goals; (2) correctness and obvious regressions; (3) does it contain only relevant changes (stray edits, unrelated cleanup); (4) fit with the surrounding code's conventions. Ask for a verdict, `pass` or `fix`, with a numbered list of findings, each marked `required` or `optional` and tagged `speculative` when it rests on a guess rather than something shown. No style nitpicks beyond that.
 
 ### Corrections
 
-On `fix`, triage the findings yourself: drop those tagged `speculative` or that contradict the task, noting each drop and its reason in the run log. Send the rest to the implementer in one `SendMessage`. Then re-review the updated diff only when a fix rewrote logic or a `required` finding was about correctness or platform behaviour. For a mechanical fix (a few lines, no logic change), re-run the build/test command yourself and skip the re-review; it still counts as a round. Allow two correction rounds. If the third review still says `fix`, raise the task's `Model` one tier (per `tasklist`: raise the tier instead of retrying indefinitely), update that line in the TODO, and run the implementer once more on the higher model with the reviewer's findings. If that still fails, mark the task `BLOCKED(review: <reason>)` with a `Why:` line and today's date, leave the code uncommitted (or stash it and say where), and continue with independent work.
+On `fix`, triage the findings yourself: drop those tagged `speculative` or that contradict the task, counting them in `dropped` and giving the reasons in `note`. Send the rest to the implementer in one `SendMessage`. Then re-review the updated diff only when a fix rewrote logic or a `required` finding was about correctness or platform behaviour. For a mechanical fix (a few lines, no logic change), re-run the build/test command yourself and skip the re-review; it still counts as a round. Allow two correction rounds. If the third review still says `fix`, raise the task's `Model` one tier (per `tasklist`: raise the tier instead of retrying indefinitely), update that line in the TODO, and run the implementer once more on the higher model with the reviewer's findings. If that still fails, mark the task `BLOCKED(review: <reason>)` with a `Why:` line and today's date, leave the code uncommitted (or stash it and say where), and continue with independent work.
 
 ## Handling outcomes
 
@@ -93,8 +93,8 @@ On `fix`, triage the findings yourself: drop those tagged `speculative` or that 
 - **Environment failure** (the build or test command fails for a reason unrelated to the task, such as a toolchain mismatch): do not spend correction rounds on it. Stop and ask the user.
 - **Discovered work:** add a new task with the next unused ID and `Found during <ID>`. Do not enlarge the current batch.
 - **Heavy, irreversible, or risky work** (migrations, deleting data, security): pause and show the user the plan before dispatching, even in an unattended run.
-- **Behavioural decision the TODO did not make** (error vs. empty result, exit code, usage text): make the call, keep it small, and record it in the run log for the report.
-- **Stop** when no task qualifies, a merge conflict appears, repeated blocks stack up, or the requested scope is complete. End with a short report: what was committed (one line per commit), the decisions you made that the TODO did not, what is blocked and why, what `USER` tasks are waiting. Then add the retrospective below.
+- **Behavioural decision the TODO did not make** (error vs. empty result, exit code, usage text): make the call, keep it small, and record it in `note` in the metrics log for the report.
+- **Stop** when no task qualifies, a merge conflict appears, repeated blocks stack up, or the requested scope is complete. Append the `end` line to the metrics log, then end with a short report: what was committed (one line per commit), the decisions you made that the TODO did not, what is blocked and why, what `USER` tasks are waiting. Then add the retrospective below.
 
 ### USER tasks
 
@@ -109,14 +109,24 @@ These bound the whole run, on top of the per-task correction limit. Hitting one 
 - **Repeat failure:** if a correction round fails the same check with the same output as the one before, skip the remaining round: raise the tier or block at once.
 - **Stalled agents:** tell every subagent to report `blocked` instead of continuing after about 15 tool calls without progress, and to keep scratch experiments to a few commands.
 
-## Run log and retrospective
+## Metrics log and retrospective
 
-One terse line per batch, appended after the commit: `T4 | impl standard | rev heavy (network) | rounds 1 | findings 3 kept/1 dropped | tokens 48k+52k | note`. Add `note` only for events: blocked, tier raised, environment failure, decision made. Tokens come from subagent results when they report them; omit otherwise.
+The log is one JSON object per line, appended with a single `mkdir -p ~/.local/state/danny-agent-skills/task-workflow && printf '%s\n' '<json>' >> ~/.local/state/danny-agent-skills/task-workflow/metrics.jsonl` call. It feeds this run's retrospective and, across runs and projects, the long-term tuning of tiers and reviewers. Keep each line compact and write it in the same call as the commit or the step it records, so it adds no turns.
 
-At the end of the run, build the retrospective from the log, not from memory. Apply nothing; the user decides.
+Every line carries `v` (1), `run` (the run ID), `ts` (`$(date -u +%FT%TZ)` in the same command), `skill` (`0.7.0`), `repo` (git root path), and `event`:
 
-1. **Summary** (a few lines): per task, was the tier too high, right, or too low, with the evidence; did any reviewer deviation from the default pay off; where rounds came from (spec gap, implementer error, environment); token hot spots (repeated discovery, re-reviews, reviewer cost vs. implementer cost).
-2. **Feedback prompt**: a fenced block the user can paste back to the maintainer of these skills, self-contained: skill version, the log lines, what the data supports vs. guesses, and concrete suggested edits to remaining `Model` lines or to the skills, aimed at lowering total cost without lowering accuracy.
+- `start`: `open` (open tasks at the start), `scope` (`all`, `one`, an ID, a group, a phase), and `flags` (any overrides).
+- `batch`, appended after the commit: `tasks` (IDs), `tiers` (their declared `Model` tiers, same order), `impl` and `rev` (models used: `haiku`, `sonnet`, `opus`), `rev_reason` (a few words), `rounds` (correction rounds, 0 if the first review passed), `kept` and `dropped` (finding counts), `raised` (true if a tier was raised), `outcome` (`committed`, `blocked`, or `uncommitted`), `sha` (short, if committed), and `note` (only for events: blocked, tier raised, environment failure, decision made).
+- `end`: `stop` (`complete`, `scope`, `blocked`, `limit`, `environment`, `user`).
+
+Example: `{"v":1,"run":"20261009T201500Z","ts":"2026-10-09T20:31:02Z","skill":"0.7.0","repo":"/Users/me/proj","event":"batch","tasks":["T4","T5"],"tiers":["standard","standard"],"impl":"sonnet","rev":"opus","rev_reason":"network","rounds":1,"kept":3,"dropped":1,"raised":false,"outcome":"committed","sha":"a1b2c3d"}`
+
+Token counts are not logged by you: the orchestrator cannot see exact usage. `misc/tasklist-metrics/analyze_transcripts.py --append-tokens` adds a `tokens` event per batch to this same file afterwards, from the session transcripts, which are exact. Add an optional `tokens` field only if a subagent result reported usage and it costs nothing to copy.
+
+At the end of the run, build the retrospective from this run's lines (`grep '"run":"<id>"'` on the log), not from memory. Apply nothing; the user decides.
+
+1. **Summary** (a few lines): per task, was the tier too high, right, or too low, with the evidence; did any reviewer deviation from the default pay off; where rounds came from (spec gap, implementer error, environment); waste signals the log shows (repeated rounds, re-reviews, a heavy reviewer on a light task).
+2. **Feedback prompt**: a fenced block the user can paste back to the maintainer of these skills, self-contained: skill version, this run's log lines, what the data supports vs. guesses, and concrete suggested edits to remaining `Model` lines or to the skills, aimed at lowering total cost without lowering accuracy.
 
 If nothing new stands out (rounds low, tiers matched, no waste), say so in one line and skip the prompt.
 

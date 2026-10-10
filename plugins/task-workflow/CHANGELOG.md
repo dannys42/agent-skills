@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.0
+
+- `tasklist-run` now writes a structured metrics log instead of the prose run log: one JSON line per event (`start`, `batch`, `end`) appended to `~/.local/state/danny-agent-skills/task-workflow/metrics.jsonl`, outside every repo, shared across projects and runs
+- Each `batch` line records tiers, implementer and reviewer models, the reviewer's reason, correction rounds, findings kept and dropped, tier raises, outcome and commit; the retrospective is built from the run's own lines
+- The orchestrator does not log tokens; `misc/tasklist-metrics/analyze_transcripts.py --append-tokens` adds exact per-batch `tokens` events to the same file afterwards, from the session transcripts, at no per-run cost
+- `<DocDir>/.tasklist-runlog.md` is no longer written
+
 ## 0.6.3
 
 - Added a monitor test that a spawn whose prompt paraphrases the task (`Task T1: ...`) still starts the run
