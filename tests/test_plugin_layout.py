@@ -15,7 +15,8 @@ BUNDLE_SKILLS = {
         "optimizing-skill-development",
         "audit-token-efficiency",
     },
-    "task-workflow": {"decision-driven-design"},
+    "task-workflow": {"decision-driven-design", "tasklist", "tasklist-run"},
+    "project-planning": {"system-design", "risk-first-roadmap"},
     "storytelling": {"crafting-compelling-stories"},
 }
 PORTABLE_MANIFESTS = (

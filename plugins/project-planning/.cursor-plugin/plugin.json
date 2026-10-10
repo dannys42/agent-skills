@@ -1,0 +1,26 @@
+{
+  "name": "project-planning",
+  "displayName": "Project Planning",
+  "version": "0.1.0",
+  "description": "Start large, ambiguous projects: shape a high-level system design with the user, then turn it into a risk-first roadmap of end-to-end increments",
+  "license": "GPL-3.0-or-later",
+  "author": {
+    "name": "Danny Sung"
+  },
+  "repository": "https://github.com/dannys42/agent-skills",
+  "keywords": [
+    "system-design",
+    "roadmap",
+    "planning",
+    "architecture",
+    "apple-platforms",
+    "agent-skills"
+  ],
+  "category": "productivity",
+  "tags": [
+    "design",
+    "planning",
+    "roadmap"
+  ],
+  "skills": "./skills/"
+}

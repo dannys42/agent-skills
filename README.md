@@ -12,6 +12,7 @@ engineering, storytelling, and writing.
 | `swift-craft` | `naming-swift-tests`, `choosing-swift-design-patterns`, `organizing-swift-files` | Personal Swift conventions: explicit test naming, Swift-native design-pattern selection, and focused file organization |
 | `agent-engineering` | `optimizing-skill-development`, `audit-token-efficiency` | Risk-proportional skill validation with reproducible evidence, and post-task token-efficiency retrospectives |
 | `task-workflow` | `decision-driven-design`, `tasklist`, `tasklist-run` | Resolve consequential design decisions before implementation, then plan and execute the resulting tasks |
+| `project-planning` | `system-design`, `risk-first-roadmap` | Shape a high-level design for a large, vague project (tuned for Apple-platform apps), then plan it as risk-ordered, end-to-end increments |
 | `storytelling` | `crafting-compelling-stories` | Audience-aware storytelling and narrative copy grounded in an attributed Joanna Wiebe framework |
 
 ## Skills
@@ -25,6 +26,21 @@ remain reviewable separately from behavioral changes.
 ### `decision-driven-design`
 
 Inspects an existing system, interviews for high-leverage product and engineering decisions, reconciles revisions, and produces dependency-ordered implementation tasks without speculative abstractions.
+
+### `system-design`
+
+Drafts a high-level system design for a large or ambiguous project with
+flagged assumptions, asks only the few questions that change the design, and
+iterates to agreement. Produces `<DocDir>/Design-<Topic>.md` with scope,
+requirements, entities, architecture, technology direction, and a ranked risk
+register. Tuned for Apple-platform apps.
+
+### `risk-first-roadmap`
+
+Turns the design into a roadmap of end-to-end increments, each answering the
+riskiest unknown reachable from where the project is. Writes
+`<DocDir>/Roadmap-<Topic>.md`, details only the next few rungs, and re-plans
+after each one.
 
 ### `tasklist`
 

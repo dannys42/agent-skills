@@ -1,0 +1,36 @@
+{
+  "name": "project-planning",
+  "version": "0.1.0",
+  "description": "Start large, ambiguous projects: shape a high-level system design with the user, then turn it into a risk-first roadmap of end-to-end increments",
+  "license": "GPL-3.0-or-later",
+  "skills": "./skills/",
+  "author": {
+    "name": "Danny Sung",
+    "url": "https://github.com/dannys42"
+  },
+  "repository": "https://github.com/dannys42/agent-skills",
+  "keywords": [
+    "system-design",
+    "roadmap",
+    "planning",
+    "architecture",
+    "apple-platforms",
+    "agent-skills"
+  ],
+  "interface": {
+    "displayName": "Project Planning",
+    "shortDescription": "Design a project, then plan it risk-first",
+    "longDescription": "Shape a high-level system design with flagged assumptions and a risk register, then order the work as end-to-end increments that each answer the riskiest remaining unknown. Tuned for Apple-platform apps.",
+    "developerName": "Danny Sung",
+    "category": "Productivity",
+    "capabilities": [
+      "System design",
+      "Risk registers",
+      "Incremental roadmaps"
+    ],
+    "defaultPrompt": [
+      "Use $system-design to shape a high-level design for this project idea.",
+      "Use $risk-first-roadmap to turn the system design into an incremental roadmap."
+    ]
+  }
+}

@@ -26,6 +26,11 @@
       "name": "storytelling",
       "source": "plugins/storytelling",
       "description": "Audience-aware storytelling and narrative copy grounded in an attributed Joanna Wiebe framework"
+    },
+    {
+      "name": "project-planning",
+      "source": "plugins/project-planning",
+      "description": "Start large, ambiguous projects: shape a high-level system design, then plan a risk-first roadmap of end-to-end increments"
     }
   ]
 }

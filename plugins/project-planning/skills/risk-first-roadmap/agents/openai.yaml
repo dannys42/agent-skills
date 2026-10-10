@@ -1,0 +1,6 @@
+interface:
+  display_name: "Risk-First Roadmap"
+  short_description: "Order a project as end-to-end increments, riskiest unknown first"
+  default_prompt: "Use $risk-first-roadmap to turn the system design into an incremental roadmap."
+policy:
+  allow_implicit_invocation: true
