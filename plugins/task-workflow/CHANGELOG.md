@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.3
+
+- Added a monitor test that a spawn whose prompt paraphrases the task (`Task T1: ...`) still starts the run
+
 ## 0.6.2
 
 - Fixed the `tasklist-monitor` pane staying empty when the orchestrator's spawn prompts paraphrased the tasks
