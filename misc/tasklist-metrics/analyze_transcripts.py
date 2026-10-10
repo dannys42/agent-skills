@@ -27,7 +27,8 @@ Usage:
 --append-tokens adds one `tokens` event per `batch` line of the task-workflow
 metrics log, with raw token counts for the orchestrator, implementer and reviewer
 in that batch's time window (previous batch, or the run's `start`, up to this
-batch). Batches that already have a `tokens` event are skipped, so it is safe to
+batch), plus `cache_breaks` (turns with more than 100k uncached input, i.e. input
+plus cache-write tokens, across all roles) and `max_uncached` (the largest such turn). Batches that already have a `tokens` event are skipped, so it is safe to
 re-run. Windows are matched to transcripts by repo path; parallel sessions in the
 same repo during a run would be mixed in.
 """
@@ -289,6 +290,7 @@ def report(rows):
 
 DEFAULT_LOG = os.path.expanduser("~/.local/state/danny-agent-skills/task-workflow/metrics.jsonl")
 ZERO = {"in": 0, "cr": 0, "cw": 0, "out": 0}
+CACHE_BREAK_UNCACHED = 100_000  # a turn with more uncached input than this is a "cache break"
 
 
 def parse_ts(ts):
@@ -339,12 +341,14 @@ def batch_tokens(root, repo, lo, hi):
     """Raw tokens by role and model for transcripts of `repo` between lo and hi."""
     out = {"orch": {}, "impl": {}, "rev": {}}
     counts = {"orch_turns": 0, "impl_agents": 0, "rev_agents": 0}
+    uncached = []  # input + cache-write tokens of every turn, all roles
     for path in glob.glob(os.path.join(project_dir(root, repo), "*.jsonl")):
         if datetime.datetime.fromtimestamp(os.path.getmtime(path), datetime.timezone.utc) < lo:
             continue
         for ts, model, raw in transcript_turns(path):
             if lo < ts <= hi:
                 add_raw(out["orch"], model, raw)
+                uncached.append(raw["in"] + raw["cw"])
                 counts["orch_turns"] += 1
         for sp in glob.glob(path[:-6] + "/subagents/agent-*.jsonl"):
             turns = transcript_turns(sp)
@@ -359,7 +363,10 @@ def batch_tokens(root, repo, lo, hi):
             counts[role + "_agents"] += 1
             for _, model, raw in turns:
                 add_raw(out[role], model, raw)
+                uncached.append(raw["in"] + raw["cw"])
     out.update(counts)
+    out["cache_breaks"] = sum(1 for u in uncached if u > CACHE_BREAK_UNCACHED)
+    out["max_uncached"] = max(uncached, default=0)
     return out
 
 

@@ -1,7 +1,7 @@
 {
   "name": "task-workflow",
   "displayName": "Task Workflow",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Plan and execute work: resolve consequential design decisions before implementation, then break them into tasks",
   "license": "GPL-3.0-or-later",
   "author": {

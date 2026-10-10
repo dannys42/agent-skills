@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.8.0
+
+- `batch` metrics lines gain `files` and `lines` (size of the commit), `resumed` (corrections sent to a live implementer) and `impl_runs` (every implementer model when a tier raise started another), so tier, round and escalation questions can be answered from the log
+- `rounds` is documented as per batch; per-task comparisons need single-task batches
+- `analyze_transcripts.py --append-tokens` adds `cache_breaks` and `max_uncached` to each `tokens` event
+- No new cost per run: the new fields come from a `git diff --cached --shortstat` in the commit call and from the transcripts
+
 ## 0.7.0
 
 - `tasklist-run` now writes a structured metrics log instead of the prose run log: one JSON line per event (`start`, `batch`, `end`) appended to `~/.local/state/danny-agent-skills/task-workflow/metrics.jsonl`, outside every repo, shared across projects and runs

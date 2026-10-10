@@ -8,11 +8,11 @@ import unittest
 SCRIPT = os.path.join(os.path.dirname(__file__), "analyze_transcripts.py")
 
 
-def line(ts, model, out, rid):
+def line(ts, model, out, rid, cw=5):
     return json.dumps({"type": "assistant", "timestamp": ts, "requestId": rid,
                        "message": {"model": model, "usage": {
                            "input_tokens": 1, "cache_read_input_tokens": 10,
-                           "cache_creation_input_tokens": 5, "output_tokens": out}}})
+                           "cache_creation_input_tokens": cw, "output_tokens": out}}})
 
 
 class AppendTokensTests(unittest.TestCase):
@@ -24,6 +24,7 @@ class AppendTokensTests(unittest.TestCase):
         os.makedirs(os.path.join(sess, "subagents"))
         with open(os.path.join(proj, "s1.jsonl"), "w") as f:
             f.write(line("2026-10-01T10:00:30.500Z", "claude-opus-5-5", 100, "o1") + "\n")
+            f.write(line("2026-10-01T10:02:00.000Z", "claude-opus-5-5", 10, "o0", cw=150_000) + "\n")
             f.write(line("2026-10-01T10:20:00.000Z", "claude-opus-5-5", 200, "o2") + "\n")
         for name, desc, ts, model, out in [
             ("a1", "Implement T1", "2026-10-01T10:01:00.000Z", "claude-sonnet-5-5", 50),
@@ -54,7 +55,8 @@ class AppendTokensTests(unittest.TestCase):
         tokens = [e for e in self.events() if e["event"] == "tokens"]
         self.assertEqual(len(tokens), 1)
         t = tokens[0]
-        self.assertEqual(t["orch"]["opus"]["out"], 100)  # the 10:20 turn is outside the window
+        self.assertEqual(t["orch"]["opus"]["out"], 110)  # the 10:20 turn is outside the window
+        self.assertEqual((t["cache_breaks"], t["max_uncached"]), (1, 150_001))
         self.assertEqual(t["impl"]["sonnet"]["out"], 50)
         self.assertEqual(t["rev"]["opus"]["out"], 70)
         self.assertEqual((t["impl_agents"], t["rev_agents"]), (1, 1))
