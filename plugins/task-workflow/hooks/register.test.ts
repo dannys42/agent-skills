@@ -67,6 +67,12 @@ test('a spawn naming the ID only in its description starts the run', async ($, o
   expect(await pane($)).toContain('Running')
 })
 
+test('a spawn whose prompt paraphrases the task starts the run', async ($, on) => {
+  setup($, on)
+  await $.agent.spawn({ prompt: 'Task T1: fix the first thing, details inlined here.', description: 'Implement the first thing' })
+  expect(await pane($)).toContain('Running')
+})
+
 test('a spawn with no task ID starts nothing', async ($, on) => {
   setup($, on)
   await $.agent.spawn({ prompt: 'Task: keep the key out of git', description: 'Implement gitignore' })
