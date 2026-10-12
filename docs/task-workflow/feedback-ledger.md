@@ -31,19 +31,28 @@ Log: `~/.local/state/danny-agent-skills/task-workflow/metrics.jsonl` (events `st
 | 0.9.0 | Repeat completion notices need no response | Fewer wasted orchestrator turns | observed (5 notices, one agent) | orchestrator turns per batch | untested |
 | 0.9.0 | Document dates from the environment date; UTC only for metrics | Correctness | observed (one wrong date) | wrong-date findings | untested |
 | 0.9.0 | Commit call must include shortstat; `agents` and `orch_fixes` logged | Complete data | observed (`lines` logged as 0) | share of `batch` lines with `lines` of 0 or no `agents` | untested |
+| 0.9.1 | Environment gotchas block shared with all later prompts; simulator preflight, UDID of pinned runtime | No discovery by trial and error on simulator tasks | observed (one run, 57 calls/~87k tokens to find the runtime issue) | implementer `tools` on simulator tasks; hangs at "idle" | untested |
+| 0.9.1 | "Silence means hung" (3 min log silence: restart once, then `blocked`) | Hung jobs cost 2 restarts at most, not dozens of polls | observed (one run; 15-call rule never fired) | `blocked` notes citing a hang; `tools` on long-job tasks | untested |
+| 0.9.1 | Lifecycle: no stray background work, `TaskStop` after accept, ignore re-sent hand-backs | No repeat hand-back loops | observed (about 12 repeats, one agent) | orchestrator turns per batch; repeat notices | untested |
+| 0.9.1 | Retrospective always reports a tool-count outlier, `TaskStop` or repeat hand-backs | Cost outliers reach feedback instead of "nothing stood out" | observed (same run: retrospective skipped the prompt despite ~87k-token hang) | feedback prompts for runs with an outlier | untested |
+| 0.9.1 | Simulator section: build once, absolute-threshold render checks, reviewers do not re-run scenarios | Fewer hang/compile confusions, no false pass on a light render | observed (one run) | simulator-task `tools`, reviewer `tools`, rounds | untested |
 
 ## Rejected or parked
 
 - Helper script to close a batch (check off, commit, log): parked. Adds code and a duplicate of the metrics schema for an unmeasured gain; the CLI decision rule applies. Revisit if bookkeeping turns are measured above about 5% of run cost.
 - Orchestrator launches long jobs itself and dispatches the agent only for the result: parked; a single blocking wait is the cheaper first step. Revisit if long-job turns persist.
+- Shared simulator helper script (feedback 2026-10-12 #4): parked. One run; existing token-efficiency question 3 and the wire-the-fix rule already cover repeated plumbing. Revisit if a second run shows agents re-deriving simulator plumbing.
 
 ## Feedback received
 
 Append one line per feedback drop: date, source run (project, tasks, skill version), what was taken, what was parked.
 
 - 2026-10-10: video-preview pipeline run (3 tasks, 6 subagents, 0.8.0). Took #1-#7 and #9 as above (#5 narrowed to doc-only, #9 optional); parked #8 (helper script).
+- 2026-10-12: iOS Simulator XCUITest run (9 batches, ~0.9.0). Took #1 (preflight, gotchas block), #2 (generalized to any long job), #3, #5, #6, #7 as a conditional Simulator section plus lifecycle rules; #8 narrowed (`lines` rule already existed in 0.9.0, so only cumulative/reviewer tokens clarified); parked #4. Follow-up: the run's own retrospective found nothing to report despite the hang, so its skip rule was widened; `/tasklist-audit` proposed, awaiting go-ahead.
+- 2026-10-12 monitor data, same run: 1.3M tokens, $8.57 est., 9 implementers. T4 221k/$2.46 against a 62-133k, $0.25-0.87 spread for the rest (about $2 over the median, roughly a quarter of run cost). Rows sum to about 1.0M, so about 0.3M is reviewers/orchestrator not itemised. T9 wall-clock 7h53m on 81k tokens (paused overnight at the weekly token limit, not a hang). Light-tier T11 used 133k tokens, more than most standard tasks. No rule change.
 
 ## Open questions
 
 - Does the reviewer-trust rule change the defect catch rate? Needs 2 or more runs on 0.9.0 with comparable reviews.
 - Is a mandatory `agents` field worth the orchestrator's copying, given `--append-tokens` already reports tokens from transcripts?
+- Do light-tier docs tasks (T11, 133k) cost more than their tier implies? Needs a second sample before touching tiers (rule 5).

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.9.1
+
+From one iOS Simulator run (9 batches): a name-selected simulator hung (57 calls, ~87k tokens to find the cause), the 15-call stall rule never fired on a silent job, and a stray `xcodebuild` caused about 12 repeat hand-backs.
+
+- Environment gotchas are one block, extended with what agents discover and pasted into every later implementer and reviewer prompt
+- Simulator tasks (`xcodebuild`, `simctl`, UI tests) get one preflight and a short "Simulator work" section: select by UDID on a pinned runtime, `build-for-testing` once, absolute-threshold render checks with one reboot retry, no reviewer re-runs
+- General: a long job whose log is silent for about 3 minutes is hung (kill, restart once, then `blocked`); implementers confirm no background work or booted simulators remain; the orchestrator `TaskStop`s accepted implementers and ignores re-sent hand-backs
+- The retrospective no longer skips the feedback prompt when one agent's `tools` is an outlier, or a `TaskStop` or repeat hand-backs happened
+- `agents` logging: use the resumed implementer's last (cumulative) notification and always include the reviewer
+
 ## 0.9.0
 
 From a transcript audit of one run (3 tasks, 6 subagents): cost followed turn count, not result size, since every turn re-reads the agent's whole context.

@@ -33,7 +33,8 @@ Stopping after one batch applies whenever the user scoped the run (named an ID, 
 
 1. Read the TODO once. From then on, work from the `Source`/`Goal` line plus the task blocks you need; do not re-read the whole file each loop.
 2. Run `git status --short` and remember it. Anything dirty that is not yours stays out of every commit. Stage by explicit path, never `git add -A` or `git commit -a`.
-3. Find the project's test/build command and commit style (recent `git log`) once, so subagents and commits do not rediscover them. Note the environment gotchas you already know or the TODO states (venv or interpreter path, tools that are missing, exact CLI invocations); they go into every implementer prompt.
+3. Find the project's test/build command and commit style (recent `git log`) once, so subagents and commits do not rediscover them. Note the environment gotchas you already know or the TODO states (venv or interpreter path, tools that are missing, exact CLI invocations); they go into every implementer prompt. Keep them as one "environment gotchas" block, add any gotcha an agent reports during the run, and paste the block into every later implementer and reviewer prompt.
+   If a task's `Run`/`Verify` mentions `xcodebuild`, `simctl` or UI tests, also run one preflight before its batch (`xcrun simctl list runtimes available`, `xcrun simctl list devices available`, `pgrep -fl 'xcodebuild|Simulator'`) and add to the block: the pinned runtime (oldest installed stable one unless the project says otherwise), the device UDID on it, and any stray processes. See [Simulator work](#simulator-work).
 4. Dates: for anything written into a document (freshness headers, `Why:` lines, changelogs), use the environment's stated date or local `date +%F`. UTC is only for the run ID and metrics timestamps, because UTC may already be the next day.
 5. Start the metrics log. Pick a run ID with `date -u +%Y%m%dT%H%M%SZ` and remember it literally (shell state does not persist). Append a `start` line (see [Metrics log and retrospective](#metrics-log-and-retrospective)). The log is `~/.local/state/danny-agent-skills/task-workflow/metrics.jsonl`, outside every repo, so it is never staged or committed.
 
@@ -75,11 +76,21 @@ Prompt the implementer with only:
 Standing rules for every implementer prompt:
 - **Bounded output.** Read files with `grep -n` or `offset`/`limit`, never a whole-file `cat` of a large file. Pipe `git diff` through `--stat` or a path filter. Send build, render and test output to a log file and show only the tail or the failing lines.
 - **Long jobs.** If the task has a `Run` command, or any command may exceed about a minute, start it once in the background with output to a log file, then block on a single `Monitor` or until-loop call that ends when the job finishes. Do not poll, `sleep`, or `echo waiting` across turns, and do not run it in the foreground against the 600 s limit. Each turn re-reads the whole context, so turns, not output size, drive cost.
-- **Finish what you start.** End or wait for your own background work before handing back, so no stray completion notices reach the orchestrator.
+- **Silence means hung.** A long job whose log has not grown for about 3 minutes is hung, however many calls you have made. Kill it and restart it once; if it hangs again, report `blocked` with the log tail instead of experimenting.
+- **Finish what you start.** End or wait for your own background work (and shut down any simulator you booted) before handing back, and say that none remains. Stray work sends repeat notices to the orchestrator.
 
 Ask for a short structured reply: status (`done`, `blocked`, or `invalid`), files changed (exact paths), the trimmed output of the `Done when` check, and concerns or discovered work. A reply that long keeps your context small across many batches.
 
-Keep the agent's ID. Corrections go back to the same agent with `SendMessage` so it keeps its context instead of rereading the code.
+Keep the agent's ID. Corrections go back to the same agent with `SendMessage` so it keeps its context instead of rereading the code. Once you accept its report and expect no corrections, `TaskStop` it so it cannot linger.
+
+### Simulator work
+
+Only for tasks that run `xcodebuild`, `simctl` or UI tests. Add these to those implementer and reviewer prompts, with the gotchas block:
+- Select the simulator by the preflight UDID on the pinned runtime, never by device name (a name can resolve to a newer runtime whose tests hang at "Wait for ... to idle").
+- Run `build-for-testing` once, then `test-without-building` for reruns, so a hang is never mistaken for compile time.
+- On a hung job (see "Silence means hung"), the restart is: kill it, `simctl shutdown` the device, boot it again.
+- A check on rendered output (dark mode, colours, layout) must fail on the wrong state: use an absolute or ratio threshold, not only a comparison between two images. If it fails, reboot the simulator and retry once before reporting.
+- Reviewers do not re-run simulator scenarios unless the diff changed test behaviour; they judge from the implementer's output and view the produced images where needed.
 
 ### Reviewer subagent
 
@@ -103,7 +114,7 @@ On `fix`, triage the findings yourself: drop those tagged `speculative` or that 
 - **Discovered work:** add a new task with the next unused ID and `Found during <ID>`. Do not enlarge the current batch.
 - **Heavy, irreversible, or risky work** (migrations, deleting data, security): pause and show the user the plan before dispatching, even in an unattended run.
 - **Behavioural decision the TODO did not make** (error vs. empty result, exit code, usage text): make the call, keep it small, and record it in `note` in the metrics log for the report.
-- **Repeat completion notice** for an agent you already closed (for example "stopped with background work of its own still running"): no response and no tool call. It is not new work.
+- **Repeat completion notice or re-sent hand-back** for an agent you already closed (for example "stopped with background work of its own still running"): no response and no tool call. It is not new work. If it keeps coming, `TaskStop` the agent.
 - **Stop** when no task qualifies, a merge conflict appears, repeated blocks stack up, or the requested scope is complete. Append the `end` line to the metrics log, then end with a short report: what was committed (one line per commit), the decisions you made that the TODO did not, what is blocked and why, what `USER` tasks are waiting. Then add the retrospective below.
 
 ### USER tasks
@@ -117,19 +128,19 @@ These bound the whole run, on top of the per-task correction limit. Hitting one 
 - **Added work:** more than 3 tasks added in one run (efficiency fixes plus discovered work) stops it. Tasks added mid-run may not add further tasks.
 - **Blocks:** two `BLOCKED` tasks in a row stop it.
 - **Repeat failure:** if a correction round fails the same check with the same output as the one before, skip the remaining round: raise the tier or block at once.
-- **Stalled agents:** tell every subagent to report `blocked` instead of continuing after about 15 tool calls without progress, and to keep scratch experiments to a few commands.
+- **Stalled agents:** tell every subagent to report `blocked` instead of continuing after about 15 tool calls without progress (a silent job is not progress; see "Silence means hung"), and to keep scratch experiments to a few commands.
 
 ## Metrics log and retrospective
 
 The log is one JSON object per line, appended with a single `mkdir -p ~/.local/state/danny-agent-skills/task-workflow && printf '%s\n' '<json>' >> ~/.local/state/danny-agent-skills/task-workflow/metrics.jsonl` call. It feeds this run's retrospective and, across runs and projects, the long-term tuning of tiers and reviewers. Keep each line compact and write it in the same call as the commit or the step it records, so it adds no turns.
 
-Every line carries `v` (1), `run` (the run ID), `ts` (`$(date -u +%FT%TZ)` in the same command), `skill` (`0.9.0`), `repo` (git root path), and `event`:
+Every line carries `v` (1), `run` (the run ID), `ts` (`$(date -u +%FT%TZ)` in the same command), `skill` (`0.9.1`), `repo` (git root path), and `event`:
 
 - `start`: `open` (open tasks at the start), `scope` (`all`, `one`, an ID, a group, a phase), and `flags` (any overrides).
-- `batch`, appended after the commit: `tasks` (IDs), `tiers` (their declared `Model` tiers, same order), `impl` and `rev` (models used: `haiku`, `sonnet`, `opus`), `rev_reason` (a few words), `rounds` (correction rounds, 0 if the first review passed; counted per batch, so a per-task comparison needs single-task batches), `resumed` (corrections sent to a live implementer with `SendMessage`, 0 if none), `impl_runs` (models of every implementer started, in order, only when more than one ran, e.g. after a tier raise), `files` and `lines` (files changed and insertions plus deletions, from `git diff --cached --shortstat` run in the commit call), `kept` and `dropped` (finding counts), `agents` (one object per subagent that ran, `{"role":"impl|rev","tokens":<subagent_tokens>,"tools":<tool_uses>}`, copied from the task notifications when they report both; omit it when they do not), `orch_fixes` (doc-only fixes you applied yourself, 0 if none), `raised` (true if a tier was raised), `outcome` (`committed`, `blocked`, or `uncommitted`), `sha` (short, if committed), and `note` (only for events: blocked, tier raised, environment failure, decision made).
+- `batch`, appended after the commit: `tasks` (IDs), `tiers` (their declared `Model` tiers, same order), `impl` and `rev` (models used: `haiku`, `sonnet`, `opus`), `rev_reason` (a few words), `rounds` (correction rounds, 0 if the first review passed; counted per batch, so a per-task comparison needs single-task batches), `resumed` (corrections sent to a live implementer with `SendMessage`, 0 if none), `impl_runs` (models of every implementer started, in order, only when more than one ran, e.g. after a tier raise), `files` and `lines` (files changed and insertions plus deletions, from `git diff --cached --shortstat` run in the commit call), `kept` and `dropped` (finding counts), `agents` (one object per subagent that ran, `{"role":"impl|rev","tokens":<subagent_tokens>,"tools":<tool_uses>}`, copied from the task notifications when they report both; for a resumed implementer use its last notification, which is cumulative, and always include the reviewer; omit it when they do not), `orch_fixes` (doc-only fixes you applied yourself, 0 if none), `raised` (true if a tier was raised), `outcome` (`committed`, `blocked`, or `uncommitted`), `sha` (short, if committed), and `note` (only for events: blocked, tier raised, environment failure, decision made).
 - `end`: `stop` (`complete`, `scope`, `blocked`, `limit`, `environment`, `user`).
 
-Example: `{"v":1,"run":"20261009T201500Z","ts":"2026-10-09T20:31:02Z","skill":"0.9.0","repo":"/Users/me/proj","event":"batch","tasks":["T4","T5"],"tiers":["standard","standard"],"impl":"sonnet","rev":"opus","rev_reason":"network","rounds":1,"resumed":1,"agents":[{"role":"impl","tokens":61000,"tools":25},{"role":"rev","tokens":38000,"tools":9}],"orch_fixes":0,"files":4,"lines":212,"kept":3,"dropped":1,"raised":false,"outcome":"committed","sha":"a1b2c3d"}`
+Example: `{"v":1,"run":"20261009T201500Z","ts":"2026-10-09T20:31:02Z","skill":"0.9.1","repo":"/Users/me/proj","event":"batch","tasks":["T4","T5"],"tiers":["standard","standard"],"impl":"sonnet","rev":"opus","rev_reason":"network","rounds":1,"resumed":1,"agents":[{"role":"impl","tokens":61000,"tools":25},{"role":"rev","tokens":38000,"tools":9}],"orch_fixes":0,"files":4,"lines":212,"kept":3,"dropped":1,"raised":false,"outcome":"committed","sha":"a1b2c3d"}`
 
 Token counts are not logged by you: the orchestrator cannot see exact usage. `misc/tasklist-metrics/analyze_transcripts.py --append-tokens` adds a `tokens` event per batch to this same file afterwards, from the session transcripts, which are exact. Each `tokens` event also carries `cache_breaks` and `max_uncached` (turns with more than 100k uncached input, and the largest). Per-agent `tokens` and `tools` in `agents` are the exception: they cost nothing to copy from the task notification and give per-agent cost and turn proxies without parsing transcripts.
 
@@ -138,7 +149,7 @@ At the end of the run, build the retrospective from this run's lines (`grep '"ru
 1. **Summary** (a few lines): per task, was the tier too high, right, or too low, with the evidence; did any reviewer deviation from the default pay off; where rounds came from (spec gap, implementer error, environment); waste signals the log shows (repeated rounds, re-reviews, a heavy reviewer on a light task).
 2. **Feedback prompt**: a fenced block the user can paste back to the maintainer of these skills, self-contained: skill version, this run's log lines, what the data supports vs. guesses, and concrete suggested edits to remaining `Model` lines or to the skills, aimed at lowering total cost without lowering accuracy.
 
-If nothing new stands out (rounds low, tiers matched, no waste), say so in one line and skip the prompt.
+If nothing new stands out (rounds low, tiers matched, no waste), say so in one line and skip the prompt. An agent with far more `tools` than the others (about 2x the batch median, or over 30), a `TaskStop`, or repeat hand-backs always stands out: name its cause, or say it is unknown, in the prompt.
 
 ## Committing
 
