@@ -32,12 +32,12 @@ A sound ladder reads like a series of questions: can I run an app, can I draw, c
 Use this shape, and keep it short:
 
 ```markdown
-### R3: Control text rendering in the grid
+### L3: Control text rendering in the grid
 Question: Do fonts, size, color, and style render legibly at screen and print scale?
 Slice: Draw digits 1–9 in the fixed grid with chosen font and weight; export a PDF.
 Done when: The PDF opens with crisp, correctly sized digits, and a printed page is readable.
 De-risks: R2 (text fidelity)
-Depends on: R2
+Depends on: L2
 If no: Try a different font stack or draw digits as paths; record in the design.
 Status: planned
 ```
@@ -45,12 +45,25 @@ Status: planned
 - **Question** is the unknown, phrased so the rung can fail.
 - **Slice** is what the user can run and see. If you cannot demo it, it is not a rung.
 - **Done when** is observable and checkable, with the command or action to check it.
-- **De-risks** links to the risk IDs, so the register shrinks as rungs complete.
+- **De-risks** links to the design's risk IDs (`R`), so the register shrinks as rungs complete. Rungs use their own prefix, `L` (ladder), so they never collide with risk IDs.
 - **If no** is the fallback or the decision to revisit. A rung that cannot fail is not testing anything.
 
 ## Detail horizon
 
 Write the first three or four rungs in full. List the rest as one-line **horizon** items in rough order, with no slice or done-when yet. Later rungs depend on what earlier ones teach, so detailing them now creates false confidence and waste. Expand a horizon item only when it becomes next.
+
+## Architecture step inside rung 1
+
+The skeleton rung otherwise decides the target layout implicitly. When the design implies **more than one build boundary that rung 1 must create** (separate executables, a shared package, or an enforced layering between modules), add an architecture step to rung 1's task expansion. It is not a separate up-front phase and not a rung of its own. It produces a short `<DocDir>/Architecture-<Topic>.md` with:
+
+- **Build targets** (modules, executables, packages) and each one's allowed imports and dependencies.
+- **A block diagram** of those targets (small text or Mermaid).
+- **A traceability table** from every must-have FR/NFR in the design to the rung or horizon item that proves it, with uncovered requirements listed as explicit gaps.
+- **Build and test commands** for each target.
+
+Gate rung 1's implementation on the owner approving this document. Keep it to a page or two.
+
+Skip the document when the design has a single app target (a test target or one local package does not count as a second boundary). Say so in one line in the roadmap. This skips only the document, not the design: the traceability check below and the drift checkpoint still apply.
 
 ## Check the ladder before showing it
 
@@ -61,13 +74,14 @@ Fix these smells first:
 - **A rung that answers two unknowns.** Split it, so a failure points at one cause.
 - **Polish before proof.** Styling, settings, and onboarding come after the core risks are retired.
 - **Setup rungs with no demo** ("configure CI", "set up architecture"). Fold setup into the first rung that needs it.
+- **A requirement no rung proves.** Every must-have FR/NFR in the design maps to a rung or horizon item, or is listed as an explicit gap the user has seen. For a single-target project, a small table in the roadmap file is enough.
 - **A big unknown buried late** because its prerequisite looked expensive. Pull it forward by building the cheapest stand-in for the prerequisite.
 
 ## Review with the user
 
 Show the ladder first as a short numbered list of one-line questions, so the order is easy to judge, and the detail for the first rungs after. Explain the ordering by naming the risk each early rung buys down. Invite changes: the user may know something about risk that the design does not. When they reorder, re-check dependencies, update, and tell them what the change does to the early risk exposure.
 
-Save to `<DocDir>/Roadmap-<Topic>.md`, using the same `Topic` as the design. State the path. If the file exists, read it and continue its IDs. IDs (`R1`, `R2`, ...) are document-wide, never reused or renumbered, even when a rung is dropped or split.
+Save to `<DocDir>/Roadmap-<Topic>.md`, using the same `Topic` as the design. State the path. If the file exists, read it and continue its IDs. IDs (`L1`, `L2`, ...) are document-wide, never reused or renumbered, even when a rung is dropped or split.
 
 ## Hand off to implementation
 
@@ -79,6 +93,7 @@ After a rung finishes, update the roadmap before starting the next:
 
 - Set its status (`done`, `failed`, `changed`) and record what was learned in one or two lines, including the measured answer to its question.
 - Update the design's risk register and decision log if the answer changed them.
+- **After the first end-to-end data rung**, compare the architecture document (or, if none was written, the design's architecture section) with what was built. Record any drift in the design's decision log and fix whichever side is wrong.
 - Re-rank the remaining risks and promote or demote horizon items. Add new rungs for newly discovered unknowns; mark rungs that became unnecessary `obsolete` instead of deleting them.
 - Tell the user what moved and why.
 
