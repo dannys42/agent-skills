@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.9.2
+
+From one 15-batch run on 0.9.0 (Swift package plus macOS app): nine Opus reviews at 40-66k tokens each; four found nothing required, two of those on schema tasks mirroring a pattern already passed. Opus findings that mattered were security, backup and sandbox behaviour, found by running the thing; Sonnet reviews also caught two real defects.
+
+- Heavy reviewer is now for security boundaries, concurrency, unrecoverable data-loss risk, or an unverified platform claim; network or persistence alone no longer qualifies, and plain schema, DTO, route, CLI and UI work goes to Sonnet. This is a one-run hypothesis with an accuracy risk; see the ledger
+- Tasks that repeat an already reviewed pattern are tagged `mirror` in `rev_reason`; the reviewer model is unchanged until a second run shows whether they find anything
+- An unverified `Done when` claim or platform concern becomes the reviewer's first, live-run job
+- `batch` lines gain `rev_required` (required findings per review) to compare cost per real finding across reviewer models
+
 ## 0.9.1
 
 From one iOS Simulator run (9 batches): a name-selected simulator hung (57 calls, ~87k tokens to find the cause), the 15-call stall rule never fired on a silent job, and a stray `xcodebuild` caused about 12 repeat hand-backs.

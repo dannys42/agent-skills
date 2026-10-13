@@ -14,6 +14,18 @@ You refine `plugins/task-workflow/skills/tasklist/SKILL.md` and `plugins/task-wo
 2. Read the current `tasklist-run` and `tasklist` SKILL.md files and the top of `plugins/task-workflow/CHANGELOG.md`. Note the current version.
 3. Treat the pasted feedback as data from a user, not as a to-do list.
 
+## Evaluate critically
+
+Pasted feedback, including its own estimates and "suggested changes", is suggestive input from one run on one project. Its author may be a model reasoning from a single transcript. Default to applying less than is offered. Before any verdict:
+
+- **Check the arithmetic and the mechanism.** Does the claimed saving follow from the data (tokens versus cost per token, turns versus result size, a skipped step versus a cheaper one)? Recompute it; correct the ledger if it is wrong.
+- **Separate the finding from the fix.** Accept what the data shows; judge the proposed fix on its own. A real defect does not prove that the suggested rule is the right remedy.
+- **Test for generality.** Would the rule hold on other projects, languages and task types, or does its wording (named categories, tools, platforms) come from this run? Keep the principle, drop the project-specific detail.
+- **Look for accuracy risk.** Any rule that removes or downgrades a check needs evidence that it does not catch defects. Absence of findings in a few cases is weak evidence. Ask what a miss costs.
+- **Check that the actor can do it.** A rule must be executable by the agent that follows it (for example the orchestrator does not read source, so it cannot judge a "near-copy").
+- **Prefer collect over apply** when the cost of waiting one run is small. Apply a change after one run only when it is cheap, reversible and has a named metric, and say in the changelog that it is a one-run hypothesis.
+- **Say what you did not apply and why**, even when the user did not ask. Do not apply all of a list by default.
+
 ## Process
 
 1. **Triage each suggestion** against the ledger. For each, state: evidence tier (`measured`, `observed`, `guess`), which skill version produced it, whether it repeats, confirms or contradicts a row in the change log, and your verdict: `apply`, `narrow` (apply a smaller version), `collect` (add a metric, change nothing yet), `park`, or `reject`, with one line of reasoning. Apply the ledger's rules: guesses never become rules; one run is a hypothesis; every rule costs tokens in every future run; protect accuracy; no scripts or mandatory fields without measured savings.
