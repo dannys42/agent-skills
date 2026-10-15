@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.2
+
+- `roadmap-plan-next-rung`: the brief's Components step also names what a touched boundary shares with other components (error codes, identifiers, formats; reuse or reconcile) and, for a new endpoint or entry point, its behaviour when input or configuration is absent
+
 ## 0.3.1
 
 - `roadmap-plan-next-rung`: the trivially-small-rung test no longer requires a single component; decisions already recorded in a design or detail doc count as settled, and the tasklist's `Source:` cites that doc

@@ -51,7 +51,7 @@ Fill every section of the template from what you read: Question and slice; Scope
 - Scope: name what is in this rung and what is out. Mention work that is in this version but not this rung only where it clarifies a boundary the task list could otherwise cross.
 - Requirements: cite only the FR/NFR this rung touches, by qualified ID, and say what the rung proves of each.
 - Design docs touched: each doc the rung changes, what changes in it, and depth before → after. A rung may span several subsystems.
-- Components: list the ones the rung creates or changes, with the interface that crosses each touched boundary. Draw them highlighted, with only the neighbours needed for context. Draw a subsystem as one box, or, when the rung works inside it, draw its inner components with the neighbours outside it as single boxes.
+- Components: list the ones the rung creates or changes, with the interface that crosses each touched boundary. Draw them highlighted, with only the neighbours needed for context. Draw a subsystem as one box, or, when the rung works inside it, draw its inner components with the neighbours outside it as single boxes. For each touched boundary, also name anything it shares with other components (error codes, identifiers, formats) and whether to reuse or reconcile it, and for a new endpoint or entry point, what it does when its input or configuration is absent.
 - Decisions: a trivial or reversible one gets a proposed default and an assumption ID. One that is major (it shapes persistence, a public interface, migration, or work beyond this rung) and has real alternatives goes through the `decision-driven-design` skill, scoped to this rung; record its outcome here and in the design doc it belongs to.
 
 ### 3. Ask the few questions that matter
