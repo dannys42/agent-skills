@@ -12,7 +12,7 @@ engineering, storytelling, and writing.
 | `swift-craft` | `naming-swift-tests`, `choosing-swift-design-patterns`, `organizing-swift-files` | Personal Swift conventions: explicit test naming, Swift-native design-pattern selection, and focused file organization |
 | `agent-engineering` | `optimizing-skill-development`, `audit-token-efficiency` | Risk-proportional skill validation with reproducible evidence, and post-task token-efficiency retrospectives |
 | `task-workflow` | `decision-driven-design`, `tasklist`, `tasklist-run` | Resolve consequential design decisions before implementation, then plan and execute the resulting tasks |
-| `project-planning` | `system-design`, `risk-first-roadmap` | Shape a high-level design for a large, vague project (tuned for Apple-platform apps), then plan it as risk-ordered, end-to-end increments |
+| `project-planning` | `system-design`, `risk-first-roadmap`, `roadmap-plan-next-rung` | Outline a large, vague project or adopt an existing one (tuned for Apple-platform apps), plan it as risk-ordered, end-to-end increments, then design each increment just before building it |
 | `storytelling` | `crafting-compelling-stories` | Audience-aware storytelling and narrative copy grounded in an attributed Joanna Wiebe framework |
 
 ## Skills
@@ -29,11 +29,15 @@ Inspects an existing system, interviews for high-leverage product and engineerin
 
 ### `system-design`
 
-Drafts a high-level system design for a large or ambiguous project with
-flagged assumptions, asks only the few questions that change the design, and
-iterates to agreement. Produces `<DocDir>/Design-<Topic>.md` with scope,
-requirements, entities, architecture, technology direction, and a ranked risk
-register. Tuned for Apple-platform apps.
+Drafts a one-page outline of a large or ambiguous project with flagged
+assumptions, asks only the few questions that change it, and iterates to
+agreement. Produces `<DocDir>/SystemDesign/Overview.md` with scope, headline
+requirements, a component diagram with depth tags, decisions, and a ranked risk
+register; detail is added later, one rung at a time. A subsystem (a separate
+target or a major piece) gets its own design doc of the same shape, written on
+demand, and its parent treats it as one component. Adopt mode documents an
+existing codebase as-is and records changes of direction. Tuned for
+Apple-platform apps.
 
 ### `risk-first-roadmap`
 
@@ -42,15 +46,24 @@ riskiest unknown reachable from where the project is. Writes
 `<DocDir>/Roadmap-<Topic>.md`, details only the next few rungs, and re-plans
 after each one.
 
+### `roadmap-plan-next-rung`
+
+Designs just the next roadmap rung before it is built: scope for the rung, the
+requirements and components it touches (with a highlighted diagram), decisions,
+verification, and guard rails, in
+`<DocDir>/SystemDesign/Rung-<RungId>-<ShortRungDescription>.md`. Hands off to
+`tasklist`, then folds the finished rung back into the design and offers a
+retrospective.
+
 ### `tasklist`
 
-Writes and maintains a `TODO.md` checklist with document-wide unique phase,
+Writes and maintains a `Tasklist.md` checklist with document-wide unique phase,
 group, and task IDs, dependencies, minimum-model tiers, and standard markers
 for done, obsolete, invalid, superseded, deferred, and blocked work.
 
 ### `tasklist-run`
 
-Runs the open tasks in a `TODO.md` serially: each batch is implemented by a
+Runs the open tasks in a `Tasklist.md` serially: each batch is implemented by a
 subagent on the right model, verified by a reviewer subagent, corrected if
 needed, and committed on its own before the next batch. Scope, commit
 behavior, and parallel worktrees can be overridden per invocation.
@@ -72,7 +85,7 @@ structure could avoid, hand-run integration work an MCP server could absorb,
 and wasted exploration caused by unwritten direction. Records findings in a
 `Documentation/` folder as durable direction (`Overview.md`), an
 organizational map (`Structure.md`), and an actionable, model-tagged backlog
-(`TODO-TokenEfficiency.md`). Manual invocation only, via
+(`Tasklist-TokenEfficiency.md`). Manual invocation only, via
 `/audit-token-efficiency`.
 
 ### `crafting-compelling-stories`

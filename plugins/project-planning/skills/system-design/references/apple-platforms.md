@@ -40,10 +40,12 @@ Seed the register with the ones that apply, then rank them for this project.
 | Distribution | Will signing, notarization, sandbox, or review block shipping? | A signed, notarized build early if distribution matters |
 | Platform API | Is the needed framework API available at the chosen minimum OS? | Call it in a throwaway target |
 
-## Effects on the design document
+## Effects on the design documents
 
-- Section 7 (data): say whether the document is the file (document-based) or an app database; this decides the entire persistence story.
-- Section 8 (architecture): show the logic core separate from the SwiftUI layer so the roadmap can prove logic with no UI.
-- Section 10 (technology): record the SwiftUI vs AppKit/UIKit split and the minimum OS with reasons.
-- Section 11 (verification): name the `xcodebuild` test command and what is checked manually in the running app.
-- Section 12 (risks): include the platform probes above that apply; roadmap increments 1–3 usually come from them.
+Even in an outline, these belong in the Overview because they shape everything else:
+
+- Decisions: whether the document is the file (document-based) or an app database, since this decides the entire persistence story; the minimum OS; and the SwiftUI vs AppKit/UIKit split, each with a reason.
+- Components: show the logic core (a package or target) separate from the SwiftUI layer, so the roadmap can prove logic with no UI. A Swift package, app extension, widget, or second app is a separate build target, so it is a subsystem candidate: one row marked `Doc: pending` until a rung needs its internals.
+- Risks: include the platform probes above that apply; roadmap rungs 1–3 usually come from them.
+
+Leave to rung briefs: the `xcodebuild` test command and manual checks for each rung, entitlements a rung needs, and the exact file format of the document.

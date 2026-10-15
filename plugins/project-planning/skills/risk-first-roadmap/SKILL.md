@@ -1,6 +1,6 @@
 ---
 name: risk-first-roadmap
-description: Turn a system design or a vague project idea into a roadmap of small end-to-end increments, each one a working, observable capability that answers the riskiest remaining unknown. Orders work by risk instead of by layer, so the project proves its hardest assumptions first and keeps a runnable app at every step. Tuned for Apple-platform apps. Use whenever the user wants a roadmap, build order, milestones, or "what should I build first" for a new or large project, has just finished a system design (Design-*.md), or says a project is too big to know where to start. Also use to re-plan an existing roadmap after an increment taught something new. Not for breaking one increment into tasks (use tasklist) or for product-strategy roadmaps with stakeholders and quarters.
+description: Turn a system design or a vague project idea into a roadmap of small end-to-end increments, each one a working, observable capability that answers the riskiest remaining unknown. Orders work by risk instead of by layer, so the project proves its hardest assumptions first and keeps a runnable app at every step. Tuned for Apple-platform apps. Use whenever the user wants a roadmap, build order, milestones, or "what should I build first" for a new or large project, has just finished a system design (SystemDesign/Overview.md, or a legacy Design-*.md), has adopted an existing codebase and recorded a change of direction, or says a project is too big to know where to start. Also use to re-plan an existing roadmap after an increment taught something new. Not for designing or breaking down one increment (use roadmap-plan-next-rung, then tasklist) or for product-strategy roadmaps with stakeholders and quarters.
 license: GPL-3.0-or-later
 ---
 
@@ -12,7 +12,9 @@ Read [roadmap-example.md](references/roadmap-example.md) before writing the firs
 
 ## Input
 
-Look for the system design: `<DocDir>/Design-<Topic>.md`, where `DocDir` is the project's documentation directory (typically `Documentation/` or `docs/`; follow project rules when they name one). Read its risk register, focus areas, scope, and verification strategy.
+Look for the system design: `<DocDir>/SystemDesign/Overview.md`, where `DocDir` is the project's documentation directory (typically `Documentation/` or `docs/`; follow project rules when they name one). If only a legacy `<DocDir>/Design-<Topic>.md` exists, use that. Read its risk register, focus areas, scope, headline requirements, component depth tags, and any decisions of kind `shift`. Also read the risk registers of any subsystem docs beside it (`SystemDesign/<Subsystem>.md`). IDs are per document, so cite them qualified by doc name (`Puzzle_Generator:R3`, `Overview:FR1`) in `De-risks` and traceability. A rung may span several subsystems.
+
+A `shift` decision comes from adopting an existing codebase: it is a change of direction the user wants, not yet built. Treat each accepted shift as work the roadmap must deliver, with its own unknowns (can the new shape coexist with the old one, can data migrate), and give it a rung or horizon item.
 
 If no design exists, say so and offer two paths: run the `system-design` skill first (best when the project is large or the unknowns are many), or build a short risk list with the user right now (fine for a small project). Do not invent a roadmap from nothing; the ordering is only as good as the list of unknowns.
 
@@ -52,18 +54,11 @@ Status: planned
 
 Write the first three or four rungs in full. List the rest as one-line **horizon** items in rough order, with no slice or done-when yet. Later rungs depend on what earlier ones teach, so detailing them now creates false confidence and waste. Expand a horizon item only when it becomes next.
 
-## Architecture step inside rung 1
+## Rung 1 and build boundaries
 
-The skeleton rung otherwise decides the target layout implicitly. When the design implies **more than one build boundary that rung 1 must create** (separate executables, a shared package, or an enforced layering between modules), add an architecture step to rung 1's task expansion. It is not a separate up-front phase and not a rung of its own. It produces a short `<DocDir>/Architecture-<Topic>.md` with:
+The skeleton rung otherwise decides the target layout implicitly. When the design implies **more than one build boundary that rung 1 must create** (separate executables, a shared package, or an enforced layering between modules), say so in rung 1's slice. The build targets, their allowed imports, a diagram of them, and their build and test commands are then decided in rung 1's brief (written by `roadmap-plan-next-rung`), not in a separate up-front document or a rung of its own. Gate rung 1's implementation on the owner approving that brief.
 
-- **Build targets** (modules, executables, packages) and each one's allowed imports and dependencies.
-- **A block diagram** of those targets (small text or Mermaid).
-- **A traceability table** from every must-have FR/NFR in the design to the rung or horizon item that proves it, with uncovered requirements listed as explicit gaps.
-- **Build and test commands** for each target.
-
-Gate rung 1's implementation on the owner approving this document. Keep it to a page or two.
-
-Skip the document when the design has a single app target (a test target or one local package does not count as a second boundary). Say so in one line in the roadmap. This skips only the document, not the design: the traceability check below and the drift checkpoint still apply.
+With a single app target (a test target or one local package does not count as a second boundary), say so in one line in the roadmap. The traceability check below and the drift checkpoint apply either way.
 
 ## Check the ladder before showing it
 
@@ -74,27 +69,37 @@ Fix these smells first:
 - **A rung that answers two unknowns.** Split it, so a failure points at one cause.
 - **Polish before proof.** Styling, settings, and onboarding come after the core risks are retired.
 - **Setup rungs with no demo** ("configure CI", "set up architecture"). Fold setup into the first rung that needs it.
-- **A requirement no rung proves.** Every must-have FR/NFR in the design maps to a rung or horizon item, or is listed as an explicit gap the user has seen. For a single-target project, a small table in the roadmap file is enough.
+- **A requirement no rung proves.** Every must-have FR/NFR maps to a rung or horizon item, or is listed as an explicit gap the user has seen. Each design doc owns the traceability of its own requirements: fill in the Overview's table (`L4, via Puzzle_Generator` when allocated to a subsystem, `L4, via Puzzle_Generator (doc pending)` while that doc is not written) and each existing subsystem doc's table, and list gaps with qualified IDs (`Puzzle_Generator:NFR1`). A legacy design without a table gets a small one in the roadmap file.
+- **A shift no rung delivers.** Every accepted `shift` decision in the Overview maps to a rung or horizon item.
 - **A big unknown buried late** because its prerequisite looked expensive. Pull it forward by building the cheapest stand-in for the prerequisite.
 
 ## Review with the user
 
 Show the ladder first as a short numbered list of one-line questions, so the order is easy to judge, and the detail for the first rungs after. Explain the ordering by naming the risk each early rung buys down. Invite changes: the user may know something about risk that the design does not. When they reorder, re-check dependencies, update, and tell them what the change does to the early risk exposure.
 
-Save to `<DocDir>/Roadmap-<Topic>.md`, using the same `Topic` as the design. State the path. If the file exists, read it and continue its IDs. IDs (`L1`, `L2`, ...) are document-wide, never reused or renumbered, even when a rung is dropped or split.
+Save to `<DocDir>/Roadmap-<Topic>.md`, using the `Topic` named in the Overview's `Roadmap:` line (or the legacy design's `Topic`). State the path. If the file exists, read it and continue its IDs. IDs (`L1`, `L2`, ...) are document-wide, never reused or renumbered, even when a rung is dropped or split.
 
 ## Hand off to implementation
 
-A roadmap is not a task list. When the user is ready to build the next rung, expand just that one into tasks. If the `tasklist` skill is available, use it to write `<DocDir>/TODO-<Topic>.md` for that rung, citing the rung ID, and `tasklist-run` to execute it. Do not pre-expand later rungs.
+A roadmap is not a task list. When the user is ready to build the next rung, run `/roadmap-plan-next-rung` for just that rung: it writes a short design brief for the parts the rung touches, agrees it with the user, and hands off to the `tasklist` skill, which writes `<DocDir>/Tasklist-<RungId>-<ShortRungDescription>.md`; `tasklist-run` executes it. Do not pre-expand later rungs.
 
 ## Re-plan after each rung
 
-After a rung finishes, update the roadmap before starting the next:
+After a rung finishes, fold it back first (`/roadmap-plan-next-rung fold-back L3`), so the affected design docs (the Overview and any subsystem docs the rung touched), with their risk registers and decision logs, describe what was actually built. Then update the roadmap before starting the next rung:
 
 - Set its status (`done`, `failed`, `changed`) and record what was learned in one or two lines, including the measured answer to its question.
-- Update the design's risk register and decision log if the answer changed them.
-- **After the first end-to-end data rung**, compare the architecture document (or, if none was written, the design's architecture section) with what was built. Record any drift in the design's decision log and fix whichever side is wrong.
+- Update the affected design docs' risk registers and decision logs if re-planning changed them beyond what fold-back recorded.
+- **After the first end-to-end data rung**, make sure that rung's fold-back compared every affected design doc as a whole with what was built, not just the components it touched. Record any drift in the decision log and fix whichever side is wrong.
 - Re-rank the remaining risks and promote or demote horizon items. Add new rungs for newly discovered unknowns; mark rungs that became unnecessary `obsolete` instead of deleting them.
 - Tell the user what moved and why.
 
 Statuses: `planned`, `in progress`, `done`, `failed` (answered "no", fallback taken), `changed`, `obsolete`, `deferred`.
+
+## If a linked skill is missing
+
+This skill hands off to `system-design`, `roadmap-plan-next-rung` (`project-planning` plugin) and `tasklist` (`task-workflow` plugin). When one is absent, do not stop: use the fallback below, and say once, in one or two lines, what is missing, how to install it (`claude plugin install project-planning@danny-sung-agent-skills`, `claude plugin install task-workflow@danny-sung-agent-skills`, or `npx skills add dannys42/agent-skills --skill <skill-name>`), and how to recover.
+
+- No `system-design`: build the short risk list with the user (see Input).
+- No `roadmap-plan-next-rung`: expand the rung straight into tasks with `tasklist`, citing the rung ID; skip fold-back and update the design's risk register by hand when re-planning.
+- No `tasklist`: write the rung's tasks as a plain checklist at `<DocDir>/Tasklist-<RungId>-<ShortRungDescription>.md`, each with an ID, `Needs`, and `Done when`.
+- Recover: once installed, run the skipped step (`/roadmap-plan-next-rung` for the current rung, or `tasklist` to convert the plain checklist). Existing files are read and continued, never overwritten.

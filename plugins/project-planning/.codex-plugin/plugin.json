@@ -1,7 +1,7 @@
 {
   "name": "project-planning",
-  "version": "0.2.0",
-  "description": "Start large, ambiguous projects: shape a high-level system design with the user, then turn it into a risk-first roadmap of end-to-end increments",
+  "version": "0.3.0",
+  "description": "Start large, ambiguous projects: outline the system with the user, turn it into a risk-first roadmap of end-to-end increments, then design each increment just before building it",
   "license": "GPL-3.0-or-later",
   "skills": "./skills/",
   "author": {
@@ -20,17 +20,19 @@
   "interface": {
     "displayName": "Project Planning",
     "shortDescription": "Design a project, then plan it risk-first",
-    "longDescription": "Shape a high-level system design with flagged assumptions and a risk register, then order the work as end-to-end increments that each answer the riskiest remaining unknown. Tuned for Apple-platform apps.",
+    "longDescription": "Draft a one-page system outline with flagged assumptions, component depth tags, and a risk register (or adopt an existing codebase as-is), order the work as end-to-end increments that each answer the riskiest remaining unknown, then design each increment just before it is built and fold what was built back into the design. Tuned for Apple-platform apps.",
     "developerName": "Danny Sung",
     "category": "Productivity",
     "capabilities": [
       "System design",
       "Risk registers",
-      "Incremental roadmaps"
+      "Incremental roadmaps",
+      "Per-increment design briefs"
     ],
     "defaultPrompt": [
       "Use $system-design to shape a high-level design for this project idea.",
-      "Use $risk-first-roadmap to turn the system design into an incremental roadmap."
+      "Use $risk-first-roadmap to turn the system design into an incremental roadmap.",
+      "Use $roadmap-plan-next-rung to plan the next rung of the roadmap before building it."
     ]
   }
 }

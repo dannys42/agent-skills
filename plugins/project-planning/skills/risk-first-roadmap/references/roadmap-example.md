@@ -5,8 +5,8 @@ File: `<DocDir>/Roadmap-<Topic>.md`.
 ```markdown
 # Roadmap: <Project name>
 
-Design: <path to Design-<Topic>.md>
-Architecture: <path to Architecture-<Topic>.md, or "single target, skipped">
+Design: <DocDir>/SystemDesign/Overview.md (or a legacy Design-<Topic>.md)
+Build boundaries: <"decided in L1's brief", or "single target">
 Updated: <date>
 
 ## Ladder (one line per rung, in order)
@@ -17,11 +17,7 @@ Updated: <date>
 ### L1: ...
 ...
 
-## Requirement coverage (FR/NFR to rung)
-| Requirement | Rung or horizon item | Gap? |
-|---|---|---|
-| FR1 (must) | L3 | no |
-| NFR2 | none | yes: decide with owner |
+(Requirement coverage lives in the Overview's traceability table. Only a legacy design without one gets a small FR/NFR-to-rung table here.)
 
 ## Horizon (not yet detailed)
 - L6 — <one-line question>
@@ -80,7 +76,7 @@ Slice: Fill the grid with fixed numbers 1–9 in the chosen font; export one pag
 Done when: The PDF shows centered, readable digits; a printed page is checked by eye.
 De-risks: R-text, R-print
 Depends on: L2
-If no: Change font or draw digits as paths; update the design's technology section.
+If no: Change font or draw digits as paths; record the decision in the Overview.
 Status: planned
 ```
 
