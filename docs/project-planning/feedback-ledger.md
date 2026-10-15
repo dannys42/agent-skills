@@ -27,7 +27,9 @@ No metrics log. Evidence comes from the retrospective's feedback block (`retrosp
 | 0.3.0 | Outline-first: `system-design` writes a one-page Overview by default | A thin outline is enough to order a roadmap; detail written up front is mostly wasted or wrong | guess (user preference against top-heavy specs) | Overview lines at sign-off; rungs re-planned because the outline missed something | untested |
 | 0.3.0 | Subsystem docs on demand, parents see only the Contract | Bounded docs stay read and updated; no doc grows forever | guess | Overview lines across rungs; subsystem promotions that met a trigger versus ones that did not; parent edits outside Contract changes | untested |
 | 0.3.0 | Per-rung brief before the tasklist | The brief prevents tasks from guessing scope and interfaces, at less cost than a full design | guess | `Found during` tasks and rework per rung; brief length; questions that changed the draft | untested |
-| 0.3.0 | Fold-back after each rung | Docs stay true to the code, so the next brief starts from fact | guess | drift found per fold-back; assumptions overturned; whether the next brief had to correct the docs | untested |
+| 0.3.1 | Trivial-rung skip no longer limited to one component; decisions recorded in a detail doc count as settled | The intent is "no open decisions", not component count; skipping the brief is safe then | observed (1 run: 4 tasks, 0 correction rounds, 0 `Found during`, 0 tier raises; tasklist Context carried all decisions) | Skipped-brief rungs: `Found during` tasks, correction rounds, questions asked after build | supported (1 run, weak) |
+| 0.3.1 | Fold-back with no brief compares against cited doc and tasklist | Fold-back should not assume a brief exists | observed (1 run) | Drift found in no-brief fold-backs versus brief ones | untested |
+| 0.3.0 | Fold-back after each rung | Docs stay true to the code, so the next brief starts from fact | observed (1 run: 1 real drift, 4 gaps the design had not specified; Overview +1 line, architecture doc +12) | drift found per fold-back; assumptions overturned; whether the next brief had to correct the docs | supported (1 run) |
 | 0.3.0 | IDs per document, qualified across docs (`Puzzle_Generator:R3`) | Avoids a folder-wide counter while keeping citations unambiguous | guess | ID collisions or broken citations reported | untested |
 | 0.3.0 | Retrospective with a project-neutral feedback block | Gives this ledger evidence without project detail | guess | share of retros with `measured` points; feedback blocks received | untested |
 | 0.3.0 | Graceful fallback when a sibling skill or linked file is missing | Standalone installs keep working | guess | missing-sibling notices and whether the fallback output needed rework | untested |
@@ -37,11 +39,14 @@ No metrics log. Evidence comes from the retrospective's feedback block (`retrosp
 
 Claims that need evidence before any change. Each: claim, tier, source version, what would settle it.
 
-- None yet.
+- Does skipping the brief hold on rungs with open decisions or three or more components? Need `Found during`/correction counts from a skipped-brief rung of that size. (observed, 0.3.0)
+- Do fold-back drift tables inflate the architecture doc (+12 lines here)? Track doc growth per fold-back; consider capping the table to contradictions. (measured, 0.3.0)
+- Did the user-visible gap found after the rung (error code dropped on a 404) belong in the rung's verification? Check whether skipped-brief rungs miss verification items a brief would list. (observed, 0.3.0)
 
 ## Parked
 
-- None yet.
+- Tasklist-side suggestions (reviewer tier for additive migrations, auto-computed metrics lines/files, a "visible gap noted, not scheduled" field): belong to task-workflow, not this plugin; send through `/tasklist-feedback`. Reviewer-tier claim is observed, 1 run.
+- Committing planning files before the first batch (guess): not a rule.
 
 ## Rejected
 
@@ -51,7 +56,7 @@ Claims that need evidence before any change. Each: claim, tier, source version, 
 
 Append one line per feedback drop: date, source (skill and version, project kind, rung or design retro), what was taken, what was parked.
 
-- None yet.
+- 2026-10-15, roadmap-plan-next-rung 0.3.0 and risk-first-roadmap 0.3.0, adopted macOS client plus server, rung retro: took the trivial-rung wording and no-brief fold-back (0.3.1); parked tasklist-run items for `/tasklist-feedback`.
 
 ## Open questions
 

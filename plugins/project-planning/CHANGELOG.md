@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.1
+
+- `roadmap-plan-next-rung`: the trivially-small-rung test no longer requires a single component; decisions already recorded in a design or detail doc count as settled, and the tasklist's `Source:` cites that doc
+- `roadmap-plan-next-rung`: fold-back works without a brief (compare against the cited doc and the tasklist; no brief status to set)
+
 ## 0.3.0
 
 Incremental system design: a thin whole-system outline first, deepened only for what each roadmap rung needs, and split into bounded docs per subsystem instead of one ever-growing design.

@@ -42,7 +42,7 @@ Read the rung in the roadmap, the Overview, the subsystem docs for pieces the ru
 
 - **No Overview?** Say so and offer to run the `system-design` skill in outline depth first (a few minutes for a small project). A legacy `<DocDir>/Design-<Topic>.md` can stand in; read it. Do not invent a system design inside a rung brief. If `system-design` is not installed, offer a minimal Overview skeleton instead (see [If a linked file or skill is missing](#if-a-linked-file-or-skill-is-missing)).
 - **Rung still a one-line horizon item?** Write its question, slice, done-when, and if-no into the roadmap first, in the risk-first-roadmap rung format, and tell the user. That is the expansion the roadmap deferred until the rung became next.
-- **Trivially small rung** (one component, no open decisions, an obvious check): say so in one line, skip the brief, and go straight to step 6.
+- **Trivially small rung** (no open decisions, an obvious check, few components; decisions already recorded in a design or detail doc count as settled): say so in one line, skip the brief, and go straight to step 6. The tasklist's `Source:` then cites that doc.
 
 ### 2. Draft the whole brief in one pass
 
@@ -82,7 +82,7 @@ When the Overview implies more than one build boundary that rung 1 must create (
 
 Run after a rung's tasks are closed, before the roadmap is re-planned.
 
-1. Read the brief and the design docs it lists as touched, the rung's tasklist (in `<DocDir>/` or `<DocDir>/Completed/`), the commits for its tasks, and the code for the touched components.
+1. Read the brief and the design docs it lists as touched (no brief, because the rung skipped it: compare against the doc the tasklist's `Source:` cites and the tasklist, and skip step 5's status), the rung's tasklist (in `<DocDir>/` or `<DocDir>/Completed/`), the commits for its tasks, and the code for the touched components.
 2. Compare the brief with what was built: components, interfaces, decisions, assumptions, verification results.
 3. Fix whichever side is wrong. When the code is right and the design was a guess, update the docs. When the code drifted for a bad reason, leave the docs and add a task to the tasklist, or propose a rung, to close the gap. Record each drift as a decision.
 4. Update each touched design doc to as-built: depth tags `designed → built` for components the rung verified, diagram, decision log, assumptions (`confirmed` or refuted with what replaced them), risk register (retire what the rung answered, add what it uncovered), and traceability status in the doc that owns each requirement. Update a parent only where a Contract changed, or an allocated requirement is now fully proven, or to tag a subsystem box `built` once its doc's components are verified. Work through the brief's fold-back list and tick each item.
