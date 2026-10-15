@@ -14,7 +14,7 @@ async function findTodo($: any): Promise<string | undefined> {
   for (const dir of DIRS) {
     const entries = await $.fs.list(dir).catch(() => [])
     for (const f of entries) {
-      if (f.kind !== 'file' || !/^TODO.*\.md$/.test(f.name)) continue
+      if (f.kind !== 'file' || !/^(Tasklist|TODO).*\.md$/.test(f.name)) continue
       if (!best || f.mtimeMs > best.mtimeMs) best = { path: dir === '.' ? f.name : `${dir}/${f.name}`, mtimeMs: f.mtimeMs }
     }
   }
@@ -35,7 +35,7 @@ async function refresh($: any) {
 // Debug log only (`claude --debug`): never reaches the model, so diagnosing costs no tokens.
 const trace = ($: any, text: string) => $.ui.log(`task-workflow: ${text}`, { to: 'debug' })
 
-// Creates the run for the newest TODO. With isFresh false, a run already in memory is reactivated instead of reset.
+// Creates the run for the newest tasklist. With isFresh false, a run already in memory is reactivated instead of reset.
 async function startRun($: any, isFresh: boolean): Promise<TasklistRun | undefined> {
   const existing: TasklistRun | null = await read($, run)
   if (existing?.isActive && !isFresh) return existing
@@ -45,7 +45,7 @@ async function startRun($: any, isFresh: boolean): Promise<TasklistRun | undefin
   }
   const file = await findTodo($)
   if (!file) {
-    trace($, 'startRun: no TODO*.md found')
+    trace($, 'startRun: no Tasklist*.md found')
     return undefined
   }
   const now = await $.clock.now()
@@ -168,7 +168,7 @@ export const register: Register = on => {
       const todo = await findTodo($)
       return (
         <Text dimColor>
-          Waiting for /tasklist-run or an agent spawn that names a task ID. TODO found: {todo ?? 'none'}
+          Waiting for /tasklist-run or an agent spawn that names a task ID. Tasklist found: {todo ?? 'none'}
         </Text>
       )
     }

@@ -1,6 +1,6 @@
 ---
 name: tasklist
-description: Create and maintain a TODO.md task list in a consistent checklist format with unique IDs, dependencies, minimum-model tiers, lettered step-by-step instructions for work only the user can do, and standard markers for done, obsolete, invalid, superseded, deferred, and blocked work. Use whenever the user asks for a task list, TODO, checklist, work breakdown, or implementation plan to be written down, or wants a task list updated, re-planned, or cleaned up, even if they do not name the format. Also use to turn decision-ledger output or a plan into executable tasks.
+description: Create and maintain a Tasklist.md task list in a consistent checklist format with unique IDs, dependencies, minimum-model tiers, lettered step-by-step instructions for work only the user can do, and standard markers for done, obsolete, invalid, superseded, deferred, and blocked work. Use whenever the user asks for a task list, tasklist, checklist, work breakdown, or implementation plan to be written down, or wants a task list updated, re-planned, or cleaned up, even if they do not name the format. Also use to turn decision-ledger output or a plan into executable tasks.
 license: GPL-3.0-or-later
 ---
 
@@ -12,10 +12,13 @@ See [example.md](references/example.md) for a complete phased list.
 
 ## Where the file goes
 
-Default path: `<DocDir>/TODO.md`.
+Default path: `<DocDir>/Tasklist.md`.
 
 - `DocDir` is the project's existing documentation directory, typically `Documentation/` or `docs/`. Follow project rules when they name one.
-- Separate efforts that need their own list use `<DocDir>/TODO-<Topic>.md`, with `Topic` a short 2–3 word Snake_Case name, matching `Decision-<Topic>.md` when the list comes from a decision ledger.
+- Separate efforts that need their own list use `<DocDir>/Tasklist-<Topic>.md`, with `Topic` a short 2–3 word Snake_Case name, matching `Decision-<Topic>.md` when the list comes from a decision ledger.
+- A list that expands one roadmap rung is `<DocDir>/Tasklist-<RungId>-<ShortRungDescription>.md`, for example `Tasklist-L3-Grid_Text_Rendering.md`. `RungId` is the roadmap ID (`L3`); the description is 2–4 Snake_Case words from the rung title. Cite the rung ID and the rung's design brief (`<DocDir>/SystemDesign/Rung-<RungId>-*.md`) in `Source`.
+- When every item in a rung's list is closed, move the file unchanged to `<DocDir>/Completed/` (create the folder if needed) so `<DocDir>` holds only live lists. Do this when the list is fully closed, not before, and say where it went. This applies to rung lists only; other lists stay in place unless the user asks to archive them.
+- Older projects may still have `TODO.md` or `TODO-<Topic>.md`. Read and continue those as they are; do not rename them unless asked.
 - The user may override `DocDir`, `Topic`, or the whole path.
 - If the file already exists, read it first and continue its IDs and layout. Never overwrite it. Items you add follow the current format in this skill (including a named model on `Model`) even when older entries do not; leave existing entries as they are. If the file's structure is fundamentally different, ask before converting.
 
@@ -38,14 +41,14 @@ Do not add a level just to look organized; every level is something the reader m
 - Prefix by level: `P` phase, `G` group, `T` task (`P1`, `G2`, `T7`).
 - Counters are **document-wide**, never per-parent. There is no `G1.T3` and `G2.T3`; there is one `T3` in the whole file. A bare ID is therefore unambiguous and can be cited alone in a commit, prompt, or dependency.
 - IDs are **never reused or renumbered**, even after an item is closed or removed from view. Insert new work with the next unused number; document order and numeric order may differ. Find the next number by scanning for the highest existing ID, including closed items.
-- When several TODO files exist, qualify cross-file references with the filename.
+- When several tasklist files exist, qualify cross-file references with the filename.
 
 ## Layout
 
 Phases and groups are headings. Tasks are checkbox items with indented fields.
 
 ```markdown
-# TODO — <title>
+# Tasklist — <title>
 
 Source: <ledger, PRD, or request this list came from>   (omit if none)
 
@@ -94,7 +97,7 @@ Estimate from the task text, not the topic. A precise spec with enumerated tests
 
 When unsure between two tiers, choose the higher one for risky or irreversible work and the lower one otherwise. If the user pins a different model, or the project uses another tool's models, put that name in the parentheses instead; the tier stays the same. When newer models ship, update the default column here so new lists stay current. Do not rewrite names in existing lists unless asked.
 
-Record these tier meanings here, not in the TODO. Include a legend in the file only when the user asks for one.
+Record these tier meanings here, not in the tasklist. Include a legend in the file only when the user asks for one.
 
 ## Say what the executor would otherwise guess
 
@@ -128,7 +131,7 @@ Rules for a `USER` task:
 - **Steps** are a lowercase-lettered list (`a.`, `b.`, `c.`), restarting at `a` in each task. The user cites a step as `T4c`, which is unambiguous because task IDs are unique across the file.
 - One action per step, in the imperative, in the order the user performs them. Name exact things: the URL, the menu path, the button label, the value to type. Skip explanation the user does not need to act; put the *why* in `Context`.
 - Keep it to about eight steps or fewer. If it takes more, or mixes unrelated chores, split it into several `USER` tasks.
-- `Done when` states what the user reports back or what you will check, such as a value, a confirmation, or a file path. Never ask the user to paste a secret into the TODO or the chat; tell them where to store it, and have later tasks read it from there.
+- `Done when` states what the user reports back or what you will check, such as a value, a confirmation, or a file path. Never ask the user to paste a secret into the tasklist or the chat; tell them where to store it, and have later tasks read it from there.
 - Omit `Model`: no model runs this task. Tasks that depend on it list it in `Needs`, which holds them back until the user confirms.
 - Place the task as late as its dependents allow but early enough that the user is not the bottleneck. When many `USER` tasks exist, consider grouping them so the user can do them in one sitting.
 

@@ -1,20 +1,20 @@
 ---
 name: tasklist-run
-description: Execute the open tasks in a tasklist-format TODO.md one reviewable commit at a time. Each batch of tasks goes to a subagent on the cheapest adequate model, a reviewer subagent checks the result, corrections loop back to the implementer, and the passing change is committed before the next batch starts. Use whenever the user says /tasklist-run, or asks to run, work through, execute, or knock out the TODO, the task list, a phase, a group, or specific task IDs, even if they do not name this skill. Supports user overrides such as one task only, a named task/group/phase, no auto-commit, confirm before commit, and parallel worktrees.
+description: Execute the open tasks in a tasklist-format Tasklist.md one reviewable commit at a time. Each batch of tasks goes to a subagent on the cheapest adequate model, a reviewer subagent checks the result, corrections loop back to the implementer, and the passing change is committed before the next batch starts. Use whenever the user says /tasklist-run, or asks to run, work through, execute, or knock out the tasklist, the task list, a phase, a group, or specific task IDs, even if they do not name this skill. Supports user overrides such as one task only, a named task/group/phase, no auto-commit, confirm before commit, and parallel worktrees.
 license: GPL-3.0-or-later
 ---
 
 # Tasklist Run
 
-Work through a `tasklist`-format TODO one commit at a time. You are the orchestrator: you pick work, dispatch subagents, mark the list, and commit. You do not read or edit source yourself. Your context is the scarce resource for a long run, so everything below keeps heavy reading inside subagents and passes only small, structured messages between them.
+Work through a `tasklist`-format tasklist one commit at a time. You are the orchestrator: you pick work, dispatch subagents, mark the list, and commit. You do not read or edit source yourself. Your context is the scarce resource for a long run, so everything below keeps heavy reading inside subagents and passes only small, structured messages between them.
 
 The list format, IDs, tiers, markers, and the "Choosing the next task" rule come from the `tasklist` skill. Follow them as written instead of restating them here.
 
 ## Invocation
 
-`/tasklist-run [T7 | G3 | P2 | path/to/TODO.md] [overrides]`
+`/tasklist-run [T7 | G3 | P2 | path/to/Tasklist.md] [overrides]`
 
-- Default file: `<DocDir>/TODO.md`. If several `TODO-*.md` files exist and none was named, ask once.
+- Default file: `<DocDir>/Tasklist.md`. If several `Tasklist-*.md` files exist and none was named, ask once, offering the newest rung list first. A legacy `TODO.md` / `TODO-*.md` is read the same way.
 - A named task, group, or phase is the whole scope: run exactly that, then stop.
 - With no scope, run until nothing qualifies.
 - Overrides arrive as flags or plain language and win over every default below:
@@ -31,9 +31,9 @@ Stopping after one batch applies whenever the user scoped the run (named an ID, 
 
 ## Before the first batch
 
-1. Read the TODO once. From then on, work from the `Source`/`Goal` line plus the task blocks you need; do not re-read the whole file each loop.
+1. Read the tasklist once. From then on, work from the `Source`/`Goal` line plus the task blocks you need; do not re-read the whole file each loop.
 2. Run `git status --short` and remember it. Anything dirty that is not yours stays out of every commit. Stage by explicit path, never `git add -A` or `git commit -a`.
-3. Find the project's test/build command and commit style (recent `git log`) once, so subagents and commits do not rediscover them. Note the environment gotchas you already know or the TODO states (venv or interpreter path, tools that are missing, exact CLI invocations); they go into every implementer prompt. Keep them as one "environment gotchas" block, add any gotcha an agent reports during the run, and paste the block into every later implementer and reviewer prompt.
+3. Find the project's test/build command and commit style (recent `git log`) once, so subagents and commits do not rediscover them. Note the environment gotchas you already know or the tasklist states (venv or interpreter path, tools that are missing, exact CLI invocations); they go into every implementer prompt. Keep them as one "environment gotchas" block, add any gotcha an agent reports during the run, and paste the block into every later implementer and reviewer prompt.
    If a task's `Run`/`Verify` mentions `xcodebuild`, `simctl` or UI tests, also run one preflight before its batch (`xcrun simctl list runtimes available`, `xcrun simctl list devices available`, `pgrep -fl 'xcodebuild|Simulator'`) and add to the block: the pinned runtime (oldest installed stable one unless the project says otherwise), the device UDID on it, and any stray processes. See [Simulator work](#simulator-work).
 4. Dates: for anything written into a document (freshness headers, `Why:` lines, changelogs), use the environment's stated date or local `date +%F`. UTC is only for the run ID and metrics timestamps, because UTC may already be the next day.
 5. Start the metrics log. Pick a run ID with `date -u +%Y%m%dT%H%M%SZ` and remember it literally (shell state does not persist). Append a `start` line (see [Metrics log and retrospective](#metrics-log-and-retrospective)). The log is `~/.local/state/danny-agent-skills/task-workflow/metrics.jsonl`, outside every repo, so it is never staged or committed.
@@ -46,21 +46,21 @@ For each batch:
 2. **Size the batch** (below). Decide whether to run, merge, or split.
 3. **Implement** in one subagent (below).
 4. **Review** in one subagent (below). Loop corrections up to the limit.
-5. **Close and commit:** mark the tasks `[x]` in the TODO, then commit the code and the TODO change together and append the `batch` line, all in one Bash call (see [Committing](#committing)).
+5. **Close and commit:** mark the tasks `[x]` in the tasklist, then commit the code and the tasklist change together and append the `batch` line, all in one Bash call (see [Committing](#committing)).
 6. **Check efficiency** at the boundary (see [Token efficiency](#token-efficiency)), then go to step 1 unless the scope or an override says stop.
 
 Run subagents one at a time. A serial run means each agent starts from the last committed state, which removes merge conflicts and lets a later task build on an earlier one.
 
 ### Sizing the batch
 
-The commit is the unit. A good commit holds one coherent, reviewable change, so choose the batch by what belongs together, not by how the TODO is grouped.
+The commit is the unit. A good commit holds one coherent, reviewable change, so choose the batch by what belongs together, not by how the tasklist is grouped.
 
 - Default to one task per commit.
 - Merge tasks only when they are siblings in a group, share files or one idea, are each `light` or `standard`, and would be strange to land separately (a rename and its call sites; a function and its only test). A task whose `Needs` points at another task in the same batch is fine only when the batch commits in that order.
 - Never merge across a phase boundary. A phase exists because it must ship or be verified before the next starts.
 - Do not let size rules distort relevance. A one-line commit is right when the change stands alone; a multi-page commit is right when splitting would leave the tree broken or the history unreadable.
 - Estimate size from the tasks' `Context` file lists before dispatching. If the change looks too large to review in one sitting (rough guide: many files or several hundred changed lines), look for preparatory work that shrinks the real change, such as a utility to extract first or a refactor pass with no behavior change. Add those as new tasks with the next IDs and a `Found during <ID>` context line, `Needs` wired so they run first, then proceed. If no useful split exists, run it as one commit and say so in the report.
-- When the TODO is a `USER`-free list of very small tasks in one area, batching them is how you avoid a hundred trivial commits. When one task is large, splitting it is how you avoid an unreviewable one.
+- When the tasklist is a `USER`-free list of very small tasks in one area, batching them is how you avoid a hundred trivial commits. When one task is large, splitting it is how you avoid an unreviewable one.
 
 ### Implementer subagent
 
@@ -70,7 +70,7 @@ Prompt the implementer with only:
 - the task ID(s) first, as the opening words of the prompt (`T18: ...`; the description starts `Implement T18 ...` or `Review T18 ...`), then the task block(s) verbatim, plus the group or phase `Goal`, plus any `Spec:` path they cite
 - the test/build command and commit-style notes you found
 - the task's `Run` and `Verify` commands pasted exactly, plus the environment gotchas from setup, so the agent does not look up CLI usage or hunt for an interpreter
-- the instruction to make the change, run the task's `Done when` check, and **not** edit the TODO or commit
+- the instruction to make the change, run the task's `Done when` check, and **not** edit the tasklist or commit
 - the standing rules below, as written
 
 Standing rules for every implementer prompt:
@@ -104,7 +104,7 @@ The reviewer checks that the change does what the task *intended*, not only that
 
 ### Corrections
 
-On `fix`, triage the findings yourself: drop those tagged `speculative` or that contradict the task, counting them in `dropped` and giving the reasons in `note`. Send the rest to the implementer in one `SendMessage`. Then re-review the updated diff only when a fix rewrote logic or a `required` finding was about correctness or platform behaviour. For a mechanical fix (a few lines, no logic change), re-run the build/test command yourself and skip the re-review; it still counts as a round. One narrow exception to "you do not edit source": a finding that is documentation-only (a markdown or docs file: a date, a wording line, stale text) may be applied by you with one `Edit` instead of resuming the implementer, because a resume re-reads the implementer's whole context. Code and comments in code still go back to the implementer. Count these in `orch_fixes` so the log shows whether the exception pays. Allow two correction rounds. If the third review still says `fix`, raise the task's `Model` one tier (per `tasklist`: raise the tier instead of retrying indefinitely), update that line in the TODO, and run the implementer once more on the higher model with the reviewer's findings. If that still fails, mark the task `BLOCKED(review: <reason>)` with a `Why:` line and today's date, leave the code uncommitted (or stash it and say where), and continue with independent work.
+On `fix`, triage the findings yourself: drop those tagged `speculative` or that contradict the task, counting them in `dropped` and giving the reasons in `note`. Send the rest to the implementer in one `SendMessage`. Then re-review the updated diff only when a fix rewrote logic or a `required` finding was about correctness or platform behaviour. For a mechanical fix (a few lines, no logic change), re-run the build/test command yourself and skip the re-review; it still counts as a round. One narrow exception to "you do not edit source": a finding that is documentation-only (a markdown or docs file: a date, a wording line, stale text) may be applied by you with one `Edit` instead of resuming the implementer, because a resume re-reads the implementer's whole context. Code and comments in code still go back to the implementer. Count these in `orch_fixes` so the log shows whether the exception pays. Allow two correction rounds. If the third review still says `fix`, raise the task's `Model` one tier (per `tasklist`: raise the tier instead of retrying indefinitely), update that line in the tasklist, and run the implementer once more on the higher model with the reviewer's findings. If that still fails, mark the task `BLOCKED(review: <reason>)` with a `Why:` line and today's date, leave the code uncommitted (or stash it and say where), and continue with independent work.
 
 ## Handling outcomes
 
@@ -113,9 +113,9 @@ On `fix`, triage the findings yourself: drop those tagged `speculative` or that 
 - **Environment failure** (the build or test command fails for a reason unrelated to the task, such as a toolchain mismatch): do not spend correction rounds on it. Stop and ask the user.
 - **Discovered work:** add a new task with the next unused ID and `Found during <ID>`. Do not enlarge the current batch.
 - **Heavy, irreversible, or risky work** (migrations, deleting data, security): pause and show the user the plan before dispatching, even in an unattended run.
-- **Behavioural decision the TODO did not make** (error vs. empty result, exit code, usage text): make the call, keep it small, and record it in `note` in the metrics log for the report.
+- **Behavioural decision the tasklist did not make** (error vs. empty result, exit code, usage text): make the call, keep it small, and record it in `note` in the metrics log for the report.
 - **Repeat completion notice or re-sent hand-back** for an agent you already closed (for example "stopped with background work of its own still running"): no response and no tool call. It is not new work. If it keeps coming, `TaskStop` the agent.
-- **Stop** when no task qualifies, a merge conflict appears, repeated blocks stack up, or the requested scope is complete. Append the `end` line to the metrics log, then end with a short report: what was committed (one line per commit), the decisions you made that the TODO did not, what is blocked and why, what `USER` tasks are waiting. Then add the retrospective below.
+- **Stop** when no task qualifies, a merge conflict appears, repeated blocks stack up, or the requested scope is complete. Append the `end` line to the metrics log, then end with a short report: what was committed (one line per commit), the decisions you made that the tasklist did not, what is blocked and why, what `USER` tasks are waiting. If the run left a rung list (`Tasklist-<RungId>-*.md`) with every item closed, move it to `<DocDir>/Completed/` in its own final commit and list that in the report; the roadmap's re-plan step for that rung comes next. Then add the retrospective below.
 
 ### USER tasks
 
@@ -154,8 +154,8 @@ If nothing new stands out (rounds low, tiers matched, no waste), say so in one l
 ## Committing
 
 - Do the staging, `git diff --cached --shortstat`, commit and metrics append in one Bash call, so `lines` and `files` are never skipped. Take `lines` and `files` from that shortstat; never log 0 for a committed batch.
-- Stage the paths the implementer reported plus the TODO file, nothing else. Compare against the starting `git status` so unrelated dirty files stay out.
-- The commit message must stand on its own. The TODO is working state that is regularly cleared out, so task IDs in a message would dangle. Write what changed and why, in the project's style. Leave out `T7`-style IDs, any mention of the TODO or task list, and any mention of files that are not in the commit (such as unrelated untracked files). The TODO edit that checks the task off rides along in the commit but is never described in the message. A commit that changes only the TODO (re-planning a task) may say what the plan changed, but still without task IDs.
+- Stage the paths the implementer reported plus the tasklist file, nothing else. Compare against the starting `git status` so unrelated dirty files stay out.
+- The commit message must stand on its own. The tasklist is working state that is regularly cleared out, so task IDs in a message would dangle. Write what changed and why, in the project's style. Leave out `T7`-style IDs, any mention of the tasklist or task list, and any mention of files that are not in the commit (such as unrelated untracked files). The tasklist edit that checks the task off rides along in the commit but is never described in the message. A commit that changes only the tasklist (re-planning a task) may say what the plan changed, but still without task IDs.
 - Follow the repo's conventions for attribution lines.
 - With `--confirm-commit`, show the commit message and `git diff --stat`, wait, and then continue the run if the user confirms. With `--no-commit`, stop after review passes.
 
@@ -169,7 +169,7 @@ A long run multiplies small wastes, so check at each batch boundary with three q
 
 Three or more agents repeating one discovery, more than two correction rounds, or the same hand-run sequence twice are enough to act. When one fires:
 
-- Add the fix as tasks in the active TODO, in a `G<n> Token efficiency` group, following the style the `audit-token-efficiency` skill uses (document-wide IDs, `Model`, `Context` starting `Found during <ID>`, `Done when`). The audit skill is manual-only, so do this check yourself; if the waste looks deeper than three questions can judge, suggest the user run `/audit-token-efficiency` with this TODO as the target file.
+- Add the fix as tasks in the active tasklist, in a `G<n> Token efficiency` group, following the style the `audit-token-efficiency` skill uses (document-wide IDs, `Model`, `Context` starting `Found during <ID>`, `Done when`). The audit skill is manual-only, so do this check yourself; if the waste looks deeper than three questions can judge, suggest the user run `/audit-token-efficiency` with this tasklist as the target file.
 - Tell the user what you added and why, in a line or two. Never add silently.
 - **Small and useful now:** at most three tasks, none heavy or risky, and the savings plausibly exceed the cost of the fix. The fix is itself a batch with an implementer and a reviewer, often costing as much as two or three ordinary batches, so it pays off only when the repeated work is a large share of each remaining batch (agents spending most of their calls on rediscovery) and many batches remain. Weigh that honestly: small, cheap tasks rarely repay a fix, and agents on lighter models tend to explore regardless of a new doc. When in doubt, queue the fix instead. Say you are running them, then run them through the normal loop before the next batch.
 - **Wire the fix into what remains.** Agents do not discover new files on their own. After a fix that adds project knowledge (a README, a doc, a script), add a one-line pointer to the `Context` of each open task it applies to, or name it in the implementer prompt, so the saving actually reaches them. Specify fixes that remove the expensive part of the work, not just the boilerplate around it.
@@ -181,6 +181,6 @@ Three or more agents repeating one discovery, more than two correction rounds, o
 Only when the user asks. Parallel runs give each implementer its own git worktree, so changes cannot collide until merge.
 
 - Choose tasks that are independent: no `Needs` between them and no overlap in the files their `Context` names. When overlap is likely, hold the later task back and run it after the earlier one merges.
-- Only you edit the TODO and commit. Collect results, review each in its own reviewer, then merge and commit serially in dependency order. Resolve nothing silently: a conflict stops the merge and goes to the user.
+- Only you edit the tasklist and commit. Collect results, review each in its own reviewer, then merge and commit serially in dependency order. Resolve nothing silently: a conflict stops the merge and goes to the user.
 - Mark a running task `IN-PROGRESS` while it is dispatched, and clear that marker when it closes or fails. This is the only mode that uses the marker.
 - Remove worktrees after merging.

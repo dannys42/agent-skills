@@ -3,7 +3,7 @@
 A complete list mid-flight, showing every level, each closed state, and a qualifier. Counters are document-wide: `T6` appears once, under whichever group it belongs to.
 
 ```markdown
-# TODO — Preferred Pronunciation
+# Tasklist — Preferred Pronunciation
 
 Source: Documentation/Decision-Preferred_Pronunciation.md
 
@@ -65,7 +65,7 @@ Goal: users can see and change the preferred pronunciation.
 A single concern needs no headings or phases:
 
 ```markdown
-# TODO — Importer crash fix
+# Tasklist — Importer crash fix
 
 - [ ] T1 Reproduce the crash on malformed CSV headers
   - Model: light (Haiku 4.5)

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.10.0
+
+Task lists are renamed so they pair with the `project-planning` roadmap rungs and their design briefs.
+
+- `tasklist`: the default file is `<DocDir>/Tasklist.md` (was `TODO.md`); separate efforts use `Tasklist-<Topic>.md`
+- `tasklist`: a list that expands one roadmap rung is `<DocDir>/Tasklist-<RungId>-<ShortRungDescription>.md` and cites the rung ID and its design brief (`SystemDesign/Rung-<RungId>-*.md`) in `Source`; when every item is closed it moves unchanged to `<DocDir>/Completed/`
+- Existing `TODO.md` / `TODO-<Topic>.md` files are read and continued as they are, not renamed
+- `tasklist-run`: defaults to `Tasklist.md`, offers the newest rung list first when several exist, and still reads legacy `TODO*.md`
+- `tasklist-monitor` hook finds both `Tasklist*.md` and legacy `TODO*.md`
+
 ## 0.9.2
 
 From one 15-batch run on 0.9.0 (Swift package plus macOS app): nine Opus reviews at 40-66k tokens each; four found nothing required, two of those on schema tasks mirroring a pattern already passed. Opus findings that mattered were security, backup and sandbox behaviour, found by running the thing; Sonnet reviews also caught two real defects.

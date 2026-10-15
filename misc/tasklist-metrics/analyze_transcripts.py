@@ -42,7 +42,7 @@ import sys
 from collections import defaultdict
 
 RATIO = {"input": 1.0, "read": 0.1, "write5m": 1.25, "write1h": 2.0, "output": 5.0}
-BOOKKEEPING_PATH = re.compile(r"TODO[^\s\"']*\.md|\.tasklist-runlog\.md|tasklist-runlog")
+BOOKKEEPING_PATH = re.compile(r"(?:Tasklist|TODO)[^\s\"']*\.md|\.tasklist-runlog\.md|tasklist-runlog")
 START_MARK = re.compile(r"tasklist-run")
 
 
