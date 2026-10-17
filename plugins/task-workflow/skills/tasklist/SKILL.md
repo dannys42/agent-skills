@@ -40,7 +40,7 @@ Do not add a level just to look organized; every level is something the reader m
 
 - Prefix by level: `P` phase, `G` group, `T` task (`P1`, `G2`, `T7`).
 - Counters are **document-wide**, never per-parent. There is no `G1.T3` and `G2.T3`; there is one `T3` in the whole file. A bare ID is therefore unambiguous and can be cited alone in a commit, prompt, or dependency.
-- IDs are **never reused or renumbered**, even after an item is closed or removed from view. Insert new work with the next unused number; document order and numeric order may differ. Find the next number by scanning for the highest existing ID, including closed items.
+- IDs are **never reused or renumbered**, even after an item is closed or removed from view. Insert new work with the next unused number; document order and numeric order may differ. Find the next number by scanning for the highest existing ID, including closed items (`tasklist next-id <file>` does this when the [plan tools](#plan-tools-optional) are installed).
 - When several tasklist files exist, qualify cross-file references with the filename.
 
 ## Layout
@@ -196,10 +196,26 @@ Take the first open item, in document order, that is open (`[ ]`), is not `USER`
 
 When the source is a decision ledger, PRD, or plan, put its path in `Source:` and cite decision IDs in `Context`, so the task stays self-contained without repeating the whole design. Order tasks so dependencies and risk come first: interface-defining work and prototypes before dependent migrations.
 
+## Plan tools (optional)
+
+`tasklist` and `roadmap` are small command-line tools in this plugin's `tools/plantools/` (SwiftPM with Swift Argument Parser). They only apply the rules above faster; nothing here depends on them. They live outside `PATH`, in `~/.cache/danny-agent-skills/bin/` (`$XDG_CACHE_HOME` if set); below, `tasklist` means `~/.cache/danny-agent-skills/bin/tasklist`, and `roadmap` likewise. Before using one, run `~/.cache/danny-agent-skills/bin/tasklist --version`. If it fails or is not `0.1.0`, install it yourself without asking: `sh <this skill's base directory>/../../tools/plantools/build.sh`, which runs `swift build -c release` and copies both binaries there (it rebuilds only when sources changed, so it also handles a plugin update, and a deleted cache is rebuilt the same way). If `swift` is missing or the build fails, say so in one line, do not retry, and apply the rules by hand as written. Run the binary directly, never through `swift run`.
+
+| Command | Replaces |
+| --- | --- |
+| `tasklist next <file> [--block\|--context]` | scanning for the next eligible task; on none, prints what blocks each open task and exits 1 |
+| `tasklist context <file> <ID>` | the `Source`, enclosing `Goal` lines and task block an implementer prompt starts from |
+| `tasklist next-id <file> [T\|G\|P]` | scanning for the highest ID |
+| `tasklist lint <file> [--base <older copy>]` | the mechanical checks in "Before finishing"; `--base` also reports deleted IDs and titles rewritten in place |
+| `tasklist done <file> <ID>... [--confirmed]` | ticking `[x]` (changes only the checkbox; `--confirmed` is required for `USER` tasks) |
+
+The tool never creates, reorders or rewrites a list, and the markdown stays the source of truth.
+
 ## Keep the file lean
 
 The file is working state, not documentation. Leave out a "how to use this list" section, legends the user did not ask for, and any heading or section that would be empty or only a placeholder. Every line should be something an executor acts on.
 
 ## Before finishing
+
+With the plan tools installed, run `tasklist lint <file>` first and fix every error; it covers unique IDs, existing `Needs` targets, cycles, a `Model` on every non-`USER` task, and a reason word and dated `Why:` on every `[-]` and `BLOCKED(reason)`. The judgment checks below stay yours either way.
 
 Check the list yourself: every ID is unique and none is reused; every `Needs` target exists; there are no dependency cycles; every task has a `Model` (except `USER` tasks, which have lettered steps instead); every `[-]` has a reason word and a `Why:`; `Needs` appears only where there is a real dependency; no empty sections; no task bundles several verifications; robustness and behavioural choices are stated where they apply.

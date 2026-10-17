@@ -26,6 +26,16 @@ implementer, and the passing change is committed before the next batch. Supports
 one-task runs, named task/group/phase scope, no-commit, confirm-before-commit,
 and parallel worktrees, and queues token-efficiency fixes in the tasklist.
 
+### Plan tools (optional)
+
+`tools/plantools/` holds two small Swift command-line tools, `tasklist` and
+`roadmap`, that apply the list and roadmap rules mechanically (next eligible
+task, lint, next ID, tick, one-rung and one-section reads). `tools/plantools/build.sh`
+runs `swift build -c release` and copies the binaries to
+`~/.cache/danny-agent-skills/bin/` (outside `PATH`; safe to delete, it is rebuilt).
+The skills run it themselves when the binaries are missing or stale, call the
+binaries by full path, and work without them.
+
 ### `tasklist-monitor` (Claude Code mod)
 
 Opens a pane during `/tasklist-run` showing each task's status, tokens,

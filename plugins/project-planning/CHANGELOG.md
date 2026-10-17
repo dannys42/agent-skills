@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.0
+
+The roadmap and Overview were the largest reads in a planning session (66.6 KB and 27.5 KB in one project; 61% of the roadmap was finished rungs and the learning log, whose entries ran to 6 KB against the existing "one or two lines" rule).
+
+- `risk-first-roadmap`: "Keep the roadmap small": learning-log entries at most about 600 characters with the detail in the design doc; a finished rung's section moves verbatim to `Completed/Roadmap-<Topic>-Rungs.md` at re-plan and its ladder line stays; an old log moves verbatim to `Roadmap-<Topic>-Log.md`; short cells and stable headings; read by section. Existing roadmaps are never rewritten unasked
+- `roadmap-plan-next-rung`: read the roadmap rung and the Overview sections the rung touches, not whole files; fold-back keeps decision, risk and traceability cells to one line
+- `system-design`: the Overview template caps table cells at about 400 characters
+- Optional `roadmap` tool (`~/.cache/danny-agent-skills/bin/roadmap`, built by the `task-workflow` plugin) does the partial reads; without it, `grep -n '^#'` and ranged Reads
+
 ## 0.3.4
 
 - `roadmap-plan-next-rung`: the unverified-assumption rule also covers a property of real data (completeness, uniqueness, shape): check it now when a read-only look is cheap, else put one real call or query first

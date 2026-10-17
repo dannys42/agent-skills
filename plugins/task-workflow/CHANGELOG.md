@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.11.0
+
+Cheaper planning reads and mechanical rule checks. Measured on one real project (a roadmap of 66.6 KB and a tasklist of 16.5 KB); the tool is optional and every rule still works by hand.
+
+- New `tools/plantools/` (SwiftPM with Swift Argument Parser, 40 tests): `tasklist` (`next`, `context`, `show`, `next-id`, `lint`, `done`, `status`) and `roadmap` (`status`, `show`, `outline`, `section`, `lint`). `build.sh` builds with `swift build -c release` only when sources changed; run the installed binaries directly, not through `swift run` (8 ms against 1.4 s per call)
+- `tasklist`: "Plan tools (optional)" section; the skill builds the tools itself (`build.sh`) and installs copies in `~/.cache/danny-agent-skills/bin/`, outside `PATH` when they are missing or stale, and falls back to the manual rules if `swift` or the build fails; `next-id` and `lint` named where the skill scans or checks by hand
+- `tasklist-run`: uses `tasklist lint`, `next`, `context`, `done` and `next-id` when installed; unchanged otherwise
+
 ## 0.10.1
 
 From one 8-batch run on 0.9.2 (Swift app plus local server; 0 rounds, tiers matched). All rework came from a brief that asserted a data fact true for one table but not for the series the code reads, found only at the first real-data `USER` task. Three one-run hypotheses, each a line; see the ledger.

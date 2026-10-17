@@ -77,7 +77,19 @@ Fix these smells first:
 
 Show the ladder first as a short numbered list of one-line questions, so the order is easy to judge, and the detail for the first rungs after. Explain the ordering by naming the risk each early rung buys down. Invite changes: the user may know something about risk that the design does not. When they reorder, re-check dependencies, update, and tell them what the change does to the early risk exposure.
 
-Save to `<DocDir>/Roadmap-<Topic>.md`, using the `Topic` named in the Overview's `Roadmap:` line (or the legacy design's `Topic`). State the path. If the file exists, read it and continue its IDs. IDs (`L1`, `L2`, ...) are document-wide, never reused or renumbered, even when a rung is dropped or split.
+Save to `<DocDir>/Roadmap-<Topic>.md`, using the `Topic` named in the Overview's `Roadmap:` line (or the legacy design's `Topic`). State the path. If the file exists, read it and continue its IDs (a roadmap over about 30 KB is read by section, see [Keep the roadmap small](#keep-the-roadmap-small)). IDs (`L1`, `L2`, ...) are document-wide, never reused or renumbered, even when a rung is dropped or split.
+
+## Keep the roadmap small
+
+The roadmap holds the live ladder, open risks and current decisions. Closed history moves out, verbatim, so every read stays cheap and nothing is lost.
+
+- **Learning-log entries** are one or two lines, at most about 600 characters: the measured answer and a pointer to where the detail lives (the rung brief's "As built" note, or the design doc that now states it). Raw facts, owner decisions and measured results go in full into that design doc, not into the log.
+- **A finished rung's detail** (`done`, `failed`, `obsolete`): at re-plan, move its `### <RungId>` section unchanged to `<DocDir>/Completed/Roadmap-<Topic>-Rungs.md` and end its ladder line with `detail: Completed/Roadmap-<Topic>-Rungs.md`. The ladder line stays, so the ID still resolves. Do the move in the same commit as the status change, and check it with `git diff --color-moved`.
+- **An old learning log**: past about 15 entries, move entries older than the last re-plan unchanged to `<DocDir>/Roadmap-<Topic>-Log.md` and leave one link line under `## Learning log`.
+- **Layout that allows partial reads**: one `###` section per rung, headings unchanged once written, ladder lines and table cells short (under about 400 characters; the reasoning goes in the brief and the cell links to it). A line over about 1,500 characters cannot be read in part.
+- **Reading**: do not read the whole file to find one rung. With the `roadmap` tool (`~/.cache/danny-agent-skills/bin/roadmap`, built by the `task-workflow` plugin's `tasklist` skill; use it only if it is there): `roadmap status <file>`, `roadmap show <file> <RungId>`, `roadmap outline <file>`, `roadmap section <file> <heading>`, and `roadmap lint <file>` after editing. Without it, `grep -n '^#'` the file and Read the lines you need.
+
+Never rewrite an existing roadmap to this layout unasked; apply it to the rungs that finish from now on, and offer to move the older ones.
 
 ## Hand off to implementation
 

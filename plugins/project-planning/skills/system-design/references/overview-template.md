@@ -2,6 +2,8 @@
 
 File: `<DocDir>/SystemDesign/Overview.md`. About one page: a thin outline of the whole system that is honest about what is unknown. It is enough to order a roadmap; detail is added per rung by `roadmap-plan-next-rung`, in rung briefs, and in a subsystem doc beside this file when a piece warrants its own design (see [subsystems.md](subsystems.md)). The Overview treats each subsystem as one component, so it stays a page however large the system gets.
 
+Table cells stay under about 400 characters: one decision, risk or traceability row is one line, and the reasoning goes in the rung brief or subsystem doc, linked from the cell. A page that is read by section stays readable.
+
 IDs are per document, unique within it, and never reused or renumbered: `A` assumption, `D` decision, `R` risk, `Q` open question, `FR`/`NFR` requirements. Cite another doc's IDs qualified by its name (`Puzzle_Generator:R1`).
 
 ## Template with example
