@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.4
+
+- `roadmap-plan-next-rung`: the unverified-assumption rule also covers a property of real data (completeness, uniqueness, shape): check it now when a read-only look is cheap, else put one real call or query first
+
 ## 0.3.3
 
 - `roadmap-plan-next-rung`: an assumption about an external system's behaviour that later tasks depend on gets one real call as the first task (or a stated reason not to)
