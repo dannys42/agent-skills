@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.10.1
+
+From one 8-batch run on 0.9.2 (Swift app plus local server; 0 rounds, tiers matched). All rework came from a brief that asserted a data fact true for one table but not for the series the code reads, found only at the first real-data `USER` task. Three one-run hypotheses, each a line; see the ledger.
+
+- `tasklist`: an assumed fact about real data is checked with a read-only count on the data the code reads, or gets a probe task as its first dependency
+- `tasklist-run`: implementers confirm a scripted or multi-file edit applied (grep old text, `git diff --stat`) before running tests
+- `tasklist-run`: a task for a user-reported mid-run defect starts by asking what the user sees or reproducing it; a non-reproducing one closes `INVALID`
+- The `skill` value in the metrics text was still `0.9.2` after the 0.10.0 rename; it now matches the plugin version
+
 ## 0.10.0
 
 Task lists are renamed so they pair with the `project-planning` roadmap rungs and their design briefs.

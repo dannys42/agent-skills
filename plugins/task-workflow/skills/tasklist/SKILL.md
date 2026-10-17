@@ -107,6 +107,7 @@ When writing each task, check whether `Context` or `Done when` is silent on any 
 - Performance on long input.
 - Fixtures shaped like real data, not hand-made minimal ones.
 - Platform or network quirks the executor must verify (content types, error codes, defaults).
+- Assumed facts about real data (counts, which values exist, whether a series is complete): if the logic depends on one, check it with a read-only count on the data the code will actually read, or make a cheap probe the first dependency, rather than leaving it to the first real run.
 - Behavioural choices: error vs. empty result, exit codes, usage text. Decide them now, in the task or a `Decisions:` line under the title, so an executor does not invent them.
 - Commands and environment: the exact invocation for anything the task must run (`Run`, `Verify`), the venv or interpreter that has the needed packages, and tools known to be missing.
 
