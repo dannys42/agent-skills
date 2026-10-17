@@ -115,6 +115,23 @@
         "planning",
         "roadmap"
       ]
+    },
+    {
+      "name": "peak-hours",
+      "source": "./plugins/peak-hours",
+      "version": "0.1.0",
+      "description": "Claude Code mod: a PEAK badge with countdown during assumed peak hours, plus a self-checking record of observed rate-limit cost by hour",
+      "category": "developer-tools",
+      "keywords": [
+        "mod",
+        "peak-hours",
+        "rate-limits",
+        "status"
+      ],
+      "tags": [
+        "mod",
+        "usage"
+      ]
     }
   ]
 }

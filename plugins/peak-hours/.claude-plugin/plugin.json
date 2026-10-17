@@ -1,0 +1,10 @@
+{
+  "name": "peak-hours",
+  "version": "0.1.0",
+  "description": "Shows a right-aligned PEAK badge with a countdown above the prompt during 5-11am Pacific on weekdays, and nothing otherwise.",
+  "license": "MIT",
+  "author": {
+    "name": "Danny Sung"
+  },
+  "types": "./types/index.d.ts"
+}

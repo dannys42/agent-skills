@@ -19,6 +19,8 @@ BUNDLE_SKILLS = {
     "project-planning": {"system-design", "risk-first-roadmap"},
     "storytelling": {"crafting-compelling-stories"},
 }
+# Claude Code mods: hooks modules, listed in the Claude marketplace only.
+MODS = {"peak-hours"}
 PORTABLE_MANIFESTS = (
     ".codex-plugin/plugin.json",
     ".claude-plugin/plugin.json",
@@ -34,7 +36,7 @@ def load_json(path):
 class PluginLayoutTests(unittest.TestCase):
     def test_plugins_directory_contains_exactly_the_bundles(self):
         found = {path.name for path in PLUGINS_ROOT.iterdir() if path.is_dir()}
-        self.assertEqual(set(BUNDLE_SKILLS), found)
+        self.assertEqual(set(BUNDLE_SKILLS) | MODS, found)
 
     def test_each_bundle_contains_exactly_its_skills(self):
         for bundle, skills in BUNDLE_SKILLS.items():
@@ -60,6 +62,13 @@ class PluginLayoutTests(unittest.TestCase):
                         self.assertEqual(codex[key], manifest[key])
                     self.assertEqual(bundle, manifest["name"])
 
+    def test_each_mod_has_a_manifest_and_hooks(self):
+        for mod in MODS:
+            with self.subTest(mod=mod):
+                manifest = load_json(PLUGINS_ROOT / mod / ".claude-plugin/plugin.json")
+                self.assertEqual(mod, manifest["name"])
+                self.assertTrue((PLUGINS_ROOT / mod / "hooks/hooks.json").is_file())
+
     def test_every_marketplace_lists_each_bundle_once(self):
         paths = (
             REPOSITORY_ROOT / ".agents" / "plugins" / "marketplace.json",
@@ -68,8 +77,11 @@ class PluginLayoutTests(unittest.TestCase):
         )
         for path in paths:
             names = [plugin["name"] for plugin in load_json(path)["plugins"]]
+            expected = set(BUNDLE_SKILLS)
+            if path.parent.name == ".claude-plugin":
+                expected |= MODS
             with self.subTest(marketplace=str(path.relative_to(REPOSITORY_ROOT))):
-                self.assertEqual(sorted(BUNDLE_SKILLS), sorted(names))
+                self.assertEqual(sorted(expected), sorted(names))
 
     def test_marketplace_sources_point_at_existing_bundles(self):
         for path, key in (
