@@ -46,7 +46,7 @@ Read the rung in the roadmap, the Overview, the subsystem docs for pieces the ru
 
 ### 2. Draft the whole brief in one pass
 
-Fill every section of the template from what you read: Question and slice; Scope for this rung; Requirements touched; Design docs touched; Components and interfaces (with a diagram); Decisions; Verification; Guard rails for the task list; Fold-back. A concrete draft is faster to correct than a questionnaire. Where you must guess, propose the simplest default you would defend and flag it as an assumption (`A12 assumed`), never silently.
+Fill every section of the template from what you read: Question and slice; Scope for this rung; Requirements touched; Design docs touched; Components and interfaces (with a diagram); Decisions; Verification; Guard rails for the task list; Fold-back. A concrete draft is faster to correct than a questionnaire. Where you must guess, propose the simplest default you would defend and flag it as an assumption (`A12 assumed`), never silently. When the guess is about an external system's behaviour and later tasks depend on it, the guard rails put one real call first, before those tasks, or say why not.
 
 - Scope: name what is in this rung and what is out. Mention work that is in this version but not this rung only where it clarifies a boundary the task list could otherwise cross.
 - Requirements: cite only the FR/NFR this rung touches, by qualified ID, and say what the rung proves of each.
@@ -111,5 +111,5 @@ This skill links to the `system-design` skill's references and hands off to `tas
 
 - **Untouched means undesigned.** A component that only appears as a neighbour keeps its depth tag and gets no new detail, and a subsystem the rung does not work inside stays one box: do not open its doc, however tempting.
 - **Interfaces before internals.** At a touched boundary, decide what crosses it (types, calls, events, file formats). Internals stay with the implementer unless they decide a risk.
-- **The brief is short.** About a page. If it grows past two, the rung is probably two rungs; say so and suggest splitting it in the roadmap.
+- **The brief is short.** About a page, tables of per-component changes included: one line per component, and leave out what the tasks will not cite. If it grows past two, the rung is probably two rungs; say so and suggest splitting it in the roadmap.
 - **Do not re-plan the ladder here.** If planning shows the rung is in the wrong place or answers two unknowns, tell the user and suggest re-running `risk-first-roadmap`.

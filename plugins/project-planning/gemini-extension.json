@@ -1,5 +1,5 @@
 {
   "name": "project-planning",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Start large, ambiguous projects: outline the system with the user, turn it into a risk-first roadmap of end-to-end increments, then design each increment just before building it"
 }

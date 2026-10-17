@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.3
+
+- `roadmap-plan-next-rung`: an assumption about an external system's behaviour that later tasks depend on gets one real call as the first task (or a stated reason not to)
+- `roadmap-plan-next-rung`: "The brief is short" says per-component tables count toward the page, one line per component
+
 ## 0.3.2
 
 - `roadmap-plan-next-rung`: the brief's Components step also names what a touched boundary shares with other components (error codes, identifiers, formats; reuse or reconcile) and, for a new endpoint or entry point, its behaviour when input or configuration is absent
