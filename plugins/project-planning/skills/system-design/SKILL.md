@@ -55,6 +55,8 @@ After the draft, ask 3–5 questions, no more. Choose the ones where the answer 
 
 If a structured question tool is available, use it: put your recommended option first and say what it implies. Otherwise ask in plain markdown with a recommendation for each. Never ask a question whose answer you could state as a confident default.
 
+Present the questions and the draft's assumptions and decisions in the shape in [presenting-for-review.md](../roadmap-plan-next-rung/references/presenting-for-review.md): the questions, and any assumption or decision that is high impact or low confidence, go under "Needs your attention" with options and a pro and con for each; every other assumption and decision follows in one short list with its default.
+
 ### 4. Iterate to agreement
 
 After each answer, update the file: change the section, move the assumption to `confirmed`, log the decision, and say in a line or two what changed downstream. Fix everything the change invalidates in the same edit. Keep proposing rather than interrogating.
@@ -73,7 +75,7 @@ For an existing project ("document the architecture of this project", "adopt thi
 
 1. **Inspect the code.** Build targets, packages and modules, entry points, persistence and file formats, external services, tests, existing docs, and recent history for the direction work has been taking.
 2. **Draft the as-is Overview.** Derive the component diagram from the code: one node per real module, named as the code names it, edges for real dependencies. List each separate build target and major module as one component with `Doc: pending`; do not write their subsystem docs up front, but offer to adopt the one the user cares about first in subsystem mode. Tag components `built` when they exist and have tests or visible behaviour, `designed` when partly present, `sketched` when only planned. Infer requirements from behaviour and mark them `assumed`. Seed the risk register with what is fragile or unverified (untested areas, tangled dependencies, unproven platform claims). Set `Mode: as-is (adopted <date>)`.
-3. **Review it with the user** until they agree it describes the system as it is. Correct the docs, not the code.
+3. **Review it with the user** until they agree it describes the system as it is, in the shape in [presenting-for-review.md](../roadmap-plan-next-rung/references/presenting-for-review.md): flag inferred requirements and component tags you are least sure of. Correct the docs, not the code.
 4. **Record the direction.** Ask where the project is headed. Record each desired change of direction as a decision of kind `shift`, stating from what to what and why, and mark the components it affects. Leave the as-is diagram as it is; shifts are planned work, not current fact.
 5. **Hand off** to `risk-first-roadmap`, which must cover every accepted `shift` with a rung or horizon item.
 
@@ -83,9 +85,10 @@ Offered after sign-off, or `retro` any time. Follow the `roadmap-plan-next-rung`
 
 ## If a linked file or skill is missing
 
-This skill links to the `roadmap-plan-next-rung` skill's `diagrams.md` and `retrospective.md`, and hands off to `risk-first-roadmap`. When one is absent, do not stop: use the minimum here, and say once, in one or two lines, what is missing, how to install it (`claude plugin install project-planning@danny-sung-agent-skills`, or `npx skills add dannys42/agent-skills --skill <skill-name>` into the same skills directory so relative links resolve), and how to recover.
+This skill links to the `roadmap-plan-next-rung` skill's `diagrams.md`, `retrospective.md` and `presenting-for-review.md`, and hands off to `risk-first-roadmap`. When one is absent, do not stop: use the minimum here, and say once, in one or two lines, what is missing, how to install it (`claude plugin install project-planning@danny-sung-agent-skills`, or `npx skills add dannys42/agent-skills --skill <skill-name>` into the same skills directory so relative links resolve), and how to recover.
 
 - No `diagrams.md`: Mermaid `flowchart`, quote every label, labels are the component names, one class per depth (`sketched` dashed, `designed` thin, `built` bold), subsystems as single boxes.
+- No `presenting-for-review.md`: list high-impact or low-confidence items first, each with why, what would settle it, and two or three options with a pro and con, recommended first; then every other item with its default.
 - No `risk-first-roadmap`: the agreed Overview is still the input; tell the user to install it and run it, and do not write a roadmap here.
 - Recover: re-run the skipped step once installed. Existing docs are read and continued, never overwritten; re-check diagrams against the full rules.
 

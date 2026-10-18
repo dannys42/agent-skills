@@ -6,10 +6,21 @@ When several major decisions have a low-risk, reversible recommendation, or one 
 
 ```text
 Recommendations for D05–D08 (reversible, follow from D02):
+
+Needs your attention
+⚑ D07 <topic>: <choice> (low confidence)
+  Why: <a few words> · To settle it: <check or question>
+  - <choice> (recommended). Pro: ... Con: ...
+  - <alternative>. Pro: ... Con: ...
+
+Everything else
 - D05 <topic>: <choice> — <one-line reason>
 - D06 <topic>: <choice> — <one-line reason>
-Reply only with the ones you would change; the rest are accepted.
+- D07 ⚑ see above
+Which option for D07? Reply only with the others you would change; the rest are accepted.
 ```
+
+Flag at most three items in a batch: one you are unsure of (inferred, not checked, or it depends on the user's intent), or one whose reversal would touch several tasks. Give each why, what would settle it, and two options with a pro and con, recommended first; say "no real alternative" rather than invent one. With nothing to flag, leave the section out. Every item stays in the list, so nothing is accepted unseen.
 
 Never batch identity, persistence, or migration decisions, or any decision whose options change the schema in materially different ways. Ask those one at a time.
 

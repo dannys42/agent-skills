@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.6.0
+
+When the skills hand the user a list to rule on, the items that most deserve a look now come first, with options. Nothing that was shown before is dropped.
+
+- New shared reference `roadmap-plan-next-rung/references/presenting-for-review.md`. It defines a "Needs your attention" section of at most 5 items that are high impact or low confidence. Each gets why it is flagged, what would settle it, and two or three options with a pro and con, recommended first. The full list follows unchanged, flagged items marked `⚑`, then one closing question
+- `system-design`: the 3–5 questions and any high-impact or low-confidence assumption or decision are presented that way, and so is the adopt-mode review
+- `roadmap-plan-next-rung`: the brief's questions and assumptions use the same shape; an unchecked claim about an external system or real data counts as low confidence
+- `risk-first-roadmap`: the ladder review calls out ordering choices that deserve a second look, with alternative orderings
+- `code-quality-pass`: the review report gains a "Needs your attention" section between defects and the ranked table; the user picks an option for a flagged proposal
+- `retrospective.md`: up to 3 "Worth changing" items are flagged `⚑` with one line of options
+- Each skill has a fallback for when the shared file is missing
+
 ## 0.5.0
 
 Periodic code-quality passes in the rung cycle, which had none: one project built 17 rungs with no whole-codebase review.

@@ -36,7 +36,7 @@ Evidence still needed:
 
 Before treating existing behavior as something to preserve, check what it actually guarantees today. For example, a value may be attached to a position or derived slot rather than the entity. A goal like “make X stick to the entity” implies it did not before, which lowers the fidelity bar rather than raising it.
 
-Give the user a short decision landscape: the unresolved areas and their dependencies. Let the user correct the landscape, but do not ask them to approve minor categories.
+Give the user a short decision landscape: the unresolved areas and their dependencies, with the areas that are high impact or that you are least sure of named first, each with why. Let the user correct the landscape, but do not ask them to approve minor categories.
 
 ## Size the interview
 
@@ -66,7 +66,7 @@ Resolve principles before fields. Once an accepted principle determines a downst
 
 ## Ask with a compact contract
 
-Each major question must contain the decision and why it matters, two or three realistic options, a recommendation with its trade-off, one concise schema/interface/behavior delta, and a direct question asking which direction to use.
+Each major question must contain the decision and why it matters, two or three realistic options each with a one-line pro and con, a recommendation with its trade-off, one concise schema/interface/behavior delta, and a direct question asking which direction to use. When you are unsure of the recommendation (it rests on inference rather than evidence, or on the user's intent), say so and name the check or answer that would settle it.
 
 ~~~markdown
 Decision D04: Preferred pronunciation selection
@@ -75,9 +75,11 @@ Why it matters: This determines where preference is stored and queried.
 
 Options:
 
-1. Store `isPreferred` on each pronunciation. Recommended because...
-2. Store a preferred-ID map on each word. This would...
-3. Resolve preference dynamically. This would...
+1. Store `isPreferred` on each pronunciation. Recommended because... Pro: ... Con: ...
+2. Store a preferred-ID map on each word. Pro: ... Con: ...
+3. Resolve preference dynamically. Pro: ... Con: ...
+
+Confidence: low; this assumes one preferred pronunciation per dialect. Settle it by: ...
 
 Schema delta of the recommendation:
 

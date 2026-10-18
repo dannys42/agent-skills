@@ -10,7 +10,7 @@ The system design starts as a thin outline on purpose: designing every component
 
 Depth follows the rung, not completeness. Never design a component the rung does not touch, and never open a subsystem doc the rung does not touch.
 
-Read [rung-brief-template.md](references/rung-brief-template.md) before drafting, and [diagrams.md](references/diagrams.md) before drawing. Read the system-design skill's [subsystems.md](../system-design/references/subsystems.md) for when a piece gets its own design doc, how parent docs treat it, and how IDs are cited across docs.
+Read [rung-brief-template.md](references/rung-brief-template.md) before drafting, [diagrams.md](references/diagrams.md) before drawing, and [presenting-for-review.md](references/presenting-for-review.md) before asking the user to rule on anything. Read the system-design skill's [subsystems.md](../system-design/references/subsystems.md) for when a piece gets its own design doc, how parent docs treat it, and how IDs are cited across docs.
 
 ## Invocation
 
@@ -59,6 +59,8 @@ Fill every section of the template from what you read: Question and slice; Scope
 ### 3. Ask the few questions that matter
 
 Ask at most 3–5 questions, only those whose answers would change the slice, the components touched, or a boundary. Put your recommended option first and say what it implies. If a structured question tool is available, use it. Everything else stays a flagged assumption the user can overturn.
+
+Present them in the shape in [presenting-for-review.md](references/presenting-for-review.md): the questions, and any assumption or decision in the brief that is high impact or low confidence (an unchecked claim about an external system or real data counts as low confidence), go under "Needs your attention" with options and a pro and con for each; the rest of the brief's assumptions follow in one short list with their defaults.
 
 ### 4. Iterate until the user says it is good enough
 
@@ -109,6 +111,7 @@ This skill links to the `system-design` skill's references and hands off to `tas
 - No `diagrams.md`: Mermaid `flowchart`, quote every label, labels are component names, one class per depth (`sketched` dashed, `designed` thin, `built` bold) plus `touched`.
 - No `tasklist`: write the tasks as a plain checklist at `<DocDir>/Tasklist-<RungId>-<ShortRungDescription>.md`, each with an ID, `Needs`, and `Done when`, and say the tasklist skill gives the richer format. Recover by asking `tasklist` to convert it.
 - No `decision-driven-design`: ask the decision questions inline, one at a time, recommended option first.
+- No `presenting-for-review.md`: list high-impact or low-confidence items first, each with why, what would settle it, and two or three options with a pro and con, recommended first; then every other item with its default.
 
 ## Judgment calls
 

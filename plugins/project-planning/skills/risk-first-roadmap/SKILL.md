@@ -76,7 +76,7 @@ Fix these smells first:
 
 ## Review with the user
 
-Show the ladder first as a short numbered list of one-line questions, so the order is easy to judge, and the detail for the first rungs after. Explain the ordering by naming the risk each early rung buys down. Invite changes: the user may know something about risk that the design does not. When they reorder, re-check dependencies, update, and tell them what the change does to the early risk exposure.
+Show the ladder first as a short numbered list of one-line questions, so the order is easy to judge, and the detail for the first rungs after. Explain the ordering by naming the risk each early rung buys down. Invite changes: the user may know something about risk that the design does not. Before the invitation, call out the ordering choices that deserve a second look, in the shape in `roadmap-plan-next-rung`'s [presenting-for-review.md](../roadmap-plan-next-rung/references/presenting-for-review.md): a rung placed on a guessed risk ranking, an inferred dependency, or an early rung whose cost is unclear, each with alternative orderings and a pro and con for each (without the file: those items first, each with why and two or three options, recommended first). When they reorder, re-check dependencies, update, and tell them what the change does to the early risk exposure.
 
 Save to `<DocDir>/Roadmap-<Topic>.md`, using the `Topic` named in the Overview's `Roadmap:` line (or the legacy design's `Topic`). State the path. If the file exists, read it and continue its IDs (a roadmap over about 30 KB is read by section, see [Keep the roadmap small](#keep-the-roadmap-small)). IDs (`L1`, `L2`, ...) are document-wide, never reused or renumbered, even when a rung is dropped or split.
 

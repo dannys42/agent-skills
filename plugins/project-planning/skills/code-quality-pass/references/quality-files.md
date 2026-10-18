@@ -61,10 +61,16 @@ Scope: <baseline, whole codebase | since L20 (48a0287): modules ...> · Signals:
 ## Defects (fix as bug tasks)
 - QD1 <title> — <file:line> — <why it can lose or corrupt data, or misbehave> — Decision: pending
 
+## Needs your attention
+⚑ **QR1** <title> (high impact, low confidence)
+Why: <a few words> · To settle it: <cheapest check or question>
+- **<option>** (recommended). Pro: ... Con: ...
+- **<option>**. Pro: ... Con: ...
+
 ## Proposals (ranked)
 | ID | Proposal | Kind | Size | Evidence | Benefit | Risk | Decision |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| QR1 | Collapse SalesDeriver, ListingChangeDeriver, AnalyticsDeriver behind one `Deriver` protocol | refactor-rung | M | 3 files, same shape (cards: Ingest) | one place to add a source | touches scheduler hooks | pending |
+| QR1 ⚑ | Collapse SalesDeriver, ListingChangeDeriver, AnalyticsDeriver behind one `Deriver` protocol | refactor-rung | M | 3 files, same shape (cards: Ingest) | one place to add a source | touches scheduler hooks | pending |
 
 ## Also seen
 - <one line each, no ranking>
@@ -72,6 +78,7 @@ Scope: <baseline, whole codebase | since L20 (48a0287): modules ...> · Signals:
 
 - `Kind`: `refactor-rung`, `task`, `conventions`, `fitness-test`, `accept-shape`.
 - `Size`: S (under about 100 lines), M (a rung's worth), L (several rungs; split before scheduling).
+- "Needs your attention": at most 5 proposals that are high impact (an `L` size, a public interface, persistence, or a change across several modules) or low confidence (evidence from one card, or a benefit that rests on future rungs), chosen by the rules in `roadmap-plan-next-rung`'s `presenting-for-review.md`. Each keeps its row in the ranked table, marked `⚑`. Write `To settle it` only when confidence is the issue, and say "no real alternative" instead of inventing an option.
 - At most 10 ranked proposals; the rest go to "Also seen". A proposal deferred last time is re-ranked here, not copied.
 - `Decision`: `pending`, `accepted (<date>)`, `deferred`, `rejected: <reason>`.
 - Leave out any section with nothing in it.

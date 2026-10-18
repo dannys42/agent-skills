@@ -68,8 +68,8 @@ Read-only. The output is a report the user rules on; nothing is edited except `S
 1. **Signals**: `metrics signals --json`, kept for the event, and the plain output for the scouts.
 2. **Scope.** No recorded review: the whole codebase. Otherwise: modules changed since `Last review` (`git diff --stat <sha> HEAD`), modules named by pending triggers, and proposals the last report deferred.
 3. **Scouts**: at most 6 `standard` (Sonnet) subagents in parallel, one per module, target or top-level source directory in scope (group small ones). Each writes one seam card of at most 40 lines (format in quality-files.md) and reads with bounded output: `grep -n`, ranged reads, no whole large files.
-4. **Synthesis**: one `heavy` (Opus) subagent. It reads the cards, the signals, the Overview's Components table and Decisions (`roadmap section`), each subsystem doc's Contract for modules in scope, `Status.md` and the deferred items of the last report. It uses the `codebase-design` vocabulary (deep modules, seams, interfaces) and `choosing-swift-design-patterns` where a pattern fits, and opens source only to confirm a proposal (a few ranged reads). It returns the report in the shape in quality-files.md: defects first, then at most 10 ranked proposals, then one line each for the rest.
-5. **Present** the defects and the ranked list. For each proposal the user answers accept, defer or reject; batch the question. Record the answers in the report.
+4. **Synthesis**: one `heavy` (Opus) subagent. It reads the cards, the signals, the Overview's Components table and Decisions (`roadmap section`), each subsystem doc's Contract for modules in scope, `Status.md` and the deferred items of the last report. It uses the `codebase-design` vocabulary (deep modules, seams, interfaces) and `choosing-swift-design-patterns` where a pattern fits, and opens source only to confirm a proposal (a few ranged reads). It returns the report in the shape in quality-files.md: defects first, then the proposals that need the user's attention, then at most 10 ranked proposals, then one line each for the rest.
+5. **Present** the defects, then the attention section and the ranked list, in the shape in `roadmap-plan-next-rung`'s [presenting-for-review.md](../roadmap-plan-next-rung/references/presenting-for-review.md). For each proposal the user answers accept, defer or reject (for a flagged one, which option); batch the question. Record the answers in the report.
 6. **Apply the accepted kinds**:
    - `refactor-rung` or `task`: hand to the roadmap re-plan (`risk-first-roadmap`), which places them.
    - `conventions`: one line in the project conventions file (`CLAUDE.md` or `AGENTS.md`, whichever the project uses; ask if neither), so implementers stop reproducing the inconsistency. One line per rule.
@@ -90,7 +90,7 @@ A model the user names wins.
 
 ## Metrics events
 
-Append to the `tasklist-run` metrics log (`~/.local/state/danny-agent-skills/task-workflow/metrics.jsonl`), in the same Bash call as the step it records, with `v` 1, `run` (a new UTC ID per pass), `ts`, `skill` (`code-quality-pass 0.5.0`), `repo`:
+Append to the `tasklist-run` metrics log (`~/.local/state/danny-agent-skills/task-workflow/metrics.jsonl`), in the same Bash call as the step it records, with `v` 1, `run` (a new UTC ID per pass), `ts`, `skill` (`code-quality-pass 0.6.0`), `repo`:
 
 - `quality`: `kind` (`tidy`, `review`, `baseline`, `deferred`), `rung` (the rung it follows), `trigger` (`fold-back`, `manual`, or the trigger names), `models`, `commits`, `lines`, `proposals`, `defects`, and `signals` (the `metrics signals --json` object).
 - `quality_outcome` (review only, once the user has ruled): `accepted`, `deferred`, `rejected`, and `kinds` (accepted counts by kind).
@@ -102,3 +102,4 @@ Payoff is judged later from `metrics summary` on the rungs before and after a pa
 - No `tasklist-run`: run each tidy task as one implementer and one reviewer subagent yourself, commit each, and say that `task-workflow` gives the full loop (`claude plugin install task-workflow@danny-sung-agent-skills`).
 - No roadmap: everything works; accepted `refactor-rung` proposals become a `Tasklist-Refactor-<Short_Name>.md` instead.
 - No `codebase-design` or swift-craft skills: the scouts and synthesis use the criteria above as written.
+- No `presenting-for-review.md`: the report's "Needs your attention" section already carries the flagged proposals; present it before the ranked list as written.

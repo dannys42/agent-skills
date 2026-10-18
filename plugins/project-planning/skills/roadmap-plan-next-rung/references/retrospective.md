@@ -17,11 +17,12 @@ Build it from the project's actual docs, history and metrics, not from memory. A
 One screen, this shape, at most about 25 lines before the feedback blocks:
 
 ```text
-Rung L20 retro · project-planning 0.5.0, task-workflow 0.12.0
+Rung L20 retro · project-planning 0.6.0, task-workflow 0.12.1
 Verdict: design right-sized · run 10 batches, 2 rounds (median 1) · quality tidy 3 commits, 1 proposal
 <the table from `metrics summary`, pasted as is>
 Worth changing:
-1. [measured] Rung diff 2357 lines vs median 484: the brief scoped two data sources → split such rungs at planning
+1. ⚑ [measured] Rung diff 2357 lines vs median 484: the brief scoped two data sources → split such rungs at planning
+   Why: high impact (changes how every later rung is cut) · Options: split at planning (recommended; pro: smaller reviews, con: more briefs) / keep and raise the review tier (pro: no re-plan, con: costlier rounds)
 2. [observed] Reviewer entries missing from `agents` in every batch → tasklist-run logging gap
 Keep: assumptions checked by one real call before tasks; 0 rework
 Tooling: T5–T8 each rebuilt the same fixture by hand (~4 tool calls × 4 batches, ~6% of implementer tokens) → a project fixture script; clears the 3% bar
@@ -29,7 +30,7 @@ Tooling: T5–T8 each rebuilt the same fixture by hand (~4 tool calls × 4 batch
 
 - **Verdict:** one line. Design: `right-sized`, `heavy` (sections nobody used) or `thin` (gaps tasks had to fill). Run: batches and rounds against the median. Quality: what the pass did, `deferred`, or `not run`.
 - **Numbers:** the `metrics summary` table and its "Largest batches" and "Stands out" lines, pasted as is. The tool already leaves out rows that are zero for this rung and its peers.
-- **Worth changing:** numbered, each tagged `measured` (counted from docs, git or the log), `observed` (seen in this session) or `guess`, each ending in `→` and the change or action. Draw from: brief size and sections used, questions that changed the draft, assumptions overturned, drift between brief and code and which side was fixed, rework and `Found during` tasks, subsystem promotions and whether they met a trigger, diagram problems, missing-sibling notices, Overview growth, tier mismatches, correction rounds and their causes, tool-count outliers, `TaskStop`s or repeat hand-backs (always listed, with the cause or "cause unknown"), tidy items reverted, proposals raised.
+- **Worth changing:** numbered, each tagged `measured` (counted from docs, git or the log), `observed` (seen in this session) or `guess`, each ending in `→` and the change or action. Draw from: brief size and sections used, questions that changed the draft, assumptions overturned, drift between brief and code and which side was fixed, rework and `Found during` tasks, subsystem promotions and whether they met a trigger, diagram problems, missing-sibling notices, Overview growth, tier mismatches, correction rounds and their causes, tool-count outliers, `TaskStop`s or repeat hand-backs (always listed, with the cause or "cause unknown"), tidy items reverted, proposals raised. Number the items that need the user's attention first (high impact, or resting on a `guess` or a single observation; rules in [presenting-for-review.md](presenting-for-review.md)), mark them `⚑`, and give each one indented line with why and two or three options, recommended first, each with a pro and con. At most 3, so the report stays one screen.
 - **Keep:** one line, only when something worked that a later edit might break.
 - **Tooling:** would a custom tool have cut this rung's cost? Look at the largest batches, the stands-out lines, a `Token efficiency` group in the tasklist, and repeated hand-run sequences or rediscovery reads in the session. For each candidate, estimate its share `s` of the rung's tokens and apply the decision rule: at least 8% realistic saving is worth building for cost; 3–8% only if it also improves reliability; under 3% is left out. Say whether it is a project tool (a script or fixture in the project) or a skill tool (a `metrics`/`tasklist` subcommand or a skill rule).
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.12.1
+
+- `decision-driven-design`: each option in a major question carries a pro and con, and a low-confidence recommendation says what would settle it; the decision landscape names the high-impact or uncertain areas first; a batch of default-accepted decisions puts up to 3 items that need a look in a "Needs your attention" section with options, and every item stays in the list
+- `tasklist-run`: the retrospective's "Worth changing" puts up to 3 high-impact or guess-based items first, marked `⚑`, with one line of options
+
 ## 0.12.0
 
 - Plan tools 0.2.0: new `metrics` binary. `metrics tokens` is a Swift port of `analyze_transcripts.py --append-tokens` (same events; a batch with no transcript turns is skipped instead of logged as zeros); `metrics summary <tasklist | run>` prints a rung's numbers against the median of the last 5 rung lists, its largest batches and what stands out, resolving old runs to their tasklist through the batch commit; `metrics signals` prints zero-token code-quality signals and review triggers (interval, no baseline, rung diff size, a fourth file of one shape, new mirrored types, new subsystem doc) and exits 1 when one fires. 51 tests (10 new)
