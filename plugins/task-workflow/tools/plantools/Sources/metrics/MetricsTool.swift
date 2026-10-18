@@ -8,7 +8,7 @@ struct MetricsTool: ParsableCommand {
         commandName: "metrics",
         abstract: "Read the tasklist-run metrics log and the repository so the model does not count by hand. Plain text out.",
         version: planToolsVersion,
-        subcommands: [Tokens.self, Summary.self, Signals.self]
+        subcommands: [Tokens.self, Summary.self, Signals.self, Predictions.self]
     )
 
     struct LogOption: ParsableArguments {
@@ -63,6 +63,16 @@ struct MetricsTool: ParsableCommand {
             guard let numbers else { CLI.fail("no runs logged for \(target) in \(repo)", code: 1) }
             let quality = events.filter { ($0["repo"] as? String) == repo && (($0["event"] as? String) ?? "").hasPrefix("quality") }
             CLI.print(RunSummary.render(target: numbers, all: all, quality: quality, compare: compare))
+        }
+    }
+
+    struct Predictions: ParsableCommand {
+        static let configuration = CommandConfiguration(abstract: "How well the tier and model predictions held: declared tier against rounds, recommended model against the model used.")
+        @OptionGroup var log: LogOption
+        @Flag(help: "Only the current repository's events (default: every repository in the log, to see what is general).") var thisRepo = false
+
+        func run() throws {
+            CLI.print(PlanKit.Predictions.render(log: log.events, repo: thisRepo ? MetricsTool.repoRoot() : nil))
         }
     }
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.0
+
+- `system-design`, `risk-first-roadmap`, `roadmap-plan-next-rung` and `code-quality-pass` end with a next step and a recommended model: `/risk-first-roadmap` (Opus) after a design, `/roadmap-plan-next-rung <rung>` (Opus) after a roadmap or re-plan, `/tasklist-run <file>` (orchestrator model from `tasklist-run`) after a rung brief, `/risk-first-roadmap` (Opus) after fold-back, and fold-back after a tidy. Each writes a `step` event to the metrics log (model used, next command, recommended model); `code-quality-pass` events carry `model`
+
 ## 0.6.1
 
 - `code-quality-pass`: new "Judge by long-term quality" rule for both tiers. Cost sets order and piece size, never whether a finding is kept; a too-big tidy item becomes a proposal, and the scout and synthesis rank by long-term benefit and compounding cost, not effort

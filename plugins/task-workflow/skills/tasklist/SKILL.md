@@ -198,7 +198,7 @@ When the source is a decision ledger, PRD, or plan, put its path in `Source:` an
 
 ## Plan tools (optional)
 
-`tasklist`, `roadmap` and `metrics` are small command-line tools in this plugin's `tools/plantools/` (SwiftPM with Swift Argument Parser). They only apply the rules above faster; nothing here depends on them. They live outside `PATH`, in `~/.cache/danny-agent-skills/bin/` (`$XDG_CACHE_HOME` if set); below, `tasklist` means `~/.cache/danny-agent-skills/bin/tasklist`, and `roadmap` likewise. Before using one, run `~/.cache/danny-agent-skills/bin/tasklist --version`. If it fails or is not `0.2.0`, install it yourself without asking: `sh <this skill's base directory>/../../tools/plantools/build.sh`, which runs `swift build -c release` and copies the binaries there (it rebuilds only when sources changed, so it also handles a plugin update, and a deleted cache is rebuilt the same way). If `swift` is missing or the build fails, say so in one line, do not retry, and apply the rules by hand as written. Run the binary directly, never through `swift run`.
+`tasklist`, `roadmap` and `metrics` are small command-line tools in this plugin's `tools/plantools/` (SwiftPM with Swift Argument Parser). They only apply the rules above faster; nothing here depends on them. They live outside `PATH`, in `~/.cache/danny-agent-skills/bin/` (`$XDG_CACHE_HOME` if set); below, `tasklist` means `~/.cache/danny-agent-skills/bin/tasklist`, and `roadmap` likewise. Before using one, run `~/.cache/danny-agent-skills/bin/tasklist --version`. If it fails or is not `0.3.0`, install it yourself without asking: `sh <this skill's base directory>/../../tools/plantools/build.sh`, which runs `swift build -c release` and copies the binaries there (it rebuilds only when sources changed, so it also handles a plugin update, and a deleted cache is rebuilt the same way). If `swift` is missing or the build fails, say so in one line, do not retry, and apply the rules by hand as written. Run the binary directly, never through `swift run`.
 
 | Command | Replaces |
 | --- | --- |
@@ -207,7 +207,7 @@ When the source is a decision ledger, PRD, or plan, put its path in `Source:` an
 | `tasklist next-id <file> [T\|G\|P]` | scanning for the highest ID |
 | `tasklist lint <file> [--base <older copy>]` | the mechanical checks in "Before finishing"; `--base` also reports deleted IDs and titles rewritten in place |
 | `tasklist done <file> <ID>... [--confirmed]` | ticking `[x]` (changes only the checkbox; `--confirmed` is required for `USER` tasks) |
-| `metrics tokens` / `metrics summary <tasklist>` / `metrics signals` | exact per-batch tokens from transcripts; a run's or rung's retrospective numbers; zero-token code-quality signals (see `tasklist-run` and `code-quality-pass`) |
+| `metrics tokens` / `metrics summary <tasklist>` / `metrics signals` / `metrics predictions` | exact per-batch tokens from transcripts; a run's or rung's retrospective numbers; zero-token code-quality signals (see `tasklist-run` and `code-quality-pass`); how the tier and next-step model predictions held |
 
 The tool never creates, reorders or rewrites a list, and the markdown stays the source of truth.
 
@@ -220,3 +220,5 @@ The file is working state, not documentation. Leave out a "how to use this list"
 With the plan tools installed, run `tasklist lint <file>` first and fix every error; it covers unique IDs, existing `Needs` targets, cycles, a `Model` on every non-`USER` task, and a reason word and dated `Why:` on every `[-]` and `BLOCKED(reason)`. The judgment checks below stay yours either way.
 
 Check the list yourself: every ID is unique and none is reused; every `Needs` target exists; there are no dependency cycles; every task has a `Model` (except `USER` tasks, which have lettered steps instead); every `[-]` has a reason word and a `Why:`; `Needs` appears only where there is a real dependency; no empty sections; no task bundles several verifications; robustness and behavioural choices are stated where they apply.
+
+When you finish writing or re-planning a list, end with the next step, as `Next: <command> (<Model>: /model <alias>)`: `/tasklist-run <the file>` on the orchestrator model from `tasklist-run`'s "Orchestrator model" (Sonnet 5.5, or Opus 5.5 when any open task is `heavy`). If `USER` tasks come first in dependency order, name them before the command. A list that expands a rung already gets this line from `roadmap-plan-next-rung`; give it once. Log it as a `step` event (fields in `tasklist-run`'s metrics log).

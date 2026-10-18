@@ -170,3 +170,71 @@ struct GitTests {
         #expect(Git.tasklist(touchedBy: "HEAD~2", in: repo) == "Tasklist-L1-One.md")
     }
 }
+
+@Suite("Predictions")
+struct PredictionsTests {
+    private let log = MetricsLog.events(text: """
+    {"event":"step","repo":"/r","ts":"2026-10-01T10:00:00Z","skill":"roadmap-plan-next-rung 0.7.0","model":"claude-opus-5-5","target":"L3","next":"/tasklist-run Tasklist-L3-X.md","next_model":"sonnet"}
+    {"event":"start","repo":"/r","run":"R1","ts":"2026-10-01T10:05:00Z","list":"Tasklist-L3-X.md","model":"claude-opus-5-5"}
+    {"event":"batch","repo":"/r","run":"R1","ts":"2026-10-01T10:10:00Z","tiers":["standard","heavy"],"rounds":2,"lines":100}
+    {"event":"batch","repo":"/r","run":"R1","ts":"2026-10-01T10:12:00Z","tiers":["light"],"rounds":0,"lines":10,"raised":false}
+    {"event":"end","repo":"/r","run":"R1","ts":"2026-10-01T10:20:00Z","stop":"complete","interventions":1,"next":"/roadmap-plan-next-rung fold-back L3","next_model":"opus"}
+    """)
+
+    @Test func skillNamesDropVersionsSlashesAndPlugins() {
+        #expect(Predictions.skillName("roadmap-plan-next-rung 0.7.0") == "roadmap-plan-next-rung")
+        #expect(Predictions.skillName("/task-workflow:tasklist-run L3") == "tasklist-run")
+        #expect(Predictions.skillName(nil) == nil)
+    }
+
+    @Test func mixedBatchCountsUnderItsHighestTier() {
+        let text = Predictions.render(log: log)
+        #expect(text.contains("| heavy | 1 | 2.00 | 0 | 100.00 |"))
+        #expect(text.contains("| light | 1 | 0.00 | 0 | 10.00 |"))
+    }
+
+    @Test func pairsARecommendationWithTheRunItLedTo() {
+        let text = Predictions.render(log: log)
+        #expect(text.contains("| roadmap-plan-next-rung → tasklist-run | 1 | 0 | opus ×1 |"))
+        #expect(text.contains("| another model | 1 | 1.00 | 1.00 |"))
+    }
+
+    @Test func saysSoWhenNothingWasRecommended() {
+        #expect(Predictions.render(log: []).contains("No `step` events with a recommendation logged yet."))
+    }
+
+    @Test func repoFilterLeavesOtherReposOut() {
+        #expect(Predictions.render(log: log, repo: "/other").contains("No batches logged yet."))
+    }
+}
+
+@Suite("Planning cost and orchestrator trend")
+struct PlanningCostTests {
+    @Test func stepTokensAreMeasuredFromBeganAndOnlyOnce() throws {
+        let root = tempDir() + "/projects"
+        try write([turn("2026-10-01T09:00:00.000Z", "claude-opus-5-5", out: 1, id: "before"),
+                   turn("2026-10-01T10:30:00.000Z", "claude-opus-5-5", out: 40, id: "in")].joined(separator: "\n"), to: root + "/-r/s1.jsonl")
+        let log = MetricsLog.events(text: #"{"event":"step","repo":"/r","ts":"2026-10-01T11:00:00Z","began":"2026-10-01T10:00:00Z","skill":"roadmap-plan-next-rung 0.7.0","target":"L3"}"#)
+        let (events, _) = TranscriptTokens.newEvents(log: log, root: root)
+        let e = try #require(events.first)
+        #expect(e.string("event") == "step_tokens" && e.string("step_ts") == "2026-10-01T11:00:00Z")
+        #expect((e["orch"] as? [String: [String: Int]])?["opus"]?["out"] == 40)
+        #expect(TranscriptTokens.newEvents(log: log + events, root: root).events.isEmpty)
+    }
+
+    @Test func rungSummaryShowsPlanningShareDriftAndTrend() {
+        func tokens(_ n: Int) -> String { #"{"event":"tokens","repo":"/r","run":"R","orch":{"opus":{"in":\#(n),"out":0}},"impl":{},"rev":{}}"# }
+        let log = MetricsLog.events(text: ([
+            #"{"event":"start","repo":"/r","run":"R","ts":"2026-10-01T10:00:00Z","list":"Tasklist-L3-X.md"}"#,
+            #"{"event":"step","repo":"/r","ts":"2026-10-01T09:00:00Z","skill":"roadmap-plan-next-rung 0.7.0","target":"L3","drift":2}"#,
+            #"{"event":"step_tokens","repo":"/r","step_ts":"2026-10-01T09:00:00Z","skill":"roadmap-plan-next-rung 0.7.0","orch":{"opus":{"in":100}},"impl":{},"rev":{}}"#,
+            #"{"event":"end","repo":"/r","run":"R","ts":"2026-10-01T10:30:00Z","discovered":1}"#,
+        ] + [100, 100, 300, 300].map(tokens)).joined(separator: "\n"))
+        let all = RunSummary.byList(log: log, repo: "/r") { _ in nil }
+        let n = try! #require(all["Tasklist-L3-X.md"])
+        #expect(n.planTokens == 100 && n.drift == 2 && n.discovered == 1 && n.runTokens == 800)
+        let text = RunSummary.render(target: n, all: all)
+        #expect(text.contains("Planning was 11% of this rung's tokens"))
+        #expect(text.contains("rose 200%"))
+    }
+}

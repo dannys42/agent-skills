@@ -152,6 +152,7 @@ public enum TranscriptTokens {
     /// because no transcript turn fell in their window.
     public static func newEvents(log: [LogEvent], root: String) -> (events: [LogEvent], skipped: Int) {
         let done = Set(log.filter { $0.string("event") == "tokens" }.map { "\($0.string("run") ?? "")|\($0.string("batch_ts") ?? "")" })
+        let stepsDone = Set(log.filter { $0.string("event") == "step_tokens" }.map { "\($0.string("skill") ?? "")|\($0.string("step_ts") ?? "")" })
         var previous: [String: Date] = [:]
         var out: [LogEvent] = []
         var skipped = 0
@@ -162,6 +163,21 @@ public enum TranscriptTokens {
             switch event.string("event") {
             case "start":
                 previous[run] = date
+            case "step":
+                guard let skill = event.string("skill"), let repo = event.string("repo"),
+                      let began = MetricsLog.date(event.string("began")), !stepsDone.contains("\(skill)|\(ts)") else { continue }
+                guard var tokens = window(root: root, repo: repo, lo: began, hi: date, cache: cache) else {
+                    skipped += 1
+                    continue
+                }
+                tokens["v"] = 1
+                tokens["ts"] = ts
+                tokens["event"] = "step_tokens"
+                tokens["step_ts"] = ts
+                tokens["skill"] = skill
+                tokens["repo"] = repo
+                tokens["target"] = event["target"] ?? NSNull()
+                out.append(tokens)
             case "batch":
                 let lo = previous[run] ?? date.addingTimeInterval(-2 * 3600)
                 previous[run] = date

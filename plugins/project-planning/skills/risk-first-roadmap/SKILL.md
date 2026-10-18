@@ -104,11 +104,13 @@ Do the pass as a move-only commit, separate from content changes, and verify it 
 
 ### Plan tool check
 
-Before the first `roadmap` call in a session, run `~/.cache/danny-agent-skills/bin/roadmap --version`. If it fails or is not `0.2.0`, install it without asking: `sh "$(ls -td ~/.claude/plugins/cache/*/task-workflow/*/tools/plantools/build.sh | head -n 1)"` (the `task-workflow` plugin's build script; if that finds nothing, the plugin is not installed, so skip the tool). If `swift` is missing or the build fails, say so in one line, do not retry, and read by hand. Do not fall back to `grep`, `awk` or `sed` while an install is still untried. `roadmap-plan-next-rung` uses the same check.
+Before the first `roadmap` call in a session, run `~/.cache/danny-agent-skills/bin/roadmap --version`. If it fails or is not `0.3.0`, install it without asking: `sh "$(ls -td ~/.claude/plugins/cache/*/task-workflow/*/tools/plantools/build.sh | head -n 1)"` (the `task-workflow` plugin's build script; if that finds nothing, the plugin is not installed, so skip the tool). If `swift` is missing or the build fails, say so in one line, do not retry, and read by hand. Do not fall back to `grep`, `awk` or `sed` while an install is still untried. `roadmap-plan-next-rung` uses the same check.
 
 ## Hand off to implementation
 
 A roadmap is not a task list. When the user is ready to build the next rung, run `/roadmap-plan-next-rung` for just that rung: it writes a short design brief for the parts the rung touches, agrees it with the user, and hands off to the `tasklist` skill, which writes `<DocDir>/Tasklist-<RungId>-<ShortRungDescription>.md`; `tasklist-run` executes it. Do not pre-expand later rungs.
+
+End a new roadmap (and any re-plan) with the next step, as `Next: <command> (<Model>: /model <alias>)`: `/roadmap-plan-next-rung <first or next rung ID>` on Opus (`/model opus`), because it designs the rung against the code and settles the open decisions. Name the rung ID so the user can paste the line. Log it as a `step` event (fields in `tasklist-run`'s metrics log).
 
 ## Re-plan after each rung
 
@@ -119,7 +121,7 @@ After a rung finishes, fold it back first (`/roadmap-plan-next-rung fold-back L3
 - **After the first end-to-end data rung**, make sure that rung's fold-back compared every affected design doc as a whole with what was built, not just the components it touched. Record any drift in the decision log and fix whichever side is wrong.
 - **Code quality** (`code-quality-pass` skill): if `<DocDir>/Quality/Review-<date>.md` has accepted proposals, place them: a `refactor-rung` becomes a rung (`Kind: refactor`) ordered by the rules above, never ahead of a feature rung unless the user puts it there; a `task`, `conventions` or `fitness-test` becomes a task in the next rung's tasklist or a small `Tasklist-Refactor-<Short_Name>.md`. Mark each placed proposal with its rung or task in the report. Then, if `Quality/Status.md`'s `Since review:` has reached `Every:` or `Triggers pending:` is not `none`, offer `/code-quality-pass review` in one line (run, skip or defer); with no `Status.md`, the fold-back signals already nudged, so say nothing more. This step never holds up the next rung.
 - Re-rank the remaining risks and promote or demote horizon items. Add new rungs for newly discovered unknowns; mark rungs that became unnecessary `obsolete` instead of deleting them.
-- Tell the user what moved and why.
+- Tell the user what moved and why, then end with the next step: `/roadmap-plan-next-rung <next rung ID>` on Opus (`/model opus`), logged as a `step` event.
 
 Statuses: `planned`, `in progress`, `done`, `failed` (answered "no", fallback taken), `changed`, `obsolete`, `deferred`.
 

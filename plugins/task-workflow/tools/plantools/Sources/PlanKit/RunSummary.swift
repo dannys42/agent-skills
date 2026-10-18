@@ -11,6 +11,14 @@ public struct RungNumbers {
     public var kept = 0, dropped = 0, required = 0, optLeft = 0
     public var agents: [Agent] = []
     public var orchTokens: Int?, cacheBreaks: Int?
+    /// Orchestrator tokens of each batch's `tokens` event, in log order, to see whether a long run gets dearer per batch.
+    public var orchByBatch: [Int] = []
+    /// Tokens of every role in the rung's `tokens` events.
+    public var runTokens: Int?
+    public var discovered = 0
+    /// Planning and fold-back (`roadmap-plan-next-rung` steps for this rung): tokens from `step_tokens`, and the drift fold-back found.
+    public var planTokens: Int?, drift: Int?
+    public var planSteps = 0
     /// Batches with two or more correction rounds, a tier raise or a block.
     public var hardBatches: [String] = []
 
@@ -78,17 +86,63 @@ public enum RunSummary {
                 if e.bool("raised") { why.append("tier raised") }
                 if e.string("outcome") == "blocked" { why.append("blocked") }
                 if !why.isEmpty { n.hardBatches.append("\(tasks): " + why.joined(separator: ", ")) }
+            case "end":
+                n.discovered += e.int("discovered") ?? 0
             case "tokens":
                 var orch = 0
                 for usage in (e["orch"] as? [String: [String: Int]] ?? [:]).values { orch += usage.values.reduce(0, +) }
                 n.orchTokens = (n.orchTokens ?? 0) + orch
+                n.orchByBatch.append(orch)
+                n.runTokens = (n.runTokens ?? 0) + TranscriptTokens.roles.reduce(0) { $0 + tokenTotal(e, $1) }
                 n.cacheBreaks = (n.cacheBreaks ?? 0) + (e.int("cache_breaks") ?? 0)
             default:
                 break
             }
             out[list] = n
         }
+        attachPlanning(events: events, to: &out)
         return out
+    }
+
+    /// All tokens of one role in a `tokens` or `step_tokens` event.
+    static func tokenTotal(_ e: LogEvent, _ role: String) -> Int {
+        (e[role] as? [String: [String: Int]] ?? [:]).values.reduce(0) { $0 + $1.values.reduce(0, +) }
+    }
+
+    /// Planning cost belongs to the rung a `roadmap-plan-next-rung` step names, though it happens outside any run.
+    static func attachPlanning(events: [LogEvent], to out: inout [String: RungNumbers]) {
+        var tokens: [String: Int] = [:]
+        for e in events where e.string("event") == "step_tokens" {
+            tokens["\(e.string("skill") ?? "")|\(e.string("step_ts") ?? "")"] = roles(of: e)
+        }
+        var byRung: [String: (tokens: Int?, drift: Int?, steps: Int)] = [:]
+        for e in events where e.string("event") == "step" && Predictions.skillName(e.string("skill")) == "roadmap-plan-next-rung" {
+            guard let target = e.string("target") else { continue }
+            var p = byRung[target] ?? (nil, nil, 0)
+            p.steps += 1
+            if let t = tokens["\(e.string("skill") ?? "")|\(e.string("ts") ?? "")"] { p.tokens = (p.tokens ?? 0) + t }
+            if let d = e.int("drift") { p.drift = (p.drift ?? 0) + d }
+            byRung[target] = p
+        }
+        for (list, var n) in out where isRungList(list) {
+            guard let rung = n.rung, let p = byRung[rung] else { continue }
+            n.planTokens = p.tokens
+            n.drift = p.drift
+            n.planSteps = p.steps
+            out[list] = n
+        }
+    }
+
+    static func roles(of e: LogEvent) -> Int { TranscriptTokens.roles.reduce(0) { $0 + tokenTotal(e, $1) } }
+
+    /// First-half against second-half orchestrator tokens per batch; nil under four batches, where it says nothing.
+    static func orchestratorTrend(_ series: [Int]) -> (line: String, ratio: Double)? {
+        guard series.count >= 4 else { return nil }
+        let half = series.count / 2
+        let first = Double(series.prefix(half).reduce(0, +)) / Double(half)
+        let second = Double(series.suffix(half).reduce(0, +)) / Double(half)
+        guard first > 0 else { return nil }
+        return ("Orchestrator tokens per batch: \(k(Int(first))) in the first half, \(k(Int(second))) in the second.", second / first)
     }
 
     static func k(_ n: Int) -> String { n >= 1000 ? "\(Int((Double(n) / 1000).rounded()))k" : "\(n)" }
@@ -123,6 +177,13 @@ public enum RunSummary {
         row("Orchestrator tokens", { $0.orchTokens }, format: k)
         row("Median tools per agent", { $0.medianTools })
         row("Cache breaks", { $0.cacheBreaks })
+        row("Discovered tasks", { $0.discovered })
+        row("Planning tokens (brief, fold-back)", { $0.planTokens }, format: k)
+        row("Fold-back drift items", { $0.drift })
+        if let plan = target.planTokens, let run = target.runTokens, plan + run > 0 {
+            out.append("\nPlanning was \(Int((Double(plan) / Double(plan + run) * 100).rounded()))% of this rung's tokens (planning \(k(plan)), run \(k(run))).")
+        }
+        if let trend = orchestratorTrend(target.orchByBatch) { out.append(trend.line) }
 
         var batches: [String: [RungNumbers.Agent]] = [:]
         target.agents.forEach { batches[$0.tasks, default: []].append($0) }
@@ -139,6 +200,9 @@ public enum RunSummary {
         let toolsMedian = target.medianTools ?? 0
         for a in target.agents where a.tools > 30 || (toolsMedian > 0 && a.tools >= 2 * toolsMedian && a.tools > 10) {
             standOut.append("\(a.tasks): \(a.role) used \(a.tools) tools (rung median \(toolsMedian))")
+        }
+        if let trend = orchestratorTrend(target.orchByBatch), trend.ratio >= 1.5 {
+            standOut.append("orchestrator cost per batch rose \(Int(((trend.ratio - 1) * 100).rounded()))% from the first half of the run to the second")
         }
         if !standOut.isEmpty { out += ["", "Stands out:"] + standOut.map { "- \($0)" } }
 

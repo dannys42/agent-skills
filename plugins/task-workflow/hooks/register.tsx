@@ -2,7 +2,7 @@ import { atom, read, update } from 'claude-code'
 import type { Register } from 'claude-code'
 
 import type { TaskRow, TasklistRun } from '../types'
-import { costOf, hasLiveAgents, modelColumn, modelLabel, fmtClock, fmtCost, fmtDuration, fmtTokens, layout, mergeTodo, parseTodo, summarize, taskIdsMentioned } from './todo'
+import { costOf, hasLiveAgents, modelColumn, modelLabel, fmtClock, fmtCost, fmtDuration, fmtTokens, layout, mergeTodo, nextStep, parseTodo, summarize, taskIdsMentioned } from './todo'
 
 const PANE = 'tasklist-monitor'
 const run = atom({ plugin: 'task-workflow', key: 'run' } as const, null)
@@ -215,6 +215,7 @@ export const register: Register = on => {
             </Text>
           )
         })}
+        {nextStep(r) && <Text bold>{nextStep(r)}</Text>}
       </Box>
     )
   })

@@ -104,6 +104,15 @@ export type Usage = {
   cache_creation_input_tokens: number
 }
 
+/** The command to run once a run has stopped, with its model: the same advice the skills end with. Undefined while running or when nothing follows. */
+export function nextStep(run: TasklistRun): string | undefined {
+  if (run.isActive || run.tasks.length === 0) return undefined
+  const waiting = run.tasks.filter(t => t.status !== 'done' && t.status !== 'closed').length
+  if (waiting > 0) return `Next: ${waiting} task${waiting === 1 ? '' : 's'} still open. Resolve blocked or USER tasks, then /tasklist-run ${run.file} (same model).`
+  const rung = /^Tasklist-([A-Za-z]+\d+)-/.exec(run.file.split('/').pop() ?? '')?.[1]
+  return rung ? `Next: /roadmap-plan-next-rung fold-back ${rung} (Opus: /model opus).` : undefined
+}
+
 export function costOf(u: Usage): number {
   const rate = RATES.find(([re]) => re.test(u.model))?.[1]
   if (!rate) return 0

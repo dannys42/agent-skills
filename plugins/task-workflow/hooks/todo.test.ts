@@ -1,5 +1,5 @@
 import { test, expect } from 'claude-code/testing'
-import { parseTodo, taskIdsIn, hasLiveAgents, modelLabel, modelColumn, summarize, layout, costOf } from './todo'
+import { parseTodo, taskIdsIn, hasLiveAgents, modelLabel, modelColumn, summarize, layout, costOf, nextStep } from './todo'
 import type { TaskRow } from '../types'
 
 const TODO = `# TODO
@@ -69,4 +69,26 @@ test('model labels are long or short by room', () => {
   expect(modelColumn(120)).toBe('long')
   expect(modelColumn(80)).toBe('short')
   expect(modelColumn(50)).toBe('none')
+})
+
+const stopped = (file: string, statuses: TaskRow['status'][], isActive = false) => ({
+  isActive, file, startedAt: 0, now: 0, agents: {}, doneAtStart: [], orchestratorTokens: 0, orchestratorCostUsd: 0,
+  tasks: statuses.map((status, i) => row({ id: `T${i + 1}`, status })),
+})
+
+test('a finished rung list points at fold-back on Opus', () => {
+  expect(nextStep(stopped('docs/Tasklist-L3-Grid_Text.md', ['done', 'closed']))).toContain('/roadmap-plan-next-rung fold-back L3')
+  expect(nextStep(stopped('docs/Tasklist-L3-Tidy.md', ['done']))).toContain('fold-back L3')
+  expect(nextStep(stopped('docs/Tasklist-L3-Grid_Text.md', ['done']))).toContain('Opus')
+})
+
+test('a stopped list with open tasks points at resuming the run', () => {
+  expect(nextStep(stopped('docs/Tasklist-L3-Grid_Text.md', ['done', 'blocked', 'user']))).toContain('2 tasks still open')
+  expect(nextStep(stopped('docs/Tasklist-L3-Grid_Text.md', ['open']))).toContain('/tasklist-run docs/Tasklist-L3-Grid_Text.md')
+})
+
+test('no next step while running, for a plain list, or with no tasks', () => {
+  expect(nextStep(stopped('docs/Tasklist-L3-Grid_Text.md', ['done'], true))).toBeUndefined()
+  expect(nextStep(stopped('docs/Tasklist.md', ['done']))).toBeUndefined()
+  expect(nextStep(stopped('docs/Tasklist-L3-Grid_Text.md', []))).toBeUndefined()
 })

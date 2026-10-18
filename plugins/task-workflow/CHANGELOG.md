@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.13.0
+
+- Every step now ends with a next step: a `Next: <command> (<Model>: /model <alias>)` line. `tasklist-run` names `/roadmap-plan-next-rung fold-back <RungId>` on Opus when a rung list is closed, or the blocker and `/tasklist-run <file>` when tasks remain; `tasklist` and `decision-driven-design` end with `/tasklist-run <file>`
+- `tasklist-run`: new "Orchestrator model" rule (Sonnet 5.5, Opus 5.5 when open tasks include `heavy` ones) that the other skills quote
+- Metrics log: new `step` event (`skill`, `model`, `target`, `next`, `next_model`, `basis`) written at the end of every step that names a next one, so the recommended model can be compared with the one actually used; `start` gains `model` and `heavy`; `end` gains `interventions` and `reraised`
+- Plan tools 0.3.0: `metrics predictions` (declared tier against rounds, pooled and per repo; recommended model against the model the next step ran on, with the rounds and corrections of runs that followed it or not); `metrics tokens` also costs planning steps (`step_tokens`, from `began`); `metrics summary` adds planning tokens and share, fold-back drift, discovered tasks, and a first-half against second-half orchestrator cost per batch (flagged when it rises 50%). 58 tests (7 new)
+- `step` events gain `began` and `drift`; `end` gains `discovered`
+- `tasklist-monitor`: when a run finishes, the pane shows the same next step (computed from the list's file name and open tasks, no model call); 3 new tests
+
 ## 0.12.2
 
 - `tasklist-run`: the reviewer judges by long-term quality (prefers the durable fix over a workaround) and the correction triage never drops a finding because fixing it is more work

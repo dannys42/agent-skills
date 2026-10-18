@@ -116,6 +116,8 @@ Generate dependency-ordered, self-contained tasks using the task template. When 
 
 Repeat only task-relevant decisions so each task can be handed to another agent without reconstructing the interview. Preserve current behavior until replacement paths are proven. State generated-artifact and commit restrictions when relevant.
 
+When the output is a `tasklist` file, end with `Next: /tasklist-run <file>` and the orchestrator model from `tasklist-run`'s "Orchestrator model" (Sonnet 5.5, or Opus 5.5 when any task is `heavy`). Log it as a `step` event (fields in `tasklist-run`'s metrics log).
+
 ## Retrospect
 
 After delivering the design or plans, include a concise `Process improvements` section only when there was material friction; otherwise omit it entirely. Candidates:

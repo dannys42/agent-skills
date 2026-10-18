@@ -67,7 +67,7 @@ Resist deepening. When the conversation dives into one component's internals, re
 
 The outline is ready when every must-have requirement and every decision that would be expensive to undo is `accepted` or `deferred` with a reason, no assumption that changes the components is still `assumed`, scope is explicit, and the risk register is ranked with a cheapest experiment for each top risk.
 
-Ask the user whether it is good enough to start a roadmap, summarize the top three risks, and set `Status: agreed (<date>)`. Suggest the `risk-first-roadmap` skill next, and explain that detail arrives per rung through `/roadmap-plan-next-rung`. Do not start building. Then offer a retrospective.
+Ask the user whether it is good enough to start a roadmap, summarize the top three risks, and set `Status: agreed (<date>)`. End with the next step: `/risk-first-roadmap` on Opus (`/model opus`), because ordering work by risk is the judgment-heavy part. Log it as a `step` event (fields in `tasklist-run`'s metrics log). Explain that detail arrives per rung through `/roadmap-plan-next-rung`. Do not start building. Then offer a retrospective.
 
 ## Adopt mode
 
@@ -77,7 +77,7 @@ For an existing project ("document the architecture of this project", "adopt thi
 2. **Draft the as-is Overview.** Derive the component diagram from the code: one node per real module, named as the code names it, edges for real dependencies. List each separate build target and major module as one component with `Doc: pending`; do not write their subsystem docs up front, but offer to adopt the one the user cares about first in subsystem mode. Tag components `built` when they exist and have tests or visible behaviour, `designed` when partly present, `sketched` when only planned. Infer requirements from behaviour and mark them `assumed`. Seed the risk register with what is fragile or unverified (untested areas, tangled dependencies, unproven platform claims). Set `Mode: as-is (adopted <date>)`.
 3. **Review it with the user** until they agree it describes the system as it is, in the shape in [presenting-for-review.md](../roadmap-plan-next-rung/references/presenting-for-review.md): flag inferred requirements and component tags you are least sure of. Correct the docs, not the code.
 4. **Record the direction.** Ask where the project is headed. Record each desired change of direction as a decision of kind `shift`, stating from what to what and why, and mark the components it affects. Leave the as-is diagram as it is; shifts are planned work, not current fact.
-5. **Hand off** to `risk-first-roadmap`, which must cover every accepted `shift` with a rung or horizon item.
+5. **Hand off** to `risk-first-roadmap` (next step: `/risk-first-roadmap` on Opus, `/model opus`), which must cover every accepted `shift` with a rung or horizon item.
 
 ## Retrospective
 
