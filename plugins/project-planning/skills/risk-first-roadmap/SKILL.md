@@ -84,12 +84,26 @@ Save to `<DocDir>/Roadmap-<Topic>.md`, using the `Topic` named in the Overview's
 The roadmap holds the live ladder, open risks and current decisions. Closed history moves out, verbatim, so every read stays cheap and nothing is lost.
 
 - **Learning-log entries** are one or two lines, at most about 600 characters: the measured answer and a pointer to where the detail lives (the rung brief's "As built" note, or the design doc that now states it). Raw facts, owner decisions and measured results go in full into that design doc, not into the log.
-- **A finished rung's detail** (`done`, `failed`, `obsolete`): at re-plan, move its `### <RungId>` section unchanged to `<DocDir>/Completed/Roadmap-<Topic>-Rungs.md` and end its ladder line with `detail: Completed/Roadmap-<Topic>-Rungs.md`. The ladder line stays, so the ID still resolves. Do the move in the same commit as the status change, and check it with `git diff --color-moved`.
+- **A finished rung's detail** (`done`, `failed`, `obsolete`): at re-plan, move its `### <RungId>` section unchanged to `<DocDir>/Completed/Roadmap-<Topic>-Rungs.md` and end its ladder line with `detail: Completed/Roadmap-<Topic>-Rungs.md` after the bracketed status (see [the ladder line format](references/roadmap-example.md)). The ladder line stays, so the ID still resolves. Do the move in the same commit as the status change, and check it with `git diff --color-moved`.
 - **An old learning log**: past about 15 entries, move entries older than the last re-plan unchanged to `<DocDir>/Roadmap-<Topic>-Log.md` and leave one link line under `## Learning log`.
 - **Layout that allows partial reads**: one `###` section per rung, headings unchanged once written, ladder lines and table cells short (under about 400 characters; the reasoning goes in the brief and the cell links to it). A line over about 1,500 characters cannot be read in part.
-- **Reading**: do not read the whole file to find one rung. With the `roadmap` tool (`~/.cache/danny-agent-skills/bin/roadmap`, built by the `task-workflow` plugin's `tasklist` skill; use it only if it is there): `roadmap status <file>`, `roadmap show <file> <RungId>`, `roadmap outline <file>`, `roadmap section <file> <heading>`, and `roadmap lint <file>` after editing. Without it, `grep -n '^#'` the file and Read the lines you need.
+- **Reading**: do not read the whole file to find one rung. With the `roadmap` tool (`~/.cache/danny-agent-skills/bin/roadmap`, built by the `task-workflow` plugin; see [Plan tool check](#plan-tool-check)): `roadmap status <file>`, `roadmap show <file> <RungId>`, `roadmap outline <file>`, `roadmap section <file> <heading>`, and `roadmap lint <file>` after editing. Without it, `grep -n '^#'` the file and Read the lines you need.
 
-Never rewrite an existing roadmap to this layout unasked; apply it to the rungs that finish from now on, and offer to move the older ones.
+### Tidy an existing roadmap or Overview
+
+Never rewrite an existing file unasked. But when you read a roadmap or Overview for any reason (a re-plan, `roadmap-plan-next-rung`, a fold-back), check it once per session, and if a trigger fires, offer one tidy pass, stating what it would do and the bytes it would save. Wait for a yes.
+
+Triggers (with the `roadmap` tool, `roadmap lint <file>` and `roadmap outline <file>` give all of them):
+- the file is over about 40 KB, or finished rungs and the learning log are over half of it: move finished rung sections and the old log out, as above
+- a ladder line has no recognised status, or `lint` reports duplicate IDs or a rung section with no ladder entry: fix the line to the format below (status only, in brackets; the `Status:` line of its section tells you what it is)
+- a line is over about 1,500 characters, or table or log cells run past about 400 or 600: shorten the cell, move the reasoning into the rung brief or design doc, and link it
+- an Overview (no tool support: judge from `grep -n '^#'` sizes): a risk, decision or traceability cell that is a paragraph, a retired risk still in the open register, or a decision log entry whose reasoning duplicates a rung brief: shorten to one line and link
+
+Do the pass as a move-only commit, separate from content changes, and verify it with `git diff --color-moved` and `roadmap lint`. Never change an ID, a heading or a status in a tidy pass, except to repair a malformed status line, and say which lines you repaired. Offer a pass at most once per session unless the user asks again.
+
+### Plan tool check
+
+Before the first `roadmap` call in a session, run `~/.cache/danny-agent-skills/bin/roadmap --version`. If it fails or is not `0.1.1`, install it without asking: `sh "$(ls -td ~/.claude/plugins/cache/*/task-workflow/*/tools/plantools/build.sh | head -n 1)"` (the `task-workflow` plugin's build script; if that finds nothing, the plugin is not installed, so skip the tool). If `swift` is missing or the build fails, say so in one line, do not retry, and read by hand. Do not fall back to `grep`, `awk` or `sed` while an install is still untried. `roadmap-plan-next-rung` uses the same check.
 
 ## Hand off to implementation
 

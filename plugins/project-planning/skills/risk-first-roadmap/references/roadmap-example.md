@@ -26,6 +26,15 @@ Updated: <date>
 - L1 (done, <date>): <what we learned, measured answer>
 ```
 
+Ladder line format (the `roadmap` tool and `lint` read exactly this):
+
+`<n>. L<id> — <question> [<status>]`, optionally followed by ` detail: <path>` for a finished rung whose section moved out.
+
+- `<status>` is one of `planned`, `in progress`, `done`, `failed`, `changed`, `obsolete`, `deferred`; a reason may follow after `:` or `;` (`[failed: fallback taken]`)
+- the bracket is the last thing on the line, apart from a `detail:` pointer: `1. L1 — Can I run an app? [done] detail: Completed/Roadmap-X-Rungs.md`
+- no other brackets after the status, no status outside the brackets, one line per rung
+- horizon rungs are `- L6 — <question>` bullets under `## Horizon`, not on the ladder
+
 ## Worked example: printable Sudoku app for macOS
 
 Risks from the design, ranked: generator correctness and speed (high impact, high uncertainty); fidelity of drawing and printed text (medium, medium); document-based app shape (medium, low); arbitrary grid sizes (low, low once the generator is generic).

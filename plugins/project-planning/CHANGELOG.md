@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.1
+
+- `risk-first-roadmap`: new "Plan tool check" (`roadmap --version`, install from the `task-workflow` plugin's `build.sh` when missing or not `0.1.1`, no `grep`/`awk`/`sed` fallback while an install is untried); the finished-rung `detail:` pointer is shown after the bracketed status, matching what the `roadmap` tool parses
+- `risk-first-roadmap`: "Tidy an existing roadmap or Overview" replaces the bare "offer to move the older ones": once per session, when a trigger fires (over about 40 KB, finished rungs and log over half, malformed ladder status, duplicate IDs, over-long lines or cells, bloated Overview cells), offer one move-only tidy pass with the bytes saved and wait for a yes; a malformed status line is repaired, never an ID, heading or other status
+- `roadmap-example.md`: the ladder line format is stated explicitly (status in the last bracket, optional `detail:` pointer after it, horizon items as bullets)
+- `roadmap-plan-next-rung`: applies the tidy triggers while reading and offers the pass before the brief; runs the same check instead of using the tool "only if it is there"
+
 ## 0.4.0
 
 The roadmap and Overview were the largest reads in a planning session (66.6 KB and 27.5 KB in one project; 61% of the roadmap was finished rungs and the learning log, whose entries ran to 6 KB against the existing "one or two lines" rule).

@@ -94,8 +94,13 @@ public struct Roadmap {
         let id = String(text.prefix(while: { $0 != " " }))
         guard id.first == "L", id.count > 1 else { return nil }
         var status = "unknown"
-        if text.hasSuffix("]"), let open = text.lastIndex(of: "[") {
-            let inside = text[text.index(after: open)..<text.index(before: text.endIndex)].lowercased()
+        // A finished rung's pointer may follow the status: `... [done] detail: Completed/...`.
+        var head = Substring(text)
+        if let pointer = text.range(of: " detail:", options: .backwards), text[..<pointer.lowerBound].hasSuffix("]") {
+            head = text[..<pointer.lowerBound]
+        }
+        if head.hasSuffix("]"), let open = head.lastIndex(of: "[") {
+            let inside = head[head.index(after: open)..<head.index(before: head.endIndex)].lowercased()
             let word = inside.prefix(while: { $0 != ":" && $0 != ";" && $0 != "," }).trimmingCharacters(in: .whitespaces)
             status = word.hasPrefix("done") ? "done" : word
         }
@@ -148,7 +153,7 @@ public struct Roadmap {
             if let first = seen[rung.id] { out.append(.init(.error, line: rung.line, "duplicate ladder ID \(rung.id) (first at line \(first))")) }
             else { seen[rung.id] = rung.line }
             if !Roadmap.knownStatuses.contains(where: { rung.status.hasPrefix($0) }) {
-                out.append(.init(.warning, line: rung.line, "\(rung.id) has no recognised status in brackets"))
+                out.append(.init(.warning, line: rung.line, "\(rung.id) has no recognised status in brackets; end the line with [planned], [in progress], [done] and so on, optionally followed by detail: <path>"))
             }
         }
         var detailSeen: [String: Int] = [:]

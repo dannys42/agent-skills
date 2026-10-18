@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.11.1
+
+From a bug report: a roadmap session never installed the `roadmap` tool because only `tasklist` carried the install step, and a documented ladder line was not parsed.
+
+- `roadmap` / `tasklist` tools 0.1.1: `roadmap` reads the status of a ladder line that ends `[done] detail: Completed/...` (it showed `[unknown]` and linted a warning); `[done; detail: ...]` still works. New parser test; 41 tests pass
+- `tasklist`: the expected tool version is `0.1.1`, so installed 0.1.0 binaries are rebuilt
+- `tasklist-run`: names the check-and-install step before using `tasklist`; the metrics `skill` value is `0.11.1`
+
 ## 0.11.0
 
 Cheaper planning reads and mechanical rule checks. Measured on one real project (a roadmap of 66.6 KB and a tasklist of 16.5 KB); the tool is optional and every rule still works by hand.

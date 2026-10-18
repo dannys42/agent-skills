@@ -115,6 +115,13 @@ struct DocumentedRoadmapTests {
         #expect(try documented().lint().isEmpty)
     }
 
+    @Test func finishedRungWithADetailPointerKeepsItsStatus() {
+        let r = Roadmap(text: "## Ladder\n\n1. L1 — a [done] detail: Completed/Roadmap-X-Rungs.md\n2. L2 — b [failed: fallback taken] detail: Completed/Roadmap-X-Rungs.md\n3. L3 — c [done; detail: Completed/Roadmap-X-Rungs.md]\n")
+        #expect(r.ladder.map(\.status) == ["done", "failed", "done"])
+        #expect(r.lint().isEmpty)
+        #expect(r.status().hasPrefix("done (2): L1 L3"))
+    }
+
     @Test func otherLifecycleStatusesAreRecognised() {
         let r = Roadmap(text: "## Ladder\n\n1. L1 — a [failed: fallback taken]\n2. L2 — b [obsolete]\n3. L3 — c [changed]\n")
         #expect(r.lint().isEmpty)
