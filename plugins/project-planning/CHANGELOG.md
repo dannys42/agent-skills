@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.1
+
+- `code-quality-pass`: new "Judge by long-term quality" rule for both tiers. Cost sets order and piece size, never whether a finding is kept; a too-big tidy item becomes a proposal, and the scout and synthesis rank by long-term benefit and compounding cost, not effort
+
 ## 0.6.0
 
 When the skills hand the user a list to rule on, the items that most deserve a look now come first, with options. Nothing that was shown before is dropped.

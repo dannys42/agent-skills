@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.12.2
+
+- `tasklist-run`: the reviewer judges by long-term quality (prefers the durable fix over a workaround) and the correction triage never drops a finding because fixing it is more work
+
 ## 0.12.1
 
 - `decision-driven-design`: each option in a major question carries a pro and con, and a low-confidence recommendation says what would settle it; the decision landscape names the high-impact or uncertain areas first; a batch of default-accepted decisions puts up to 3 items that need a look in a "Needs your attention" section with options, and every item stays in the list

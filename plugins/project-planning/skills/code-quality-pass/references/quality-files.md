@@ -31,6 +31,7 @@ Paste this, with the gathered facts, into the scout's prompt:
 > 1. Tidy items, at most 6, ranked by value: `<files> — <what> — <why> — <about N lines> — light|standard — tested: yes|no`. Allowed: naming clarity, idiomatic Swift, file organization, duplication with a sibling that one small extraction removes, a review note, a stale test or doc name, a compiler warning, a finding of the project's existing linter.
 > 2. Proposals, one line each: anything that changes behaviour or a public interface beyond a rename, spreads past these files and their call sites, or needs more than about 80 lines.
 > 3. Defects: any behaviour bug you saw, with file and line. Do not fix it.
+> Rank by long-term value to the codebase, not by how quick the fix is; report a worthwhile item that is too big as a proposal rather than leaving it out.
 > Bounded output: `grep -n`, ranged reads, no whole large files. Stop after about 15 tool calls.
 
 ## Tier 2 seam card
@@ -79,6 +80,7 @@ Why: <a few words> · To settle it: <cheapest check or question>
 - `Kind`: `refactor-rung`, `task`, `conventions`, `fitness-test`, `accept-shape`.
 - `Size`: S (under about 100 lines), M (a rung's worth), L (several rungs; split before scheduling).
 - "Needs your attention": at most 5 proposals that are high impact (an `L` size, a public interface, persistence, or a change across several modules) or low confidence (evidence from one card, or a benefit that rests on future rungs), chosen by the rules in `roadmap-plan-next-rung`'s `presenting-for-review.md`. Each keeps its row in the ranked table, marked `⚑`. Write `To settle it` only when confidence is the issue, and say "no real alternative" instead of inventing an option.
+- Ranking is by benefit over the project's life and how fast the problem compounds, not by effort; `Size` informs scheduling only. A large proposal is split, not demoted or dropped.
 - At most 10 ranked proposals; the rest go to "Also seen". A proposal deferred last time is re-ranked here, not copied.
 - `Decision`: `pending`, `accepted (<date>)`, `deferred`, `rejected: <reason>`.
 - Leave out any section with nothing in it.
