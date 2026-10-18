@@ -17,7 +17,7 @@ Lower the total cost of a `tasklist-run` without lowering accuracy (correction r
 
 ## Metrics available
 
-Log: `~/.local/state/danny-agent-skills/task-workflow/metrics.jsonl` (events `start`, `batch`, `end`, `tokens`). Analyzer: `misc/tasklist-metrics/analyze_transcripts.py` (`--append-tokens`, `--dry-run`). Compare by the `skill` field (0.8.0 baseline versus later). Useful derived numbers: turns per implementer (`agents[].tools`), tokens per batch, rounds per batch, `resumed`, `orch_fixes`, `cache_breaks`, `max_uncached`, reviewer share of spend (design doc baseline: reviewers about 35% of subagent spend, orchestrator about 30% of total).
+Log: `~/.local/state/danny-agent-skills/task-workflow/metrics.jsonl` (events `start`, `batch`, `end`, `tokens`). Tools: `metrics tokens` (appends `tokens` events from transcripts; `--dry-run`), `metrics summary <tasklist | run>` (a run's or rung's numbers against the median of earlier rungs), `metrics signals` (code-quality triggers), in `plugins/task-workflow/tools/plantools`. `misc/tasklist-metrics/analyze_transcripts.py` keeps only the one-off bookkeeping-cost study. Compare by the `skill` field (0.8.0 baseline versus later). Useful derived numbers: turns per implementer (`agents[].tools`), tokens per batch, rounds per batch, `resumed`, `orch_fixes`, `cache_breaks`, `max_uncached`, reviewer share of spend (design doc baseline: reviewers about 35% of subagent spend, orchestrator about 30% of total).
 
 ## Change log (hypotheses under test)
 
@@ -43,6 +43,11 @@ Log: `~/.local/state/danny-agent-skills/task-workflow/metrics.jsonl` (events `st
 | 0.10.1 | `tasklist`: assumed real-data facts get a read-only count or a first-dependency probe | Spec-derived rework is found before implementer batches, not at the first real-data `USER` task | observed (one run: all rework from one wrong data assumption, found at the `USER` task) | tasks added with `Found during` a `USER` real-run task; correction rounds traced to a data assumption | untested |
 | 0.10.1 | Implementer confirms a scripted or multi-file edit applied before running tests | No verification against unedited files | observed (one run: edit did not apply, own check ran on old tests, reviewer caught it) | reviewer findings of "edit not applied" or stale-state checks | untested |
 | 0.10.1 | A task for a user-reported mid-run defect starts by asking what the user sees or reproducing it | No batch spent on a non-bug caused by a naming mismatch | observed (one run: one standard batch on a non-bug) | tasks closed `INVALID` after a user-reported defect; mid-run tasks added for user reports | untested |
+| 0.12.0 | Unapplied optional findings go to the tasklist's `## Review notes` (`opt_left`) for the code-quality tidy | Small cleanups land at fold-back instead of being lost | observed (owner request; the log held only counts) | tidy items sourced from review notes; `opt_left` per batch (cost of noting) | untested |
+| 0.12.0 | Implementers report new warnings and existing-linter findings; reviewers mark them required | Style and warnings stop reaching review rounds and tidy passes | guess | `rev_required` citing warnings; tidy items of kind warning or linter | untested |
+| 0.12.0 | Tidy lists: no tier raise, two failed reviews revert and become a proposal | A tidy pass stays small and cheap | guess | rounds and tokens per tidy batch versus feature batches | untested |
+| 0.12.0 | Retrospective from `metrics summary`, shared short format, rung lists defer to the rung retro | Shorter retros with numbers, no hand arithmetic, no 'nothing found' lines | observed (owner request) | retro length; feedback blocks per retro that carry a suggested edit | untested |
+| 0.12.0 | `metrics` tool (tokens, summary, signals) replaces the Python `--append-tokens` | Same data, installed with the plugin; signals cost no tokens | measured (parity: 146 of 147 events identical, the last a zero-window batch now skipped by design) | `tokens` events present for runs after 0.12.0 | supported (parity) |
 
 Status updates from 0.10.1 round: the 0.9.0 `lines`-of-0 row is contradicted for one run (0.9.2 run logged 0 `lines`/`files` and 0 reviewer tokens on two batches despite the "never log 0" rule), so no rule change, only compliance to watch; the 0.9.1 lifecycle/silence rows have one counterexample (a Haiku `light` implementer left a hung background job and needed `TaskStop`); the 0.9.2 Sonnet-reviewer row is inconclusive, leaning supported (about 5 Sonnet reviews, 0 required findings, one real stale-state catch, no defects reported after commit).
 
@@ -70,6 +75,6 @@ Append one line per feedback drop: date, source run (project, tasks, skill versi
 ## Open questions
 
 - Does the reviewer-trust rule change the defect catch rate? Needs 2 or more runs on 0.9.0 with comparable reviews.
-- Is a mandatory `agents` field worth the orchestrator's copying, given `--append-tokens` already reports tokens from transcripts?
+- Is a mandatory `agents` field worth the orchestrator's copying, given `metrics tokens` already reports tokens from transcripts?
 - Do light-tier docs tasks (T11, 133k) cost more than their tier implies? Needs a second sample before touching tiers (rule 5).
 - Do Sonnet reviewers catch what Opus did on security, backup and sandbox tasks? Not tested; 0.9.2 keeps those on Opus. A later run could try Sonnet on one such task with an explicit live-run instruction.

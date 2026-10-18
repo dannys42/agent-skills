@@ -7,6 +7,7 @@ File: `<DocDir>/Roadmap-<Topic>.md`.
 
 Design: <DocDir>/SystemDesign/Overview.md (or a legacy Design-<Topic>.md)
 Build boundaries: <"decided in L1's brief", or "single target">
+Quality: <DocDir>/Quality/Status.md (code-quality-pass; omit until the first pass)
 Updated: <date>
 
 ## Ladder (one line per rung, in order)

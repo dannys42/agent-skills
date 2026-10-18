@@ -1,0 +1,6 @@
+interface:
+  display_name: "Code Quality Pass"
+  short_description: "Tidy a finished rung's files, or review the whole codebase's shape"
+  default_prompt: "Use $code-quality-pass to report quality signals and run the pass they call for."
+policy:
+  allow_implicit_invocation: true

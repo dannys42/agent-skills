@@ -1,50 +1,56 @@
 # Retrospective
 
-Shared by `roadmap-plan-next-rung` (`retro [L3]`, and offered at the end of fold-back) and `system-design` (offered after sign-off, and `retro` any time). Its purpose is to tell the maintainer of these skills whether the design stayed thin enough while staying accurate, with evidence a clean agent can act on later.
+Shared by `roadmap-plan-next-rung` (`retro [L3]`, and offered at the end of fold-back) and `system-design` (offered after sign-off, and `retro` any time). Its purpose is to tell the user what is worth changing, and the maintainer of these skills whether the design stayed thin, the run stayed cheap, and the quality pass paid, with evidence a clean agent can act on later.
 
-Build it from the project's actual docs and history, not from memory. Apply nothing; the user decides what to do with it.
+Build it from the project's actual docs, history and metrics, not from memory. Apply nothing; the user decides what to do with it.
 
 ## Gather the evidence
 
-- **Rung retro:** the brief, every design doc it lists as touched, the rung's tasklist (in `<DocDir>/` or `<DocDir>/Completed/`), and the rung's commits (`git log --oneline` over the rung's period, and `git log -- <DocDir>/SystemDesign` for doc changes).
+- **Rung retro:** the brief, every design doc it lists as touched, the rung's tasklist and its `-Tidy` tasklist if one ran (in `<DocDir>/` or `<DocDir>/Completed/`), the rung's commits (`git log --oneline <Base>..HEAD`, and `git log -- <DocDir>/SystemDesign` for doc changes), and `metrics summary <rung tasklist>` (run `metrics tokens` first so the orchestrator's tokens are in; both are the `task-workflow` plugin's `metrics` tool, see the `code-quality-pass` skill's "Metrics tool check"). Without the tool, add up the rung's `batch` lines from the metrics log by hand.
 - **System-design retro:** the Overview (and any subsystem doc written this session) and its git history.
 - **Sizes:** lines before and after for each touched design doc (`git show <rev>:<path> | wc -l` against `wc -l <path>`).
-- **Questions:** count the questions asked and how many answers changed the draft versus confirmed a default. From the same session this is `observed`; in a later session, infer it from assumption and decision rows (`confirmed` versus replaced) and mark it so.
+- **Questions:** the questions asked and how many answers changed the draft versus confirmed a default. From the same session this is `observed`; in a later session, infer it from assumption and decision rows (`confirmed` versus replaced) and mark it so.
 - **Rework:** in the tasklist, items with `Found during`, `[-] INVALID`, or `SUPERSEDED`, and tasks whose `Model` was raised.
 
-## Part 1: Summary
+## The report
 
-A few lines, each with its evidence:
-
-- Was the brief (or the Overview) right-sized: too heavy (sections nobody used, detail the rung did not need) or too thin (gaps the tasks had to fill)?
-- Questions asked; answers that changed the draft versus confirmed a default.
-- Assumptions overturned at fold-back or during iteration.
-- Drift found between the brief and the code, and which side was fixed.
-- Tasks that needed rework or got `Found during` additions because the brief missed something.
-- Docs created or touched; any subsystem promotion, and whether it met a warrant trigger.
-- Diagram problems (render errors, wrong level, labels that did not match component names).
-- Missing-sibling-skill notices hit, and what fallback was used.
-- Whether the Overview grew unusually (lines before and after; about a page is the target).
-
-## Part 2: Feedback prompt
-
-One fenced block, self-contained and project-neutral by default: no project names, file paths, or code unless the user asks. Read skill versions from the plugin manifest (`../../.claude-plugin/plugin.json` relative to each skill's folder); if it is absent, write "version unknown (standalone install)".
+One screen, this shape, at most about 25 lines before the feedback blocks:
 
 ```text
-project-planning retrospective feedback
-Skills: <skill> <version> (<plugin>); <other skills used, with versions>
-Context: <rung retro | system-design retro>; <project kind, e.g. "macOS document app">; <new | adopted>
-Evidence (tier per point: measured = counted from docs or git, observed = seen in this session, guess):
-- [measured] ...
-- [observed] ...
-- [guess] ...
-Keep (went well):
-- ...
-Suggested edits (skill, section, change, why; aim: thinner design, same accuracy):
-- ...
-In danny-agent-skills, run /roadmap-feedback and paste this block.
+Rung L20 retro · project-planning 0.5.0, task-workflow 0.12.0
+Verdict: design right-sized · run 10 batches, 2 rounds (median 1) · quality tidy 3 commits, 1 proposal
+<the table from `metrics summary`, pasted as is>
+Worth changing:
+1. [measured] Rung diff 2357 lines vs median 484: the brief scoped two data sources → split such rungs at planning
+2. [observed] Reviewer entries missing from `agents` in every batch → tasklist-run logging gap
+Keep: assumptions checked by one real call before tasks; 0 rework
+Tooling: T5–T8 each rebuilt the same fixture by hand (~4 tool calls × 4 batches, ~6% of implementer tokens) → a project fixture script; clears the 3% bar
 ```
 
-If nothing stands out (brief right-sized, few changed answers, no drift, no rework), say so in one line and skip the prompt. Keep each section short.
+- **Verdict:** one line. Design: `right-sized`, `heavy` (sections nobody used) or `thin` (gaps tasks had to fill). Run: batches and rounds against the median. Quality: what the pass did, `deferred`, or `not run`.
+- **Numbers:** the `metrics summary` table and its "Largest batches" and "Stands out" lines, pasted as is. The tool already leaves out rows that are zero for this rung and its peers.
+- **Worth changing:** numbered, each tagged `measured` (counted from docs, git or the log), `observed` (seen in this session) or `guess`, each ending in `→` and the change or action. Draw from: brief size and sections used, questions that changed the draft, assumptions overturned, drift between brief and code and which side was fixed, rework and `Found during` tasks, subsystem promotions and whether they met a trigger, diagram problems, missing-sibling notices, Overview growth, tier mismatches, correction rounds and their causes, tool-count outliers, `TaskStop`s or repeat hand-backs (always listed, with the cause or "cause unknown"), tidy items reverted, proposals raised.
+- **Keep:** one line, only when something worked that a later edit might break.
+- **Tooling:** would a custom tool have cut this rung's cost? Look at the largest batches, the stands-out lines, a `Token efficiency` group in the tasklist, and repeated hand-run sequences or rediscovery reads in the session. For each candidate, estimate its share `s` of the rung's tokens and apply the decision rule: at least 8% realistic saving is worth building for cost; 3–8% only if it also improves reliability; under 3% is left out. Say whether it is a project tool (a script or fixture in the project) or a skill tool (a `metrics`/`tasklist` subcommand or a skill rule).
+
+**Omission rule:** delete every line whose content would be "none", "nothing found", "as expected" or "no change". No empty headings. A rung with nothing worth changing gets one line: `Rung L20 retro: nothing stands out (<the verdict line>)`, and no feedback blocks.
+
+A system-design retro uses the same shape with `Design retro` in place of the rung, no numbers table, and only the design items.
+
+## Feedback blocks
+
+At most two fenced blocks, each only when it has a suggested edit: one for the `project-planning` skills (design, roadmap and quality-pass items) and one for `task-workflow` (run items). Project-neutral by default: no project names, file paths, or code unless the user asks. Read skill versions from each plugin's manifest (`../../.claude-plugin/plugin.json` relative to each skill's folder); if it is absent, write "version unknown (standalone install)".
+
+```text
+<project-planning | task-workflow> retrospective feedback
+Skills: <skill> <version> (<plugin>); <other skills used, with versions>
+Context: <rung retro | system-design retro>; <project kind, e.g. "macOS document app">; <new | adopted>
+Evidence:
+- [measured] ...
+- [observed] ...
+Suggested edits (skill, section, change, why; aim: thinner design and cheaper runs, same accuracy):
+- ...
+In danny-agent-skills, run </roadmap-feedback | /tasklist-feedback> and paste this block.
+```
 
 Offer to save the retrospective to the scratchpad or a path the user names. Do not write it into the project's design docs by default; they describe the system, not the process.

@@ -12,7 +12,7 @@ engineering, storytelling, and writing.
 | `swift-craft` | `naming-swift-tests`, `choosing-swift-design-patterns`, `organizing-swift-files` | Personal Swift conventions: explicit test naming, Swift-native design-pattern selection, and focused file organization |
 | `agent-engineering` | `optimizing-skill-development`, `audit-token-efficiency` | Risk-proportional skill validation with reproducible evidence, and post-task token-efficiency retrospectives |
 | `task-workflow` | `decision-driven-design`, `tasklist`, `tasklist-run` | Resolve consequential design decisions before implementation, then plan and execute the resulting tasks |
-| `project-planning` | `system-design`, `risk-first-roadmap`, `roadmap-plan-next-rung` | Outline a large, vague project or adopt an existing one (tuned for Apple-platform apps), plan it as risk-ordered, end-to-end increments, then design each increment just before building it |
+| `project-planning` | `system-design`, `risk-first-roadmap`, `roadmap-plan-next-rung`, `code-quality-pass` | Outline a large, vague project or adopt an existing one (tuned for Apple-platform apps), plan it as risk-ordered, end-to-end increments, design each increment just before building it, and keep the code's shape healthy with periodic quality passes |
 | `storytelling` | `crafting-compelling-stories` | Audience-aware storytelling and narrative copy grounded in an attributed Joanna Wiebe framework |
 | `peak-hours` | (Claude Code mod, no skills) | A PEAK badge with countdown above the prompt during assumed peak hours (5-11am PT weekdays), with a self-checking record of observed rate-limit cost by hour |
 
@@ -55,6 +55,14 @@ verification, and guard rails, in
 `<DocDir>/SystemDesign/Rung-<RungId>-<ShortRungDescription>.md`. Hands off to
 `tasklist`, then folds the finished rung back into the design and offers a
 retrospective.
+
+### `code-quality-pass`
+
+`/code-quality-pass`: periodic code-quality passes for a project built rung by
+rung. `tidy` makes small behaviour-preserving cleanups to the files one rung
+changed; `review` is a read-only whole-codebase architecture review whose ranked
+proposals the roadmap re-plan turns into refactor rungs or tasks. Zero-token
+signals decide when a review is due; it never blocks feature work.
 
 ### `tasklist`
 

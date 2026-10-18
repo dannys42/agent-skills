@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.12.0
+
+- Plan tools 0.2.0: new `metrics` binary. `metrics tokens` is a Swift port of `analyze_transcripts.py --append-tokens` (same events; a batch with no transcript turns is skipped instead of logged as zeros); `metrics summary <tasklist | run>` prints a rung's numbers against the median of the last 5 rung lists, its largest batches and what stands out, resolving old runs to their tasklist through the batch commit; `metrics signals` prints zero-token code-quality signals and review triggers (interval, no baseline, rung diff size, a fourth file of one shape, new mirrored types, new subsystem doc) and exits 1 when one fires. 51 tests (10 new)
+- `tasklist-run`: optional review findings that are not applied go to a `## Review notes` section of the tasklist (`opt_left` in the metrics log) for the code-quality pass; implementers report new compiler warnings and findings of the project's existing linter (never one the project lacks), and reviewers treat them as required; `Tasklist-<RungId>-Tidy.md` lists never raise a tier and turn a task that fails review twice into a proposal; `start` logs `list`; the retrospective uses `metrics summary` and the shared short format, and for a rung list defers to the rung retro after fold-back
+- `tasklist`: expected tool version `0.2.0`; the `metrics` commands are listed
+
 ## 0.11.1
 
 From a bug report: a roadmap session never installed the `roadmap` tool because only `tasklist` carried the install step, and a documented ladder line was not parsed.

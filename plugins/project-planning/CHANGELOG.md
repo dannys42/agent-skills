@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.0
+
+Periodic code-quality passes in the rung cycle, which had none: one project built 17 rungs with no whole-codebase review.
+
+- New `code-quality-pass` skill (`/code-quality-pass [status | tidy | review | baseline | defer]`). Tier 1 `tidy`: behaviour-preserving cleanups of the files one rung changed, at most 6 small commits and about 300 lines, written as `Tasklist-<RungId>-Tidy.md` and run by `tasklist-run`; anything larger becomes a proposal, a characterization test comes first for untested code. Tier 2 `review`: read-only, Sonnet scouts write 40-line seam cards per module and one Opus synthesis ranks at most 10 proposals (`refactor-rung`, `task`, `conventions`, `fitness-test`, `accept-shape`) plus defects; the user rules on each. State lives in `<DocDir>/Quality/Status.md` (current state only, 25-line budget); one live report, older ones moved to `Completed/Quality/`. Logged as `quality` and `quality_outcome` events in the task-workflow metrics log. Never blocks a feature rung
+- `roadmap-plan-next-rung`: hand-off records `Base: <sha>` in the brief; fold-back starts with a quality step (`metrics signals`, one-line tidy offer, `Since review:` and `Triggers pending:` updated) and notes a third or fourth copy of one shape; `retro` is one report for the rung's design, runs and quality pass
+- `retrospective.md`: standard one-screen format (verdict line, `metrics summary` table, numbered evidence-tagged "Worth changing", optional "Keep" and "Tooling"), lines that would say "none" are left out, and up to two feedback blocks (project-planning and task-workflow). The tooling line asks whether a custom tool would have cut the rung's cost, with the 8% / 3% decision rule
+- `risk-first-roadmap`: re-plan places accepted quality proposals (`Kind: refactor` rungs, tasks) and offers a review when the interval or a trigger is due; the roadmap header gains an optional `Quality:` line; expected plan-tool version `0.2.0`
+
 ## 0.4.1
 
 - `risk-first-roadmap`: new "Plan tool check" (`roadmap --version`, install from the `task-workflow` plugin's `build.sh` when missing or not `0.1.1`, no `grep`/`awk`/`sed` fallback while an install is untried); the finished-rung `detail:` pointer is shown after the bracketed status, matching what the `roadmap` tool parses

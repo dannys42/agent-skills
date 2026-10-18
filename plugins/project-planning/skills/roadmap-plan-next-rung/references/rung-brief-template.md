@@ -14,6 +14,7 @@ IDs from design docs are cited qualified (`Overview:FR2`); the brief's own rung-
 Roadmap: ../Roadmap-Sudoku_Printer.md (L3)
 Overview: Overview.md
 Status: draft | agreed (<date>) | folded back (<date>)
+Base: <short sha of HEAD when the tasks were handed off>
 
 ## Question and slice
 Question: Do fonts work, and is the size, color, and style legible at screen and print scale?

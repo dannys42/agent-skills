@@ -22,15 +22,10 @@ Look at the per-session turn counts before trusting a row.
 Usage:
   analyze_transcripts.py [--root DIR] [--project SUBSTR] [--since YYYY-MM-DD]
                          [--weights opus=1,sonnet=0.6,haiku=0.2] [--json]
-  analyze_transcripts.py --append-tokens [--log PATH] [--root DIR] [--dry-run]
 
---append-tokens adds one `tokens` event per `batch` line of the task-workflow
-metrics log, with raw token counts for the orchestrator, implementer and reviewer
-in that batch's time window (previous batch, or the run's `start`, up to this
-batch), plus `cache_breaks` (turns with more than 100k uncached input, i.e. input
-plus cache-write tokens, across all roles) and `max_uncached` (the largest such turn). Batches that already have a `tokens` event are skipped, so it is safe to
-re-run. Windows are matched to transcripts by repo path; parallel sessions in the
-same repo during a run would be mixed in.
+Per-batch token events moved to the task-workflow plugin's Swift `metrics tokens`
+(plugins/task-workflow/tools/plantools), which matched this script's former
+--append-tokens output on the real log before it was removed here.
 """
 import argparse
 import datetime
@@ -288,117 +283,6 @@ def report(rows):
           "reliability; < 3% -> skip.")
 
 
-DEFAULT_LOG = os.path.expanduser("~/.local/state/danny-agent-skills/task-workflow/metrics.jsonl")
-ZERO = {"in": 0, "cr": 0, "cw": 0, "out": 0}
-CACHE_BREAK_UNCACHED = 100_000  # a turn with more uncached input than this is a "cache break"
-
-
-def parse_ts(ts):
-    return datetime.datetime.fromisoformat(ts.replace("Z", "+00:00"))
-
-
-def raw_usage(usage):
-    return {
-        "in": usage.get("input_tokens", 0),
-        "cr": usage.get("cache_read_input_tokens", 0),
-        "cw": usage.get("cache_creation_input_tokens", 0),
-        "out": usage.get("output_tokens", 0),
-    }
-
-
-def short_model(model):
-    m = (model or "").lower()
-    for name in ("opus", "sonnet", "haiku", "fable"):
-        if name in m:
-            return name
-    return model or "?"
-
-
-def add_raw(bucket, model, raw):
-    slot = bucket.setdefault(short_model(model), dict(ZERO))
-    for k in ZERO:
-        slot[k] += raw[k]
-
-
-def transcript_turns(path):
-    """(timestamp, model, raw usage) once per API request."""
-    turns = {}
-    for d in records(path):
-        if d.get("type") != "assistant" or not d.get("timestamp"):
-            continue
-        m = d.get("message") or {}
-        if m.get("usage"):
-            turns[d.get("requestId") or d.get("uuid")] = (
-                parse_ts(d["timestamp"]), m.get("model"), raw_usage(m["usage"]))
-    return list(turns.values())
-
-
-def project_dir(root, repo):
-    return os.path.join(root, re.sub(r"[^A-Za-z0-9]", "-", repo))
-
-
-def batch_tokens(root, repo, lo, hi):
-    """Raw tokens by role and model for transcripts of `repo` between lo and hi."""
-    out = {"orch": {}, "impl": {}, "rev": {}}
-    counts = {"orch_turns": 0, "impl_agents": 0, "rev_agents": 0}
-    uncached = []  # input + cache-write tokens of every turn, all roles
-    for path in glob.glob(os.path.join(project_dir(root, repo), "*.jsonl")):
-        if datetime.datetime.fromtimestamp(os.path.getmtime(path), datetime.timezone.utc) < lo:
-            continue
-        for ts, model, raw in transcript_turns(path):
-            if lo < ts <= hi:
-                add_raw(out["orch"], model, raw)
-                uncached.append(raw["in"] + raw["cw"])
-                counts["orch_turns"] += 1
-        for sp in glob.glob(path[:-6] + "/subagents/agent-*.jsonl"):
-            turns = transcript_turns(sp)
-            if not turns or not (lo < min(t[0] for t in turns) <= hi):
-                continue
-            try:
-                with open(sp[:-6] + ".meta.json") as f:
-                    desc = (json.load(f).get("description") or "").lower()
-            except (OSError, ValueError):
-                desc = ""
-            role = "rev" if "review" in desc else "impl"
-            counts[role + "_agents"] += 1
-            for _, model, raw in turns:
-                add_raw(out[role], model, raw)
-                uncached.append(raw["in"] + raw["cw"])
-    out.update(counts)
-    out["cache_breaks"] = sum(1 for u in uncached if u > CACHE_BREAK_UNCACHED)
-    out["max_uncached"] = max(uncached, default=0)
-    return out
-
-
-def append_tokens(log, root, dry_run):
-    lines = list(records(log)) if os.path.exists(log) else []
-    done = {(d.get("run"), d.get("batch_ts")) for d in lines if d.get("event") == "tokens"}
-    prev = {}  # run -> previous window edge
-    new = []
-    for d in lines:
-        run, ev = d.get("run"), d.get("event")
-        if ev == "start":
-            prev[run] = parse_ts(d["ts"])
-        elif ev == "batch":
-            hi = parse_ts(d["ts"])
-            lo = prev.get(run) or hi - datetime.timedelta(hours=2)
-            prev[run] = hi
-            if (run, d["ts"]) in done:
-                continue
-            t = batch_tokens(root, d["repo"], lo, hi)
-            new.append({"v": 1, "run": run, "ts": d["ts"], "event": "tokens", "batch_ts": d["ts"],
-                        "repo": d["repo"], "tasks": d.get("tasks"), **t})
-    for rec in new:
-        text = json.dumps(rec, separators=(",", ":"))
-        if dry_run:
-            print(text)
-    if not dry_run and new:
-        with open(log, "a") as f:
-            for rec in new:
-                f.write(json.dumps(rec, separators=(",", ":")) + "\n")
-    print(f"{'would append' if dry_run else 'appended'} {len(new)} tokens event(s) to {log}",
-          file=sys.stderr)
-    return 0
 
 
 def main():
@@ -409,14 +293,8 @@ def main():
     ap.add_argument("--weights", default="opus=1,sonnet=0.6,haiku=0.2",
                     help="relative per-model price weights (placeholders; check real pricing)")
     ap.add_argument("--json", action="store_true")
-    ap.add_argument("--append-tokens", action="store_true",
-                    help="append a tokens event for each batch in the metrics log")
-    ap.add_argument("--log", default=DEFAULT_LOG)
-    ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
     weights = {k: float(v) for k, v in (p.split("=") for p in a.weights.split(","))}
-    if a.append_tokens:
-        return append_tokens(a.log, a.root, a.dry_run)
 
     since = None
     if a.since:

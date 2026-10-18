@@ -1,6 +1,6 @@
 # task-workflow: metrics first, CLI later
 
-Status: metrics logging shipped in task-workflow 0.7.0. The SQLite/Swift CLI is on hold pending data.
+Status: metrics logging shipped in task-workflow 0.7.0. The SQLite/Swift CLI is on hold pending data. Since 0.12.0, `--append-tokens` lives in the Swift `metrics tokens` (plan tools 0.2.0), with `metrics summary` for retrospectives; the Python script keeps only the study below.
 
 ## The idea under evaluation
 

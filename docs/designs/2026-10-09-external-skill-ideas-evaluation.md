@@ -15,7 +15,7 @@ Provenance: the skill contents below come from a subagent's read of each skill's
 - `tasklist` gives each task a minimum-model tier (`light`, `standard`, `heavy`) and optionally a named model.
 - `tasklist-run` runs the implementer on the task's tier (highest tier in a mixed batch). It picks the reviewer by risk: Opus for `heavy` or network, concurrency, security, persistence, platform-API work, otherwise Sonnet.
 - Corrections go to the same implementer with `SendMessage`; two correction rounds are allowed. A third failing review raises the task's tier once and reruns the implementer; a further failure blocks the task.
-- Events go to `~/.local/state/danny-agent-skills/task-workflow/metrics.jsonl` (`start`, `batch`, `end`). `analyze_transcripts.py --append-tokens` adds exact `tokens` events from transcripts.
+- Events go to `~/.local/state/danny-agent-skills/task-workflow/metrics.jsonl` (`start`, `batch`, `end`). `metrics tokens` (formerly `analyze_transcripts.py --append-tokens`) adds exact `tokens` events from transcripts.
 - `tasklist-monitor` shows per-task tokens, cost and model live, at no token cost. It is display only; nothing acts on cost.
 - `agent-engineering:audit-token-efficiency` is a manual retrospective for repeated discovery, scripts and MCP servers. It does not examine model choice.
 
@@ -108,7 +108,7 @@ Known limits of the data:
 
 ## Queries
 
-The log is `~/.local/state/danny-agent-skills/task-workflow/metrics.jsonl`. Run `python3 -I misc/tasklist-metrics/analyze_transcripts.py --append-tokens` first so each batch has a `tokens` event. These `jq` sketches are untested; fix them against real lines.
+The log is `~/.local/state/danny-agent-skills/task-workflow/metrics.jsonl`. Run `~/.cache/danny-agent-skills/bin/metrics tokens` first so each batch has a `tokens` event. These `jq` sketches are untested; fix them against real lines.
 
 ```sh
 LOG=~/.local/state/danny-agent-skills/task-workflow/metrics.jsonl

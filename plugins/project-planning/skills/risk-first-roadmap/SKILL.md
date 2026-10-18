@@ -49,6 +49,7 @@ Status: planned
 - **Done when** is observable and checkable, with the command or action to check it.
 - **De-risks** links to the design's risk IDs (`R`), so the register shrinks as rungs complete. Rungs use their own prefix, `L` (ladder), so they never collide with risk IDs.
 - **If no** is the fallback or the decision to revisit. A rung that cannot fail is not testing anything.
+- A rung that comes from an accepted code-quality proposal adds `Kind: refactor` and asks whether the new shape holds without changing behaviour ("Can the three derivers share one protocol with every existing test still green?").
 
 ## Detail horizon
 
@@ -103,7 +104,7 @@ Do the pass as a move-only commit, separate from content changes, and verify it 
 
 ### Plan tool check
 
-Before the first `roadmap` call in a session, run `~/.cache/danny-agent-skills/bin/roadmap --version`. If it fails or is not `0.1.1`, install it without asking: `sh "$(ls -td ~/.claude/plugins/cache/*/task-workflow/*/tools/plantools/build.sh | head -n 1)"` (the `task-workflow` plugin's build script; if that finds nothing, the plugin is not installed, so skip the tool). If `swift` is missing or the build fails, say so in one line, do not retry, and read by hand. Do not fall back to `grep`, `awk` or `sed` while an install is still untried. `roadmap-plan-next-rung` uses the same check.
+Before the first `roadmap` call in a session, run `~/.cache/danny-agent-skills/bin/roadmap --version`. If it fails or is not `0.2.0`, install it without asking: `sh "$(ls -td ~/.claude/plugins/cache/*/task-workflow/*/tools/plantools/build.sh | head -n 1)"` (the `task-workflow` plugin's build script; if that finds nothing, the plugin is not installed, so skip the tool). If `swift` is missing or the build fails, say so in one line, do not retry, and read by hand. Do not fall back to `grep`, `awk` or `sed` while an install is still untried. `roadmap-plan-next-rung` uses the same check.
 
 ## Hand off to implementation
 
@@ -116,6 +117,7 @@ After a rung finishes, fold it back first (`/roadmap-plan-next-rung fold-back L3
 - Set its status (`done`, `failed`, `changed`) and record what was learned in one or two lines, including the measured answer to its question.
 - Update the affected design docs' risk registers and decision logs if re-planning changed them beyond what fold-back recorded.
 - **After the first end-to-end data rung**, make sure that rung's fold-back compared every affected design doc as a whole with what was built, not just the components it touched. Record any drift in the decision log and fix whichever side is wrong.
+- **Code quality** (`code-quality-pass` skill): if `<DocDir>/Quality/Review-<date>.md` has accepted proposals, place them: a `refactor-rung` becomes a rung (`Kind: refactor`) ordered by the rules above, never ahead of a feature rung unless the user puts it there; a `task`, `conventions` or `fitness-test` becomes a task in the next rung's tasklist or a small `Tasklist-Refactor-<Short_Name>.md`. Mark each placed proposal with its rung or task in the report. Then, if `Quality/Status.md`'s `Since review:` has reached `Every:` or `Triggers pending:` is not `none`, offer `/code-quality-pass review` in one line (run, skip or defer); with no `Status.md`, the fold-back signals already nudged, so say nothing more. This step never holds up the next rung.
 - Re-rank the remaining risks and promote or demote horizon items. Add new rungs for newly discovered unknowns; mark rungs that became unnecessary `obsolete` instead of deleting them.
 - Tell the user what moved and why.
 
