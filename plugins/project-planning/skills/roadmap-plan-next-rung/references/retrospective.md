@@ -1,6 +1,6 @@
 # Retrospective
 
-Shared by `roadmap-plan-next-rung` (`retro [L3]`, and offered at the end of fold-back) and `system-design` (offered after sign-off, and `retro` any time). Its purpose is to tell the user what is worth changing, and the maintainer of these skills whether the design stayed thin, the run stayed cheap, and the quality pass paid, with evidence a clean agent can act on later.
+Shared by `roadmap-plan-next-rung` (`retro [L3]`, and run inside close) and `system-design` (offered after sign-off, and `retro` any time). Its purpose is to tell the user what is worth changing, and the maintainer of these skills whether the design stayed thin, the run stayed cheap, and the quality pass paid, with evidence a clean agent can act on later.
 
 Build it from the project's actual docs, history and metrics, not from memory. Apply nothing; the user decides what to do with it.
 

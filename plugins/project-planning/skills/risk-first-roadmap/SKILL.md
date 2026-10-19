@@ -2,6 +2,7 @@
 name: risk-first-roadmap
 description: Turn a system design or a vague project idea into a roadmap of small end-to-end increments, each one a working, observable capability that answers the riskiest remaining unknown. Orders work by risk instead of by layer, so the project proves its hardest assumptions first and keeps a runnable app at every step. Tuned for Apple-platform apps. Use whenever the user wants a roadmap, build order, milestones, or "what should I build first" for a new or large project, has just finished a system design (SystemDesign/Overview.md, or a legacy Design-*.md), has adopted an existing codebase and recorded a change of direction, or says a project is too big to know where to start. Also use to re-plan an existing roadmap after an increment taught something new. Not for designing or breaking down one increment (use roadmap-plan-next-rung, then tasklist) or for product-strategy roadmaps with stakeholders and quarters.
 license: GPL-3.0-or-later
+model: opus
 ---
 
 # Risk-First Roadmap
@@ -104,17 +105,17 @@ Do the pass as a move-only commit, separate from content changes, and verify it 
 
 ### Plan tool check
 
-Before the first `roadmap` call in a session, run `~/.cache/danny-agent-skills/bin/roadmap --version`. If it fails or is not `0.3.0`, install it without asking: `sh "$(ls -td ~/.claude/plugins/cache/*/task-workflow/*/tools/plantools/build.sh | head -n 1)"` (the `task-workflow` plugin's build script; if that finds nothing, the plugin is not installed, so skip the tool). If `swift` is missing or the build fails, say so in one line, do not retry, and read by hand. Do not fall back to `grep`, `awk` or `sed` while an install is still untried. `roadmap-plan-next-rung` uses the same check.
+Before the first `roadmap` call in a session, run `~/.cache/danny-agent-skills/bin/roadmap --version`. If it fails or is not `0.4.0`, install it without asking: `sh "$(ls -td ~/.claude/plugins/cache/*/task-workflow/*/tools/plantools/build.sh | head -n 1)"` (the `task-workflow` plugin's build script; if that finds nothing, the plugin is not installed, so skip the tool). If `swift` is missing or the build fails, say so in one line, do not retry, and read by hand. Do not fall back to `grep`, `awk` or `sed` while an install is still untried. `roadmap-plan-next-rung` uses the same check.
 
 ## Hand off to implementation
 
-A roadmap is not a task list. When the user is ready to build the next rung, run `/roadmap-plan-next-rung` for just that rung: it writes a short design brief for the parts the rung touches, agrees it with the user, and hands off to the `tasklist` skill, which writes `<DocDir>/Tasklist-<RungId>-<ShortRungDescription>.md`; `tasklist-run` executes it. Do not pre-expand later rungs.
+A roadmap is not a task list. When the user is ready to build the next rung, run `/roadmap-plan-next-rung` for just that rung: it writes a short design brief for the parts the rung touches, agrees it with the user, and hands off to the `tasklist` skill, which writes `<DocDir>/Tasklist-<RungId>-<ShortRungDescription>.md`; `tasklist-run` executes it. `/rung` runs the whole cycle: plan, run, close. Do not pre-expand later rungs.
 
-End a new roadmap (and any re-plan) with the next step, as `Next: <command> (<Model>: /model <alias>)`: `/roadmap-plan-next-rung <first or next rung ID>` on Opus (`/model opus`), because it designs the rung against the code and settles the open decisions. Name the rung ID so the user can paste the line. Log it as a `step` event (fields in `tasklist-run`'s metrics log).
+End a new roadmap (and any re-plan) with the next step, as `Next: /rung → plan <rung ID> (Opus: /model opus)`, because planning designs the rung against the code and settles the open decisions. Name the rung ID so the user can paste the line. Log it as a `step` event (fields in `tasklist-run`'s metrics log).
 
 ## Re-plan after each rung
 
-After a rung finishes, fold it back first (`/roadmap-plan-next-rung fold-back L3`), so the affected design docs (the Overview and any subsystem docs the rung touched), with their risk registers and decision logs, describe what was actually built. Then update the roadmap before starting the next rung:
+This normally runs as the last part of `/rung close` (`roadmap-plan-next-rung`'s "Close a rung"), after fold-back. After a rung finishes, fold it back first (`/roadmap-plan-next-rung close L3` does it), so the affected design docs (the Overview and any subsystem docs the rung touched), with their risk registers and decision logs, describe what was actually built. Then update the roadmap before starting the next rung:
 
 - Set its status (`done`, `failed`, `changed`) and record what was learned in one or two lines, including the measured answer to its question.
 - Update the affected design docs' risk registers and decision logs if re-planning changed them beyond what fold-back recorded.

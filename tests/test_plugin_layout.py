@@ -16,7 +16,7 @@ BUNDLE_SKILLS = {
         "audit-token-efficiency",
     },
     "task-workflow": {"decision-driven-design", "tasklist", "tasklist-run"},
-    "project-planning": {"system-design", "risk-first-roadmap", "roadmap-plan-next-rung", "code-quality-pass"},
+    "project-planning": {"system-design", "risk-first-roadmap", "roadmap-plan-next-rung", "code-quality-pass", "rung"},
     "storytelling": {"crafting-compelling-stories"},
 }
 # Claude Code mods: hooks modules, listed in the Claude marketplace only.

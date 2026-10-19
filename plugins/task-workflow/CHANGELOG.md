@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.14.0
+
+Part of the `/rung` cycle (see project-planning 0.8.0).
+
+- Plan tools 0.4.0: `roadmap next` prints the next step of the rung cycle from the files on disk; `metrics` maps `/rung <step>` next-commands to their skill
+- `tasklist-run`, `tasklist` and `decision-driven-design`: the `Next:` line for a rung list points at `/rung`
+- The tasklist-monitor mod shows the next step (`roadmap next`) above the prompt, refreshed at session start and after each turn outside a run, at zero token cost
+
 ## 0.13.2
 
 From a rung retro whose `metrics summary` showed 2 lines changed and 0 reviewer tokens for a 562-line rung with three reviews. Both numbers came from fields the orchestrator copies by hand.

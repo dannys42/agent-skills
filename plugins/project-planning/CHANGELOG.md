@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.8.0
+
+Users had to remember five long commands across clean sessions, and skipping the re-plan left the finished rung `in progress`, so a bare `/roadmap-plan-next-rung` picked it again.
+
+- New `rung` skill: `/rung` reads the project's files (with plan tools 0.4.0's `roadmap next`) and runs the next step; `/rung status` prints where the project stands. The cycle is three sessions: plan, run, close
+- `roadmap-plan-next-rung`: `close` (alias `fold-back`) merges fold-back, the retrospective in a background Sonnet subagent and the re-plan into one Opus session
+- `Next:` lines in `system-design`, `risk-first-roadmap`, `roadmap-plan-next-rung` and `code-quality-pass` point at `/rung`
+- `system-design`, `risk-first-roadmap` and `roadmap-plan-next-rung` pin `model: opus`
 ## 0.7.1
 
 - `retrospective.md`: a retro ends with exactly one feedback block for the new `/retro-feedback` command (replaces `/roadmap-feedback` and `/tasklist-feedback`), items tagged `[project-planning]` or `[task-workflow]`, preceded by a plain "Paste this block" line; the block gains `Run:` (run IDs) and `Diagnosed:` lines; new "Check before you guess" step (one command on the cause of a missing or odd number before tagging it `guess`); the `metrics tokens` / `metrics summary` instructions now say that `metrics tokens` takes no tasklist argument and that `summary` matches by list name, also after the list moved to `Completed/`

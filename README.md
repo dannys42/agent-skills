@@ -12,7 +12,7 @@ engineering, storytelling, and writing.
 | `swift-craft` | `naming-swift-tests`, `choosing-swift-design-patterns`, `organizing-swift-files` | Personal Swift conventions: explicit test naming, Swift-native design-pattern selection, and focused file organization |
 | `agent-engineering` | `optimizing-skill-development`, `audit-token-efficiency` | Risk-proportional skill validation with reproducible evidence, and post-task token-efficiency retrospectives |
 | `task-workflow` | `decision-driven-design`, `tasklist`, `tasklist-run` | Resolve consequential design decisions before implementation, then plan and execute the resulting tasks |
-| `project-planning` | `system-design`, `risk-first-roadmap`, `roadmap-plan-next-rung`, `code-quality-pass` | Outline a large, vague project or adopt an existing one (tuned for Apple-platform apps), plan it as risk-ordered, end-to-end increments, design each increment just before building it, and keep the code's shape healthy with periodic quality passes |
+| `project-planning` | `system-design`, `risk-first-roadmap`, `roadmap-plan-next-rung`, `code-quality-pass`, `rung` | Outline a large, vague project or adopt an existing one (tuned for Apple-platform apps), plan it as risk-ordered, end-to-end increments, design each increment just before building it, and keep the code's shape healthy with periodic quality passes |
 | `storytelling` | `crafting-compelling-stories` | Audience-aware storytelling and narrative copy grounded in an attributed Joanna Wiebe framework |
 | `peak-hours` | (Claude Code mod, no skills) | A PEAK badge with countdown above the prompt during assumed peak hours (5-11am PT weekdays), with a self-checking record of observed rate-limit cost by hour |
 
@@ -39,6 +39,14 @@ target or a major piece) gets its own design doc of the same shape, written on
 demand, and its parent treats it as one component. Adopt mode documents an
 existing codebase as-is and records changes of direction. Tuned for
 Apple-platform apps.
+
+### `rung`
+
+Runs the next step of the rung cycle from the project's files, so you do not
+have to remember which command comes next. Three sessions per rung: `/rung`
+plans it, `/rung` runs its tasklist, and `/rung` closes it (fold-back,
+retrospective and re-plan in one Opus session). `/rung status` shows where the
+project stands without doing anything.
 
 ### `risk-first-roadmap`
 

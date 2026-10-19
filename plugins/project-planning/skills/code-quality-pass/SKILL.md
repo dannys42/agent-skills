@@ -47,7 +47,7 @@ In both tiers, rank and decide by what keeps the codebase healthy over many futu
 
 ## Metrics tool check
 
-Before the first `metrics` call in a session, run `~/.cache/danny-agent-skills/bin/metrics --version`. If it fails or is not `0.3.0`, install it without asking with the `task-workflow` plugin's build script, as in `risk-first-roadmap`'s "Plan tool check". Without it, say so in one line; `status` and the triggers are then unavailable, and `tidy` and `review` read `git diff --stat` and `grep` counts by hand.
+Before the first `metrics` call in a session, run `~/.cache/danny-agent-skills/bin/metrics --version`. If it fails or is not `0.4.0`, install it without asking with the `task-workflow` plugin's build script, as in `risk-first-roadmap`'s "Plan tool check". Without it, say so in one line; `status` and the triggers are then unavailable, and `tidy` and `review` read `git diff --stat` and `grep` counts by hand.
 
 `metrics signals [--base <sha> | --tasklist <path>] [--status <path>] [--json]` exits 1 when a trigger fires; that is a result, not an error. Pass `--status` when `DocDir` is not `Documentation`, `docs` or `Docs`.
 
@@ -67,7 +67,7 @@ Before the first `metrics` call in a session, run `~/.cache/danny-agent-skills/b
 4. **Classify each item.** Judge by long-term quality, not effort: an item that is too big for a tidy becomes a proposal, never a dropped finding. Tidy: naming clarity, idiomatic Swift, file organization, duplication with sibling code that one small extraction removes, a leftover review note, a stale test or doc name, a compiler warning in a rung file, a finding of the project's existing linter. Everything else is a **proposal**: a behaviour change, a public interface change beyond renames, a change spreading beyond the rung's files and their call sites, or more than about 80 changed lines for one item.
 5. **Characterization first.** If an item changes code that no test exercises, its first task adds a characterization test, in its own commit, before the change.
 6. **Write `Tasklist-<RungId>-Tidy.md`** in `tasklist` format: `Source:` the rung and base; at most 6 tasks and about 300 changed lines in all; each `Done when` includes the full test command passing; one `Non-goals` line: no behaviour change. A pure rename or move is `light`, anything else `standard`.
-7. **Offer it**: one line per task, then run, skip or defer. On run, hand the file to `tasklist-run` (orchestrate on Sonnet 5.5; the tidy list has no `heavy` tasks). When the pass is done, say the next step is the fold-back it interrupted: `/roadmap-plan-next-rung fold-back <RungId>` on Opus. Its tidy rules (no tier raise; a task that fails review twice is reverted and closed as a proposal) keep the pass small.
+7. **Offer it**: one line per task, then run, skip or defer. On run, hand the file to `tasklist-run` (orchestrate on Sonnet 5.5; the tidy list has no `heavy` tasks). When the pass is done, say the next step is the fold-back it interrupted: `/rung → close <RungId>` on Opus. Its tidy rules (no tier raise; a task that fails review twice is reverted and closed as a proposal) keep the pass small.
 8. **Record**: proposals go to `Status.md`'s backlog count and are carried into the next review; log a `quality` event (below); offer a defect task if the scout found one.
 
 ## Tier 2: review

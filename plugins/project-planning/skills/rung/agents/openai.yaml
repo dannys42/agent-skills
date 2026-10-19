@@ -1,0 +1,6 @@
+interface:
+  display_name: "Rung"
+  short_description: "Work out and run the next step of the rung cycle"
+  default_prompt: "Use $rung to find the next step of the roadmap and run it."
+policy:
+  allow_implicit_invocation: true

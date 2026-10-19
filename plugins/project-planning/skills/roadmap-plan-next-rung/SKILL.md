@@ -1,7 +1,8 @@
 ---
 name: roadmap-plan-next-rung
-description: Plan one rung of a risk-first roadmap just before building it. Writes a short rung design brief that deepens the system design only where this rung needs it (scope for the rung, requirements touched, components and interfaces with a highlighted diagram, open decisions, verification, guard rails, fold-back list), agrees it with the user, updates each design doc it touches (creating a subsystem doc only when a piece warrants one), then hands off to tasklist. Also folds a finished rung back into the design so the docs match what was built. Use whenever the user says "plan the next rung", "design this rung", "start rung L3", "what do I build next and how", "design before the tasklist", or has a roadmap and wants to begin implementing the next increment, even if they do not name this skill. Use `fold-back` after a rung's tasks are done (it offers a code-quality tidy of the rung's files first), and `retro` for one retrospective of the rung's design, run and quality pass. Not for whole-system design (use system-design) or for ordering rungs (use risk-first-roadmap).
+description: Plan one rung of a risk-first roadmap just before building it. Writes a short rung design brief that deepens the system design only where this rung needs it (scope for the rung, requirements touched, components and interfaces with a highlighted diagram, open decisions, verification, guard rails, fold-back list), agrees it with the user, updates each design doc it touches (creating a subsystem doc only when a piece warrants one), then hands off to tasklist. Also folds a finished rung back into the design so the docs match what was built. Use whenever the user says "plan the next rung", "design this rung", "start rung L3", "what do I build next and how", "design before the tasklist", or has a roadmap and wants to begin implementing the next increment, even if they do not name this skill. Use `close` after a rung's tasks are done: it folds the rung back, runs its retrospective and re-plans the roadmap in one step (it offers a code-quality tidy of the rung's files first), and `retro` for the retrospective alone. `/rung` picks the step. Not for whole-system design (use system-design) or for ordering rungs (use risk-first-roadmap).
 license: GPL-3.0-or-later
+model: opus
 ---
 
 # Roadmap: Plan the Next Rung
@@ -15,8 +16,9 @@ Read [rung-brief-template.md](references/rung-brief-template.md) before drafting
 ## Invocation
 
 - `/roadmap-plan-next-rung [L3]` plans a rung. With no ID, take the first rung in ladder order whose status is `in progress`, else the first `planned` one, and say which you chose.
-- `/roadmap-plan-next-rung fold-back L3` folds a finished rung back (see [Fold-back](#fold-back)). Offer this unprompted when the rung's tasklist is fully closed or the user says the rung is done.
+- `/roadmap-plan-next-rung close [L3]` (alias: `fold-back`) closes a finished rung: fold-back, retrospective and re-plan (see [Close a rung](#close-a-rung)). Offer this unprompted when the rung's tasklist is fully closed or the user says the rung is done.
 - `/roadmap-plan-next-rung retro [L3]` writes the rung's retrospective: design, run and quality pass in one report (see [Retrospective](#retrospective)).
+- `/rung` chooses among these from the files on disk.
 
 ## Files
 
@@ -76,15 +78,15 @@ Before handing off, make the agreed brief true in each design doc it touches, an
 
 ### 6. Hand off to the task list
 
-Use the `tasklist` skill to write `<DocDir>/Tasklist-<RungId>-<ShortRungDescription>.md`, with `Source:` citing the rung ID and the brief. The brief's verification items become `Done when` checks, its guard rails become `Context` or `Non-goals` lines, and its decision IDs are cited in `Context`. Set the rung's roadmap status to `in progress`, and write `Base: <git rev-parse --short HEAD>` under the brief's `Status:` line (no brief: in the tasklist's `Source:` line), so fold-back and the tidy pass can diff the rung's work. End with the next step, as `Next: <command> (<Model>: /model <alias>)`: `/tasklist-run <the tasklist path>` on the orchestrator model from `tasklist-run`'s "Orchestrator model" (Sonnet 5.5, or Opus 5.5 when the list has `heavy` tasks; subagents still follow each task's `Model`). Add that `/roadmap-plan-next-rung fold-back <RungId>` follows when the tasks are done. Log it as a `step` event (fields in `tasklist-run`'s metrics log).
+Use the `tasklist` skill to write `<DocDir>/Tasklist-<RungId>-<ShortRungDescription>.md`, with `Source:` citing the rung ID and the brief. The brief's verification items become `Done when` checks, its guard rails become `Context` or `Non-goals` lines, and its decision IDs are cited in `Context`. Set the rung's roadmap status to `in progress`, and write `Base: <git rev-parse --short HEAD>` under the brief's `Status:` line (no brief: in the tasklist's `Source:` line), so fold-back and the tidy pass can diff the rung's work. End with the next step, as `Next: /rung → run <RungId> (<Model>: /model <alias>)`, on the orchestrator model from `tasklist-run`'s "Orchestrator model" (Sonnet 5.5, or Opus 5.5 when the list has `heavy` tasks; subagents still follow each task's `Model`); then `/rung` again closes the rung when the tasks are done. Log it as a `step` event (fields in `tasklist-run`'s metrics log).
 
 ## Rung 1 and build boundaries
 
 When the Overview implies more than one build boundary that rung 1 must create (separate executables, a shared package, enforced layering between modules), rung 1's brief adds a **Build targets** section: each target, its allowed imports, and its build and test commands, drawn in the brief's diagram. Gate rung 1's implementation on the owner approving the brief, because the target layout is expensive to change later. With a single app target (a test target or one local package does not count), say so in one line. Each target is a subsystem candidate, but rung 1 only needs its boundary and Contract in the parent, not its own doc.
 
-## Fold-back
+## Close a rung
 
-Run after a rung's tasks are closed, before the roadmap is re-planned.
+Run after a rung's tasks are closed. It folds the rung back, runs the retrospective and re-plans the roadmap.
 
 0. **Quality step.** Run `metrics signals --base <Base>` (or `--tasklist <the rung's tasklist>` when there is no `Base:`; see the `code-quality-pass` skill's "Metrics tool check"). Then offer, in one line, a tidy of the rung's files (`/code-quality-pass tidy <RungId>`): run, skip or defer. Run it first when accepted, because renames change what the docs below must name. If `<DocDir>/Quality/Status.md` exists, append the rung to `Since review:` and any fired trigger names to `Triggers pending:`; if it does not, the signals print a `no-baseline` line, which is the whole nudge. Never wait on this step.
 1. Read the brief and the design docs it lists as touched (no brief, because the rung skipped it: compare against the doc the tasklist's `Source:` cites and the tasklist, and skip step 5's status), the rung's tasklist (in `<DocDir>/` or `<DocDir>/Completed/`), the commits for its tasks, and the code for the touched components.
@@ -92,14 +94,16 @@ Run after a rung's tasks are closed, before the roadmap is re-planned.
 3. Fix whichever side is wrong. When the code is right and the design was a guess, update the docs. When the code drifted for a bad reason, leave the docs and add a task to the tasklist, or propose a rung, to close the gap. Record each drift as a decision.
 4. Update each touched design doc to as-built: depth tags `designed → built` for components the rung verified, diagram, decision log, assumptions (`confirmed` or refuted with what replaced them), risk register (retire what the rung answered, add what it uncovered), and traceability status in the doc that owns each requirement. Update a parent only where a Contract changed, or an allocated requirement is now fully proven, or to tag a subsystem box `built` once its doc's components are verified. Keep each decision, risk and traceability cell to one line (under about 400 characters) and link the brief for the reasoning. Work through the brief's fold-back list and tick each item.
 5. Set the brief's status to `folded back (<date>)`, with a short "As built" note for each difference.
-6. Tell the user what moved and why, then name the next step, as `Next: <command> (<Model>: /model <alias>)`: `/risk-first-roadmap` on Opus (`/model opus`) to re-plan, because it owns rung status, the learning log and reordering and needs the judgment to re-rank risks. If comparing the code showed a third or fourth copy of one shape (types or files that differ only in their subject), say so in the "As built" note and add `shape` to `Triggers pending:`.
-7. Offer a retrospective of the rung (`/roadmap-plan-next-rung retro <RungId>`, Sonnet is enough), then repeat the next-step line so it is the last thing shown. Fold-back logs its own `step` event too, with `skill`, `model`, `target` (the RungId), `next` and `next_model`.
+6. Tell the user what moved and why. Start the retrospective in a background subagent on Sonnet: its prompt names the RungId, tells it to follow [retrospective.md](references/retrospective.md) (give the absolute path of this skill's reference) and return only the report, applying nothing. If comparing the code showed a third or fourth copy of one shape (types or files that differ only in their subject), say so in the "As built" note and add `shape` to `Triggers pending:`.
+7. Re-plan: follow `risk-first-roadmap`'s "Re-plan after each rung" (invoke the skill, or without it update the rung's roadmap status to `done`/`failed`/`changed` and the learning log by hand), which sets the rung's status and names the next rung. Inside close, the re-plan neither prints its `Next:` line nor logs its `step` event; step 8 does both once.
+8. When the retro returns, show it after the re-plan summary, then end with `Next: /rung → plan <next rung ID> (Opus: /model opus)`. Log one `step` event for close, with `skill`, `model`, `target` (the RungId), `drift`, `next` and `next_model`.
+9. If the session is long or the user stops after fold-back, say `/rung` picks up at the re-plan (the tool reports `replan` when the brief is folded back but the rung is still in progress).
 
 After the first end-to-end data rung, widen step 2 to every affected design doc as a whole (the Overview and each subsystem the data passed through), not just the touched components, because that is where the early sketch most often diverges from reality.
 
 ## Retrospective
 
-`retro [L3]`, or offered after fold-back. One report for the whole rung: its design, its `tasklist-run` runs and its quality pass. Follow [retrospective.md](references/retrospective.md): build it from the brief, the touched design docs, the rung's tasklist, git history and `metrics summary <rung tasklist>`, not from memory; the standard short format, ending in one project-neutral feedback block for `/retro-feedback` (items tagged by plugin), or one line if nothing stands out. Apply nothing.
+`retro [L3]`, or run inside close. One report for the whole rung: its design, its `tasklist-run` runs and its quality pass. Follow [retrospective.md](references/retrospective.md): build it from the brief, the touched design docs, the rung's tasklist, git history and `metrics summary <rung tasklist>`, not from memory; the standard short format, ending in one project-neutral feedback block for `/retro-feedback` (items tagged by plugin), or one line if nothing stands out. Apply nothing.
 
 ## If a linked file or skill is missing
 

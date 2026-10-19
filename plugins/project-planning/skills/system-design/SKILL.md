@@ -2,6 +2,7 @@
 name: system-design
 description: Shape a high-level system design for a large or semi-ambiguous project as a living, incremental design. By default writes a one-page outline (summary and success criteria, version scope, headline requirements, focus areas, a component diagram with depth tags, decisions, assumptions, a ranked risk register, and requirement-to-rung traceability) by drafting it with flagged assumptions and iterating with the user, then deepens it only rung by rung later. Pieces that warrant it (a separate app, library, or service, or a major subsystem) get their own design doc of the same shape, which the parent treats as one component. Adopt mode documents an existing codebase as-is and records where it should head next; `retro` writes a retrospective for the skills' maintainer. Tuned for Apple-platform apps (macOS, iOS, iPadOS, visionOS). Use whenever the user wants to start a new app, tool, or system from a vague idea ("make an app that...", "I want to build...", "help me think through the design of..."), asks for a system design, requirements, or architecture overview, says a project is too big or fuzzy to start, or wants to "document the architecture of this project", "review the architecture", "adopt this codebase into the workflow", or decide "where this project is headed". Use it even if they do not say "system design". Not for small, well-specified changes; use decision-driven-design when extending one part of an existing system.
 license: GPL-3.0-or-later
+model: opus
 ---
 
 # System Design
@@ -67,7 +68,7 @@ Resist deepening. When the conversation dives into one component's internals, re
 
 The outline is ready when every must-have requirement and every decision that would be expensive to undo is `accepted` or `deferred` with a reason, no assumption that changes the components is still `assumed`, scope is explicit, and the risk register is ranked with a cheapest experiment for each top risk.
 
-Ask the user whether it is good enough to start a roadmap, summarize the top three risks, and set `Status: agreed (<date>)`. End with the next step: `/risk-first-roadmap` on Opus (`/model opus`), because ordering work by risk is the judgment-heavy part. Log it as a `step` event (fields in `tasklist-run`'s metrics log). Explain that detail arrives per rung through `/roadmap-plan-next-rung`. Do not start building. Then offer a retrospective.
+Ask the user whether it is good enough to start a roadmap, summarize the top three risks, and set `Status: agreed (<date>)`. End with the next step, as `Next: /rung → roadmap (Opus: /model opus)`, because ordering work by risk is the judgment-heavy part. Log it as a `step` event (fields in `tasklist-run`'s metrics log). Explain that detail arrives per rung through `/roadmap-plan-next-rung`. Do not start building. Then offer a retrospective.
 
 ## Adopt mode
 
