@@ -1,7 +1,7 @@
 import Foundation
 
 /// Shared plumbing for the executables: plain text out, exit codes 0 ok, 1 problem found, 2 usage or I/O.
-public let planToolsVersion = "0.3.1"
+public let planToolsVersion = "0.4.0"
 
 public enum CLI {
     public static func fail(_ message: String, code: Int32 = 2) -> Never {

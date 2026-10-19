@@ -1,11 +1,12 @@
 import { atom, read, update } from 'claude-code'
 import type { Register } from 'claude-code'
 
-import type { TaskRow, TasklistRun } from '../types'
-import { costOf, hasLiveAgents, modelColumn, modelLabel, fmtClock, fmtCost, fmtDuration, fmtTokens, layout, mergeTodo, nextStep, parseTodo, summarize, taskIdsMentioned } from './todo'
+import type { NextStep, TaskRow, TasklistRun } from '../types'
+import { costOf, hasLiveAgents, modelColumn, modelLabel, fmtClock, fmtCost, fmtDuration, fmtTokens, layout, mergeTodo, nextBand, nextStep, parseNext, parseTodo, summarize, taskIdsMentioned } from './todo'
 
 const PANE = 'tasklist-monitor'
 const run = atom({ plugin: 'task-workflow', key: 'run' } as const, null)
+const upNext = atom({ plugin: 'task-workflow', key: 'next' } as const, null)
 const DIRS = ['.', 'docs', 'Docs', 'doc', 'Documentation']
 const ICON = { open: '[ ]', running: '[~]', done: '[x]', closed: '[-]', blocked: '[!]', user: '[u]' } as const
 
@@ -30,6 +31,17 @@ async function refresh($: any) {
   await update($, run, (r: TasklistRun | null) =>
     r ? (typeof text === 'string' ? mergeTodo(r, text, now) : { ...r, now }) : r,
   )
+}
+
+// Asks the plan tools for the project's next step: at session start and after each main turn outside a run, never on a timer.
+// A missing binary, a non-zero exit or a hung call leaves nothing to show.
+async function refreshNext($: any) {
+  const home = await $.env.get('HOME').catch(() => undefined)
+  const out = home
+    ? await $.process.run([`${home}/.cache/danny-agent-skills/bin/roadmap`, 'next'], { timeoutMs: 5000 }).catch(() => undefined)
+    : undefined
+  const step = out && out.exitCode === 0 ? parseNext(out.stdout) : undefined
+  await update($, upNext, () => step ?? null)
 }
 
 // Debug log only (`claude --debug`): never reaches the model, so diagnosing costs no tokens.
@@ -70,6 +82,7 @@ export const register: Register = on => {
       description: 'Show the tasklist-run progress pane',
     })
     $.clock.every(5000, () => void refresh($))
+    void refreshNext($)
     return next(e)
   })
 
@@ -158,7 +171,24 @@ export const register: Register = on => {
         await update($, run, (r: TasklistRun | null) => r && (hasLiveAgents(r) ? r : { ...r, isActive: false }))
       }
     }
+    // Any main turn may have moved the project on (a plan, a close): re-ask, unless a run is still going.
+    const after = await read($, run)
+    if (e.agentId === undefined && !after?.isActive) void refreshNext($)
     return next(e)
+  })
+
+  // One line above the prompt; the pane covers a run in progress.
+  on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
+    const step: NextStep | null = await read($, upNext)
+    const band = step && nextBand(step)
+    if (!band || e.props.hasSurvey || (await read($, run))?.isActive) return next(e)
+    const { Box, Text } = $.ui.resolve(e)
+    return (
+      <Box>
+        <Text bold>{band.text}</Text>
+        {band.why && <Text dimColor>{`  ${band.why}`}</Text>}
+      </Box>
+    )
   })
 
   on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {

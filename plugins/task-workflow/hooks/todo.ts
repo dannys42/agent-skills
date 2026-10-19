@@ -108,9 +108,34 @@ export type Usage = {
 export function nextStep(run: TasklistRun): string | undefined {
   if (run.isActive || run.tasks.length === 0) return undefined
   const waiting = run.tasks.filter(t => t.status !== 'done' && t.status !== 'closed').length
-  if (waiting > 0) return `Next: ${waiting} task${waiting === 1 ? '' : 's'} still open. Resolve blocked or USER tasks, then /tasklist-run ${run.file} (same model).`
   const rung = /^Tasklist-([A-Za-z]+\d+)-/.exec(run.file.split('/').pop() ?? '')?.[1]
-  return rung ? `Next: /roadmap-plan-next-rung fold-back ${rung} (Opus: /model opus).` : undefined
+  if (waiting > 0) {
+    const command = rung ? `/rung run ${rung}` : `/tasklist-run ${run.file}`
+    return `Next: ${waiting} task${waiting === 1 ? '' : 's'} still open. Resolve blocked or USER tasks, then ${command} (same model).`
+  }
+  return rung ? `Next: /rung → close ${rung} (Opus: /model opus).` : undefined
+}
+
+/** What `roadmap next` printed: its `key: value` lines, keys step, rung, list, model, command, why. */
+export type NextStep = { step: string; rung?: string; list?: string; model?: string; command?: string; why?: string }
+
+/** Parses `roadmap next` output; undefined when it has no step or the project has no roadmap yet (`design`). */
+export function parseNext(text: string): NextStep | undefined {
+  const found: Record<string, string> = {}
+  for (const line of text.split('\n')) {
+    const m = /^(step|rung|list|model|command|why):\s*(.*?)\s*$/.exec(line)
+    if (m && m[2]) found[m[1]!] = m[2]
+  }
+  if (!found.step || found.step === 'design') return undefined
+  return found as NextStep
+}
+
+/** The band's line, `Next: /rung → close L3 (Opus)`, and the dimmed why; undefined when there is nothing to run. */
+export function nextBand(n: NextStep): { text: string; why?: string } | undefined {
+  if (!n.command) return undefined
+  const rest = /^\/rung\s+(.+)$/.exec(n.command)?.[1]
+  const model = n.model ? ` (${n.model[0]!.toUpperCase()}${n.model.slice(1)})` : ''
+  return { text: `Next: ${rest ? `/rung → ${rest}` : n.command}${model}`, why: n.why }
 }
 
 export function costOf(u: Usage): number {

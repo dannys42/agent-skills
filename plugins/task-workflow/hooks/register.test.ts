@@ -3,7 +3,10 @@ import { test, expect, mock } from 'claude-code/testing'
 const TODO = '## P1 A\n- [ ] T1 First\n- [ ] T2 Second\n'
 const BLOCK = 'Implement:\n- [ ] T1 First\n'
 
+const NEXT = 'step: close\nrung: L3\nmodel: opus\ncommand: /rung close L3\nwhy: brief not folded back\n'
+
 let n = 0
+let code = 0
 function setup($: any, on: any) {
   mock.clock(on)
   on('fs.list', () => ({ value: [{ name: 'TODO.md', kind: 'file', size: 1, mtimeMs: 1 }] }))
@@ -12,6 +15,11 @@ function setup($: any, on: any) {
   on('ui.open', () => ({ value: { isPlaced: true } }))
   on('skill.prompt', () => ({ text: '' }))
   on('turn.complete', () => ({ text: '' }))
+  on('env.get', () => ({ value: '/home/u' }))
+  on('process.run', () => ({ value: { exitCode: code, stdout: code === 0 ? NEXT : '', stderr: '' } }))
+  on('command.register', () => ({ value: undefined }))
+  on('session.start', () => ({ cwd: '/p' }))
+  on('ui.render', { component: 'AbovePrompt' }, () => ({ type: 'Text', props: {}, children: ['engine'] }))
   on('ui.log', () => ({ value: undefined }))
 }
 const pane = async ($: any, bodyColumns?: number) => {
@@ -107,4 +115,28 @@ test('the model column follows the pane width', async ($, on) => {
   const narrow = await pane($, 50)
   expect(narrow).not.toContain('Opu5.5')
   expect(narrow).not.toContain('model')
+})
+
+const band = async ($: any) => {
+  await new Promise(r => setTimeout(r, 20)) // the refresh runs unawaited after session.start
+  const ui = await $.ui.mount({ plugin: 'task-workflow', surface: 'terminal', component: 'AbovePrompt', props: { hasSurvey: false, isWorking: false } })
+  const text = JSON.stringify(await ui.drawn())
+  await ui.unmount()
+  return text
+}
+
+test('the band shows the next step after session start and hides while a run is active', async ($, on) => {
+  code = 0
+  setup($, on)
+  await $.session.start({ source: 'startup', cwd: '/p' })
+  expect(await band($)).toContain('Next: /rung → close L3 (Opus)')
+  await spawn($)
+  expect(await band($)).not.toContain('Next:')
+})
+
+test('a failing binary leaves the band empty', async ($, on) => {
+  code = 127
+  setup($, on)
+  await $.session.start({ source: 'startup', cwd: '/p' })
+  expect(await band($)).not.toContain('Next:')
 })

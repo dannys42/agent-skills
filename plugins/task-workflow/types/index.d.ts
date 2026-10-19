@@ -30,8 +30,11 @@ export type TasklistRun = {
   orchestratorCostUsd: number
 }
 
+/** The project's next step as `roadmap next` printed it; see `parseNext` in hooks/todo.ts. */
+export type NextStep = { step: string; rung?: string; list?: string; model?: string; command?: string; why?: string }
+
 declare module 'claude-code' {
   interface PluginState {
-    'task-workflow': { run: TasklistRun | null }
+    'task-workflow': { run: TasklistRun | null; next: NextStep | null }
   }
 }

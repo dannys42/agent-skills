@@ -9,7 +9,19 @@ public enum Predictions {
     public static func skillName(_ text: String?) -> String? {
         guard let word = text?.split(separator: " ").first else { return nil }
         let name = word.drop { $0 == "/" }
-        return String(name.split(separator: ":").last ?? name)
+        let skill = String(name.split(separator: ":").last ?? name)
+        return skill == "rung" ? rungSkill(text?.split(separator: " ").dropFirst().first.map(String.init)) : skill
+    }
+
+    /// `/rung <step>` is a router; the skill is whichever one that step runs. Bare `/rung` or an unknown step names none.
+    static func rungSkill(_ step: String?) -> String? {
+        switch step {
+        case "plan", "close", "retro": return "roadmap-plan-next-rung"
+        case "run": return "tasklist-run"
+        case "replan", "roadmap": return "risk-first-roadmap"
+        case "design": return "system-design"
+        default: return nil
+        }
     }
 
     struct Tally { var n = 0, rounds = 0, raised = 0, lines = 0 }

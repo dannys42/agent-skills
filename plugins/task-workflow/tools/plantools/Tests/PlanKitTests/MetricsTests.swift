@@ -251,3 +251,18 @@ struct PlanningCostTests {
         #expect(text.contains("rose 200%"))
     }
 }
+
+@Suite("Rung commands")
+struct RungCommandTests {
+    @Test func rungStepsMapToTheSkillTheyRun() {
+        #expect(Predictions.skillName("/rung plan L3") == "roadmap-plan-next-rung")
+        #expect(Predictions.skillName("/project-planning:rung close L3") == "roadmap-plan-next-rung")
+        #expect(Predictions.skillName("/rung retro L3") == "roadmap-plan-next-rung")
+        #expect(Predictions.skillName("/rung run L3") == "tasklist-run")
+        #expect(Predictions.skillName("/rung replan") == "risk-first-roadmap")
+        #expect(Predictions.skillName("/rung roadmap") == "risk-first-roadmap")
+        #expect(Predictions.skillName("/rung design") == "system-design")
+        #expect(Predictions.skillName("/rung") == nil)
+        #expect(Predictions.skillName("/rung bogus") == nil)
+    }
+}
