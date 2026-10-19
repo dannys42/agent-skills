@@ -50,8 +50,13 @@ struct NextStepTests {
         #expect(s.list == "docs/Tasklist-L3-Grid_Text.md")
     }
 
-    @Test func heavyTaskMeansOpus() {
-        let s = decide(lists: [list("Tasklist-L3-Grid.md", openStd + openHeavy)])
+    @Test func aFewHeavyTasksStillRunOnSonnet() {
+        let s = decide(lists: [list("Tasklist-L3-Grid.md", openStd + openStd + openHeavy)])
+        #expect(s.step == "run" && s.model == "sonnet")
+    }
+
+    @Test func mostlyHeavyTasksMeanOpus() {
+        let s = decide(lists: [list("Tasklist-L3-Grid.md", openStd + openHeavy + openHeavy)])
         #expect(s.step == "run" && s.model == "opus")
     }
 

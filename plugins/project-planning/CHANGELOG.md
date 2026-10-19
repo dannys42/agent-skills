@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.1
+
+- `rung`, `roadmap-plan-next-rung`: a run is recommended on Opus only when more than half the open tasks are `heavy` (task-workflow 0.15.0); otherwise Sonnet with an Opus advisor for the judgment calls
+
 ## 0.8.0
 
 Users had to remember five long commands across clean sessions, and skipping the re-plan left the finished rung `in progress`, so a bare `/roadmap-plan-next-rung` picked it again.

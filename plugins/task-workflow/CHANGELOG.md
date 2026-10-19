@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.15.0
+
+Orchestrating a run on Opus re-reads a growing context at Opus rates on every dispatch, while the risky judgments are a handful per run.
+
+- `tasklist-run`: the orchestrator recommendation is Sonnet 5.5 unless more than half of the open tasks are `heavy` (it was any `heavy` task). On Sonnet, four checkable triggers (dropping a `required` finding, a task still failing after its first correction round, a tier raise or added work or a pause, a judgment point named in the task) go to an Opus advisor subagent given only the question, the findings and the `Done when`. `batch` lines gain `advisor`
+- Plan tools 0.4.2: `roadmap next` recommends Opus for a run only when more than half the open tasks are `heavy`. 76 tests (1 new)
+- `tasklist`, `decision-driven-design`: `Next:` lines quote the new rule
+
 ## 0.14.1
 
 From a rung retro whose summary showed 51k reviewer tokens for three reviews (about 110k in the `tokens` events) and `lines` of 0 on three of four batches.

@@ -65,7 +65,8 @@ public struct NextStep: Equatable {
 
         if let (file, tasks) = open.first {
             let path = input.docDir == "." ? file.name : input.docDir + "/" + file.name
-            let heavy = tasks.contains { $0.fields["model"]?.lowercased().hasPrefix("heavy") == true }
+            let heavyCount = tasks.filter { $0.fields["model"]?.lowercased().hasPrefix("heavy") == true }.count
+            let heavy = heavyCount * 2 > tasks.count
             let waiting = tasks.filter { $0.user && $0.blocked == nil }.map(\.id)
             let blocked = tasks.filter { $0.blocked != nil }.map(\.id)
             let run = make("run", heavy ? "opus" : "sonnet", id, rung: id, list: path, why: "\(file.name) has \(tasks.count) open task(s)")
