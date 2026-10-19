@@ -11,7 +11,7 @@ public struct RungNumbers {
     public var kept = 0, dropped = 0, required = 0, optLeft = 0
     public var agents: [Agent] = []
     public var orchTokens: Int?, cacheBreaks: Int?
-    /// Reviewer tokens from the `tokens` events (exact), for batches whose logged `agents` carry none.
+    /// Reviewer tokens from the `tokens` events (exact, cache reads left out like the logged `agents` tokens), added for each batch whose logged `agents` carry none.
     public var measuredRevTokens: Int?
     /// Batches whose logged `lines` differ from the commit's own diff, and committed batches logged with no reviewer tokens.
     public var lineMismatches = 0, silentReviews = 0
@@ -28,8 +28,7 @@ public struct RungNumbers {
 
     public var implTokens: Int { agents.filter { $0.role == "impl" }.reduce(0) { $0 + $1.tokens } }
     public var revTokens: Int {
-        let logged = agents.filter { $0.role == "rev" }.reduce(0) { $0 + $1.tokens }
-        return logged > 0 ? logged : measuredRevTokens ?? 0
+        agents.filter { $0.role == "rev" }.reduce(0) { $0 + $1.tokens } + (measuredRevTokens ?? 0)
     }
     public var medianTools: Int? { RunSummary.median(agents.map(\.tools)) }
 
@@ -67,6 +66,10 @@ public enum RunSummary {
             guard let run = e.string("run"), listOfRun[run] == nil, let sha = e.string("sha"), let list = listForSha(sha) else { continue }
             listOfRun[run] = list
         }
+        var tokensOfBatch: [String: LogEvent] = [:]
+        for e in events where e.string("event") == "tokens" {
+            tokensOfBatch["\(e.string("run") ?? "")|\(e.string("batch_ts") ?? "")"] = e
+        }
         var out: [String: RungNumbers] = [:]
         for e in events {
             guard let run = e.string("run"), let list = listOfRun[run] else { continue }
@@ -99,6 +102,8 @@ public enum RunSummary {
                 if e.string("outcome") == "committed", e.string("rev") != nil,
                    !(e["agents"] as? [LogEvent] ?? []).contains(where: { $0.string("role") == "rev" && ($0.int("tokens") ?? 0) > 0 }) {
                     n.silentReviews += 1
+                    let measured = tokensOfBatch["\(run)|\(e.string("ts") ?? "")"].map { uncachedTotal($0, "rev") } ?? 0
+                    if measured > 0 { n.measuredRevTokens = (n.measuredRevTokens ?? 0) + measured }
                 }
                 var why: [String] = []
                 if rounds >= 2 { why.append("\(rounds) correction rounds") }
@@ -112,8 +117,6 @@ public enum RunSummary {
                 for usage in (e["orch"] as? [String: [String: Int]] ?? [:]).values { orch += usage.values.reduce(0, +) }
                 n.orchTokens = (n.orchTokens ?? 0) + orch
                 n.orchByBatch.append(orch)
-                let rev = tokenTotal(e, "rev")
-                if rev > 0 { n.measuredRevTokens = (n.measuredRevTokens ?? 0) + rev }
                 n.runTokens = (n.runTokens ?? 0) + TranscriptTokens.roles.reduce(0) { $0 + tokenTotal(e, $1) }
                 n.cacheBreaks = (n.cacheBreaks ?? 0) + (e.int("cache_breaks") ?? 0)
             default:
@@ -128,6 +131,13 @@ public enum RunSummary {
     /// All tokens of one role in a `tokens` or `step_tokens` event.
     static func tokenTotal(_ e: LogEvent, _ role: String) -> Int {
         (e[role] as? [String: [String: Int]] ?? [:]).values.reduce(0) { $0 + $1.values.reduce(0, +) }
+    }
+
+    /// A role's tokens without cache reads: the unit of the `tokens` a subagent's notification reports.
+    static func uncachedTotal(_ e: LogEvent, _ role: String) -> Int {
+        (e[role] as? [String: [String: Int]] ?? [:]).values.reduce(0) { sum, usage in
+            sum + usage.filter { $0.key != "cr" }.values.reduce(0, +)
+        }
     }
 
     /// Planning cost belongs to the rung a `roadmap-plan-next-rung` step names, though it happens outside any run.
@@ -195,7 +205,7 @@ public enum RunSummary {
         row("Optional findings left") { $0.optLeft }
         row("Implementer tokens", always: true, { $0.agents.isEmpty ? nil : $0.implTokens }, format: k)
         row("Reviewer tokens", { $0.agents.isEmpty && $0.measuredRevTokens == nil ? nil : $0.revTokens }, format: k)
-        row("Orchestrator tokens", { $0.orchTokens }, format: k)
+        row("Orchestrator tokens (cache reads included)", { $0.orchTokens }, format: k)
         row("Median tools per agent", { $0.medianTools })
         row("Cache breaks", { $0.cacheBreaks })
         row("Discovered tasks", { $0.discovered })

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.14.1
+
+From a rung retro whose summary showed 51k reviewer tokens for three reviews (about 110k in the `tokens` events) and `lines` of 0 on three of four batches.
+
+- Plan tools 0.4.1: `metrics summary` falls back to the `tokens` events for each batch that logged no reviewer tokens (it was all-or-nothing, so one logged reviewer switched it off for the rest) and counts them without cache reads, the unit of the logged `agents` tokens; the orchestrator row is labelled "cache reads included". 75 tests
+- `tasklist-run`: a `batch` line's `sha` is the batch's own commit from the commit call, never the final move to `Completed/`
+
 ## 0.14.0
 
 Part of the `/rung` cycle (see project-planning 0.8.0).
