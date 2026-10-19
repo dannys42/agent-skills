@@ -1,3 +1,4 @@
 .worktrees/
 .code-graph/
 ignore-me/
+.build/
