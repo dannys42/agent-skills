@@ -11,6 +11,10 @@ public struct RungNumbers {
     public var kept = 0, dropped = 0, required = 0, optLeft = 0
     public var agents: [Agent] = []
     public var orchTokens: Int?, cacheBreaks: Int?
+    /// Reviewer tokens from the `tokens` events (exact), for batches whose logged `agents` carry none.
+    public var measuredRevTokens: Int?
+    /// Batches whose logged `lines` differ from the commit's own diff, and committed batches logged with no reviewer tokens.
+    public var lineMismatches = 0, silentReviews = 0
     /// Orchestrator tokens of each batch's `tokens` event, in log order, to see whether a long run gets dearer per batch.
     public var orchByBatch: [Int] = []
     /// Tokens of every role in the rung's `tokens` events.
@@ -23,7 +27,10 @@ public struct RungNumbers {
     public var hardBatches: [String] = []
 
     public var implTokens: Int { agents.filter { $0.role == "impl" }.reduce(0) { $0 + $1.tokens } }
-    public var revTokens: Int { agents.filter { $0.role == "rev" }.reduce(0) { $0 + $1.tokens } }
+    public var revTokens: Int {
+        let logged = agents.filter { $0.role == "rev" }.reduce(0) { $0 + $1.tokens }
+        return logged > 0 ? logged : measuredRevTokens ?? 0
+    }
     public var medianTools: Int? { RunSummary.median(agents.map(\.tools)) }
 
     /// `Tasklist-L20-Foo.md` → `L20`; nil for lists that are not rung lists.
@@ -48,7 +55,9 @@ public enum RunSummary {
 
     /// Groups a repo's runs by tasklist file name. A run logged before `start` carried `list` is resolved
     /// through `listForSha` from its first committed batch; runs that resolve to nothing are left out.
-    public static func byList(log: [LogEvent], repo: String, listForSha: (String) -> String?) -> [String: RungNumbers] {
+    /// `linesForSha` gives a commit's insertions plus deletions from git; it replaces the logged `lines`, which the
+    /// orchestrator copies by hand and sometimes gets wrong.
+    public static func byList(log: [LogEvent], repo: String, linesForSha: (String) -> Int? = { _ in nil }, listForSha: (String) -> String?) -> [String: RungNumbers] {
         let events = log.filter { $0.string("repo") == repo }
         var listOfRun: [String: String] = [:]
         for e in events where e.string("event") == "start" {
@@ -70,7 +79,13 @@ public enum RunSummary {
                 n.batches += 1
                 if e.string("outcome") == "blocked" { n.blocked += 1 }
                 if e.bool("raised") { n.raised += 1 }
-                n.lines += e.int("lines") ?? 0
+                let logged = e.int("lines") ?? 0
+                if let sha = e.string("sha"), let actual = linesForSha(sha) {
+                    if actual != logged { n.lineMismatches += 1 }
+                    n.lines += actual
+                } else {
+                    n.lines += logged
+                }
                 n.files += e.int("files") ?? 0
                 let rounds = e.int("rounds") ?? 0
                 n.rounds += rounds
@@ -80,6 +95,10 @@ public enum RunSummary {
                 n.optLeft += e.int("opt_left") ?? 0
                 for a in e["agents"] as? [LogEvent] ?? [] {
                     n.agents.append(.init(tasks: tasks, role: a.string("role") ?? "?", tokens: a.int("tokens") ?? 0, tools: a.int("tools") ?? 0))
+                }
+                if e.string("outcome") == "committed", e.string("rev") != nil,
+                   !(e["agents"] as? [LogEvent] ?? []).contains(where: { $0.string("role") == "rev" && ($0.int("tokens") ?? 0) > 0 }) {
+                    n.silentReviews += 1
                 }
                 var why: [String] = []
                 if rounds >= 2 { why.append("\(rounds) correction rounds") }
@@ -93,6 +112,8 @@ public enum RunSummary {
                 for usage in (e["orch"] as? [String: [String: Int]] ?? [:]).values { orch += usage.values.reduce(0, +) }
                 n.orchTokens = (n.orchTokens ?? 0) + orch
                 n.orchByBatch.append(orch)
+                let rev = tokenTotal(e, "rev")
+                if rev > 0 { n.measuredRevTokens = (n.measuredRevTokens ?? 0) + rev }
                 n.runTokens = (n.runTokens ?? 0) + TranscriptTokens.roles.reduce(0) { $0 + tokenTotal(e, $1) }
                 n.cacheBreaks = (n.cacheBreaks ?? 0) + (e.int("cache_breaks") ?? 0)
             default:
@@ -173,7 +194,7 @@ public enum RunSummary {
         row("Required findings") { $0.required }
         row("Optional findings left") { $0.optLeft }
         row("Implementer tokens", always: true, { $0.agents.isEmpty ? nil : $0.implTokens }, format: k)
-        row("Reviewer tokens", { $0.agents.isEmpty ? nil : $0.revTokens }, format: k)
+        row("Reviewer tokens", { $0.agents.isEmpty && $0.measuredRevTokens == nil ? nil : $0.revTokens }, format: k)
         row("Orchestrator tokens", { $0.orchTokens }, format: k)
         row("Median tools per agent", { $0.medianTools })
         row("Cache breaks", { $0.cacheBreaks })
@@ -203,6 +224,12 @@ public enum RunSummary {
         }
         if let trend = orchestratorTrend(target.orchByBatch), trend.ratio >= 1.5 {
             standOut.append("orchestrator cost per batch rose \(Int(((trend.ratio - 1) * 100).rounded()))% from the first half of the run to the second")
+        }
+        if target.lineMismatches > 0 {
+            standOut.append("\(target.lineMismatches) batch line(s) logged `lines` that differ from the commit's diff; the table uses the diff")
+        }
+        if target.silentReviews > 0 {
+            standOut.append("\(target.silentReviews) reviewed batch(es) logged no reviewer tokens in `agents`; reviewer tokens use the `tokens` events where present")
         }
         if !standOut.isEmpty { out += ["", "Stands out:"] + standOut.map { "- \($0)" } }
 

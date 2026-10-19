@@ -54,11 +54,11 @@ struct MetricsTool: ParsableCommand {
         func run() throws {
             let repo = MetricsTool.repoRoot()
             let events = log.events
-            let all = RunSummary.byList(log: events, repo: repo) { Git.tasklist(touchedBy: $0, in: repo) }
+            let all = RunSummary.byList(log: events, repo: repo, linesForSha: { Git.commitLines($0, in: repo) }) { Git.tasklist(touchedBy: $0, in: repo) }
             let name = (target as NSString).lastPathComponent
             var numbers = all[name]
             if numbers == nil, events.contains(where: { $0["run"] as? String == target }) {
-                numbers = RunSummary.byList(log: events.filter { $0["run"] as? String == target }, repo: repo) { _ in "run \(target)" }["run \(target)"]
+                numbers = RunSummary.byList(log: events.filter { $0["run"] as? String == target }, repo: repo, linesForSha: { Git.commitLines($0, in: repo) }) { _ in "run \(target)" }["run \(target)"]
             }
             guard let numbers else { CLI.fail("no runs logged for \(target) in \(repo)", code: 1) }
             let quality = events.filter { ($0["repo"] as? String) == repo && (($0["event"] as? String) ?? "").hasPrefix("quality") }

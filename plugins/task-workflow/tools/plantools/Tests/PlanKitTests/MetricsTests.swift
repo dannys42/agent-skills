@@ -81,6 +81,19 @@ struct RunSummaryTests {
         #expect(l3.rung == "L3")
     }
 
+    @Test func takesLinesFromTheCommitAndReviewerTokensFromTokensEventsWhenTheBatchLogIsOff() {
+        let log = MetricsLog.events(text: """
+        {"run":"A","ts":"2026-10-01T10:00:00Z","event":"start","repo":"/p","list":"Tasklist-L1-One.md"}
+        {"run":"A","ts":"2026-10-01T11:00:00Z","event":"batch","repo":"/p","tasks":["T1"],"rev":"sonnet","outcome":"committed","lines":2,"sha":"abc","agents":[{"role":"impl","tokens":40000,"tools":10},{"role":"rev","tokens":0,"tools":5}]}
+        {"run":"A","ts":"2026-10-01T11:01:00Z","event":"tokens","repo":"/p","orch":{},"impl":{},"rev":{"m":{"cache_read":100000,"output":2000}}}
+        """)
+        let all = RunSummary.byList(log: log, repo: "/p", linesForSha: { $0 == "abc" ? 562 : nil }) { _ in nil }
+        let n = all["Tasklist-L1-One.md"]!
+        #expect(n.lines == 562 && n.lineMismatches == 1 && n.silentReviews == 1 && n.revTokens == 102_000)
+        let out = RunSummary.render(target: n, all: all)
+        #expect(out.contains("| Lines changed | 562 |") && out.contains("logged no reviewer tokens"))
+    }
+
     @Test func rendersComparisonOutliersAndQualityAndLeavesOutZeroRows() {
         let all = RunSummary.byList(log: Self.log, repo: "/p") { $0 == "bbb" ? "Tasklist-L2-Two.md" : nil }
         let quality = Self.log.filter { $0.string("event") == "quality" }

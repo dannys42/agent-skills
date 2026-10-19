@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.13.2
+
+From a rung retro whose `metrics summary` showed 2 lines changed and 0 reviewer tokens for a 562-line rung with three reviews. Both numbers came from fields the orchestrator copies by hand.
+
+- Plan tools 0.3.1: `metrics summary` takes lines changed from each batch's commit (`git show --shortstat`) instead of the logged `lines`, and reviewer tokens from the `tokens` events when the batch's `agents` carry none; it adds a "Stands out" line when either logged value was off. 59 tests (1 new)
+- `tasklist-run`: the `## Review notes` section is added if absent, so left-over optional findings are not dropped when the list has no such section
+
 ## 0.13.1
 
 From a rung retro whose run logged no `batch` lines: the orchestrator skipped them because the `metrics` and `tasklist` tools were not installed, though the log is written with plain shell.

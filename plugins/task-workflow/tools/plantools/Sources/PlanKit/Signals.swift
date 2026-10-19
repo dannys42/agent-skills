@@ -226,6 +226,14 @@ public enum Git {
         return run(["rev-parse", "--short", added + "^"], in: repo)?.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
+    /// Insertions plus deletions in one commit; nil when git cannot resolve it.
+    public static func commitLines(_ sha: String, in repo: String) -> Int? {
+        guard let out = run(["show", "--shortstat", "--format=", sha], in: repo) else { return nil }
+        let numbers = out.split(whereSeparator: { !$0.isNumber }).compactMap { Int($0) }
+        // shortstat: "N files changed, X insertions(+), Y deletions(-)"
+        return numbers.count >= 2 ? numbers.dropFirst().reduce(0, +) : nil
+    }
+
     /// Insertions plus deletions between `base` and HEAD.
     public static func changedLines(since base: String, in repo: String) -> Int? {
         guard let stat = run(["diff", "--shortstat", base, "HEAD"], in: repo) else { return nil }
