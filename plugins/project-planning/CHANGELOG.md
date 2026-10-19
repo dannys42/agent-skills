@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.1
+
+- `retrospective.md`: a retro ends with exactly one feedback block for the new `/retro-feedback` command (replaces `/roadmap-feedback` and `/tasklist-feedback`), items tagged `[project-planning]` or `[task-workflow]`, preceded by a plain "Paste this block" line; the block gains `Run:` (run IDs) and `Diagnosed:` lines; new "Check before you guess" step (one command on the cause of a missing or odd number before tagging it `guess`); the `metrics tokens` / `metrics summary` instructions now say that `metrics tokens` takes no tasklist argument and that `summary` matches by list name, also after the list moved to `Completed/`
+- `roadmap-plan-next-rung` and `system-design`: retro wording follows the single block
+
 ## 0.7.0
 
 - `system-design`, `risk-first-roadmap`, `roadmap-plan-next-rung` and `code-quality-pass` end with a next step and a recommended model: `/risk-first-roadmap` (Opus) after a design, `/roadmap-plan-next-rung <rung>` (Opus) after a roadmap or re-plan, `/tasklist-run <file>` (orchestrator model from `tasklist-run`) after a rung brief, `/risk-first-roadmap` (Opus) after fold-back, and fold-back after a tidy. Each writes a `step` event to the metrics log (model used, next command, recommended model); `code-quality-pass` events carry `model`

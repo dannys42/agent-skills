@@ -99,7 +99,7 @@ After the first end-to-end data rung, widen step 2 to every affected design doc 
 
 ## Retrospective
 
-`retro [L3]`, or offered after fold-back. One report for the whole rung: its design, its `tasklist-run` runs and its quality pass. Follow [retrospective.md](references/retrospective.md): build it from the brief, the touched design docs, the rung's tasklist, git history and `metrics summary <rung tasklist>`, not from memory; the standard short format, with up to two project-neutral feedback blocks (one per plugin), or one line if nothing stands out. Apply nothing.
+`retro [L3]`, or offered after fold-back. One report for the whole rung: its design, its `tasklist-run` runs and its quality pass. Follow [retrospective.md](references/retrospective.md): build it from the brief, the touched design docs, the rung's tasklist, git history and `metrics summary <rung tasklist>`, not from memory; the standard short format, ending in one project-neutral feedback block for `/retro-feedback` (items tagged by plugin), or one line if nothing stands out. Apply nothing.
 
 ## If a linked file or skill is missing
 

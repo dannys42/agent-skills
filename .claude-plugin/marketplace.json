@@ -57,7 +57,7 @@
     {
       "name": "task-workflow",
       "source": "./plugins/task-workflow",
-      "version": "0.13.0",
+      "version": "0.13.1",
       "description": "Plan and execute work: resolve consequential design decisions before implementation, then break them into tasks",
       "category": "productivity",
       "keywords": [
@@ -99,7 +99,7 @@
       "name": "project-planning",
       "source": "./plugins/project-planning",
       "skills": "./skills/",
-      "version": "0.7.0",
+      "version": "0.7.1",
       "description": "Start large, ambiguous projects: outline the system, plan a risk-first roadmap of end-to-end increments, then design each increment just before building it",
       "category": "developer-tools",
       "keywords": [

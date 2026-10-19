@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.13.1
+
+From a rung retro whose run logged no `batch` lines: the orchestrator skipped them because the `metrics` and `tasklist` tools were not installed, though the log is written with plain shell.
+
+- `tasklist-run`: writing the metrics log needs no installed tool, and `start`, `batch`, `end` and `step` lines are never skipped; before the `end` line the run counts its `batch` lines against its commits, prints one warning line if short, and backfills them from `git log`
+- Retros now end with one feedback block for `/retro-feedback` (see project-planning 0.7.1)
+
 ## 0.13.0
 
 - Every step now ends with a next step: a `Next: <command> (<Model>: /model <alias>)` line. `tasklist-run` names `/roadmap-plan-next-rung fold-back <RungId>` on Opus when a rung list is closed, or the blocker and `/tasklist-run <file>` when tasks remain; `tasklist` and `decision-driven-design` end with `/tasklist-run <file>`

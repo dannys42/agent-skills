@@ -1,6 +1,6 @@
 # task-workflow feedback ledger
 
-The standing brief for refining `tasklist` and `tasklist-run` (in `plugins/task-workflow/`) from real-run feedback. The `/tasklist-feedback` skill reads this first and updates it after every round. Keep it short and factual; it is working state.
+The standing brief for refining `tasklist` and `tasklist-run` (in `plugins/task-workflow/`) from real-run feedback. The `/retro-feedback` skill (one command for both plugins' ledgers) reads this first and updates it after every round. Keep it short and factual; it is working state.
 
 ## Objective
 
@@ -49,6 +49,7 @@ Log: `~/.local/state/danny-agent-skills/task-workflow/metrics.jsonl` (events `st
 | 0.12.0 | Retrospective from `metrics summary`, shared short format, rung lists defer to the rung retro | Shorter retros with numbers, no hand arithmetic, no 'nothing found' lines | observed (owner request) | retro length; feedback blocks per retro that carry a suggested edit | untested |
 | 0.12.0 | `metrics` tool (tokens, summary, signals) replaces the Python `--append-tokens` | Same data, installed with the plugin; signals cost no tokens | measured (parity: 146 of 147 events identical, the last a zero-window batch now skipped by design) | `tokens` events present for runs after 0.12.0 | supported (parity) |
 | 0.12.1 | `decision-driven-design` and `tasklist-run` retro: high-impact or low-confidence items first, with options and a pro and con each; nothing else removed | The owner rules faster and catches risky defaults that a flat list hides | guess (owner request) | Owner overrides of flagged versus unflagged items; batched decisions later reopened; retro length | untested |
+| 0.13.1 | Logging needs no installed tool; before `end`, count `batch` lines against commits, warn once and backfill from `git log` | A finished run is never unmeasured | measured (one rung: 10 tasks, 9 commits, 0 `batch`/`step` lines; its `end` note blamed missing `metrics` and `tasklist` tools) | share of runs with `batch` lines equal to commits; warning lines printed; `end` notes citing a missing tool | untested |
 
 Status updates from 0.10.1 round: the 0.9.0 `lines`-of-0 row is contradicted for one run (0.9.2 run logged 0 `lines`/`files` and 0 reviewer tokens on two batches despite the "never log 0" rule), so no rule change, only compliance to watch; the 0.9.1 lifecycle/silence rows have one counterexample (a Haiku `light` implementer left a hung background job and needed `TaskStop`); the 0.9.2 Sonnet-reviewer row is inconclusive, leaning supported (about 5 Sonnet reviews, 0 required findings, one real stale-state catch, no defects reported after commit).
 
@@ -73,6 +74,7 @@ Append one line per feedback drop: date, source run (project, tasks, skill versi
 - 2026-10-12: reviewer model selection, 15-batch Swift package plus macOS app run (0.9.0). Took #1 (narrowed: concurrency kept, wording kept generic), #2 (reduced to a `mirror` tag, no model change), #3, #5 (as `rev_required`); #4 confirms the existing correction rules, no change. Data: 9 Opus reviews ~500k tokens, 4 with no required findings (~190k); 2 Sonnet reviews each found a real defect.
 - 2026-10-17: Swift app plus local server run (8 batches, 0.9.2; 0 rounds, tiers matched). Took #1 (narrowed to one line in `tasklist`), #2, #4 (narrowed) as one-run hypotheses; #3 and #5 not applied (rules already exist; compliance, not wording); mirror-reviewer downgrade stays parked. Cause of rework sits upstream: the planning brief asserted an unchecked data fact (see the project-planning ledger).
 - 2026-10-18: owner request, not run feedback. Flag high-impact or low-confidence items in lists the user rules on, with options and pros and cons, without dropping anything (0.12.1; project-planning 0.6.0 carries the shared shape). `/tasklist-feedback`'s own report follows it too.
+- 2026-10-19: rung retro (Swift server and CLI app, 0.13.0; 10 tasks, 0 `batch` lines). Cause found in the log, not a guess: the run skipped `batch`/`step` lines because the tools were not installed. Took the no-tool rule, the end-of-run count with warning and backfill (narrowed from "warn only"), and the `metrics tokens` usage fix (project-planning side). Rejected "match by rung ID instead of list name": `metrics summary` already matches by the `start` line's list name, then by the batch commit, so moving the list to `Completed/` does not break it; clarified in `retrospective.md`. The tidy-scouting suggestion (check a "copy X" target exists) is one run and unrelated to logging: left on the retro's own list. Also merged `/tasklist-feedback` and `/roadmap-feedback` into `/retro-feedback` with one tagged block (owner request).
 
 ## Open questions
 
