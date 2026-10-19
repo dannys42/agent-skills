@@ -5,6 +5,7 @@
 Users had to remember five long commands across clean sessions, and skipping the re-plan left the finished rung `in progress`, so a bare `/roadmap-plan-next-rung` picked it again.
 
 - New `rung` skill: `/rung` reads the project's files (with plan tools 0.4.0's `roadmap next`) and runs the next step; `/rung status` prints where the project stands. The cycle is three sessions: plan, run, close
+- `rung` finds the step at zero turns: `scripts/next.sh` runs `roadmap next` as the skill loads (Claude Code `!` injection, pre-approved by `allowed-tools`) and always exits 0, because a failed injected command aborts the skill. When the tool is missing it installs and runs it in one Bash call, instead of reading another skill for the install command
 - `roadmap-plan-next-rung`: `close` (alias `fold-back`) merges fold-back, the retrospective in a background Sonnet subagent and the re-plan into one Opus session
 - `Next:` lines in `system-design`, `risk-first-roadmap`, `roadmap-plan-next-rung` and `code-quality-pass` point at `/rung`
 - `system-design`, `risk-first-roadmap` and `roadmap-plan-next-rung` pin `model: opus`

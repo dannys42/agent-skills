@@ -2,6 +2,7 @@
 name: rung
 description: Work out the next step of a risk-first roadmap from the project's files and run it, so the user does not have to remember which command comes next. Routes to system-design, risk-first-roadmap, roadmap-plan-next-rung or tasklist-run. A rung takes three sessions - plan, run, close. Use whenever the user types /rung, or asks what's next, to continue the project, or for the next step of the roadmap, even if they do not name this skill. Not for designing a rung by hand (use roadmap-plan-next-rung) or for projects without a roadmap and no wish to start one.
 license: GPL-3.0-or-later
+allowed-tools: Bash(sh *rung/scripts/next.sh*)
 ---
 
 # Rung
@@ -11,13 +12,19 @@ One command for the rung cycle. It reads the files, says what is next, and invok
 ## Invocation
 
 - `/rung` works out the step.
-- `/rung status` prints the `roadmap next` lines and `roadmap status <roadmap>`, and does nothing else.
+- `/rung status` shows the lines under [Find the step](#find-the-step) and the output of `roadmap status <roadmap>`, and does nothing else. Do not run `roadmap next` again.
 - Overrides: `/rung plan [L5]`, `/rung run [L3] [tasklist-run flags]`, `/rung close [L3]`, `/rung retro [L3]`, `/rung replan`, `/rung design`, `/rung roadmap`. An override skips the check of what is next but still names the rung if omitted.
 
 ## Find the step
 
-1. Run `risk-first-roadmap`'s "Plan tool check" (it installs the tool).
-2. Run `~/.cache/danny-agent-skills/bin/roadmap next`. Add `--dir <DocDir>` when project rules name `DocDir`. It prints `key: value` lines: `step`, `rung`, `list`, `model`, `command`, `why`. It exits 1 with a candidate list when several `Roadmap-*.md` exist; ask which, then pass `--roadmap <file>`.
+In Claude Code, `scripts/next.sh` ran as this skill loaded (zero turns) and printed:
+
+```
+!`sh "${CLAUDE_SKILL_DIR}/scripts/next.sh"`
+```
+
+1. Lines `step`, `rung`, `list`, `model`, `command`, `why`: use them. If project rules name a `DocDir` other than the one found, or the output lists several `Roadmap-*.md` (ask which), re-run `~/.cache/danny-agent-skills/bin/roadmap next --dir <DocDir>` or `--roadmap <file>`.
+2. `roadmap: missing or not 0.4.0`, or the block above still shows the `!` command (another harness): install and run in one Bash call: `sh "$(ls -td ~/.claude/plugins/cache/*/task-workflow/*/tools/plantools/build.sh | head -n 1)" >/dev/null && ~/.cache/danny-agent-skills/bin/roadmap next`. If the build script is not found or fails, say so in one line and use the table below.
 3. Without the tool, apply this table by hand with `grep` and `ls`:
    - No Overview (`SystemDesign/Overview.md`, or a legacy `Design-*.md`) and no roadmap: `design`. Overview, no roadmap: `roadmap`.
    - Current rung: the first `in progress` on the ladder, else the first `planned` (`plan`). None: `finished`.
