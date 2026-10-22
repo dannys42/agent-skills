@@ -274,6 +274,10 @@ public struct Tasklist {
             if task.blocked != nil, task.mark == .open, !task.blocked!.isEmpty, !isID(task.blocked!), task.fields["why"] == nil {
                 out.append(.init(.error, line: task.line, "\(task.id) BLOCKED(reason) without Why:"))
             }
+            let keys = spans(of: task).map(\.key)
+            for key in Set(keys) where keys.filter({ $0 == key }).count > 1 {
+                out.append(.init(.warning, line: task.line, "\(task.id) has more than one \(Tasklist.display(key)): line"))
+            }
             if let why = task.fields["why"], !hasISODate(why) {
                 out.append(.init(.warning, line: task.line, "\(task.id) Why: has no ISO date"))
             }
@@ -368,13 +372,18 @@ public struct Tasklist {
 
     // MARK: - Editing (the only write the tool makes)
 
+    /// A rule refused the edit (exit 1). Bad arguments are `EditUsageError` (exit 2).
     public enum EditError: Error, CustomStringConvertible {
         case unknown(String), alreadyClosed(String), userTask(String)
+        case refused(String)
+        case lint([String])
         public var description: String {
             switch self {
             case .unknown(let id): return "no task \(id)"
             case .alreadyClosed(let id): return "\(id) is already closed"
             case .userTask(let id): return "\(id) is USER: pass --confirmed once the user has confirmed it"
+            case .refused(let why): return why
+            case .lint(let errors): return (["refused: the edit would make lint report new errors, nothing written"] + errors).joined(separator: "\n")
             }
         }
     }

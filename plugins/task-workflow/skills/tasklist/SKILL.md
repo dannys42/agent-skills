@@ -198,7 +198,7 @@ When the source is a decision ledger, PRD, or plan, put its path in `Source:` an
 
 ## Plan tools (optional)
 
-`tasklist`, `roadmap` and `metrics` are small command-line tools in this plugin's `tools/plantools/` (SwiftPM with Swift Argument Parser). They only apply the rules above faster; nothing here depends on them. They live outside `PATH`, in `~/.cache/danny-agent-skills/bin/` (`$XDG_CACHE_HOME` if set); below, `tasklist` means `~/.cache/danny-agent-skills/bin/tasklist`, and `roadmap` likewise. Before using one, run `~/.cache/danny-agent-skills/bin/tasklist --version`. If it fails or is not `0.4.2`, install it yourself without asking: `sh <this skill's base directory>/../../tools/plantools/build.sh`, which runs `swift build -c release` and copies the binaries there (it rebuilds only when sources changed, so it also handles a plugin update, and a deleted cache is rebuilt the same way). If `swift` is missing or the build fails, say so in one line, do not retry, and apply the rules by hand as written. Run the binary directly, never through `swift run`.
+`tasklist`, `roadmap` and `metrics` are small command-line tools in this plugin's `tools/plantools/` (SwiftPM with Swift Argument Parser). They only apply the rules above faster; nothing here depends on them. They live outside `PATH`, in `~/.cache/danny-agent-skills/bin/` (`$XDG_CACHE_HOME` if set); below, `tasklist` means `~/.cache/danny-agent-skills/bin/tasklist`, and `roadmap` likewise. Before using one, run `~/.cache/danny-agent-skills/bin/tasklist --version`. If it fails or is not `0.5.0`, install it yourself without asking: `sh <this skill's base directory>/../../tools/plantools/build.sh`, which runs `swift build -c release` and copies the binaries there (it rebuilds only when sources changed, so it also handles a plugin update, and a deleted cache is rebuilt the same way). If `swift` is missing or the build fails, say so in one line, do not retry, and apply the rules by hand as written. Run the binary directly, never through `swift run`.
 
 | Command | Replaces |
 | --- | --- |
@@ -207,9 +207,14 @@ When the source is a decision ledger, PRD, or plan, put its path in `Source:` an
 | `tasklist next-id <file> [T\|G\|P]` | scanning for the highest ID |
 | `tasklist lint <file> [--base <older copy>]` | the mechanical checks in "Before finishing"; `--base` also reports deleted IDs and titles rewritten in place |
 | `tasklist done <file> <ID>... [--confirmed]` | ticking `[x]` (changes only the checkbox; `--confirmed` is required for `USER` tasks) |
+| `tasklist needs <file> <ID> [--add <ID>...] [--remove <ID>...]` | editing a `Needs:` line; refuses unknown IDs and cycles; adding an existing edge is a no-op |
+| `tasklist close <file> <ID> --reason <WORD> [--by <ID>...] --why "<text>" [--date D] [--confirmed]` | closing a task, phase or group `[-]` with the reason word and a dated `Why:` (`SUPERSEDED` needs `--by`); refuses `[x]` items |
+| `tasklist reopen <file> <ID> --why "<text>" [--model <tier>]` | reviving a `DEFERRED` task (`--model` when it has none) |
+| `tasklist add <file> --under <ID> --title "<text>" --model <tier> [--needs ..] [--context ..] [--done-when ..] [--user --step ..] [--before <ID>]` | appending a task with the next unused ID, the tier's named model filled in; prints the ID |
+| `tasklist set <file> <ID> <title\|model\|run\|verify\|done-when\|notes\|context> "<text>" [--append]` | rewording one field of an open task; prints a warning when a `title` change leaves the old wording quoted elsewhere |
 | `metrics tokens` / `metrics summary <tasklist>` / `metrics signals` / `metrics predictions` | exact per-batch tokens from transcripts; a run's or rung's retrospective numbers; zero-token code-quality signals (see `tasklist-run` and `code-quality-pass`); how the tier and next-step model predictions held |
 
-The tool never creates, reorders or rewrites a list, and the markdown stays the source of truth.
+Use them instead of scripted edits to a list. Every editing command takes `--dry-run` (prints a diff, writes nothing), runs `lint` on the result and refuses when it would add an error, and touches only the lines it names. Exit codes: 0 done, 1 refused by a rule, 2 bad usage. The tool never creates, renumbers or reorders a list, and the markdown stays the source of truth. `tasklist set` may rewrite fields of open tasks; closed tasks are never rewritten; run `tasklist lint --base <older copy>` after substantial rewrites.
 
 ## Keep the file lean
 

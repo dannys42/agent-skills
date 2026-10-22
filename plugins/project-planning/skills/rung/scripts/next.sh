@@ -3,8 +3,8 @@
 # Always exits 0, because a failed injected command aborts the skill; never builds, because
 # a first build can outlast the injection timeout. The skill installs the tool when this says so.
 b=${XDG_CACHE_HOME:-$HOME/.cache}/danny-agent-skills/bin/roadmap
-if [ "$("$b" --version 2>/dev/null)" != "0.4.2" ]; then
-  echo "roadmap: missing or not 0.4.2"
+if [ "$("$b" --version 2>/dev/null)" != "0.5.0" ]; then
+  echo "roadmap: missing or not 0.5.0"
   exit 0
 fi
 "$b" next "$@" 2>&1

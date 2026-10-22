@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.16.0
+
+From an owner request: during a session the model edited Tasklist files with ad-hoc Python scripts (adding `Needs` edges, closing items, adding tasks, rewording open tasks), and such edits can silently miss, duplicate a field or break an invariant.
+
+- Plan tools 0.5.0: `tasklist needs`, `close`, `reopen`, `add` and `set` edit only the lines they name. Each re-parses the result, refuses (exit 1, nothing written) when `lint` would report a new error or an ID would go, supports `--dry-run` (unified diff), writes atomically with permissions and trailing newline kept, and exits 2 on bad usage (ArgumentParser's own usage errors now exit 2, not 64). `done` goes through the same checks and takes `--dry-run`. `lint` warns when a task has two lines for one field. 115 tests (39 new)
+- Names differ from the request in a few places, on purpose: `add --under` takes a group or a phase, since short lists have no groups; `needs` takes `--add` and `--remove` together; `set` has no `needs` field (that is `tasklist needs`); `reopen --model` fills the `Model` a closed task never had, because an open task needs one and `set` cannot edit a `[-]` task; `close` on a heading also writes the `Why:`, and refuses a heading with nothing open or an open `USER` task without `--confirmed`
+- `tasklist-run`: the "never log 0 for a committed batch" rule is deleted; it was not followed in 7 runs and `metrics summary` reads lines and reviewer tokens from git and the `tokens` events
+- `tasklist`: the Plan tools table lists the new commands; closed tasks are never rewritten by `set`
+- Marketplace entries brought back in step with the plugin manifests (they had lagged at 0.14.1 and 0.8.0)
+
 ## 0.15.0
 
 Orchestrating a run on Opus re-reads a growing context at Opus rates on every dispatch, while the risky judgments are a handful per run.

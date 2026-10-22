@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.2
+
+- `rung`, `risk-first-roadmap`, `code-quality-pass`: the plan tools version they check for is 0.5.0 (task-workflow 0.16.0)
+
 ## 0.8.1
 
 - `rung`, `roadmap-plan-next-rung`: a run is recommended on Opus only when more than half the open tasks are `heavy` (task-workflow 0.15.0); otherwise Sonnet with an Opus advisor for the judgment calls
