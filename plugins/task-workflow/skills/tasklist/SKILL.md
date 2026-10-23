@@ -204,10 +204,11 @@ When the source is a decision ledger, PRD, or plan, put its path in `Source:` an
 | --- | --- |
 | `tasklist next <file> [--block\|--context]` | scanning for the next eligible task; on none, prints what blocks each open task and exits 1 |
 | `tasklist context <file> <ID>` | the `Source`, enclosing `Goal` lines and task block an implementer prompt starts from |
+| `tasklist show <file> <ID>` | reading one task block, or a phase or group heading with its Goal and tasks, instead of `sed -n` |
 | `tasklist next-id <file> [T\|G\|P]` | scanning for the highest ID |
 | `tasklist lint <file> [--base <older copy>]` | the mechanical checks in "Before finishing"; `--base` also reports deleted IDs and titles rewritten in place |
 | `tasklist done <file> <ID>... [--confirmed]` | ticking `[x]` (changes only the checkbox; `--confirmed` is required for `USER` tasks) |
-| `tasklist needs <file> <ID> [--add <ID>...] [--remove <ID>...]` | editing a `Needs:` line; refuses unknown IDs and cycles; adding an existing edge is a no-op |
+| `tasklist needs <file> <ID> [--add <ID>...] [--remove <ID>...]` | editing a `Needs:` line; refuses unknown IDs (a rung ID too, since it is not a task here) and cycles; adding an existing edge is a no-op. To record "waits for rung L3", use `tasklist set <file> <ID> context "Waits for L3" --append`, or a `USER` task that confirms the rung when the wait must stop the run |
 | `tasklist close <file> <ID> --reason <WORD> [--by <ID>...] --why "<text>" [--date D] [--confirmed]` | closing a task, phase or group `[-]` with the reason word and a dated `Why:` (`SUPERSEDED` needs `--by`); refuses `[x]` items |
 | `tasklist reopen <file> <ID> --why "<text>" [--model <tier>]` | reviving a `DEFERRED` task (`--model` when it has none) |
 | `tasklist add <file> --under <ID> --title "<text>" --model <tier> [--needs ..] [--context ..] [--done-when ..] [--user --step ..] [--before <ID>]` | appending a task with the next unused ID, the tier's named model filled in; prints the ID |

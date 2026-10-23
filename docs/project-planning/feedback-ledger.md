@@ -61,15 +61,18 @@ Claims that need evidence before any change. Each: claim, tier, source version, 
 - Layers touched versus rung size: a rung through store, API route, client view model, form and chart drawing ran 1946 diff lines against a 887 median, 7 batches against 5, 2 correction rounds against 1, tokens about 1.5 to 1.9x, with a 105-line brief (so the brief-length trigger for "probably two rungs" never fired). Proposed: at planning, a slice touching three or more layers proposes a split. Not applied: rungs are end-to-end by design, so a layer count would fire on most of them, and one run does not separate layers from other causes (five drawing and form pieces in one rung). Need: per rung, the layers touched at planning (count them in the brief's Components table) against diff lines and tokens from `metrics summary`, over the next 2 to 3 rungs; if the oversized rungs share a high count and the small ones do not, add one line to "The brief is short". (measured, 0.8.2)
 
 - `/rung` not defaulting to a recommended tidy, and defaulting to the roadmap even with a tidy tasklist (owner, 1 run, mechanism unknown). Code read: `roadmap next` routes an open `Tasklist-<Rung>-Tidy.md` to `run` only while the rung is `in progress`; once the rung is `done` (or when `status` only recommends a tidy) it is ignored and the next `planned` rung wins. A fix is a tool change (version ripple across skills and manifests). Need: the `roadmap next` output, the rung's roadmap status and whether the tidy list was open in `<DocDir>/` at that moment. If the done-rung case is confirmed, make `roadmap next` return `run` for any open tidy list. (observed, 0.8.2)
+- Do hand edits of a roadmap during a re-plan (inserting a rung, status, `Depends on:`, log entry) leave `roadmap lint` errors, and are they done with scripts or `sed` instead of `Edit`? One run (0.8.3) edited by python/sed. Need: `roadmap lint` result after the next 2 re-plans and whether the tool-check step ran. If lint errors or scripted edits repeat, consider `roadmap set-status` / `add-rung` (tool change, task-workflow side). (observed, 0.8.3)
 
 ## Parked
 
 - Tasklist-side suggestions (reviewer tier for additive migrations, auto-computed metrics lines/files, a "visible gap noted, not scheduled" field): belong to task-workflow, not this plugin; send through `/tasklist-feedback`. Reviewer-tier claim is observed, 1 run.
 - Committing planning files before the first batch (guess): not a rule.
 
+- Roadmap write commands `add-rung`, `set-status`, ladder renumbering (feedback 2026-10-23): parked. One run, observed; a tool change with a version ripple and no measured cost of the hand edits (rule 6). Ladder renumbering does not exist: rung IDs are never renumbered and the ladder order is line order, so an insert shifts nothing. Revisit on the lint evidence under Collect next run.
+
 ## Rejected
 
-- None yet.
+- "After any hand edit run `roadmap lint`" and "read with `roadmap section`/`show`, not `sed -n`" (feedback 2026-10-23): already in `risk-first-roadmap` (Reading; "`roadmap lint` after editing"; Plan tool check bans `grep`/`awk`/`sed` before an install is tried). A duplicate costs tokens in every run (rule 3); the lapse was compliance, not a gap.
 
 ## Feedback received
 
@@ -84,6 +87,7 @@ Append one line per feedback drop: date, source (skill and version, project kind
 - 2026-10-22, roadmap-plan-next-rung 0.8.2, adopted Swift server plus macOS client, rung retro: collected the split-at-three-layers idea (one oversized rung, no rule; see Collect next run). Brief held at 105 lines plus 8 "As built", no `Found during`/`INVALID`/`SUPERSEDED`, which supports the brief rows while the diff size shows the size problem sits in the slice, not the brief. The task-workflow items went to that ledger.
 
 - 2026-10-22, code-quality-pass 0.8.2, adopted Swift server plus macOS client, tidy of a rung: took Proposals file, ruling, re-plan hand-off and `quality_outcome` `kind` (0.8.3); collected the `/rung` routing report. The `tasklist-run` half of "never write a bug task" is already covered by the tidy list's Non-goals; no task-workflow edit.
+- 2026-10-23, risk-first-roadmap 0.8.3, re-plan of a rung, same session as a tasklist run: edits to the roadmap were scripted. Took nothing as a rule (the reading and lint lines exist; write-command idea parked, see Parked). Collected the lint-after-re-plan check. The task-workflow items went to that ledger (0.16.1).
 
 ## Open questions
 

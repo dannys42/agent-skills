@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.16.1
+
+From a run on 0.16.0 where the orchestrator edited the tasklist and roadmap with python and `sed` although the edit commands existed.
+
+- `tasklist-run`: "Before the first batch" now names `show`, `set ... notes`, `needs`, `add` and `close` beside the commands it already named, and says never to edit a task block by script or `sed`. The implementer rule "do not edit the tasklist" now covers a task that says to write a `Notes:` line: the implementer reports the text and the orchestrator applies it with `tasklist set` (one run had two `Notes:` lines and a lint warning)
+- `tasklist`: the Plan tools table lists `tasklist show`, and says `needs` refuses a rung ID and how to record "waits for rung Lx"
+- One-run hypothesis (wording only, no tool change)
+
 ## 0.16.0
 
 From an owner request: during a session the model edited Tasklist files with ad-hoc Python scripts (adding `Needs` edges, closing items, adding tasks, rewording open tasks), and such edits can silently miss, duplicate a field or break an invariant.
