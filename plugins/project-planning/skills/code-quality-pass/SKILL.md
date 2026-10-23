@@ -39,11 +39,12 @@ In both tiers, rank and decide by what keeps the codebase healthy over many futu
 ```
 <DocDir>/Quality/Status.md                 current state only, at most 25 lines (template in quality-files.md)
 <DocDir>/Quality/Review-<date>.md          the live Tier 2 report, at most one
-<DocDir>/Completed/Quality/Review-<date>.md  earlier reports, moved verbatim when the next review is written
+<DocDir>/Quality/Proposals-<RungId>.md     a tidy scout's proposals and defects, verbatim, at most one per rung (shape in quality-files.md)
+<DocDir>/Completed/Quality/Review-<date>.md  earlier reports, moved verbatim when the next review is written (a Proposals file moves there once the re-plan has placed or dropped every entry)
 <DocDir>/Tasklist-<RungId>-Tidy.md         a Tier 1 pass, run by tasklist-run
 ```
 
-`Status.md` never grows with history: every field is overwritten, `Since review:` resets at each review and is written as a range with a count (`L18–L31 (14)`) past twice the interval, and proposals live only in the review report. History is in the metrics log.
+`Status.md` never grows with history: every field is overwritten, `Since review:` resets at each review and is written as a range with a count (`L18–L31 (14)`) past twice the interval, and proposals live only in the review report or a `Proposals-<RungId>.md`. History is in the metrics log.
 
 ## Metrics tool check
 
@@ -57,7 +58,7 @@ Before the first `metrics` call in a session, run `~/.cache/danny-agent-skills/b
 - No rung's `Depends` names a quality item, and `tasklist-run` never reads `Status.md`.
 - An accepted refactor rung is ordered by the re-plan like any other; it goes ahead of a feature rung only when the user puts it there.
 - At fold-back or re-plan, offer at most once. When `Since review:` reaches twice the interval, the offer says so; it is still only an offer.
-- A defect found by either tier (a behaviour bug, such as an error path that can lose data) is not a quality item: report it at once, and offer a bug task with a reproducing test first, in the active or next tasklist.
+- A defect found by either tier (a behaviour bug, such as an error path that can lose data) is not a quality item: report it at once and record it (Tier 1: the Proposals file; Tier 2: the report), and ask yes or no to a bug task with a reproducing test first. Only a yes writes the task, through the re-plan or in the active tasklist; `tasklist-run`, the tidy tasks and the fold-back never write one unasked.
 
 ## Tier 1: tidy
 
@@ -66,16 +67,17 @@ Before the first `metrics` call in a session, run `~/.cache/danny-agent-skills/b
 3. **Scout** one subagent, `standard` (Sonnet). Use `heavy` (Opus) only when the diff touches concurrency, a persistence schema, or a type shared across modules. Give it the file list, the review notes, the base, and the scout brief in [quality-files.md](references/quality-files.md). It reads the rung's diff, sibling files found by grepping the touched type names, and applies `organizing-swift-files` and `naming-swift-tests` (swift-craft) where installed. It returns at most 6 tidy items, then proposals and defects, never edits.
 4. **Classify each item.** Judge by long-term quality, not effort: an item that is too big for a tidy becomes a proposal, never a dropped finding. Tidy: naming clarity, idiomatic Swift, file organization, duplication with sibling code that one small extraction removes, a leftover review note, a stale test or doc name, a compiler warning in a rung file, a finding of the project's existing linter. Everything else is a **proposal**: a behaviour change, a public interface change beyond renames, a change spreading beyond the rung's files and their call sites, or more than about 80 changed lines for one item.
 5. **Characterization first.** If an item changes code that no test exercises, its first task adds a characterization test, in its own commit, before the change.
-6. **Write `Tasklist-<RungId>-Tidy.md`** in `tasklist` format: `Source:` the rung and base; at most 6 tasks and about 300 changed lines in all; each `Done when` includes the full test command passing; one `Non-goals` line: no behaviour change. A pure rename or move is `light`, anything else `standard`.
-7. **Offer it**: one line per task, then run, skip or defer. On run, hand the file to `tasklist-run` (orchestrate on Sonnet 5.5; the tidy list has no `heavy` tasks). When the pass is done, say the next step is the fold-back it interrupted: `/rung → close <RungId>` on Opus. Its tidy rules (no tier raise; a task that fails review twice is reverted and closed as a proposal) keep the pass small.
-8. **Record**: proposals go to `Status.md`'s backlog count and are carried into the next review; log a `quality` event (below); offer a defect task if the scout found one.
+6. **Write `Tasklist-<RungId>-Tidy.md`** in `tasklist` format: `Source:` the rung and base; at most 6 tasks and about 300 changed lines in all; each `Done when` includes the full test command passing; one `Non-goals` line: no behaviour change, and no fix for a defect. A pure rename or move is `light`, anything else `standard`.
+7. **Record** before offering, so a skip loses nothing: if the scout returned proposals or defects, write them verbatim to `Quality/Proposals-<RungId>.md` (shape in quality-files.md, each entry `Decision: pending`), and set `Status.md`'s `Backlog:` to link to it. Never write a count that links to nothing. Log a `quality` event (below).
+   Then **offer** the tasks: one line per task, then run, skip or defer. On run, hand the file to `tasklist-run` (orchestrate on Sonnet 5.5; the tidy list has no `heavy` tasks). When the pass is done, say the next step is the fold-back it interrupted: `/rung → close <RungId>` on Opus. Its tidy rules (no tier raise; a task that fails review twice is reverted and closed as a proposal) keep the pass small.
+8. **Rule on proposals and defects**, only when the scout returned some, as one batched question in the same message as the tidy offer, shown apart from the tidy tasks, in the shape in `roadmap-plan-next-rung`'s [presenting-for-review.md](../roadmap-plan-next-rung/references/presenting-for-review.md). Each proposal: accept (the re-plan places it as a `refactor-rung` or `task`), defer or reject. Each defect: "bug task with a reproducing test first, yes or no". The answer to the whole question may be skip or defer; unanswered entries stay `pending` and cost nothing further (they are not asked again at this fold-back). Record the answers in the Proposals file and log `quality_outcome`.
 
 ## Tier 2: review
 
 Read-only. The output is a report the user rules on; nothing is edited except `Status.md` and the report.
 
 1. **Signals**: `metrics signals --json`, kept for the event, and the plain output for the scouts.
-2. **Scope.** No recorded review: the whole codebase. Otherwise: modules changed since `Last review` (`git diff --stat <sha> HEAD`), modules named by pending triggers, and proposals the last report deferred.
+2. **Scope.** No recorded review: the whole codebase. Otherwise: modules changed since `Last review` (`git diff --stat <sha> HEAD`), modules named by pending triggers, and proposals the last report or a Proposals file deferred.
 3. **Scouts**: at most 6 `standard` (Sonnet) subagents in parallel, one per module, target or top-level source directory in scope (group small ones). Each writes one seam card of at most 40 lines (format in quality-files.md) and reads with bounded output: `grep -n`, ranged reads, no whole large files.
 4. **Synthesis**: one `heavy` (Opus) subagent. It reads the cards, the signals, the Overview's Components table and Decisions (`roadmap section`), each subsystem doc's Contract for modules in scope, `Status.md` and the deferred items of the last report. It uses the `codebase-design` vocabulary (deep modules, seams, interfaces) and `choosing-swift-design-patterns` where a pattern fits, and opens source only to confirm a proposal (a few ranged reads). It ranks by long-term benefit and compounding cost, not by effort. It returns the report in the shape in quality-files.md: defects first, then the proposals that need the user's attention, then at most 10 ranked proposals, then one line each for the rest.
 5. **Present** the defects, then the attention section and the ranked list, in the shape in `roadmap-plan-next-rung`'s [presenting-for-review.md](../roadmap-plan-next-rung/references/presenting-for-review.md). For each proposal the user answers accept, defer or reject (for a flagged one, which option); batch the question. Record the answers in the report.
@@ -84,7 +86,7 @@ Read-only. The output is a report the user rules on; nothing is edited except `S
    - `conventions`: one line in the project conventions file (`CLAUDE.md` or `AGENTS.md`, whichever the project uses; ask if neither), so implementers stop reproducing the inconsistency. One line per rule.
    - `fitness-test`: a task to make the boundary permanent. Prefer a boundary the compiler enforces (a SwiftPM target whose dependencies forbid the import); otherwise a small test that fails on the forbidden import or pattern.
    - `accept-shape`: add the family to `Accepted shapes:` so the `shape` trigger stops reporting a deliberate convention.
-7. **Update** `Status.md` (`Last review` with HEAD, `Since review: none`, `Triggers pending: none`, backlog counts, link), move the previous report to `Completed/Quality/`, and log `quality` and `quality_outcome` events.
+7. **Update** `Status.md` (`Last review` with HEAD, `Since review: none`, `Triggers pending: none`, backlog counts, link; `Backlog:` links every live report and Proposals file), move the previous report to `Completed/Quality/`, and log `quality` and `quality_outcome` events.
 
 ## Model choice
 
@@ -99,10 +101,10 @@ A model the user names wins.
 
 ## Metrics events
 
-Append to the `tasklist-run` metrics log (`~/.local/state/danny-agent-skills/task-workflow/metrics.jsonl`), in the same Bash call as the step it records, with `v` 1, `run` (a new UTC ID per pass), `ts`, `skill` (`code-quality-pass 0.7.0`), `repo`:
+Append to the `tasklist-run` metrics log (`~/.local/state/danny-agent-skills/task-workflow/metrics.jsonl`), in the same Bash call as the step it records, with `v` 1, `run` (a new UTC ID per pass), `ts`, `skill` (`code-quality-pass 0.8.3`), `repo`:
 
 - `quality`: `kind` (`tidy`, `review`, `baseline`, `deferred`), `rung` (the rung it follows), `trigger` (`fold-back`, `manual`, or the trigger names), `models`, `commits`, `lines`, `proposals`, `defects`, and `signals` (the `metrics signals --json` object), and `model` (the model ID you ran on). A tidy that hands off to `tasklist-run` also writes a `step` event as `tasklist-run`'s metrics log defines it (`next_model` `sonnet`).
-- `quality_outcome` (review only, once the user has ruled): `accepted`, `deferred`, `rejected`, and `kinds` (accepted counts by kind).
+- `quality_outcome` (once the user has ruled a review's proposals, or a tidy's proposals and defects): `kind` (`review` or `tidy`), `accepted`, `deferred`, `rejected` (entries still `pending` count as deferred), and `kinds` (accepted counts by kind; `bug` for an accepted defect).
 
 Payoff is judged later from `metrics summary` on the rungs before and after a pass (rounds, lines, implementer tools), against the pass's own cost. Treat it as a hypothesis until several passes exist.
 

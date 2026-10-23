@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.8.3
+
+A tidy's proposals and defects were reduced to a count that linked to nothing, never ruled on, and never reached the re-plan.
+
+- `code-quality-pass`: tidy step 7 writes the scout's proposals and defects verbatim to `Quality/Proposals-<RungId>.md` before the offer, and `Status.md`'s `Backlog:` links to it (never a bare count); step 8 asks one batched question beside the tidy offer: accept, defer or reject each proposal, "bug task with a reproducing test first, yes or no" for each defect. Only a yes writes a bug task. `quality_outcome` also covers a tidy (`kind`)
+- `risk-first-roadmap`, `roadmap-plan-next-rung`: the re-plan at close places accepted entries from `Proposals-<RungId>.md` as it does a review's
+
 ## 0.8.2
 
 - `rung`, `risk-first-roadmap`, `code-quality-pass`: the plan tools version they check for is 0.5.0 (task-workflow 0.16.0)
