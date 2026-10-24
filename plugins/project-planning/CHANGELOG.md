@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.8.4
+
+A rung brief assumed a framework would open a tapped document on one platform because it did on another; it showed only at the owner's hand check and cost one unplanned heavy task.
+
+- `roadmap-plan-next-rung`: the first-real-call line for unverified assumptions also names a framework's behaviour, including what a platform does with an event a `Done when` relies on (a few words; no new section)
+- One-run hypothesis
+
 ## 0.8.3
 
 A tidy's proposals and defects were reduced to a count that linked to nothing, never ruled on, and never reached the re-plan.
