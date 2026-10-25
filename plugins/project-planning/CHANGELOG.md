@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.8.6
+
+A rung's brief agreed a response contract with derived ratios without listing their null and zero cases or denominator scope; 4 of 9 review notes were owner rulings on exactly those, and the task that built the ratios was the rung's largest batch (1 correction round).
+
+- `roadmap-plan-next-rung`: the Components step also names, for each derived ratio or aggregate a boundary returns, its null and zero cases and what its denominator covers, as a proposed default flagged as an assumption (one clause on the existing sentence; no new section, no extra question)
+- Not changed: the real-data check for an assumed link between data sets. The 0.3.4 data-property rule already covers it; the run was on 0.8.3 and no brief on 0.8.4 or later has been seen, so it is collected (see the ledger)
+- One-run hypothesis, wording only
+
 ## 0.8.5
 
 A rung's slice, scope and verification rested on an assumption that the rung's first task refuted: one of three slice items was deferred and three brief sections needed an "As built" correction. Fold-back also found a decision row that restated an existing decision and left it `proposed`. Interleaved rungs share a base commit, so the retro's commit range over-counted.

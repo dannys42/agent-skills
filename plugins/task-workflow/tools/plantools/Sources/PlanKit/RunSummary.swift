@@ -54,8 +54,8 @@ public enum RunSummary {
 
     /// Groups a repo's runs by tasklist file name. A run logged before `start` carried `list` is resolved
     /// through `listForSha` from its first committed batch; runs that resolve to nothing are left out.
-    /// `linesForSha` gives a commit's insertions plus deletions from git; it replaces the logged `lines`, which the
-    /// orchestrator copies by hand and sometimes gets wrong.
+    /// `linesForSha` gives a commit's insertions plus deletions from git; it replaces any logged `lines` (the skill no longer logs it; an older log's value is
+    /// only cross-checked).
     public static func byList(log: [LogEvent], repo: String, linesForSha: (String) -> Int? = { _ in nil }, listForSha: (String) -> String?) -> [String: RungNumbers] {
         let events = log.filter { $0.string("repo") == repo }
         var listOfRun: [String: String] = [:]
@@ -82,12 +82,12 @@ public enum RunSummary {
                 n.batches += 1
                 if e.string("outcome") == "blocked" { n.blocked += 1 }
                 if e.bool("raised") { n.raised += 1 }
-                let logged = e.int("lines") ?? 0
+                let logged = e.int("lines")
                 if let sha = e.string("sha"), let actual = linesForSha(sha) {
-                    if actual != logged { n.lineMismatches += 1 }
+                    if let logged, actual != logged { n.lineMismatches += 1 }
                     n.lines += actual
                 } else {
-                    n.lines += logged
+                    n.lines += logged ?? 0
                 }
                 n.files += e.int("files") ?? 0
                 let rounds = e.int("rounds") ?? 0

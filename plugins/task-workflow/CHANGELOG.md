@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.16.2
+
+`lines` was logged as 0 on every batch line again (a fifth run), while `metrics summary` already reads lines from the batch's commit and only printed a mismatch warning against the logged value.
+
+- `tasklist-run`: the `batch` line no longer carries `lines`; `files` stays (the summary has no git fallback for it), taken from the commit call's shortstat. The backfill list and the example drop `lines` too
+- `metrics summary` (source only, no tool version bump, so installed binaries need no reinstall; an older binary only prints one extra mismatch line): a batch with no logged `lines` is no longer flagged as a mismatch; a logged value from an older log is still cross-checked
+- One-run hypothesis; reversible
+
 ## 0.16.1
 
 From a run on 0.16.0 where the orchestrator edited the tasklist and roadmap with python and `sed` although the edit commands existed.
