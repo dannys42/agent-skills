@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.8.7
+
+A rung's tidy logged its `quality` event at scout time with `commits 0, lines 0`, so the rung's `metrics summary` showed a pass that looked empty while the tidy's own run held 8 batches and 213 lines.
+
+- `code-quality-pass`: a tidy's `quality` event omits `commits` and `lines` (it is written before the tasks run; the summary prints only the fields present, and the tidy's `tasklist-run` run has the real numbers). A review or baseline still logs them. The skill's version string in the event now follows the plugin
+- Not changed: a brief step to list new public wire names for owner confirmation, and a brief line naming the repeated shape of sibling queries (both collected, see the ledger); the null, zero and denominator clause of 0.8.6 already covers the "unit of a common-days rule" ask by its denominator wording
+- One-run hypothesis, wording only
+
 ## 0.8.6
 
 A rung's brief agreed a response contract with derived ratios without listing their null and zero cases or denominator scope; 4 of 9 review notes were owner rulings on exactly those, and the task that built the ratios was the rung's largest batch (1 correction round).

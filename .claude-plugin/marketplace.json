@@ -99,7 +99,7 @@
       "name": "project-planning",
       "source": "./plugins/project-planning",
       "skills": "./skills/",
-      "version": "0.8.6",
+      "version": "0.8.7",
       "description": "Start large, ambiguous projects: outline the system, plan a risk-first roadmap of end-to-end increments, then design each increment just before building it",
       "category": "developer-tools",
       "keywords": [
