@@ -13,7 +13,7 @@ public struct RungNumbers {
     public var orchTokens: Int?, cacheBreaks: Int?
     /// Reviewer tokens from the `tokens` events (exact, cache reads left out like the logged `agents` tokens), added for each batch whose logged `agents` carry none.
     public var measuredRevTokens: Int?
-    /// Batches whose logged `lines` differ from the commit's own diff, and committed batches logged with no reviewer tokens.
+    /// Batches whose logged `lines` differ from the commit's own diff, and committed reviewed batches with no reviewer tokens in the log or the `tokens` events.
     public var lineMismatches = 0, silentReviews = 0
     /// Orchestrator tokens of each batch's `tokens` event, in log order, to see whether a long run gets dearer per batch.
     public var orchByBatch: [Int] = []
@@ -101,9 +101,8 @@ public enum RunSummary {
                 }
                 if e.string("outcome") == "committed", e.string("rev") != nil,
                    !(e["agents"] as? [LogEvent] ?? []).contains(where: { $0.string("role") == "rev" && ($0.int("tokens") ?? 0) > 0 }) {
-                    n.silentReviews += 1
                     let measured = tokensOfBatch["\(run)|\(e.string("ts") ?? "")"].map { uncachedTotal($0, "rev") } ?? 0
-                    if measured > 0 { n.measuredRevTokens = (n.measuredRevTokens ?? 0) + measured }
+                    if measured > 0 { n.measuredRevTokens = (n.measuredRevTokens ?? 0) + measured } else { n.silentReviews += 1 }
                 }
                 var why: [String] = []
                 if rounds >= 2 { why.append("\(rounds) correction rounds") }
@@ -239,7 +238,7 @@ public enum RunSummary {
             standOut.append("\(target.lineMismatches) batch line(s) logged `lines` that differ from the commit's diff; the table uses the diff")
         }
         if target.silentReviews > 0 {
-            standOut.append("\(target.silentReviews) reviewed batch(es) logged no reviewer tokens in `agents`; reviewer tokens use the `tokens` events where present")
+            standOut.append("\(target.silentReviews) reviewed batch(es) have no reviewer tokens in `agents` or the `tokens` events")
         }
         if !standOut.isEmpty { out += ["", "Stands out:"] + standOut.map { "- \($0)" } }
 

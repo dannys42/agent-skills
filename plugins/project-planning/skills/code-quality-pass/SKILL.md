@@ -48,7 +48,7 @@ In both tiers, rank and decide by what keeps the codebase healthy over many futu
 
 ## Metrics tool check
 
-Before the first `metrics` call in a session, run `~/.cache/danny-agent-skills/bin/metrics --version`. If it fails or is not `0.5.0`, install it without asking with the `task-workflow` plugin's build script, as in `risk-first-roadmap`'s "Plan tool check". Without it, say so in one line; `status` and the triggers are then unavailable, and `tidy` and `review` read `git diff --stat` and `grep` counts by hand.
+Before the first `metrics` call in a session, run `~/.cache/danny-agent-skills/bin/metrics --version`. If it fails or is not `0.5.1`, install it without asking with the `task-workflow` plugin's build script, as in `risk-first-roadmap`'s "Plan tool check". Without it, say so in one line; `status` and the triggers are then unavailable, and `tidy` and `review` read `git diff --stat` and `grep` counts by hand.
 
 `metrics signals [--base <sha> | --tasklist <path>] [--status <path>] [--json]` exits 1 when a trigger fires; that is a result, not an error. Pass `--status` when `DocDir` is not `Documentation`, `docs` or `Docs`.
 

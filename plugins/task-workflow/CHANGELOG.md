@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.16.3
+
+The "reviewed batch(es) logged no reviewer tokens" line printed again (a seventh run) although the `tokens` events carried every number, so it warned about a lapse the tool had already absorbed.
+
+- Tool 0.5.1 (`metrics summary`): the line prints only when a reviewed, committed batch has no reviewer tokens in `agents` and none in the `tokens` events either. Version bumped this time, so the `--version` check rebuilds installed binaries (0.16.2's source-only change did not)
+- Not changed: the `agents` rule in `tasklist-run` (rejected a seventh time), and the one-word doc task (collected, see the ledger)
+- One-run hypothesis; reversible
+
 ## 0.16.2
 
 `lines` was logged as 0 on every batch line again (a fifth run), while `metrics summary` already reads lines from the batch's commit and only printed a mismatch warning against the logged value.

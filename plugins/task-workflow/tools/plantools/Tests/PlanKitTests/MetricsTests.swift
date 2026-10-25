@@ -91,9 +91,9 @@ struct RunSummaryTests {
         """)
         let all = RunSummary.byList(log: log, repo: "/p", linesForSha: { $0 == "abc" ? 562 : nil }) { _ in nil }
         let n = all["Tasklist-L1-One.md"]!
-        #expect(n.lines == 571 && n.lineMismatches == 1 && n.silentReviews == 1 && n.revTokens == 102_010 + 20_000)
+        #expect(n.lines == 571 && n.lineMismatches == 1 && n.silentReviews == 0 && n.revTokens == 102_010 + 20_000)
         let out = RunSummary.render(target: n, all: all)
-        #expect(out.contains("| Lines changed | 571 |") && out.contains("logged no reviewer tokens"))
+        #expect(out.contains("| Lines changed | 571 |") && !out.contains("no reviewer tokens"))
     }
 
     @Test func rendersComparisonOutliersAndQualityAndLeavesOutZeroRows() {

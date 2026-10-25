@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.8.8
+
+A brief's "Done when" promised a specific server message on a bad input; the route returned only a generic body, found at the real-run task.
+
+- `roadmap-plan-next-rung`: the unverified-assumption clause also covers the exact message, code or status a `Done when` expects the project's own code to return, read from the route or function that produces it (a few words on the existing sentence; the read is cheap, so the check happens before agreement)
+- One-run hypothesis, wording only
+
 ## 0.8.7
 
 A rung's tidy logged its `quality` event at scout time with `commits 0, lines 0`, so the rung's `metrics summary` showed a pass that looked empty while the tidy's own run held 8 batches and 213 lines.

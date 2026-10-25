@@ -24,7 +24,7 @@ In Claude Code, `scripts/next.sh` ran as this skill loaded (zero turns) and prin
 ```
 
 1. Lines `step`, `rung`, `list`, `model`, `command`, `why`: use them. If project rules name a `DocDir` other than the one found, or the output lists several `Roadmap-*.md` (ask which), re-run `~/.cache/danny-agent-skills/bin/roadmap next --dir <DocDir>` or `--roadmap <file>`.
-2. `roadmap: missing or not 0.5.0`, or the block above still shows the `!` command (another harness): install and run in one Bash call: `sh "$(ls -td ~/.claude/plugins/cache/*/task-workflow/*/tools/plantools/build.sh | head -n 1)" >/dev/null && ~/.cache/danny-agent-skills/bin/roadmap next`. If the build script is not found or fails, say so in one line and use the table below.
+2. `roadmap: missing or not 0.5.1`, or the block above still shows the `!` command (another harness): install and run in one Bash call: `sh "$(ls -td ~/.claude/plugins/cache/*/task-workflow/*/tools/plantools/build.sh | head -n 1)" >/dev/null && ~/.cache/danny-agent-skills/bin/roadmap next`. If the build script is not found or fails, say so in one line and use the table below.
 3. Without the tool, apply this table by hand with `grep` and `ls`:
    - No Overview (`SystemDesign/Overview.md`, or a legacy `Design-*.md`) and no roadmap: `design`. Overview, no roadmap: `roadmap`.
    - Current rung: the first `in progress` on the ladder, else the first `planned` (`plan`). None: `finished`.
