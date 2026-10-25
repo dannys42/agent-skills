@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.8.5
+
+A rung's slice, scope and verification rested on an assumption that the rung's first task refuted: one of three slice items was deferred and three brief sections needed an "As built" correction. Fold-back also found a decision row that restated an existing decision and left it `proposed`. Interleaved rungs share a base commit, so the retro's commit range over-counted.
+
+- `roadmap-plan-next-rung`: when an unchecked assumption gets a first-call task instead of an early check, each slice item that rests on it is marked `conditional` with what drops if it is refuted (a clause on the existing sentence)
+- `roadmap-plan-next-rung`: a decision a design doc already holds is cited by its qualified ID, not restated as a new brief row
+- `roadmap-plan-next-rung` retrospective: when another rung ran in between, the rung's commits come from its tasklist's history, not `<Base>..HEAD`
+- One-run hypotheses, wording only
+
 ## 0.8.4
 
 A rung brief assumed a framework would open a tapped document on one platform because it did on another; it showed only at the owner's hand check and cost one unplanned heavy task.
