@@ -31,7 +31,8 @@ Ladder line format (the `roadmap` tool and `lint` read exactly this):
 
 `<n>. L<id> — <question> [<status>]`, optionally followed by ` detail: <path>` for a finished rung whose section moved out.
 
-- `<status>` is one of `planned`, `in progress`, `done`, `failed`, `changed`, `obsolete`, `deferred`; a reason may follow after `:` or `;` (`[failed: fallback taken]`)
+- `<status>` is one of `planned`, `in progress`, `done`, `failed`, `changed`, `obsolete`, `deferred`; a reason of a few words may follow after `:` or `;` (`[failed: fallback taken]`); the line stays under about 400 characters
+- `<n>` is plain digits and only a position, nothing cites it. A new rung, wherever it sits in the order, takes the next unused ID (`L48`, not `L25a`) and its line goes in place; renumber the `<n>` of the lines after it (never `25a.` or `25.1`: such a line is not read, and the rung is skipped without a warning)
 - the bracket is the last thing on the line, apart from a `detail:` pointer: `1. L1 — Can I run an app? [done] detail: Completed/Roadmap-X-Rungs.md`
 - no other brackets after the status, no status outside the brackets, one line per rung
 - horizon rungs are `- L6 — <question>` bullets under `## Horizon`, not on the ladder

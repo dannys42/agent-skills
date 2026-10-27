@@ -98,6 +98,7 @@ Never rewrite an existing file unasked. But when you read a roadmap or Overview 
 Triggers (with the `roadmap` tool, `roadmap lint <file>` and `roadmap outline <file>` give all of them):
 - the file is over about 40 KB, or finished rungs and the learning log are over half of it: move finished rung sections and the old log out, as above
 - a ladder line has no recognised status, or `lint` reports duplicate IDs or a rung section with no ladder entry: fix the line to the format below (status only, in brackets; the `Status:` line of its section tells you what it is)
+- the file is still over about 40 KB with nothing above left to move: move the dated bullets under `## Why this order` that describe earlier re-plans (not the current order's reasoning) unchanged to the Log file, leaving one link line
 - a line is over about 1,500 characters, or table or log cells run past about 400 or 600: shorten the cell, move the reasoning into the rung brief or design doc, and link it
 - an Overview (no tool support: judge from `grep -n '^#'` sizes): a risk, decision or traceability cell that is a paragraph, a retired risk still in the open register, or a decision log entry whose reasoning duplicates a rung brief: shorten to one line and link
 

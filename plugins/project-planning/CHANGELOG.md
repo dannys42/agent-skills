@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.8.9
+
+A rung inserted as `25a.` was never parsed by the `roadmap` tool (plain-digit prefix only): lint blamed the wrong rung, `roadmap next` and `status` picked the wrong one without a warning, and the fix was renumbering 21 lines. A roadmap ended at 47 KB with no tidy trigger left to apply. A flagged review card said only "ask you for X", and the owner had to ask for it to be expanded.
+
+- `risk-first-roadmap` ladder format: the number is plain digits and only a position. A new rung takes the next unused ID and its line goes in place; renumber the position numbers after it, never `25a.` or `25.1`. A reason after the status is a few words, and the line stays under about 400 characters
+- `risk-first-roadmap` tidy: a further trigger for a roadmap still over about 40 KB: dated re-plan bullets under `## Why this order` move verbatim to the Log file
+- `presenting-for-review.md`: each option carries a plain example from the project; an open or naming question lists candidate answers; a card that only says "I will ask you" is not allowed
+- `code-quality-pass` review synthesis: a claim needing a cross-module or live-data check is marked `unverified` with the check that settles it; flagged proposals carry options in the shared shape
+- Not changed: the tool itself (needs a `[task-workflow]` item: accept or warn on a ladder line that starts with digits and letters), a `Taxonomy.md` glossary for names reviews, a no-Workflow-while-waiting line in close, giving scouts the manifest and live counts (see the ledger)
+- One-run hypotheses, wording only
 ## 0.8.8
 
 A brief's "Done when" promised a specific server message on a bad input; the route returned only a generic body, found at the real-run task.

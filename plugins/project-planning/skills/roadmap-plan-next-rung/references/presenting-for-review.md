@@ -19,7 +19,7 @@ Flag at most 5. If more qualify, flag the 5 with the highest impact (then the le
    - its ID and a one-line statement
    - **Why**: `high impact`, `low confidence`, or both, and the reason in a few words
    - **To settle it** (only when confidence is the issue): the cheapest check or the one question whose answer decides it
-   - **Options**: two or three, the recommended one first and marked, each with a one-line pro and con. When there is no real alternative, say so in one line instead of inventing one.
+   - **Options**: two or three, the recommended one first and marked, each with a plain example from the project and a one-line pro and con. A naming or other open question lists its candidate answers the same way; a card that only says "I will ask you for X" cannot be ruled on. When there is no real alternative, say so in one line instead of inventing one.
 2. **Everything else**, in the calling skill's usual format and order. Each item shows its default or recommended action, and a flagged item stays in place as a one-line pointer (`⚑ see above`), so IDs and rankings stay intact.
 3. **One closing question**: which options to take for the flagged items, and "reply only with the other items you would change; the rest go ahead as shown".
 
