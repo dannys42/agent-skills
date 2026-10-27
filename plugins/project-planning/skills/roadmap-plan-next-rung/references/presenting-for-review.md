@@ -6,12 +6,13 @@ It adds an order and a callout. It never removes an item or a field the calling 
 
 ## What to flag
 
-An item needs the user's attention when it is either:
+An item needs the user's attention when it is any of:
 
 - **High impact**: expensive to undo (persistence, a public interface, a build boundary, migration), changes what the user sees, or shapes several later rungs or tasks.
+- **A new name** of a kind that is costly to rename or that the owner will say: a database schema name, domain term, wire field or type name. List such names together as one item, each with its candidates.
 - **Low confidence**: you inferred it rather than checked it, the evidence conflicts or is a single run, or it depends on what the user wants rather than on facts.
 
-Flag at most 5. If more qualify, flag the 5 with the highest impact (then the least confidence) and say how many more qualify; those stay in the full list, marked `⚑`. Do not flag an item only because it is new or long.
+Flag at most 5. If more qualify, flag the 5 with the highest impact (then the least confidence) and say how many more qualify; those stay in the full list, marked `⚑`. Do not flag an item only because it is new or long (a new name of the kinds above is the exception).
 
 ## Shape
 

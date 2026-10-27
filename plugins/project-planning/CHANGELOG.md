@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.9.0
+
+Owner-directed, not from a retro (design: `docs/project-planning/Design-Shape_Value_Names.md`). On one adopted project the experiment workflow went deep while ingestion of data that cannot be backfilled was unfinished, a "not feasible at this traffic" answer did not slow the experiment branch, new requests landed in the Horizon as design paragraphs, and new names reached the code before the owner saw them.
+
+- `risk-first-roadmap`: each unknown has a class: `shape` (would change components, boundaries, data flow or persistence), `clock` (delay loses something for good) or `breadth`. Order is skeleton, shape until one end-to-end run, clock items started early and finished, then breadth. "Shape first, then grow" with the database counter-example (first table yes, whole schema no)
+- `risk-first-roadmap`: milestones, outcomes the owner can use, in a `## Milestones` section, ordered by value; rungs carry `Milestone:` and `Class:`; only the current milestone's rungs are detailed
+- `risk-first-roadmap`: new requests mid-roadmap are mapped to a milestone, their prerequisites classed, one Horizon line added, and any detail parked verbatim in `ParkedIdeas-<Topic>.md`; a Horizon item past one line is a tidy trigger
+- `risk-first-roadmap` re-plan: a "no" on a milestone's premise defers its open rungs and asks the owner to keep, reshape or drop it; a finished milestone hands over to the next; an existing roadmap without milestones gets a one-time offer to add them
+- Three new ladder smells: a clock item behind breadth, a rung for a later milestone while the current one is open, a whole layer designed up front
+- `roadmap-plan-next-rung` and `presenting-for-review.md`: new database schema names, domain terms, wire fields and type names are flagged with candidates, the nearest existing name and any clash
+- `roadmap-example.md`: milestones and classes in the format and the worked example; the "Why this order" prose is shorter
+- Not yet: checkpoint rungs (0.10.0, a `checkpoint` mode in `system-design`); a glossary file as a plugin standard (waiting on `Taxonomy.md` in use)
+- No `roadmap` tool change: the tool does not read `## Milestones` or the new rung lines
+
 ## 0.8.9
 
 A rung inserted as `25a.` was never parsed by the `roadmap` tool (plain-digit prefix only): lint blamed the wrong rung, `roadmap next` and `status` picked the wrong one without a warning, and the fix was renumbering 21 lines. A roadmap ended at 47 KB with no tidy trigger left to apply. A flagged review card said only "ask you for X", and the owner had to ask for it to be expanded.
