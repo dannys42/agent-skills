@@ -97,6 +97,7 @@ Whether a project glossary (AppStorePortal's `Taxonomy.md`) becomes a plugin sta
   - `roadmap-plan-next-rung` and presenting-for-review.md: the names flag.
   - The `roadmap` tool lint has to accept the new `## Milestones` section and the `Milestone:` line. Check this before shipping.
 - **0.10.0** brings D: checkpoint rungs (`risk-first-roadmap`, `rung` routing, `system-design`, `code-quality-pass`).
+  - Decided while building: a fired `code-quality-pass` trigger keeps its own review offer between checkpoints, and does not add a checkpoint. A checkpoint reuses any review written since the last checkpoint. No `roadmap` tool change is needed: an interrupted checkpoint reads as `plan`, and `/rung` converts it from the rung's `Kind:` line.
 - **Cost.** These add rules that run every time (ledger rule 3). To offset them, cut the "Why this order" prose in roadmap-example.md, since the classes now carry that reasoning.
 - **Dry run.** Before shipping, re-plan AppStorePortal's roadmap on paper under 0.9.0 (no file changes) and check that:
   - ingestion completion (L15, L10b, L38–L40) sorts ahead of further experimentation work;

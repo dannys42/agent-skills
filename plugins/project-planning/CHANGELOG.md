@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.10.0
+
+Owner-directed (design: `docs/project-planning/Design-Shape_Value_Names.md`, part D). Nothing looked forward at whether the built architecture holds for the next goal; refactor rungs kept being found after the fact, and the design spread over several docs.
+
+- `risk-first-roadmap`: checkpoint rungs (`Kind: checkpoint`), placed after the first end-to-end run of the shape and as the first rung of each milestone after M1; a ladder smell for a missing one; the `Next:` line offers a checkpoint with a skip; the one-time milestone pass places them too
+- `system-design`: `checkpoint` mode. It looks back (a `code-quality-pass review` since the last checkpoint, or one run now, plus docs against code, plus folding scattered design docs into the Overview) and forward (whether the shape holds for the milestone's components, kept at `sketched`), presents one list, applies the rulings, and runs the re-plan. Record in `SystemDesign/Rung-<RungId>-Checkpoint.md`
+- `rung`: a `plan` step on a checkpoint rung becomes `checkpoint`, offered as the default with run or skip; `/rung checkpoint` and `/rung skip` overrides; a skip sets `[obsolete: skipped by owner]` and is logged
+- `roadmap-plan-next-rung`: a checkpoint rung goes to `system-design`; close's `Next:` uses the checkpoint form when the next rung is one
+- `code-quality-pass`: a review run from a checkpoint stops after synthesis and finishes after the owner's rulings; `checkpoint` is a trigger value
+- Not changed: the `roadmap` tool (an interrupted checkpoint reads as `plan`, which `/rung` converts); `code-quality-pass` triggers keep their own review offer between checkpoints
+
 ## 0.9.0
 
 Owner-directed, not from a retro (design: `docs/project-planning/Design-Shape_Value_Names.md`). On one adopted project the experiment workflow went deep while ingestion of data that cannot be backfilled was unfinished, a "not feasible at this traffic" answer did not slow the experiment branch, new requests landed in the Horizon as design paragraphs, and new names reached the code before the owner saw them.

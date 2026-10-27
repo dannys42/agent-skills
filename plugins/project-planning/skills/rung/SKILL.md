@@ -1,6 +1,6 @@
 ---
 name: rung
-description: Work out the next step of a risk-first roadmap from the project's files and run it, so the user does not have to remember which command comes next. Routes to system-design, risk-first-roadmap, roadmap-plan-next-rung or tasklist-run. A rung takes three sessions - plan, run, close. Use whenever the user types /rung, or asks what's next, to continue the project, or for the next step of the roadmap, even if they do not name this skill. Not for designing a rung by hand (use roadmap-plan-next-rung) or for projects without a roadmap and no wish to start one.
+description: Work out the next step of a risk-first roadmap from the project's files and run it, so the user does not have to remember which command comes next. Routes to system-design (including architecture checkpoints), risk-first-roadmap, roadmap-plan-next-rung or tasklist-run. A rung takes three sessions - plan, run, close. Use whenever the user types /rung, or asks what's next, to continue the project, or for the next step of the roadmap, even if they do not name this skill. Not for designing a rung by hand (use roadmap-plan-next-rung) or for projects without a roadmap and no wish to start one.
 license: GPL-3.0-or-later
 allowed-tools: Bash(sh *rung/scripts/next.sh*)
 ---
@@ -13,7 +13,7 @@ One command for the rung cycle. It reads the files, says what is next, and invok
 
 - `/rung` works out the step.
 - `/rung status` shows the lines under [Find the step](#find-the-step) and the output of `roadmap status <roadmap>`, and does nothing else. Do not run `roadmap next` again.
-- Overrides: `/rung plan [L5]`, `/rung run [L3] [tasklist-run flags]`, `/rung close [L3]`, `/rung retro [L3]`, `/rung replan`, `/rung design`, `/rung roadmap`. An override skips the check of what is next but still names the rung if omitted.
+- Overrides: `/rung plan [L5]`, `/rung run [L3] [tasklist-run flags]`, `/rung close [L3]`, `/rung retro [L3]`, `/rung replan`, `/rung design`, `/rung roadmap`, `/rung checkpoint [L44]`, `/rung skip L44` (skip a checkpoint). An override skips the check of what is next but still names the rung if omitted.
 
 ## Find the step
 
@@ -30,7 +30,8 @@ In Claude Code, `scripts/next.sh` ran as this skill loaded (zero turns) and prin
    - Current rung: the first `in progress` on the ladder, else the first `planned` (`plan`). None: `finished`.
    - In-progress rung R with a `Tasklist-R-*.md` (not in `Completed/`) that has open tasks: `run` (model opus if more than half the open tasks are `heavy`, else sonnet), or `user` when every open task is USER or BLOCKED.
    - In-progress rung R with no tasklist: `plan`. All of R's lists closed and the brief `folded back`: `replan`. Otherwise: `close`.
-4. Say in one line what you found and what you will do, e.g. `L3: tasks closed, brief not folded back → close (Opus)`.
+4. **Checkpoint.** When the step is `plan`, check the rung's section for `Kind: checkpoint` (`grep -n -A3 '^### <rung>:' <roadmap>`). If it is there, the step is `checkpoint` (model opus).
+5. Say in one line what you found and what you will do, e.g. `L3: tasks closed, brief not folded back → close (Opus)`.
 
 ## Model
 
@@ -44,6 +45,8 @@ Use the Skill tool.
 - `roadmap`, `replan`: `risk-first-roadmap`.
 - `finished`: say every rung is done and offer to extend the ladder with `risk-first-roadmap`. Do not invoke it unasked.
 - `plan`: `roadmap-plan-next-rung <rung>`.
+- `checkpoint`: offer it once as the default, with a structured question tool if there is one: run (recommended) or skip. On run, `system-design checkpoint <rung>`. On skip, do `skip`.
+- `skip`: only for a checkpoint rung. Set its ladder line to `[obsolete: skipped by owner]` and its section's `Status:` to match, add a one-line learning-log entry, log a `step` event with `kind` `checkpoint-skipped`, then work out the step again.
 - `run`: `tasklist-run <list> <flags>`.
 - `user`: show the pending USER tasks' steps verbatim and ask for the `Done when` confirmation per `tasklist-run`'s "USER tasks", then continue as `run`.
 - `close`: `roadmap-plan-next-rung close <rung>`.

@@ -76,6 +76,8 @@ Before the first `metrics` call in a session, run `~/.cache/danny-agent-skills/b
 
 Read-only. The output is a report the user rules on; nothing is edited except `Status.md` and the report.
 
+Run from a checkpoint (`system-design` checkpoint mode, trigger `checkpoint`): do steps 1 to 4 and return the report. The checkpoint presents it with its own proposals; once the owner has ruled, record the answers in the report and do steps 6 and 7.
+
 1. **Signals**: `metrics signals --json`, kept for the event, and the plain output for the scouts.
 2. **Scope.** No recorded review: the whole codebase. Otherwise: modules changed since `Last review` (`git diff --stat <sha> HEAD`), modules named by pending triggers, and proposals the last report or a Proposals file deferred.
 3. **Scouts**: at most 6 `standard` (Sonnet) subagents in parallel, one per module, target or top-level source directory in scope (group small ones). Each writes one seam card of at most 40 lines (format in quality-files.md) and reads with bounded output: `grep -n`, ranged reads, no whole large files.
@@ -103,7 +105,7 @@ A model the user names wins.
 
 Append to the `tasklist-run` metrics log (`~/.local/state/danny-agent-skills/task-workflow/metrics.jsonl`), in the same Bash call as the step it records, with `v` 1, `run` (a new UTC ID per pass), `ts`, `skill` (`code-quality-pass 0.8.7`), `repo`:
 
-- `quality`: `kind` (`tidy`, `review`, `baseline`, `deferred`), `rung` (the rung it follows), `trigger` (`fold-back`, `manual`, or the trigger names), `models`, `commits` and `lines` (a review or baseline; a tidy omits them, as it logs before its tasks run, and its own `tasklist-run` run carries the numbers), `proposals`, `defects`, and `signals` (the `metrics signals --json` object), and `model` (the model ID you ran on). A tidy that hands off to `tasklist-run` also writes a `step` event as `tasklist-run`'s metrics log defines it (`next_model` `sonnet`).
+- `quality`: `kind` (`tidy`, `review`, `baseline`, `deferred`), `rung` (the rung it follows), `trigger` (`fold-back`, `manual`, `checkpoint`, or the trigger names), `models`, `commits` and `lines` (a review or baseline; a tidy omits them, as it logs before its tasks run, and its own `tasklist-run` run carries the numbers), `proposals`, `defects`, and `signals` (the `metrics signals --json` object), and `model` (the model ID you ran on). A tidy that hands off to `tasklist-run` also writes a `step` event as `tasklist-run`'s metrics log defines it (`next_model` `sonnet`).
 - `quality_outcome` (once the user has ruled a review's proposals, or a tidy's proposals and defects): `kind` (`review` or `tidy`), `accepted`, `deferred`, `rejected` (entries still `pending` count as deferred), and `kinds` (accepted counts by kind; `bug` for an accepted defect).
 
 Payoff is judged later from `metrics summary` on the rungs before and after a pass (rounds, lines, implementer tools), against the pass's own cost. Treat it as a hypothesis until several passes exist.
