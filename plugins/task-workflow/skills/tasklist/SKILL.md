@@ -81,7 +81,7 @@ Headings carry no checkbox; a phase or group is complete when everything under i
 
 Write enough context that the task can be executed without reading the conversation, and stop there. If a task needs more than a short paragraph, it is probably two tasks, or it needs a linked spec (`Spec: <path>`) that the checklist item points to.
 
-Size a task to one working session and one reviewable change with one verification. Split anything bigger.
+Size a task to one working session and one reviewable change with one verification. Split anything bigger. A reorganisation (code moved, split or renamed across files or modules) is its own task: one commit that changes structure and no behaviour, its `Context` listing the files it moves and the public names that must stay, and any task that changes logic there `Needs` it. A large reorganisation is several such tasks, each leaving the build and tests passing. Never fold one into a task that also changes behaviour.
 
 ## Minimum model tiers
 
@@ -198,7 +198,7 @@ When the source is a decision ledger, PRD, or plan, put its path in `Source:` an
 
 ## Plan tools (optional)
 
-`tasklist`, `roadmap` and `metrics` are small command-line tools in this plugin's `tools/plantools/` (SwiftPM with Swift Argument Parser). They only apply the rules above faster; nothing here depends on them. They live outside `PATH`, in `~/.cache/danny-agent-skills/bin/` (`$XDG_CACHE_HOME` if set); below, `tasklist` means `~/.cache/danny-agent-skills/bin/tasklist`, and `roadmap` likewise. Before using one, run `~/.cache/danny-agent-skills/bin/tasklist --version`. If it fails or is not `0.5.1`, install it yourself without asking: `sh <this skill's base directory>/../../tools/plantools/build.sh`, which runs `swift build -c release` and copies the binaries there (it rebuilds only when sources changed, so it also handles a plugin update, and a deleted cache is rebuilt the same way). If `swift` is missing or the build fails, say so in one line, do not retry, and apply the rules by hand as written. Run the binary directly, never through `swift run`.
+`tasklist`, `roadmap` and `metrics` are small command-line tools in this plugin's `tools/plantools/` (SwiftPM with Swift Argument Parser). They only apply the rules above faster; nothing here depends on them. They live outside `PATH`, in `~/.cache/danny-agent-skills/bin/` (`$XDG_CACHE_HOME` if set); below, `tasklist` means `~/.cache/danny-agent-skills/bin/tasklist`, and `roadmap` likewise. Before using one, run `~/.cache/danny-agent-skills/bin/tasklist --version`. If it fails or is not `0.5.2`, install it yourself without asking: `sh <this skill's base directory>/../../tools/plantools/build.sh`, which runs `swift build -c release` and copies the binaries there (it rebuilds only when sources changed, so it also handles a plugin update, and a deleted cache is rebuilt the same way). If `swift` is missing or the build fails, say so in one line, do not retry, and apply the rules by hand as written. Run the binary directly, never through `swift run`.
 
 | Command | Replaces |
 | --- | --- |

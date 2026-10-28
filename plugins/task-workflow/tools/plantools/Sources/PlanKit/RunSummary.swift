@@ -13,7 +13,7 @@ public struct RungNumbers {
     public var orchTokens: Int?, cacheBreaks: Int?
     /// Reviewer tokens from the `tokens` events (exact, cache reads left out like the logged `agents` tokens), added for each batch whose logged `agents` carry none.
     public var measuredRevTokens: Int?
-    /// Batches whose logged `lines` differ from the commit's own diff, and committed reviewed batches with no reviewer tokens in the log or the `tokens` events.
+    /// Batches whose logged `lines` differ from the commit's own diff, and committed batches that had a reviewer (`rev` is not `none`) with no reviewer tokens in the log or the `tokens` events.
     public var lineMismatches = 0, silentReviews = 0
     /// Orchestrator tokens of each batch's `tokens` event, in log order, to see whether a long run gets dearer per batch.
     public var orchByBatch: [Int] = []
@@ -99,7 +99,7 @@ public enum RunSummary {
                 for a in e["agents"] as? [LogEvent] ?? [] {
                     n.agents.append(.init(tasks: tasks, role: a.string("role") ?? "?", tokens: a.int("tokens") ?? 0, tools: a.int("tools") ?? 0))
                 }
-                if e.string("outcome") == "committed", e.string("rev") != nil,
+                if e.string("outcome") == "committed", let rev = e.string("rev"), !rev.lowercased().hasPrefix("none"),
                    !(e["agents"] as? [LogEvent] ?? []).contains(where: { $0.string("role") == "rev" && ($0.int("tokens") ?? 0) > 0 }) {
                     let measured = tokensOfBatch["\(run)|\(e.string("ts") ?? "")"].map { uncachedTotal($0, "rev") } ?? 0
                     if measured > 0 { n.measuredRevTokens = (n.measuredRevTokens ?? 0) + measured } else { n.silentReviews += 1 }

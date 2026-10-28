@@ -1,5 +1,5 @@
 {
   "name": "task-workflow",
-  "version": "0.16.3",
+  "version": "0.16.4",
   "description": "Plan and execute work: resolve consequential design decisions before implementation, then break them into tasks"
 }

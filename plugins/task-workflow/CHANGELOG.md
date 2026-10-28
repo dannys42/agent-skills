@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.16.4
+
+The "reviewed batches have no reviewer tokens" line printed on a run whose reviewed batches all had them: the three batches it named were ones the orchestrator checked itself (`rev: "none"`). The tool counted any `rev` value as a review. The earlier answer, that the `tokens` events had the numbers, was wrong for these batches; there was no reviewer to count. Cause found from the log and `RunSummary.swift`, after eight blocks of the same item were rejected as compliance.
+
+- Tool 0.5.2 (`metrics summary`): a batch whose `rev` is `none` is not a reviewed batch, so it no longer counts toward the line. Test added; version bumped so the `--version` check rebuilds installed binaries
+- `tasklist`: a reorganisation (code moved, split or renamed) is its own task, one structure-only commit, its `Context` listing the files it moves and the public names that must stay; later logic tasks `Needs` it; a large one is several tasks. Owner-directed
+- `tasklist-run` Batching: a reorganisation task always lands alone
+- Not changed: the `agents` rule (rejected a ninth time; the line was a tool defect, not a lapse)
+- One-run hypothesis for the reorganisation rule; wording only
+
 ## 0.16.3
 
 The "reviewed batch(es) logged no reviewer tokens" line printed again (a seventh run) although the `tokens` events carried every number, so it warned about a lapse the tool had already absorbed.

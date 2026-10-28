@@ -96,6 +96,16 @@ struct RunSummaryTests {
         #expect(out.contains("| Lines changed | 571 |") && !out.contains("no reviewer tokens"))
     }
 
+    @Test func aBatchWithNoReviewerIsNotAReviewedBatchWithoutTokens() {
+        let log = MetricsLog.events(text: """
+        {"run":"A","ts":"2026-10-01T10:00:00Z","event":"start","repo":"/p","list":"Tasklist-L1-One.md"}
+        {"run":"A","ts":"2026-10-01T11:00:00Z","event":"batch","repo":"/p","tasks":["T1"],"rev":"none","rev_reason":"orchestrator read doc-only diff","outcome":"committed","agents":[{"role":"impl","tokens":40000,"tools":10}]}
+        {"run":"A","ts":"2026-10-01T12:00:00Z","event":"batch","repo":"/p","tasks":["T2"],"rev":"sonnet","outcome":"committed","agents":[{"role":"impl","tokens":10000,"tools":4}]}
+        """)
+        let n = RunSummary.byList(log: log, repo: "/p") { _ in nil }["Tasklist-L1-One.md"]!
+        #expect(n.silentReviews == 1)
+    }
+
     @Test func rendersComparisonOutliersAndQualityAndLeavesOutZeroRows() {
         let all = RunSummary.byList(log: Self.log, repo: "/p") { $0 == "bbb" ? "Tasklist-L2-Two.md" : nil }
         let quality = Self.log.filter { $0.string("event") == "quality" }

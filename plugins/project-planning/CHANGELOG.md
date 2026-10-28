@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.10.1
+
+A rung whose last step was a tool run over a user's whole data set saw its real-data failure only there: a single-item call had passed earlier, and the fix took three runs. The first-real-call clause already existed; it did not say how much data the first call covers.
+
+- `roadmap-plan-next-rung` step 2: when the rung ends in a run over many items, the first real call is a run over a sample of them, not a single item (a clause of about 20 words inside the existing first-real-call sentence)
+- Not changed: code-move tasks listing files in the brief's Components step. The tasklist is where a move task names its files (`task-workflow` 0.16.4 puts that, and a reorganisation-only commit, in `tasklist`), and the brief stays thin
+- One-run hypothesis, wording only
+
 ## 0.10.0
 
 Owner-directed (design: `docs/project-planning/Design-Shape_Value_Names.md`, part D). Nothing looked forward at whether the built architecture holds for the next goal; refactor rungs kept being found after the fact, and the design spread over several docs.
