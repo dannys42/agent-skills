@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.10.2
+
+A brief promised that package tests pass; the base commit would not build, and an unplanned port task cost about 16% of the rung's subagent tokens. The first-real-call clause covered external systems, framework behaviour, real data and produced messages, not the project's own build state.
+
+- `roadmap-plan-next-rung` step 2: the unverified-assumption clause also covers "the build and tests the brief cites pass at the base": run them once at planning, and a failure is the rung's first task (about 20 words in the existing sentence)
+- Not changed: asking the owner what they want to see for a rung whose done-when is a human reading output (collected); a one-line outcome for finding rows in the brief (collected)
+- One-run hypothesis, wording only
+
 ## 0.10.1
 
 A rung whose last step was a tool run over a user's whole data set saw its real-data failure only there: a single-item call had passed earlier, and the fix took three runs. The first-real-call clause already existed; it did not say how much data the first call covers.

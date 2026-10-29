@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.16.5
+
+`files` was missing from 38 of 41 `batch` lines on runs of 0.16.2 and later (37 of 200 on earlier versions), after 0.16.2 dropped `lines` and kept `files`. The summary adds `files` up but no output prints it, so the field and the shortstat call behind it cost a step for nothing.
+
+- `tasklist-run`: `files` is no longer logged (batch field list, backfill list, example); the commit call no longer needs `git diff --cached --shortstat`, only `sha`
+- Not changed: the `agents` rule (rejected a tenth time), logging a resumed run as one run (the summary already matches by list name), the tool (no version bump; an older log with `files` still reads)
+- One-run hypothesis; reversible
+
 ## 0.16.4
 
 The "reviewed batches have no reviewer tokens" line printed on a run whose reviewed batches all had them: the three batches it named were ones the orchestrator checked itself (`rev: "none"`). The tool counted any `rev` value as a review. The earlier answer, that the `tokens` events had the numbers, was wrong for these batches; there was no reviewer to count. Cause found from the log and `RunSummary.swift`, after eight blocks of the same item were rejected as compliance.
