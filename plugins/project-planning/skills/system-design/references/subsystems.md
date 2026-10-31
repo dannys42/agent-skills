@@ -43,6 +43,8 @@ Every component starts as a row in its parent. A row that already meets a trigge
 
 IDs (`A`, `D`, `R`, `Q`, `FR`, `NFR`) are per document: unique within the doc, never reused or renumbered. Within a doc, cite them bare (`R3`). Across docs, qualify them with the doc name: `Puzzle_Generator:R3`, `Overview:D2`. Roadmaps, rung briefs, and tasklists cite design IDs the same way.
 
+**Renaming a component** is a decision in the doc that owns it. In one commit, change the name wherever the docs describe the current or planned system: diagrams, component tables, subsystem docs (and the doc's file name), `Taxonomy.md`, open rung sections, and briefs not yet folded back. Leave dated learning-log entries, folded-back briefs and `Completed/` files as written.
+
 ## Subsystem mode
 
 `/system-design <Subsystem>`, or automatically when a rung promotes a piece. It runs the normal outline workflow scoped to one subsystem:
@@ -52,5 +54,6 @@ IDs (`A`, `D`, `R`, `Q`, `FR`, `NFR`) are per document: unique within the doc, n
 3. **Ask 3–5 questions** that would change the Contract, the inner components, or the top risks.
 4. **Iterate** until the user says it is good enough; set `Status: agreed (<date>)`.
 5. **Update the parent** only for the box, its `Doc` link and depth tag, the Contract summary if it changed, and the subsystem index.
+6. **Re-plan if the ladder changes.** If the agreed doc means a rung must be added, moved ahead or re-based, run `risk-first-roadmap`'s re-plan now (or end with `Next: /rung replan`) rather than leaving notes for the roadmap in the doc.
 
 In adopt mode, list each separate build target and major module in the as-is Overview as a component with `Doc: pending`, and offer to adopt the one the user cares about first.

@@ -65,6 +65,8 @@ Interface crossing the boundary: `GridSnapshot` (cell values and weights, no vie
 | Overview:D3 | Render the PDF by drawing Grid View's shapes into a Core Graphics PDF context, not by printing the view | accepted | default; vector output and no print dialog needed; recorded in the Overview because it fixes a component boundary |
 | A1 | SF Pro is acceptable as the numeral font | assumed | rung-local; user to confirm on the printed page |
 
+Deferred: the exact cell inset for optical centering (T2 settles it on the 1× snapshot and records it here)
+
 ## Verification
 - `xcodebuild -scheme SudokuPrinter test` passes, including a snapshot test of a filled grid at 1× and 2×.
 - Export writes a one-page PDF; `pdfinfo` reports one page, Letter size.
@@ -88,6 +90,7 @@ Interface crossing the boundary: `GridSnapshot` (cell values and weights, no vie
 - **Components and interfaces** list only what the rung creates or changes. Neighbours appear in the diagram only when needed to understand a touched edge. See [diagrams.md](diagrams.md) for the classes.
 - **Design docs touched** lists every design doc the rung changes, so step 5 and fold-back edit those and no others. A rung may span several subsystems.
 - **Decisions** may hold rung-local choices that never reach a design doc. A decision that changes a component, a boundary between components, or technology direction is recorded in the design doc that owns it, with that doc's next ID, and cited qualified here.
+- **Deferred** lists outcome details that change no boundary, each with the task that settles it; that task records the answer in the brief. Leave the line out when there are none.
 - **Verification** items are checks with the command or action, so they drop straight into `Done when` and `Verify` fields.
 - **Fold-back** is written now, while the intent is clear, and ticked at fold-back time. It lists every design-doc change the rung should cause if it succeeds, grouped by doc.
 - For rung 1 with more than one build boundary, add a **Build targets** section after Components: each target, its allowed imports, and its build and test commands.

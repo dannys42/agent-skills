@@ -59,7 +59,7 @@ Status: planned
 
 - **Question** is the unknown, phrased so the rung can fail.
 - **Slice** is what the user can run and see. If you cannot demo it, it is not a rung.
-- **Done when** is observable and checkable, with the command or action to check it.
+- **Done when** is observable and checkable, with the command or action to check it. A target to reproduce an existing result exactly holds only once both paths are known to read the same input; until then write "compare and explain each difference".
 - **De-risks** links to the design's risk IDs (`R`), so the register shrinks as rungs complete. Rungs use their own prefix, `L` (ladder), so they never collide with risk IDs.
 - **Milestone** names the milestone the rung serves, and **Class** is `shape`, `clock` or `breadth` (see above). A `Kind: refactor` rung takes the milestone it unblocks.
 - **If no** is the fallback or the decision to revisit. A rung that cannot fail is not testing anything.
@@ -114,6 +114,8 @@ When the owner asks for something new between rungs, do not design it yet:
 
 Say in one or two lines where it landed and what, if anything, it moved.
 
+When the owner defers work instead (a rung that must wait for another area, or a design question put off): set the rung `[deferred: <what it waits on>]`, change its `Milestone:` to the one it now serves (propose a new milestone when none fits), rewrite the affected milestone lines, and add one learning-log entry. In the design docs, mark the question or decision `deferred` with its reason, and move what only it would have added to Scope `later` instead of leaving it in the diagram or tables.
+
 ## Rung 1 and build boundaries
 
 The skeleton rung otherwise decides the target layout implicitly. When the design implies **more than one build boundary that rung 1 must create** (separate executables, a shared package, or an enforced layering between modules), say so in rung 1's slice. The build targets, their allowed imports, a diagram of them, and their build and test commands are then decided in rung 1's brief (written by `roadmap-plan-next-rung`), not in a separate up-front document or a rung of its own. Gate rung 1's implementation on the owner approving that brief.
@@ -148,7 +150,7 @@ Save to `<DocDir>/Roadmap-<Topic>.md`, using the `Topic` named in the Overview's
 The roadmap holds the live ladder, open risks and current decisions. Closed history moves out, verbatim, so every read stays cheap and nothing is lost.
 
 - **Learning-log entries** are one or two lines, at most about 600 characters: the measured answer and a pointer to where the detail lives (the rung brief's "As built" note, or the design doc that now states it). Raw facts, owner decisions and measured results go in full into that design doc, not into the log.
-- **A finished rung's detail** (`done`, `failed`, `obsolete`): at re-plan, move its `### <RungId>` section unchanged to `<DocDir>/Completed/Roadmap-<Topic>-Rungs.md` and end its ladder line with `detail: Completed/Roadmap-<Topic>-Rungs.md` after the bracketed status (see [the ladder line format](references/roadmap-example.md)). The ladder line stays, so the ID still resolves. Do the move in the same commit as the status change, and check it with `git diff --color-moved`.
+- **A finished rung's detail** (`done`, `failed`, `obsolete`): at re-plan, move its `### <RungId>` section unchanged to `<DocDir>/Completed/Roadmap-<Topic>-Rungs.md` and end its ladder line with `detail: Completed/Roadmap-<Topic>-Rungs.md` after the bracketed status (see [the ladder line format](references/roadmap-example.md)). The ladder line stays, so the ID still resolves. `roadmap archive <file> <RungId>...` does both (`--dry-run` shows the diff; a rung already archived is skipped); without the tool, do it by hand. Do the move in the same commit as the status change, and check it with `git diff --color-moved`.
 - **An old learning log**: past about 15 entries, move entries older than the last re-plan unchanged to `<DocDir>/Roadmap-<Topic>-Log.md` and leave one link line under `## Learning log`.
 - **Layout that allows partial reads**: one `###` section per rung, headings unchanged once written, ladder lines and table cells short (under about 400 characters; the reasoning goes in the brief and the cell links to it). A line over about 1,500 characters cannot be read in part.
 - **Reading**: do not read the whole file to find one rung. With the `roadmap` tool (`~/.cache/danny-agent-skills/bin/roadmap`, built by the `task-workflow` plugin; see [Plan tool check](#plan-tool-check)): `roadmap status <file>`, `roadmap show <file> <RungId>`, `roadmap outline <file>`, `roadmap section <file> <heading>`, and `roadmap lint <file>` after editing. Without it, `grep -n '^#'` the file and Read the lines you need.
@@ -167,9 +169,11 @@ Triggers (with the `roadmap` tool, `roadmap lint <file>` and `roadmap outline <f
 
 Do the pass as a move-only commit, separate from content changes, and verify it with `git diff --color-moved` and `roadmap lint`. Never change an ID, a heading or a status in a tidy pass, except to repair a malformed status line, and say which lines you repaired. Offer a pass at most once per session unless the user asks again.
 
+Two things are deleted, not moved, each offered with the pass and done in a commit of its own: a design doc's closed question whose answer is now a decision row (its ID stays retired), and a design doc's notes for the roadmap once the rungs they asked for are on the ladder. Folded-back briefs and `Completed/` tasklists are kept until the rung's retrospective has run. After that, offer to delete them (git keeps them) and do it only on a yes, first moving any reasoning a design doc links to there into one line of that doc.
+
 ### Plan tool check
 
-Before the first `roadmap` call in a session, run `~/.cache/danny-agent-skills/bin/roadmap --version`. If it fails or is not `0.5.1`, install it without asking: `sh "$(ls -td ~/.claude/plugins/cache/*/task-workflow/*/tools/plantools/build.sh | head -n 1)"` (the `task-workflow` plugin's build script; if that finds nothing, the plugin is not installed, so skip the tool). If `swift` is missing or the build fails, say so in one line, do not retry, and read by hand. Do not fall back to `grep`, `awk` or `sed` while an install is still untried. `roadmap-plan-next-rung` uses the same check.
+Before the first `roadmap` call in a session, run `~/.cache/danny-agent-skills/bin/roadmap --version`. If it fails or is older than `0.6.0` (a newer version is fine), install it without asking: `sh "$(ls -td ~/.claude/plugins/cache/*/task-workflow/*/tools/plantools/build.sh | head -n 1)"` (the `task-workflow` plugin's build script; if that finds nothing, the plugin is not installed, so skip the tool). If `swift` is missing or the build fails, say so in one line, do not retry, and read by hand. Do not fall back to `grep`, `awk` or `sed` while an install is still untried. `roadmap-plan-next-rung` uses the same check.
 
 ## Hand off to implementation
 

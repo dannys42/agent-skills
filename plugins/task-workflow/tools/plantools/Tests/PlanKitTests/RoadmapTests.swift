@@ -127,3 +127,43 @@ struct DocumentedRoadmapTests {
         #expect(r.lint().isEmpty)
     }
 }
+
+@Suite("Roadmap archive")
+struct RoadmapArchiveTests {
+    private let text = try! String(contentsOf: URL(fileURLWithPath: #filePath).deletingLastPathComponent()
+        .appendingPathComponent("Fixtures/Roadmap-Synthetic.md"), encoding: .utf8)
+    private let path = "Completed/Roadmap-Synthetic-Rungs.md"
+
+    @Test func movesSectionsVerbatimAndPointsTheLadder() throws {
+        let r = try RoadmapArchive.make(roadmap: text, ids: ["L2", "l1"], completedPath: path, completed: nil)
+        #expect(r.moved == ["L2", "L1"])
+        #expect(r.roadmap.contains("1. L1 — Can the server and client run together? [done] detail: \(path)"))
+        #expect(r.roadmap.contains("3. L2 — Can the server call the provider with a stored key? [done: with a caveat] detail: \(path)"))
+        #expect(!r.roadmap.contains("### L1: Skeleton") && !r.roadmap.contains("Prove the key."))
+        #expect(r.roadmap.contains("## Rungs (detailed)\n\n### L3: One day of data"))
+        #expect(r.completed.hasSuffix("### L1: Skeleton\nProve the loop.\n\n### L2: Authenticated call\nProve the key.\n"))
+        #expect(Roadmap(text: r.roadmap).lint().filter { $0.severity == .error }.isEmpty)
+    }
+
+    @Test func appendsToAnExistingFileAndSkipsArchivedRungs() throws {
+        let first = try RoadmapArchive.make(roadmap: text, ids: ["L1"], completedPath: path, completed: nil)
+        let second = try RoadmapArchive.make(roadmap: first.roadmap, ids: ["L1", "L2"], completedPath: path, completed: first.completed)
+        #expect(second.moved == ["L2"])
+        #expect(second.skipped == ["L1 (already archived)"])
+        #expect(second.completed == first.completed + "\n### L2: Authenticated call\nProve the key.\n")
+        let third = try RoadmapArchive.make(roadmap: second.roadmap, ids: ["L1"], completedPath: path, completed: second.completed)
+        #expect(third.moved.isEmpty && third.roadmap == second.roadmap)
+    }
+
+    @Test func refusesOpenUnknownAndHorizonRungs() {
+        #expect(throws: Tasklist.EditError.self) { try RoadmapArchive.make(roadmap: text, ids: ["L3"], completedPath: path, completed: nil) }
+        #expect(throws: Tasklist.EditError.self) { try RoadmapArchive.make(roadmap: text, ids: ["L9"], completedPath: path, completed: nil) }
+        #expect(throws: Tasklist.EditError.self) { try RoadmapArchive.make(roadmap: text, ids: ["L4"], completedPath: path, completed: nil) }
+        // A done rung with no section and no pointer is a malformed roadmap, not a no-op.
+        #expect(throws: Tasklist.EditError.self) { try RoadmapArchive.make(roadmap: text, ids: ["L1b"], completedPath: path, completed: nil) }
+    }
+
+    @Test func completedPathSitsBesideTheRoadmap() {
+        #expect(RoadmapArchive.completedPath(forRoadmap: "docs/Roadmap-X.md") == "Completed/Roadmap-X-Rungs.md")
+    }
+}

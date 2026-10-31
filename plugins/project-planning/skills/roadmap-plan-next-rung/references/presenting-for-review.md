@@ -9,7 +9,7 @@ It adds an order and a callout. It never removes an item or a field the calling 
 An item needs the user's attention when it is any of:
 
 - **High impact**: expensive to undo (persistence, a public interface, a build boundary, migration), changes what the user sees, or shapes several later rungs or tasks.
-- **A new name** of a kind that is costly to rename or that the owner will say: a database schema name, domain term, wire field or type name. List such names together as one item, each with its candidates.
+- **A new name** of a kind that is costly to rename or that the owner will say: a database schema name, domain term, wire field, type or component name. List such names together as one item, each with its candidates.
 - **Low confidence**: you inferred it rather than checked it, the evidence conflicts or is a single run, or it depends on what the user wants rather than on facts.
 
 Flag at most 5. If more qualify, flag the 5 with the highest impact (then the least confidence) and say how many more qualify; those stay in the full list, marked `⚑`. Do not flag an item only because it is new or long (a new name of the kinds above is the exception).
@@ -17,7 +17,7 @@ Flag at most 5. If more qualify, flag the 5 with the highest impact (then the le
 ## Shape
 
 1. **Needs your attention**, first. For each flagged item:
-   - its ID and a one-line statement
+   - its ID and a one-line statement, opening with one plain sentence on what the thing does, or what happens today, shown on a case from the project, so the owner can rule without first asking what it is
    - **Why**: `high impact`, `low confidence`, or both, and the reason in a few words
    - **To settle it** (only when confidence is the issue): the cheapest check or the one question whose answer decides it
    - **Options**: two or three, the recommended one first and marked, each with a plain example from the project and a one-line pro and con. A naming or other open question lists its candidate answers the same way; a card that only says "I will ask you for X" cannot be ruled on. When there is no real alternative, say so in one line instead of inventing one.

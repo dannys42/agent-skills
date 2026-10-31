@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.11.0
+
+Three sessions sent notes: a rung plan, a design-doc ruling and a shape-rung plan. The planning skills checked for exactly tool 0.5.1 after the tool moved to 0.5.2, so `/rung` reported the tool missing and fell back to hand work on every run. That is the only measured defect in this round. The owner then ruled on the held items and added one direction: structure and architecture first, with the outcome as the rung's goal rather than a source of detailed planning questions.
+
+- `rung` `next.sh`, `risk-first-roadmap`'s Plan tool check, `code-quality-pass`'s Metrics tool check: the tool must be 0.6.0 or newer (it adds `roadmap archive`), and a newer one is fine. A tool version bump no longer breaks these skills.
+- `roadmap-plan-next-rung` step 3: structure questions first (components, seams, surface, data flow). Outcome details (exact numbers, output shape, thresholds) go on a new `Deferred:` line in the brief for the first tasks to settle and record, unless an answer changes a boundary. Owner-directed
+- Glossary: `<DocDir>/Taxonomy.md` is created on the first rung that flags a new name, the new-names check reads it, and fold-back adds the agreed names. Owner-directed
+- `risk-first-roadmap` tidy: closed questions a decision answers, and roadmap notes whose rungs exist, are deleted in their own commit. Folded-back briefs and `Completed/` tasklists are kept until the retro, then deleted only on the owner's yes. `roadmap archive` does the finished-rung move. Owner-directed
+- `presenting-for-review.md`: each card opens with one plain sentence on what the thing does, or what happens today, shown on a case from the project. Component names count as new names.
+- `roadmap-plan-next-rung`: component names are flagged like other new names and say what the component does, not where it sits. A surface the owner uses (CLI, API, screens), built for the first time, is shown as one short list and confirmed before the rest of the brief is drafted. A design doc that asks for a ladder change the roadmap lacks stops planning with a re-plan suggestion. `Base:` is taken before the planning docs are committed.
+- `system-design`: components are named by what they do. In subsystem mode, an agreed doc that changes the ladder runs the re-plan. `subsystems.md` says how to rename a component across the docs; history is left as written.
+- `risk-first-roadmap`: what to do when the owner defers a rung or a design question. An exact-match `Done when` holds only once both paths are known to read the same input.
+- Rejected: notes about an ad-hoc handoff (status wording, a model re-check, a dangling memory link, wide tables).
+- One-run hypotheses, except the version fix, the card sentence (seen in two sessions) and the owner-directed items.
+
 ## 0.10.2
 
 A brief promised that package tests pass; the base commit would not build, and an unplanned port task cost about 16% of the rung's subagent tokens. The first-real-call clause covered external systems, framework behaviour, real data and produced messages, not the project's own build state.

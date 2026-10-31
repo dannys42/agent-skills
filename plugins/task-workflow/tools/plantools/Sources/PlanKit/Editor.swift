@@ -72,6 +72,14 @@ public enum Editor {
         if dryRun {
             return EditReport(stdout: [UnifiedDiff.make(old: original, new: edit.text, name: file), "dry run: nothing written"], stderr: warnings)
         }
+        try replace(file: file, original: original, with: edit.text)
+        return EditReport(stdout: [edit.result ?? edit.summary], stderr: warnings)
+    }
+
+    /// Writes `text` over `file` atomically, keeping its permissions, or creates it when `original`
+    /// is nil. Refuses when the file no longer holds `original`.
+    public static func replace(file: String, original: String?, with text: String) throws {
+        let path = URL(fileURLWithPath: file).resolvingSymlinksInPath().path
         // Someone else may have saved the file while the edit was being made.
         guard (try? String(contentsOfFile: path, encoding: .utf8)) == original else {
             throw Tasklist.EditError.refused("\(file) changed while it was being edited; nothing written, run the command again")
@@ -79,14 +87,14 @@ public enum Editor {
         let directory = URL(fileURLWithPath: path).deletingLastPathComponent().path
         let temporary = "\(directory)/.\(URL(fileURLWithPath: path).lastPathComponent).\(ProcessInfo.processInfo.processIdentifier).tmp"
         do {
-            let attributes = try FileManager.default.attributesOfItem(atPath: path)
-            try Data(edit.text.utf8).write(to: URL(fileURLWithPath: temporary))
-            if let permissions = attributes[.posixPermissions] { try FileManager.default.setAttributes([.posixPermissions: permissions], ofItemAtPath: temporary) }
+            try FileManager.default.createDirectory(atPath: directory, withIntermediateDirectories: true)
+            let attributes = try? FileManager.default.attributesOfItem(atPath: path)
+            try Data(text.utf8).write(to: URL(fileURLWithPath: temporary))
+            if let permissions = attributes?[.posixPermissions] { try FileManager.default.setAttributes([.posixPermissions: permissions], ofItemAtPath: temporary) }
             guard rename(temporary, path) == 0 else { throw EditUsageError("cannot replace \(file): \(String(cString: strerror(errno)))") }
         } catch {
             try? FileManager.default.removeItem(atPath: temporary)
             throw error
         }
-        return EditReport(stdout: [edit.result ?? edit.summary], stderr: warnings)
     }
 }

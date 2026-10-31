@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.17.0
+
+Moving finished rung sections out of a roadmap was done by ad-hoc scripts in two sessions. It is a verbatim move plus a pointer, which is mechanical and easy to get subtly wrong. Owner-approved.
+
+- Tool 0.6.0: `roadmap archive <file> <RungId>... [--dry-run]` moves each `done`, `failed` or `obsolete` rung's `###` section verbatim to `Completed/<Roadmap>-Rungs.md` beside the roadmap (creating it when needed) and appends `detail: <path>` to its ladder line. A rung already archived is skipped. Exit 1 for an open, unknown or horizon rung, a missing section with no pointer, or a result that would add a lint error. Exit 2 when no rung is named. Four tests
+- `Editor.replace` holds the atomic write that tasklist edits already used, and creates the file and its directory when needed
+- `tasklist`'s version check is now 0.6.0. Since project-planning 0.11.0, the planning skills accept any newer tool, so a tool bump here no longer has to update them
+
 ## 0.16.5
 
 `files` was missing from 38 of 41 `batch` lines on runs of 0.16.2 and later (37 of 200 on earlier versions), after 0.16.2 dropped `lines` and kept `files`. The summary adds `files` up but no output prints it, so the field and the shortstat call behind it cost a step for nothing.

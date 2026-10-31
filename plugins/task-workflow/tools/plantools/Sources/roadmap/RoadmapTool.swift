@@ -8,7 +8,7 @@ struct RoadmapTool: ParsableCommand {
         commandName: "roadmap",
         abstract: "Read a roadmap, or any markdown file, by section, or print the next step of the rung cycle. Plain text out; exit 1 means a problem was found.",
         version: planToolsVersion,
-        subcommands: [Status.self, Show.self, Outline.self, Section.self, Lint.self, Next.self]
+        subcommands: [Status.self, Show.self, Outline.self, Section.self, Lint.self, Next.self, Archive.self]
     )
 
     struct Input: ParsableArguments {
@@ -64,6 +64,38 @@ struct RoadmapTool: ParsableCommand {
         func run() throws {
             let code = CLI.report(Roadmap(text: input.text).lint(budget: .init(maxBytes: maxBytes, maxLine: maxLine)))
             if code != 0 { throw ExitCode(code) }
+        }
+    }
+
+    struct Archive: ParsableCommand {
+        static let configuration = CommandConfiguration(
+            abstract: "Move finished rungs' sections verbatim to Completed/<Roadmap>-Rungs.md and add the detail: pointer to their ladder lines.",
+            discussion: "Exit 1 when a rung is not done, failed or obsolete, is not on the ladder, or the result would add a lint error; 2 on bad usage. A rung already archived is skipped.")
+        @Argument(help: "Roadmap file.") var file: String
+        @Argument(help: "Rung IDs, e.g. L3 L4.") var rungs: [String] = []
+        @Flag(help: "Print a unified diff of both files and write nothing.") var dryRun = false
+
+        func run() throws {
+            if rungs.isEmpty { CLI.fail("name at least one rung", code: 2) }
+            let text = CLI.read(file)
+            let relative = RoadmapArchive.completedPath(forRoadmap: file)
+            let target = URL(fileURLWithPath: file).deletingLastPathComponent().appendingPathComponent(relative).path
+            let existing = try? String(contentsOfFile: target, encoding: .utf8)
+            do {
+                let result = try RoadmapArchive.make(roadmap: text, ids: rungs, completedPath: relative, completed: existing)
+                result.skipped.forEach { CLI.print("skipped: \($0)") }
+                guard !result.moved.isEmpty else { CLI.print("nothing to move"); return }
+                if dryRun {
+                    CLI.print(UnifiedDiff.make(old: text, new: result.roadmap, name: file))
+                    CLI.print(UnifiedDiff.make(old: existing ?? "", new: result.completed, name: target))
+                    CLI.print("dry run: nothing written")
+                    return
+                }
+                try Editor.replace(file: target, original: existing, with: result.completed)
+                try Editor.replace(file: file, original: text, with: result.roadmap)
+                CLI.print("archived \(result.moved.joined(separator: " ")) to \(relative); check with git diff --color-moved")
+            } catch let error as Tasklist.EditError { CLI.fail("\(error)", code: 1)
+            } catch let error as EditUsageError { CLI.fail("\(error)", code: 2) }
         }
     }
 
