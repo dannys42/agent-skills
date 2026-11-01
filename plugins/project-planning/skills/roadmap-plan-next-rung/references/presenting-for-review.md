@@ -1,48 +1,48 @@
 # Presenting items for the user to rule on
 
-Shared by `system-design`, `risk-first-roadmap`, `roadmap-plan-next-rung` and `code-quality-pass`, and by the repo-local feedback skills. Use it whenever you hand the user a list to accept, reject or choose from: a draft's questions and assumptions, a rung order, review proposals, triage verdicts, "worth changing" items.
+Shared by `system-design`, `risk-first-roadmap`, `roadmap-plan-next-rung` and `code-quality-pass`, and by the repo-local feedback skills. Use it whenever you hand the user a list to accept, reject or choose from: a draft's questions and assumptions, a rung order, review proposals, triage verdicts, "worth changing" items. It adds tiers, an order and options; it never removes an item or a field the calling skill shows.
 
-It adds an order and a callout. It never removes an item or a field the calling skill shows: every item still appears, in the calling skill's own format.
+## Tiers
 
-## What to flag
+The test: if this is wrong, what does it cost to fix three milestones from now? Group items by tier and sort each tier by that cost, highest first.
 
-An item needs the user's attention when it is any of:
+- **Important** when any of these holds:
+  - hard to reverse: stored data, file formats, public interfaces, names others build on (a schema name, domain term, wire field, type or component name), migration of existing projects
+  - wide reach: several skills or tools, or text every run reads
+  - changes a concept rather than wording
+  - changes the owner's workload or the cost: sessions, review points, the model per step
+  - low confidence on something consequential: inferred rather than checked, conflicting or single-run evidence, or it hangs on what the user wants
+- **Notable**: fixable later in a few files, or changes one skill's behaviour noticeably.
+- **Small**: local and reversible in one edit: wording, an easily overridden default, ordering inside a list, an internal name.
 
-- **High impact**: expensive to undo (persistence, a public interface, a build boundary, migration), changes what the user sees, or shapes several later rungs or tasks.
-- **A new name** of a kind that is costly to rename or that the owner will say: a database schema name, domain term, wire field, type or component name. List such names together as one item, each with its candidates.
-- **Low confidence**: you inferred it rather than checked it, the evidence conflicts or is a single run, or it depends on what the user wants rather than on facts.
-
-Flag at most 5. If more qualify, flag the 5 with the highest impact (then the least confidence) and say how many more qualify; those stay in the full list, marked `⚑`. Do not flag an item only because it is new or long (a new name of the kinds above is the exception).
+Important is the callout: at most 5. If more qualify, keep the 5 that cost most, say how many more qualify, and open the notable tier with the rest. List new names together as one item, each with its candidates.
 
 ## Shape
 
-1. **Needs your attention**, first. For each flagged item:
-   - its ID and a one-line statement, opening with one plain sentence on what the thing does, or what happens today, shown on a case from the project, so the owner can rule without first asking what it is
-   - **Why**: `high impact`, `low confidence`, or both, and the reason in a few words
-   - **To settle it** (only when confidence is the issue): the cheapest check or the one question whose answer decides it
-   - **Options**: two or three, the recommended one first and marked, each with a plain example from the project and a one-line pro and con. A naming or other open question lists its candidate answers the same way; a card that only says "I will ask you for X" cannot be ruled on. When there is no real alternative, say so in one line instead of inventing one.
-2. **Everything else**, in the calling skill's usual format and order. Each item shows its default or recommended action, and a flagged item stays in place as a one-line pointer (`⚑ see above`), so IDs and rankings stay intact.
-3. **One closing question**: which options to take for the flagged items, and "reply only with the other items you would change; the rest go ahead as shown".
-
-If nothing qualifies, say `Nothing needs special attention.` in one line and give the list as usual.
-
-With a structured question tool, ask the flagged items through it (recommended option first, the pro and con in each option's description) and give the rest in markdown.
+1. **Important**, **Notable**, **Small**, in that order; leave out an empty tier. With nothing important, say `Nothing needs special attention.` in one line.
+2. Every decision: a statement that opens with one plain sentence on what the thing does, or what happens today, shown on a case from the project; then two or three options, each with a plain example and a one-line pro and con; then a recommendation, or "no recommendation" and why. An open or naming question lists candidate answers the same way; "I will ask you for X" cannot be ruled on. With no real alternative, say so in one line instead of inventing one.
+3. Important items add **Why** (which test it meets, in a few words) and, when confidence is the issue, **To settle it**: the cheapest check or the one question that decides it.
+4. A list whose order is the content (a rung ladder) is shown whole in its own order first; the decisions about it follow, by tier.
+5. **One closing question**: which options to take for the important items and any without a recommendation, and "reply only with the other items you would change; the rest go ahead as recommended". With a structured question tool, ask the important items through it (recommended option first, the pro and con in each option's description) and give the rest in markdown.
 
 ## Example
 
 ```markdown
-**Needs your attention**
+**Important**
 
-⚑ **A3: Puzzles are stored as one JSON file per puzzle** (high impact, low confidence)
-Why: the storage format is costly to change after rung 2, and I guessed the library size.
+**A3: Puzzles are stored as one JSON file per puzzle.** Each saved puzzle becomes its own file in the library folder.
+Why: stored data, costly to change after rung 2, and I guessed the library size.
 To settle it: about how many puzzles will a user keep, tens or thousands?
 - **One file per puzzle** (recommended). Pro: simple, easy to diff and sync. Con: slow to list once there are thousands.
 - **SQLite store.** Pro: fast queries at any size. Con: a schema and migrations from rung 1.
 
-**Everything else** (goes ahead unless you object)
-- A1 macOS 15 minimum: assumed, native SwiftUI tables
-- A2 Single window: assumed
-- A3 ⚑ see above
+**Notable**
+
+**A1: macOS 15 minimum.** The app will not install on macOS 14.
+- **macOS 15** (recommended). Pro: native SwiftUI tables. Con: drops macOS 14 users.
+- **macOS 14.** Pro: more users. Con: a hand-built table view.
+
+**Small**: **A2: The window title shows the puzzle's name.** **Puzzle name** (recommended). Pro: reads well. Con: two "Untitled" puzzles look alike. **File name.** Pro: unique. Con: reads like a path.
 
 Which storage option should we use? Reply only with the other items you would change.
 ```

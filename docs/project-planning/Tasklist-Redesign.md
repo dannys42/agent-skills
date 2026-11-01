@@ -17,7 +17,7 @@ Standing context for every task:
   - Context: In `plugins/project-planning/evals/foundation-before-goal/graders/milestone-order.md`, add to the Fail line: "Fail if the first milestone's outcome is running or reading an experiment, even when data collection is listed as what it needs." The 0.11.2 baseline passed a run whose M1 was "I can run one product-page experiment" (owner-approved fix, 2026-11-01). Re-run that case on the current skills with label `baseline-0.11.2-fbg2`.
   - Done when: the grader line is committed, and the commit message gives the three new scores with the per-grader passes; the run that has an experiment as M1 now fails milestone-order.
 
-- [ ] T24 Order every review by importance, with options for every decision
+- [x] T24 Order every review by importance, with options for every decision
   - Model: heavy (Opus 5.5)
   - Context: Owner request, 2026-11-01. Update `plugins/project-planning/skills/roadmap-plan-next-rung/references/presenting-for-review.md`. Today only flagged items (at most 5) get options with a pro and con; the rest show a default in the calling skill's order. Change: (1) every decision gets two or three options, each with a one-line pro and con, and a recommendation, or "no recommendation" with the reason; a decision with no real alternative says so in one line. (2) Items are grouped by tier and sorted within a tier by the cost of getting them wrong: **important** (the callout, at most 5; more qualify, say how many), **notable**, **small** last. (3) Add the guide. The test: "if this is wrong, what does it cost to fix three milestones from now?" Important when any of: hard to reverse (stored data, file formats, public interfaces, names others build on, migration of existing projects); wide reach (several skills or tools, or text every run reads); changes a concept rather than wording; changes the owner's workload or the cost (sessions, review points, model per step); low confidence on something consequential. Notable: fixable later in a few files, or changes one skill's behaviour noticeably. Small: local and reversible in one edit (wording, easily overridden defaults, ordering inside a list, internal names). (4) A list whose order is the content (a rung ladder) keeps its order; the decisions about it are listed separately by tier. Keep the one closing question, and the example updated to the new shape. Keep the file about its current length; cut repetition to pay for the additions.
   - Done when: the file states the tiers, the test and the per-decision options rule, and its example shows all three tiers.
@@ -131,6 +131,12 @@ Standing context for every task:
   - Verify: `swift test --package-path plugins/task-workflow/tools/plantools`
   - Done when: tests cover both additions and pass.
 
+- [ ] T29 Align code-quality-pass reports with tiered reviews
+  - Model: standard (Sonnet 5.5)
+  - Needs: T24
+  - Context: Found during T24. `plugins/project-planning/skills/code-quality-pass/references/quality-files.md` (~line 98: at most 5 flagged proposals get options) and `SKILL.md` (~lines 85, 118) still describe the old flagged-only rule. Align them with `roadmap-plan-next-rung/references/presenting-for-review.md`: tiers, options with a pro and con for every proposal, important first; the report's own length limit (10 ranked proposals, one line for the rest) wins, items past it keep a one-line default. The system-design and roadmap-plan-next-rung SKILL.md lines that restate the old rule are fixed by their rewrites (T3, T9), including their no-reference fallbacks.
+  - Done when: No line in code-quality-pass restates the old flagged-only rule and its report follows the tiered shape.
+
 - [ ] T14 Update `rung`, `next.sh` and `code-quality-pass` for the new steps
   - Model: standard (Sonnet 5.5)
   - Needs: T12
@@ -201,3 +207,9 @@ Standing context for every task:
     a. Read `docs/project-planning/Review-T21.md`.
     b. Reply with release-now or pilot-first, and any other change.
   - Done when: the owner replies with release-now or pilot-first.
+
+## Review notes
+
+- presenting-for-review.md: Small example item is run-together bold text; two bullets would scan better (T24)
+- presenting-for-review.md: old guard "do not flag an item only because it is new or long" dropped; could return as half a sentence (T24)
+- presenting-for-review.md: say that a caller's length limit wins and items past it keep a one-line default (T24; handled for code-quality-pass by its new task)
