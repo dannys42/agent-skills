@@ -27,7 +27,7 @@ Standing context for every task:
   - Context: New file `plugins/project-planning/skills/system-design/references/terms.md`, under about 120 lines, one short definition and one example each, from the spec's sections "The model", "Cadence", "Names and labels" and "Owner preferences": blueprint; additive check; reviewable surfaces (database schema, REST and wire APIs, public library symbols); `settled` and `working` (with its revisit note); `owner` and `proposed` marks; milestone (outcome, subsystems, exit criteria, rungs); foundation-first order; end-of-goal rule and spike; `PROVISIONAL(<RungId>): replace at <MilestoneId> (<name>)` marker and the Provisional code table; `Touches:`; detail by distance; the "decide after it runs" list; milestone planning, automatic fold-back, escalation, milestone close; re-plan triggers; the rule that an ID shown to the owner carries its name; owner preferences (where, what is not one, the two-overrides rule). Also state which existing terms change meaning or retire (checkpoint rung becomes part of milestone planning; per-rung close becomes the escalation path).
   - Done when: every term the spec introduces is defined once, no definition contradicts the spec, and the file reads without the spec open.
 
-- [ ] T25 Prepare the review notes for the terms review
+- [x] T25 Prepare the review notes for the terms review
   - Model: heavy (Opus 5.5)
   - Needs: T2, T24
   - Context: Standing context "Owner reviews". Write `docs/project-planning/Review-T22.md` for `terms.md`: each term is a decision (its meaning); most are important because a concept change spreads to every skill. Include what each term replaces or retires.
