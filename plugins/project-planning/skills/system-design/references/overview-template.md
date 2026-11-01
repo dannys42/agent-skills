@@ -109,7 +109,7 @@ Field level, and only what this milestone builds.
 ## Subsystems
 | Doc | Parent | Status |
 | --- | --- | --- |
-| Sales_Store.md | Overview | pending (written when a rung needs its internals) |
+| Sales_Store.md | Overview | pending (written when milestone planning needs its internals) |
 
 ## Decisions
 | ID | Decision | Kind | Agreement | Why |
@@ -145,7 +145,7 @@ Field level, and only what this milestone builds.
 - **Threat and privacy** stays short. Milestone planning re-checks it for each new seam.
 - **Provisional code** rows match `PROVISIONAL(<RungId>): replace at <MilestoneId> (<milestone name>)` markers in the code. **Manual stand-ins** sit beside it, one row each. Both are empty until a spike is kept or a first pillar needs a hand step.
 - **Depth tags** stay: they show where the design is thin, and diagrams and the roadmap read them. `sketched`: named with a one-line responsibility. `designed`: a rung brief defines its interface (set when milestone planning writes the briefs). `built`: it exists in code and a fold-back verified it. A subsystem box is `sketched` until its doc exists, `designed` once that doc is agreed, and `built` when a fold-back verified it. A new project starts all `sketched`; an adopted one tags what exists as `built`. A built component a later rung changes stays `built`.
-- **Doc** is a link to the component's subsystem doc, `pending` when the component meets a subsystem trigger but no rung has needed its doc yet, or `none` when it stays a row. A subsystem's row holds its responsibility and a Contract summary (interface and the requirements it owns); its internals live in its own doc. The Subsystems section indexes every subsystem doc at any depth, since the files are flat and each names its parent; leave it out until one exists.
+- **Doc** is a link to the component's subsystem doc, `pending` when the component meets a subsystem trigger but no milestone planning has needed its doc yet, or `none` when it stays a row. A subsystem's row holds its responsibility and a Contract summary (interface and the requirements it owns); its internals live in its own doc. The Subsystems section indexes every subsystem doc at any depth, since the files are flat and each names its parent; leave it out until one exists.
 - **Kind** is `choice` for an ordinary decision and `shift` for a change of direction from the current system (adopt mode). The roadmap must cover every accepted `shift`.
 - **Cheapest experiment** is the field the roadmap reads most closely. Write it as something that visibly works or fails, not as a worry. **Depends on** records what must exist before the risk can be tested.
 - **Open questions** are structural. Minutiae marked `after it runs` move to the roadmap's "decide after it runs" list once it exists.
@@ -153,6 +153,10 @@ Field level, and only what this milestone builds.
 - After agreement, change things through the decision log, not silent edits. Reworking a `working` item as its revisit note foresaw is planned work, not drift.
 - Diagram rules and the Graphviz fallback are in the `roadmap-plan-next-rung` skill's [diagrams.md](../../roadmap-plan-next-rung/references/diagrams.md).
 
-## Migrating a legacy Design file
+## Migrating older docs
 
-An older `<DocDir>/Design-<Topic>.md` maps onto this layout as: Summary, Scope, Requirements (headline only), Constraints and assumptions, Risks, and Decision log go into the system design; the architecture sketch becomes the Components diagram and table, tagged by what is built; entities and interfaces go under Data model and Seams and interfaces, or move to a subsystem doc when they belong to a piece that warrants one; technology choices become decisions. Keep IDs unchanged. Write the new file beside the old one and leave the legacy file untouched; the user deletes it when satisfied.
+The [Migration](../SKILL.md#migration) procedure maps older docs onto this layout. Text that is still true moves verbatim; IDs never change and are never reused.
+
+- **An older Overview or subsystem doc:** Summary and Scope go to Summary and Scope and milestones, the current milestone named and each later one a line from the roadmap. Each component row gains Build target and Agreement. Interfaces and entities move to Seams and interfaces and Data model. Focus areas become risks, or are dropped when the risk register already covers them. Each assumption keeps its `A` ID: an open one about the world moves to Risks; a design choice, or one already confirmed, moves to Decisions. Decision status `accepted` reads `settled`, or `working` with the old revisit note.
+- **A legacy `<DocDir>/Design-<Topic>.md`:** Summary, Scope, Requirements (headline only), Constraints, Risks and Decision log go into the matching sections, each constraint-like assumption treated as above; the architecture sketch becomes the Components diagram and table, tagged by what is built; entities and interfaces go under Data model and Seams and interfaces, or to a subsystem doc when they belong to a piece that warrants one; technology choices become decisions. Write the new file beside the old one and leave the legacy file untouched; the owner deletes it when satisfied.
+- **Marks carry over:** an item the owner wrote or ruled on reads `owner`, and decision status maps as above. Only a cell with no source (a component's Agreement, a new milestone line, a `Touches` line) is `proposed`.

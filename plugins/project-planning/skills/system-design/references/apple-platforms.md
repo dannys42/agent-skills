@@ -2,7 +2,7 @@
 
 Use this when the project targets macOS, iOS, iPadOS, watchOS, tvOS, or visionOS. It supplies defaults to propose, decisions that need the user, and risks that tend to belong in the register. These are starting points, not rules: version-specific facts change every year, so mark anything you are not sure of as "verify against current docs" and let the roadmap's early increments prove it.
 
-## Defaults to propose (and flag as assumptions)
+## Defaults to propose (marked `proposed`)
 
 - **Language and UI:** Swift, SwiftUI first. Drop to AppKit/UIKit through representables when SwiftUI cannot do the job (rich text editing, custom drawing performance, printing, fine window control, some drag and drop). Say which parts you expect to need that.
 - **Project shape:** an Xcode app project, with testable logic in a local Swift package or a separate target so it can be tested and run without the UI.
@@ -45,7 +45,7 @@ Seed the register with the ones that apply, then rank them for this project.
 Even in an outline, these belong in the Overview because they shape everything else:
 
 - Decisions: whether the document is the file (document-based) or an app database, since this decides the entire persistence story; the minimum OS; and the SwiftUI vs AppKit/UIKit split, each with a reason.
-- Components: show the logic core (a package or target) separate from the SwiftUI layer, so the roadmap can prove logic with no UI. A Swift package, app extension, widget, or second app is a separate build target, so it is a subsystem candidate: one row marked `Doc: pending` until a rung needs its internals.
+- Components: show the logic core (a package or target) separate from the SwiftUI layer, so the roadmap can prove logic with no UI. A Swift package, app extension, widget, or second app is a separate build target, so it is a subsystem candidate: one row marked `Doc: pending` until milestone planning needs its internals.
 - Risks: include the platform probes above that apply; roadmap rungs 1–3 usually come from them.
 
 Leave to rung briefs: the `xcodebuild` test command and manual checks for each rung, entitlements a rung needs, and the exact file format of the document.

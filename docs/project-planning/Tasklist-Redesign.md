@@ -51,7 +51,7 @@ Standing context for every task:
   - Non-goals: adopt and checkpoint modes (T4); milestones in the roadmap (T7).
   - Done when: a reader can follow the skill from an owner document to an agreed system design without the spec, and every spec rule in "1. System design" maps to a line.
 
-- [ ] T4 Adapt adopt mode, checkpoint and migration in `system-design`
+- [x] T4 Adapt adopt mode, checkpoint and migration in `system-design`
   - Model: heavy (Opus 5.5)
   - Needs: T3
   - Context: Spec "Rollout" (migration paragraph) and "Cadence" (checkpoint look-back now runs inside milestone planning). Adopt mode ends in a system design for the current milestone. Checkpoint mode becomes the look-back step that milestone planning calls (keep `/system-design checkpoint` as an alias that runs it). Migration: an existing Overview and roadmap are read as they are; the first milestone planning session converts them (system design sections, milestone fields, `Touches`, `Map.md`) in a move-mostly commit, IDs unchanged. Update `references/subsystems.md` and `subsystem-template.md` only where the system design changes them.
@@ -229,3 +229,5 @@ Standing context for every task:
 - overview-template.md: legacy Design migration still sends "Constraints and assumptions" to a removed Assumptions section (T3; for T4)
 - system-design adopt mode: marks inferred requirements `assumed` and hands off with /risk-first-roadmap, not /rung (T3; for T4)
 - README.md: system-design paragraph still says headline requirements, detail added one rung at a time (T3; for T20)
+- system-design SKILL.md: Migration's "no other mode starts it" sits beside New mode's legacy Design-*.md offer; say it is separate (T4)
+- rung SKILL.md passes a rung ID to `system-design checkpoint`; code-quality-pass L79, roadmap-plan-next-rung L48, risk-first-roadmap Checkpoints still describe the retired flow (T4; for T8, T9, T14)
