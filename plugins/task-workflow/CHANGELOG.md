@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.17.1
+
+The metrics stamp in `tasklist-run` stayed at `0.16.2` through 0.16.3 to 0.17.0, because only the example line was bumped. Every batch since then logged the wrong version, so the ledger's per-version "Judge by" checks for those releases cannot use the stamp; use the commit dates instead.
+
+- `skill` is now `<skill name> <plugin version>` on every event (`tasklist-run 0.17.1`). `tasklist` and `decision-driven-design` give their own stamp for `step` events. `scripts/bump_version.py` sets the stamps with the manifests, and `tests/test_plugin_layout.py` checks them, the marketplace version and the plan tool version checks.
+- Tool 0.6.1: `roadmap next` ignores tasks under a closed heading and routes to `replan` when only deferred or horizon rungs remain. `roadmap lint` warns when a rung section's `Status:` line disagrees with the ladder bracket. `metrics predictions` reads `Next:` lines logged with the `→` and maps `/rung checkpoint` to `system-design`.
+- `tasklist`'s tool check now asks for exactly 0.6.1, so a plugin update rebuilds the tool.
+
 ## 0.17.0
 
 Moving finished rung sections out of a roadmap was done by ad-hoc scripts in two sessions. It is a verbatim move plus a pointer, which is mechanical and easy to get subtly wrong. Owner-approved.

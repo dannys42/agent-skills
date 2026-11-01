@@ -4,7 +4,7 @@
 # a first build can outlast the injection timeout. The skill installs the tool when this says so.
 # `min` is the oldest tool version this plugin needs; a newer one is fine.
 b=${XDG_CACHE_HOME:-$HOME/.cache}/danny-agent-skills/bin/roadmap
-min=0.6.0
+min=0.6.1
 v=$("$b" --version 2>/dev/null)
 if [ -z "$v" ] || [ "$(printf '%s\n%s\n' "$min" "$v" | sort -t. -k1,1n -k2,2n -k3,3n | head -n 1)" != "$min" ]; then
   echo "roadmap: missing or older than $min"

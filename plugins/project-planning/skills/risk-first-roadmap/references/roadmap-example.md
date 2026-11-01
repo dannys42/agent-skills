@@ -82,7 +82,6 @@ Depends on: none
 Milestone: M1
 Class: shape
 If no: Fall back to a single-window app and revisit documents later; record why in the design.
-Status: planned
 
 ### L2: Draw a fixed 3x3 grid
 Question: Can I draw on a canvas?
@@ -93,7 +92,6 @@ Depends on: L1
 Milestone: M1
 Class: shape
 If no: Try Core Graphics via an AppKit view instead of SwiftUI Canvas.
-Status: planned
 
 ### L3: Control text in the grid
 Question: Do fonts work, and is the size, color, and style legible?
@@ -104,7 +102,6 @@ Depends on: L2
 Milestone: M1
 Class: shape
 If no: Change font or draw digits as paths; record the decision in the Overview.
-Status: planned
 ```
 
 ### Horizon

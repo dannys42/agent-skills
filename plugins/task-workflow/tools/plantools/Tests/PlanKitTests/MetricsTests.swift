@@ -276,5 +276,8 @@ struct RungCommandTests {
         #expect(Predictions.skillName("/rung design") == "system-design")
         #expect(Predictions.skillName("/rung") == nil)
         #expect(Predictions.skillName("/rung bogus") == nil)
+        #expect(Predictions.skillName("/rung → close L3") == "roadmap-plan-next-rung")
+        #expect(Predictions.skillName("/rung -> run L3") == "tasklist-run")
+        #expect(Predictions.skillName("/rung → checkpoint L44") == "system-design")
     }
 }

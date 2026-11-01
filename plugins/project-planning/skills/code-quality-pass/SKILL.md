@@ -48,7 +48,7 @@ In both tiers, rank and decide by what keeps the codebase healthy over many futu
 
 ## Metrics tool check
 
-Before the first `metrics` call in a session, run `~/.cache/danny-agent-skills/bin/metrics --version`. If it fails or is older than `0.6.0` (a newer version is fine), install it without asking with the `task-workflow` plugin's build script, as in `risk-first-roadmap`'s "Plan tool check". Without it, say so in one line; `status` and the triggers are then unavailable, and `tidy` and `review` read `git diff --stat` and `grep` counts by hand.
+Before the first `metrics` call in a session, run `~/.cache/danny-agent-skills/bin/metrics --version`. If it fails or is older than `0.6.1` (a newer version is fine), install it without asking with the `task-workflow` plugin's build script, as in `risk-first-roadmap`'s "Plan tool check". Without it, say so in one line; `status` and the triggers are then unavailable, and `tidy` and `review` read `git diff --stat` and `grep` counts by hand.
 
 `metrics signals [--base <sha> | --tasklist <path>] [--status <path>] [--json]` exits 1 when a trigger fires; that is a result, not an error. Pass `--status` when `DocDir` is not `Documentation`, `docs` or `Docs`.
 
@@ -103,7 +103,7 @@ A model the user names wins.
 
 ## Metrics events
 
-Append to the `tasklist-run` metrics log (`~/.local/state/danny-agent-skills/task-workflow/metrics.jsonl`), in the same Bash call as the step it records, with `v` 1, `run` (a new UTC ID per pass), `ts`, `skill` (`code-quality-pass 0.8.7`), `repo`:
+Append to the `tasklist-run` metrics log (`~/.local/state/danny-agent-skills/task-workflow/metrics.jsonl`), in the same Bash call as the step it records, with `v` 1, `run` (a new UTC ID per pass), `ts`, `skill` (`code-quality-pass 0.11.1`), `repo`:
 
 - `quality`: `kind` (`tidy`, `review`, `baseline`, `deferred`), `rung` (the rung it follows), `trigger` (`fold-back`, `manual`, `checkpoint`, or the trigger names), `models`, `commits` and `lines` (a review or baseline; a tidy omits them, as it logs before its tasks run, and its own `tasklist-run` run carries the numbers), `proposals`, `defects`, and `signals` (the `metrics signals --json` object), and `model` (the model ID you ran on). A tidy that hands off to `tasklist-run` also writes a `step` event as `tasklist-run`'s metrics log defines it (`next_model` `sonnet`).
 - `quality_outcome` (once the user has ruled a review's proposals, or a tidy's proposals and defects): `kind` (`review` or `tidy`), `accepted`, `deferred`, `rejected` (entries still `pending` count as deferred), and `kinds` (accepted counts by kind; `bug` for an accepted defect).

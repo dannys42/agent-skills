@@ -48,7 +48,16 @@ public struct NextStep: Equatable {
         if let rung = roadmap.ladder.first(where: { $0.status.hasPrefix("planned") }) {
             return make("plan", "opus", rung.id, rung: rung.id, why: "\(rung.id) is the first planned rung")
         }
-        var done = make("finished", "opus", why: "no planned rung left; extend the ladder or stop")
+        // Deferred and horizon rungs are not finished work: the re-plan brings one back, details one, or drops them.
+        let deferred = roadmap.ladder.filter { $0.status.hasPrefix("deferred") }.map(\.id)
+        let horizon = roadmap.ladder.filter { $0.status == "horizon" }.map(\.id)
+        if !deferred.isEmpty || !horizon.isEmpty {
+            let parts = [("deferred", deferred), ("horizon", horizon)].filter { !$0.1.isEmpty }.map { "\($0.0): \($0.1.joined(separator: " "))" }
+            var replan = make("replan", "opus", why: "no planned rung; " + parts.joined(separator: "; ") + "; bring one back, detail one, or drop them")
+            replan.command = "/rung replan"
+            return replan
+        }
+        var done = make("finished", "opus", why: "no planned, deferred or horizon rung left; extend the ladder or stop")
         done.command = "/risk-first-roadmap"
         return done
     }
@@ -60,7 +69,11 @@ public struct NextStep: Equatable {
             b.text.split(separator: "\n", omittingEmptySubsequences: false)
                 .first { $0.hasPrefix("Status:") }.map { $0.dropFirst(7).trimmingCharacters(in: .whitespaces).lowercased() }
         } ?? ""
-        let open = lists.filter { !$0.completed }.map { ($0, Tasklist(text: $0.text).tasks.filter { $0.mark == .open }) }
+        // A task under a closed heading is not open work: `tasklist-run` will not pick it, so it must not hold the rung in `run`.
+        let open = lists.filter { !$0.completed }.map { file -> (File, [TaskItem]) in
+            let list = Tasklist(text: file.text)
+            return (file, list.tasks.filter { $0.mark == .open && list.closedHeading(for: $0) == nil })
+        }
             .filter { !$0.1.isEmpty }.sorted { $0.0.modified > $1.0.modified }
 
         if let (file, tasks) = open.first {

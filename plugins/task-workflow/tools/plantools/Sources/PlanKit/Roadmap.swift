@@ -46,16 +46,8 @@ public struct Roadmap {
         }
         // Ladder lines without a bracketed status take the `Status:` line of their detail section.
         for (i, rung) in ladder.enumerated() where rung.status == "unknown" {
-            if let d = details.first(where: { $0.id == rung.id }), let sec = markdown.sections.first(where: { $0.line == d.line }) {
-                for number in sec.line...sec.endLine {
-                    let line = markdown.lines[number - 1]
-                    if line.hasPrefix("Status:") {
-                        let word = line.dropFirst(7).trimmingCharacters(in: .whitespaces).lowercased()
-                            .prefix(while: { $0 != ":" && $0 != ";" && $0 != "," && $0 != "(" }).trimmingCharacters(in: .whitespaces)
-                        ladder[i] = LadderRung(id: rung.id, status: word, text: rung.text, line: rung.line)
-                        break
-                    }
-                }
+            if let word = sectionStatus(rung.id)?.word {
+                ladder[i] = LadderRung(id: rung.id, status: word, text: rung.text, line: rung.line)
             }
         }
         if let s = markdown.sections.first(where: { $0.level == 2 && $0.title.hasPrefix("Learning log") }) {
@@ -74,6 +66,17 @@ public struct Roadmap {
                 }
             }
         }
+    }
+
+    /// The status word of a rung section's `Status:` line (older roadmaps carry one; the ladder bracket is the status).
+    func sectionStatus(_ id: String) -> (word: String, line: Int)? {
+        guard let d = details.first(where: { $0.id == id }), let sec = markdown.sections.first(where: { $0.line == d.line }) else { return nil }
+        for number in sec.line...sec.endLine where markdown.lines[number - 1].hasPrefix("Status:") {
+            let word = markdown.lines[number - 1].dropFirst(7).trimmingCharacters(in: .whitespaces).lowercased()
+                .prefix(while: { $0 != ":" && $0 != ";" && $0 != "," && $0 != "(" }).trimmingCharacters(in: .whitespaces)
+            return (word.hasPrefix("done") ? "done" : word, number)
+        }
+        return nil
     }
 
     static func firstDate(in text: String) -> String? {
@@ -167,6 +170,11 @@ public struct Roadmap {
                 out.append(.init(.error, line: rung.line, "\(rung.id) is in progress but has no detail section"))
             } else if rung.status.hasPrefix("planned") {
                 out.append(.init(.warning, line: rung.line, "\(rung.id) is planned but has no detail section"))
+            }
+        }
+        for rung in ladder where rung.status != "unknown" && rung.status != "horizon" {
+            if let section = sectionStatus(rung.id), section.word != rung.status {
+                out.append(.init(.warning, line: section.line, "\(rung.id) is [\(rung.status)] on the ladder but its section says Status: \(section.word); the bracket is the status, so update or delete the section's line"))
             }
         }
         for entry in log where seen[entry.rung] == nil {

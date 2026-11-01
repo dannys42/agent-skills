@@ -39,9 +39,21 @@ struct NextStepTests {
     }
 
     @Test func nothingLeftIsFinished() {
-        let s = decide("## Ladder\n\n1. L1 — a [done]\n2. L2 — b [deferred]\n")
+        let s = decide("## Ladder\n\n1. L1 — a [done]\n2. L2 — b [obsolete: skipped by owner]\n3. L3 — c [failed]\n")
         #expect(s.step == "finished" && s.command == "/risk-first-roadmap" && s.rung == nil)
-        #expect(s.why == "no planned rung left; extend the ladder or stop")
+        #expect(s.why == "no planned, deferred or horizon rung left; extend the ladder or stop")
+    }
+
+    @Test func deferredOrHorizonRungsLeftMeanReplan() {
+        let s = decide("## Ladder\n\n1. L1 — a [done]\n2. L2 — b [deferred: waits on M2]\n\n## Horizon\n\n- L5 — e\n")
+        #expect(s.step == "replan" && s.command == "/rung replan" && s.model == "opus" && s.rung == nil)
+        #expect(s.why == "no planned rung; deferred: L2; horizon: L5; bring one back, detail one, or drop them")
+    }
+
+    @Test func tasksUnderAClosedHeadingAreNotOpen() {
+        let text = "# Tasklist\n\n## G1 Gate — DEFERRED(after L4)\n\n" + openStd
+        let s = decide(lists: [NextStep.File(name: "Tasklist-L3-Grid.md", text: text)], briefs: [brief("L3", status: "agreed")])
+        #expect(s.step == "close" && s.rung == "L3")
     }
 
     @Test func openTasksRunOnSonnetFromTheOpenList() {

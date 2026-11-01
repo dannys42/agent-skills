@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.11.1
+
+Fixes from a consistency review of both plugins, with no new practice. Three of them made `/rung` route wrongly or made the metrics log unreliable.
+
+- `rung`: a task under a closed heading (`DEFERRED`, `OBSOLETE`, `SUPERSEDED`, `INVALID`) no longer counts as open, so a rung whose remaining tasks sit under one goes to close instead of `run` forever. When no rung is `planned` but `deferred` rungs or horizon items remain, the step is `replan`, not `finished`. Both need tool 0.6.1, the new minimum everywhere.
+- `risk-first-roadmap` re-plan: deferred rungs have a way back. Each re-plan checks what each one waits on and sets it `planned` when the wait is over. After a "no", or when no rung is `planned`, the owner rules on each deferred rung: keep, reshape, keep waiting, or drop (`obsolete: dropped by owner`). With no `planned` rung, the next horizon item is detailed.
+- A rung's status lives only in its ladder bracket. New rung sections have no `Status:` line. An older one changes with the bracket or is deleted, and `roadmap lint` flags a pair that disagrees.
+- Metrics stamps: every skill that logs gives its own `skill` value, `<skill name> <plugin version>` (planning steps had logged `roadmap-plan-next-rung 0010` and similar, and `code-quality-pass` was stuck at 0.8.7). `scripts/bump_version.py` updates the stamps with the manifests, and `tests/test_plugin_layout.py` fails on a stale one.
+
 ## 0.11.0
 
 Three sessions sent notes: a rung plan, a design-doc ruling and a shape-rung plan. The planning skills checked for exactly tool 0.5.1 after the tool moved to 0.5.2, so `/rung` reported the tool missing and fell back to hand work on every run. That is the only measured defect in this round. The owner then ruled on the held items and added one direction: structure and architecture first, with the outcome as the rung's goal rather than a source of detailed planning questions.

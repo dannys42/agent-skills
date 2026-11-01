@@ -111,6 +111,12 @@ struct DocumentedRoadmapTests {
         #expect(try #require(r.show("L1")).contains("signing change"))
     }
 
+    @Test func lintFlagsASectionStatusThatDisagreesWithTheBracket() {
+        let r = Roadmap(text: "## Ladder\n\n1. L1 — a [done]\n2. L2 — b [in progress]\n\n## Rungs (detailed)\n\n### L1: A\nStatus: done (2026-10-01)\n\n### L2: B\nStatus: planned\n")
+        let messages = r.lint().map(\.message)
+        #expect(messages == ["L2 is [in progress] on the ladder but its section says Status: planned; the bracket is the status, so update or delete the section's line"])
+    }
+
     @Test func lintIsCleanOnTheDocumentedFormat() throws {
         #expect(try documented().lint().isEmpty)
     }

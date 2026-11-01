@@ -6,11 +6,13 @@ public enum Predictions {
     static let tierOrder = ["light": 0, "standard": 1, "heavy": 2]
 
     /// `roadmap-plan-next-rung 0.7.0` → `roadmap-plan-next-rung`; `/task-workflow:tasklist-run L3` → `tasklist-run`.
+    /// An arrow is not a word: the skills print `Next: /rung → close L3`, and that line may be logged as written.
     public static func skillName(_ text: String?) -> String? {
-        guard let word = text?.split(separator: " ").first else { return nil }
+        let words = (text ?? "").split(separator: " ").filter { !["→", "->", "=>"].contains($0) }
+        guard let word = words.first else { return nil }
         let name = word.drop { $0 == "/" }
         let skill = String(name.split(separator: ":").last ?? name)
-        return skill == "rung" ? rungSkill(text?.split(separator: " ").dropFirst().first.map(String.init)) : skill
+        return skill == "rung" ? rungSkill(words.dropFirst().first.map(String.init)) : skill
     }
 
     /// `/rung <step>` is a router; the skill is whichever one that step runs. Bare `/rung` or an unknown step names none.
@@ -19,7 +21,7 @@ public enum Predictions {
         case "plan", "close", "retro": return "roadmap-plan-next-rung"
         case "run": return "tasklist-run"
         case "replan", "roadmap": return "risk-first-roadmap"
-        case "design": return "system-design"
+        case "design", "checkpoint": return "system-design"
         default: return nil
         }
     }

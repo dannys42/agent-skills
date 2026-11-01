@@ -54,7 +54,6 @@ Depends on: L2
 Milestone: M1
 Class: shape
 If no: Try a different font stack or draw digits as paths; record in the design.
-Status: planned
 ```
 
 - **Question** is the unknown, phrased so the rung can fail.
@@ -64,6 +63,7 @@ Status: planned
 - **Milestone** names the milestone the rung serves, and **Class** is `shape`, `clock` or `breadth` (see above). A `Kind: refactor` rung takes the milestone it unblocks.
 - **If no** is the fallback or the decision to revisit. A rung that cannot fail is not testing anything.
 - A checkpoint rung adds `Kind: checkpoint` (see [Checkpoints](#checkpoints)).
+- The status lives only in the ladder line's bracket; a section has no `Status:` line. An older roadmap's section may still carry one: change it in the same edit as the bracket, or delete it (`roadmap lint` flags a pair that disagrees).
 - A rung that comes from an accepted code-quality proposal adds `Kind: refactor` and asks whether the new shape holds without changing behaviour ("Can the three derivers share one protocol with every existing test still green?").
 
 ## Milestones
@@ -92,7 +92,6 @@ Depends on: L30
 Milestone: M2
 Class: shape
 If no: The refactor rungs it places come before M2's first feature rung.
-Status: planned
 ```
 
 It runs in `system-design` checkpoint mode, and `/rung` offers it as the default next step. The owner may skip it; a skipped checkpoint is set `obsolete: skipped by owner`. It is not a setup rung: what it shows is the owner's recorded rulings.
@@ -161,7 +160,7 @@ Never rewrite an existing file unasked. But when you read a roadmap or Overview 
 
 Triggers (with the `roadmap` tool, `roadmap lint <file>` and `roadmap outline <file>` give all of them):
 - the file is over about 40 KB, or finished rungs and the learning log are over half of it: move finished rung sections and the old log out, as above
-- a ladder line has no recognised status, or `lint` reports duplicate IDs or a rung section with no ladder entry: fix the line to the format below (status only, in brackets; the `Status:` line of its section tells you what it is)
+- a ladder line has no recognised status, or `lint` reports duplicate IDs or a rung section with no ladder entry: fix the line to the format below (status only, in brackets; an older section's `Status:` line tells you what it is)
 - the file is still over about 40 KB with nothing above left to move: move the dated bullets under `## Why this order` that describe earlier re-plans (not the current order's reasoning) unchanged to the Log file, leaving one link line
 - a Horizon item runs past one line: move its detail verbatim into `ParkedIdeas-<Topic>.md` and leave the one line with a pointer
 - a line is over about 1,500 characters, or table or log cells run past about 400 or 600: shorten the cell, move the reasoning into the rung brief or design doc, and link it
@@ -173,13 +172,13 @@ Two things are deleted, not moved, each offered with the pass and done in a comm
 
 ### Plan tool check
 
-Before the first `roadmap` call in a session, run `~/.cache/danny-agent-skills/bin/roadmap --version`. If it fails or is older than `0.6.0` (a newer version is fine), install it without asking: `sh "$(ls -td ~/.claude/plugins/cache/*/task-workflow/*/tools/plantools/build.sh | head -n 1)"` (the `task-workflow` plugin's build script; if that finds nothing, the plugin is not installed, so skip the tool). If `swift` is missing or the build fails, say so in one line, do not retry, and read by hand. Do not fall back to `grep`, `awk` or `sed` while an install is still untried. `roadmap-plan-next-rung` uses the same check.
+Before the first `roadmap` call in a session, run `~/.cache/danny-agent-skills/bin/roadmap --version`. If it fails or is older than `0.6.1` (a newer version is fine), install it without asking: `sh "$(ls -td ~/.claude/plugins/cache/*/task-workflow/*/tools/plantools/build.sh | head -n 1)"` (the `task-workflow` plugin's build script; if that finds nothing, the plugin is not installed, so skip the tool). If `swift` is missing or the build fails, say so in one line, do not retry, and read by hand. Do not fall back to `grep`, `awk` or `sed` while an install is still untried. `roadmap-plan-next-rung` uses the same check.
 
 ## Hand off to implementation
 
 A roadmap is not a task list. When the user is ready to build the next rung, run `/roadmap-plan-next-rung` for just that rung: it writes a short design brief for the parts the rung touches, agrees it with the user, and hands off to the `tasklist` skill, which writes `<DocDir>/Tasklist-<RungId>-<ShortRungDescription>.md`; `tasklist-run` executes it. `/rung` runs the whole cycle: plan, run, close. Do not pre-expand later rungs.
 
-End a new roadmap (and any re-plan) with the next step, as `Next: /rung → plan <rung ID> (Opus: /model opus)`, or, when the next rung is a checkpoint, `Next: /rung → checkpoint <rung ID> (Opus: /model opus), or /rung skip <rung ID>`, because planning designs the rung against the code and settles the open decisions. Name the rung ID so the user can paste the line. Log it as a `step` event (fields in `tasklist-run`'s metrics log).
+End a new roadmap (and any re-plan) with the next step, as `Next: /rung → plan <rung ID> (Opus: /model opus)`, or, when the next rung is a checkpoint, `Next: /rung → checkpoint <rung ID> (Opus: /model opus), or /rung skip <rung ID>`, because planning designs the rung against the code and settles the open decisions. Name the rung ID so the user can paste the line. Log it as a `step` event with `skill` `risk-first-roadmap 0.11.1` (other fields in `tasklist-run`'s metrics log).
 
 ## Re-plan after each rung
 
@@ -191,10 +190,11 @@ This normally runs as the last part of `/rung close` (`roadmap-plan-next-rung`'s
 - **Code quality** (`code-quality-pass` skill): if `<DocDir>/Quality/Review-<date>.md` or a `Quality/Proposals-<RungId>.md` (a tidy's, with accepted defects as `task`s, reproducing test first) has accepted entries, place them: a `refactor-rung` becomes a rung (`Kind: refactor`) ordered by the rules above, never ahead of a feature rung unless the user puts it there; a `task`, `conventions` or `fitness-test` becomes a task in the next rung's tasklist or a small `Tasklist-Refactor-<Short_Name>.md`. Mark each placed proposal with its rung or task in the report. Then, if `Quality/Status.md`'s `Since review:` has reached `Every:` or `Triggers pending:` is not `none`, offer `/code-quality-pass review` in one line (run, skip or defer); with no `Status.md`, the fold-back signals already nudged, so say nothing more. This step never holds up the next rung.
 - **A "no" trims its branch.** If the rung answered no to the premise of a milestone (its outcome cannot be reached as planned), set that milestone's remaining open rungs to `deferred` and ask the owner to keep, reshape or drop it. Do not detail more of its rungs until they answer.
 - When every rung of the current milestone is done, mark it `done`, make the next milestone `current`, and expand its first rungs; the first is its checkpoint.
-- Re-rank the remaining risks and promote or demote horizon items. Add new rungs for newly discovered unknowns; mark rungs that became unnecessary `obsolete` instead of deleting them.
+- **Deferred rungs come back here.** Check each `[deferred: <what it waits on>]` against what was just built and what the owner has said since. When the wait is over, set it `planned`, update its `Milestone:` and the milestone lines, and say so. After a "no" or when no rung is `planned` (`/rung` then routes here), ask the owner about each deferred rung of the milestone: keep (back to `planned`), reshape (rewrite its question, slice and done-when, then `planned`), keep waiting (unchanged), or drop (`obsolete: dropped by owner`; a milestone with nothing left becomes `dropped`). Record each answer in one learning-log entry.
+- Re-rank the remaining risks and promote or demote horizon items. When no rung is `planned`, detail the next horizon item of the current milestone, or, with none left, close the milestone as above. Add new rungs for newly discovered unknowns; mark rungs that became unnecessary `obsolete` instead of deleting them.
 - Tell the user what moved and why, then end with the next step as in [Hand off to implementation](#hand-off-to-implementation), logged as a `step` event.
 
-Statuses: `planned`, `in progress`, `done`, `failed` (answered "no", fallback taken), `changed`, `obsolete`, `deferred`.
+Statuses: `planned`, `in progress`, `done`, `failed` (answered "no", fallback taken), `changed`, `obsolete`, `deferred` (with what it waits on). `/rung` reports the roadmap finished only when no rung is `planned`, `in progress`, `deferred` or on the horizon.
 
 ## If a linked skill is missing
 
