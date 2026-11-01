@@ -112,7 +112,7 @@ Risk ordering (shape, clock, breadth) applies only inside the current milestone.
 | --- | --- | --- |
 | Milestone start | Checkpoint rung | Milestone planning session (Opus): checkpoint look-back, design delta for this milestone, every rung's brief, tasklists |
 | Each rung | Plan (Opus), run (Sonnet), close (Opus) with retro and re-plan | Run (Sonnet), then an automatic fold-back at the end of the same session (Sonnet), plus metrics |
-| Milestone end | Nothing distinct | Milestone close (Opus): re-read, then owner demo and acceptance, one retro, re-plan of the next milestone; it pauses at the demo and, after the owner rules, the same close resumes, possibly in a new session |
+| Milestone end | Nothing distinct | Milestone close (Opus): re-read, then owner demo and acceptance, one retro, re-plan of the next milestone; it pauses at the demo and, after the owner rules, the next `/rung` resumes the same close, possibly in a new session |
 | Re-plan inside a milestone | After every rung | Only when a rung fails, a rung answers a different question, an owner request lands in the current milestone, or a `settled` seam must change |
 
 ### Automatic fold-back
@@ -136,10 +136,10 @@ The automatic fold-back keeps the first two in the run session and sends only ju
    | As agreed | Tick it |
    | Internal only (private types, algorithms, file layout) | One "As built" line; no question |
    | A `working` item reworked as its revisit note foresaw | One "As built" line |
-   | A reviewable surface or `settled` item differs; a deferred item has no answer; a `Done when` did not pass; a new `PROVISIONAL` marker not in the system design | **Escalate**: stop, record what differs, route `/rung` to a close session on Opus |
+   | A reviewable surface or `settled` item differs; a deferred item has no answer; a `Done when` did not pass; a new `PROVISIONAL` marker not in the system design | **Escalate**: stop, record what differs in an escalation marker on the rung; the next `/rung` runs an Opus review (internal route `escalation`, no owner-facing name) |
 
 4. **Update the docs for the clean cases.** Depth tags, traceability, risks the rung's passed `Done when` answers, answered deferred items, names already agreed into `Taxonomy.md`, and the rung's status in the roadmap. Commit as `Fold back rung <RungId>`.
-5. **Report and continue.** One summary line to the owner, a metrics event, and `Next: /rung run <next rung>`. The next brief already exists from milestone planning, so there is no re-plan unless a trigger fired.
+5. **Report and continue.** One summary line to the owner, a metrics event, and `Next: /rung`. The next brief already exists from milestone planning, so there is no re-plan unless a trigger fired.
 
 **What it never does:** decide which side of a drift is wrong, change a decision, add or reorder rungs, or retire a risk on a partial answer. Those escalate.
 
@@ -199,9 +199,13 @@ Not built now. When the owner asks for parallel rungs in worktrees:
 - rungs run in parallel only when their `Touches` sets do not overlap and the seams between them are `settled`;
 - a running rung writes only its own brief and tasklist;
 - fold-backs into shared docs (system design, Taxonomy, roadmap) and merges run one at a time, in fold-back order;
-- `/rung` takes a rung argument.
+- `/rung` may take a rung argument as an alias; no `Next:` line shows one.
 
 This is a change to the tool and `rung`, not to the planning skills. `tasklist-run` already supports worktrees inside one tasklist.
+
+## One command (owner, 2026-11-01)
+
+The owner will not manage several kinds of "close". Every `Next:` line is `/rung` (plus the model switch when the step needs Opus), with prose before it saying what the step is and why. The `roadmap` routes are internal labels. State lives in files (escalation marker on the rung, the handoff note at each wait point, the paused milestone close), and `roadmap next` returns route, one-line reason and model. `/rung` states the model first and stops on the wrong one.
 
 ## Scenario suite
 
