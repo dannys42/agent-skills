@@ -205,7 +205,7 @@ This is a change to the tool and `rung`, not to the planning skills. `tasklist-r
 
 ## One command (owner, 2026-11-01)
 
-The owner will not manage several kinds of "close". Every `Next:` line is `/rung` (plus the model switch when the step needs Opus), with prose before it saying what the step is and why. The `roadmap` routes are internal labels. State lives in files (escalation marker on the rung, the handoff note at each wait point, the paused milestone close), and `roadmap next` returns route, one-line reason and model. `/rung` states the model first and stops on the wrong one.
+The owner will not manage several kinds of "close". Every `Next:` line is `/rung` (plus the model switch when the step needs Opus), with prose before it saying what the step is and why. The `roadmap` routes are internal labels. State lives in files (escalation marker on the rung, the handoff note at each wait point, the paused milestone close), and `roadmap next` returns route, one-line reason and model. `/rung` states the model first and stops on the wrong one. A non-interactive step that needs a specific model (escalation review, milestone-close re-read) runs as a subagent on that model inside the current session when that is cheaper than a new session; steps that talk with the owner still need a session on the right model. `/rung` chooses per step by expected context size, says which in one line, and the wrong-model stop applies only when it picks a session.
 
 ## Scenario suite
 
