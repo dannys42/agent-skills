@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.11.2
+
+Gaps in the rung cycle found in the same review: planning documents that nothing committed, three definitions of `Base`, `Deferred:` items never checked, drift-fix tasks written where `/rung` cannot see them, a tidy offer that contradicted itself, and a status nobody defined.
+
+- Planning commits: the plan hand-off commits the brief, tasklist, touched design docs, `Taxonomy.md` and roadmap as `Plan rung <RungId>: <title>`. Close commits the fold-back and the re-plan separately, and a standalone roadmap, re-plan, Overview or subsystem doc is committed when agreed. Each commit stages by explicit path.
+- `Base` has one meaning everywhere: HEAD just before the planning commit, which is the parent of the commit that adds the tasklist (what `metrics signals` already computed).
+- `Deferred:` items: the hand-off puts each into the `Done when` of the task that settles it and names the task in the brief. Close step 2 checks each has its answer and settles any that do not.
+- Drift found at close: fix tasks go in `Tasklist-<RungId>-Drift.md`, not the list in `Completed/`. Close then ends with `/rung → run` instead of re-planning, and `/rung` finishes the close at `replan` once the list is done.
+- Tidy at close is offered once per rung, and the answer is recorded as `Tidy:` under the brief's `Base:`. On run, close writes the tidy list and stops, so the tasks run in their own Sonnet session, and the next `/rung` resumes close at step 1.
+- `changed` is defined (finished, but it answered a different question than it asked) and is archived like `done`. Accepted `task` and `fitness-test` proposals go in a `Tasklist-Refactor-<Short_Name>.md`, which `/rung` runs before planning the next rung. `conventions` entries are no longer routed, because the review already applied them.
+- Tool minimum 0.6.2 everywhere.
+
 ## 0.11.1
 
 Fixes from a consistency review of both plugins, with no new practice. Three of them made `/rung` route wrongly or made the metrics log unreliable.

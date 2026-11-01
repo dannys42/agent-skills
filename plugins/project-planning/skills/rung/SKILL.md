@@ -24,12 +24,14 @@ In Claude Code, `scripts/next.sh` ran as this skill loaded (zero turns) and prin
 ```
 
 1. Lines `step`, `rung`, `list`, `model`, `command`, `why`: use them. If project rules name a `DocDir` other than the one found, or the output lists several `Roadmap-*.md` (ask which), re-run `~/.cache/danny-agent-skills/bin/roadmap next --dir <DocDir>` or `--roadmap <file>`.
-2. `roadmap: missing or older than 0.6.1`, or the block above still shows the `!` command (another harness): install and run in one Bash call: `sh "$(ls -td ~/.claude/plugins/cache/*/task-workflow/*/tools/plantools/build.sh | head -n 1)" >/dev/null && ~/.cache/danny-agent-skills/bin/roadmap next`. If the build script is not found or fails, say so in one line and use the table below.
+2. `roadmap: missing or older than 0.6.2`, or the block above still shows the `!` command (another harness): install and run in one Bash call: `sh "$(ls -td ~/.claude/plugins/cache/*/task-workflow/*/tools/plantools/build.sh | head -n 1)" >/dev/null && ~/.cache/danny-agent-skills/bin/roadmap next`. If the build script is not found or fails, say so in one line and use the table below.
 3. Without the tool, apply this table by hand with `grep` and `ls`:
    - No Overview (`SystemDesign/Overview.md`, or a legacy `Design-*.md`) and no roadmap: `design`. Overview, no roadmap: `roadmap`.
    - Current rung: the first `in progress` on the ladder, else the first `planned` (`plan`). None, but `deferred` rungs or horizon items remain: `replan`. None of those either: `finished`.
    - In-progress rung R with a `Tasklist-R-*.md` (not in `Completed/`) that has open tasks (a task under a heading closed as `DEFERRED`, `OBSOLETE`, `SUPERSEDED` or `INVALID` does not count): `run` (model opus if more than half the open tasks are `heavy`, else sonnet), or `user` when every open task is USER or BLOCKED.
    - In-progress rung R with no tasklist: `plan`. All of R's lists closed and the brief `folded back`: `replan`. Otherwise: `close`.
+   - No rung in progress and a `Tasklist-Refactor-*.md` (not in `Completed/`) with open tasks: `run` that list (the re-plan placed it before the next rung). `/rung plan` goes past it.
+   - A rung's `-Tidy` list and a `-Drift` list are rung lists: open tasks there mean `run`. A tidy list resumes close afterwards; a drift list resumes at `replan`, since the brief is already folded back.
 4. **Checkpoint.** When the step is `plan`, check the rung's section for `Kind: checkpoint` (`grep -n -A3 '^### <rung>:' <roadmap>`). If it is there, the step is `checkpoint` (model opus).
 5. Say in one line what you found and what you will do, e.g. `L3: tasks closed, brief not folded back → close (Opus)`.
 
@@ -46,8 +48,8 @@ Use the Skill tool.
 - `finished`: say every rung is done and offer to extend the ladder with `risk-first-roadmap`. Do not invoke it unasked.
 - `plan`: `roadmap-plan-next-rung <rung>`.
 - `checkpoint`: offer it once as the default, with a structured question tool if there is one: run (recommended) or skip. On run, `system-design checkpoint <rung>`. On skip, do `skip`.
-- `skip`: only for a checkpoint rung. Set its ladder line to `[obsolete: skipped by owner]` (an older section's `Status:` line changes with it), add a one-line learning-log entry, log a `step` event with `skill` `rung 0.11.1` and `kind` `checkpoint-skipped`, then work out the step again.
-- `run`: `tasklist-run <list> <flags>`.
+- `skip`: only for a checkpoint rung. Set its ladder line to `[obsolete: skipped by owner]` (an older section's `Status:` line changes with it), add a one-line learning-log entry, log a `step` event with `skill` `rung 0.11.2` and `kind` `checkpoint-skipped`, then work out the step again.
+- `run`: `tasklist-run <list> <flags>`. With no rung (a refactor list), the same.
 - `user`: show the pending USER tasks' steps verbatim and ask for the `Done when` confirmation per `tasklist-run`'s "USER tasks", then continue as `run`.
 - `close`: `roadmap-plan-next-rung close <rung>`.
 - `retro`: `roadmap-plan-next-rung retro <rung>`.

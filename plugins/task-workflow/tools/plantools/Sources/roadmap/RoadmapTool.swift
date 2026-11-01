@@ -70,7 +70,7 @@ struct RoadmapTool: ParsableCommand {
     struct Archive: ParsableCommand {
         static let configuration = CommandConfiguration(
             abstract: "Move finished rungs' sections verbatim to Completed/<Roadmap>-Rungs.md and add the detail: pointer to their ladder lines.",
-            discussion: "Exit 1 when a rung is not done, failed or obsolete, is not on the ladder, or the result would add a lint error; 2 on bad usage. A rung already archived is skipped.")
+            discussion: "Exit 1 when a rung is not done, failed, changed or obsolete, is not on the ladder, or the result would add a lint error; 2 on bad usage. A rung already archived is skipped.")
         @Argument(help: "Roadmap file.") var file: String
         @Argument(help: "Rung IDs, e.g. L3 L4.") var rungs: [String] = []
         @Flag(help: "Print a unified diff of both files and write nothing.") var dryRun = false

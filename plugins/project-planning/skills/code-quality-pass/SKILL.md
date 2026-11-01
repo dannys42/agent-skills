@@ -48,7 +48,7 @@ In both tiers, rank and decide by what keeps the codebase healthy over many futu
 
 ## Metrics tool check
 
-Before the first `metrics` call in a session, run `~/.cache/danny-agent-skills/bin/metrics --version`. If it fails or is older than `0.6.1` (a newer version is fine), install it without asking with the `task-workflow` plugin's build script, as in `risk-first-roadmap`'s "Plan tool check". Without it, say so in one line; `status` and the triggers are then unavailable, and `tidy` and `review` read `git diff --stat` and `grep` counts by hand.
+Before the first `metrics` call in a session, run `~/.cache/danny-agent-skills/bin/metrics --version`. If it fails or is older than `0.6.2` (a newer version is fine), install it without asking with the `task-workflow` plugin's build script, as in `risk-first-roadmap`'s "Plan tool check". Without it, say so in one line; `status` and the triggers are then unavailable, and `tidy` and `review` read `git diff --stat` and `grep` counts by hand.
 
 `metrics signals [--base <sha> | --tasklist <path>] [--status <path>] [--json]` exits 1 when a trigger fires; that is a result, not an error. Pass `--status` when `DocDir` is not `Documentation`, `docs` or `Docs`.
 
@@ -69,7 +69,7 @@ Before the first `metrics` call in a session, run `~/.cache/danny-agent-skills/b
 5. **Characterization first.** If an item changes code that no test exercises, its first task adds a characterization test, in its own commit, before the change.
 6. **Write `Tasklist-<RungId>-Tidy.md`** in `tasklist` format: `Source:` the rung and base; at most 6 tasks and about 300 changed lines in all; each `Done when` includes the full test command passing; one `Non-goals` line: no behaviour change, and no fix for a defect. A pure rename or move is `light`, anything else `standard`.
 7. **Record** before offering, so a skip loses nothing: if the scout returned proposals or defects, write them verbatim to `Quality/Proposals-<RungId>.md` (shape in quality-files.md, each entry `Decision: pending`), and set `Status.md`'s `Backlog:` to link to it. Never write a count that links to nothing. Log a `quality` event (below).
-   Then **offer** the tasks: one line per task, then run, skip or defer. On run, hand the file to `tasklist-run` (orchestrate on Sonnet 5.5; the tidy list has no `heavy` tasks). When the pass is done, say the next step is the fold-back it interrupted: `/rung → close <RungId>` on Opus. Its tidy rules (no tier raise; a task that fails review twice is reverted and closed as a proposal) keep the pass small.
+   Then **offer** the tasks: one line per task, then run, skip or defer. On run, commit the list. Inside `/rung close`, stop there: close ends with `Next: /rung → run <RungId> (Sonnet: /model sonnet)`, and the next `/rung` resumes close after the tidy. Run on its own, hand the file to `tasklist-run` (orchestrate on Sonnet 5.5; the tidy list has no `heavy` tasks), and when the pass is done say the next step is `/rung → close <RungId>` on Opus. Its tidy rules (no tier raise; a task that fails review twice is reverted and closed as a proposal) keep the pass small.
 8. **Rule on proposals and defects**, only when the scout returned some, as one batched question in the same message as the tidy offer, shown apart from the tidy tasks, in the shape in `roadmap-plan-next-rung`'s [presenting-for-review.md](../roadmap-plan-next-rung/references/presenting-for-review.md). Each proposal: accept (the re-plan places it as a `refactor-rung` or `task`), defer or reject. Each defect: "bug task with a reproducing test first, yes or no". The answer to the whole question may be skip or defer; unanswered entries stay `pending` and cost nothing further (they are not asked again at this fold-back). Record the answers in the Proposals file and log `quality_outcome`.
 
 ## Tier 2: review
@@ -103,7 +103,7 @@ A model the user names wins.
 
 ## Metrics events
 
-Append to the `tasklist-run` metrics log (`~/.local/state/danny-agent-skills/task-workflow/metrics.jsonl`), in the same Bash call as the step it records, with `v` 1, `run` (a new UTC ID per pass), `ts`, `skill` (`code-quality-pass 0.11.1`), `repo`:
+Append to the `tasklist-run` metrics log (`~/.local/state/danny-agent-skills/task-workflow/metrics.jsonl`), in the same Bash call as the step it records, with `v` 1, `run` (a new UTC ID per pass), `ts`, `skill` (`code-quality-pass 0.11.2`), `repo`:
 
 - `quality`: `kind` (`tidy`, `review`, `baseline`, `deferred`), `rung` (the rung it follows), `trigger` (`fold-back`, `manual`, `checkpoint`, or the trigger names), `models`, `commits` and `lines` (a review or baseline; a tidy omits them, as it logs before its tasks run, and its own `tasklist-run` run carries the numbers), `proposals`, `defects`, and `signals` (the `metrics signals --json` object), and `model` (the model ID you ran on). A tidy that hands off to `tasklist-run` also writes a `step` event as `tasklist-run`'s metrics log defines it (`next_model` `sonnet`).
 - `quality_outcome` (once the user has ruled a review's proposals, or a tidy's proposals and defects): `kind` (`review` or `tidy`), `accepted`, `deferred`, `rejected` (entries still `pending` count as deferred), and `kinds` (accepted counts by kind; `bug` for an accepted defect).

@@ -52,7 +52,7 @@ IDs (`A`, `D`, `R`, `Q`, `FR`, `NFR`) are per document: unique within the doc, n
 1. **Inspect** the parent doc, the subsystem's row and Contract there, the code for that piece, and any rung briefs that touched it.
 2. **Draft in one pass.** Start from the Contract, since it is what the parent already relies on; then scope, requirements (allocated ones by parent ID, refined ones as this doc's own, refining every one the parent covers as `(doc pending)`), components, decisions, assumptions, and risks. Flag every guess as an assumption. When a rung triggered this, design only what that rung needs, but keep the standard shape so later rungs know where to add.
 3. **Ask 3–5 questions** that would change the Contract, the inner components, or the top risks.
-4. **Iterate** until the user says it is good enough; set `Status: agreed (<date>)`.
+4. **Iterate** until the user says it is good enough; set `Status: agreed (<date>)`. Commit the doc and the parent's edits from step 5 together, unless a rung brief is open: then they go in that rung's planning commit.
 5. **Update the parent** only for the box, its `Doc` link and depth tag, the Contract summary if it changed, and the subsystem index.
 6. **Re-plan if the ladder changes.** If the agreed doc means a rung must be added, moved ahead or re-based, run `risk-first-roadmap`'s re-plan now (or end with `Next: /rung replan`) rather than leaving notes for the roadmap in the doc.
 

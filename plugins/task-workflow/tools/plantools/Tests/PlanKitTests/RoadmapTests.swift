@@ -161,6 +161,12 @@ struct RoadmapArchiveTests {
         #expect(third.moved.isEmpty && third.roadmap == second.roadmap)
     }
 
+    @Test func archivesAChangedRung() throws {
+        let roadmap = "## Ladder\n\n1. L1 — a [changed: answered layout, not fonts]\n\n## Rungs (detailed)\n\n### L1: A\nBody.\n"
+        let r = try RoadmapArchive.make(roadmap: roadmap, ids: ["L1"], completedPath: path, completed: nil)
+        #expect(r.moved == ["L1"] && r.roadmap.contains("[changed: answered layout, not fonts] detail: \(path)"))
+    }
+
     @Test func refusesOpenUnknownAndHorizonRungs() {
         #expect(throws: Tasklist.EditError.self) { try RoadmapArchive.make(roadmap: text, ids: ["L3"], completedPath: path, completed: nil) }
         #expect(throws: Tasklist.EditError.self) { try RoadmapArchive.make(roadmap: text, ids: ["L9"], completedPath: path, completed: nil) }

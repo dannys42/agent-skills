@@ -50,6 +50,27 @@ struct NextStepTests {
         #expect(s.why == "no planned rung; deferred: L2; horizon: L5; bring one back, detail one, or drop them")
     }
 
+    @Test func anOpenRefactorListRunsBeforeTheNextRungIsPlanned() {
+        let s = decide("## Ladder\n\n1. L1 — a [done]\n2. L2 — b [planned]\n", lists: [list("Tasklist-Refactor-Shared_Parser.md", openStd + openHeavy + openHeavy)])
+        #expect(s.step == "run" && s.rung == nil && s.model == "opus")
+        #expect(s.list == "docs/Tasklist-Refactor-Shared_Parser.md" && s.command == "/tasklist-run docs/Tasklist-Refactor-Shared_Parser.md")
+        let closed = decide("## Ladder\n\n1. L1 — a [done]\n2. L2 — b [planned]\n", lists: [list("Tasklist-Refactor-Shared_Parser.md", done)])
+        #expect(closed.step == "plan" && closed.rung == "L2")
+    }
+
+    @Test func aRungInProgressComesBeforeARefactorList() {
+        let s = decide(lists: [list("Tasklist-Refactor-X.md", openStd), list("Tasklist-L3-Grid.md", openStd)])
+        #expect(s.step == "run" && s.rung == "L3")
+    }
+
+    @Test func anOpenDriftListAfterFoldBackRunsThenReplans() {
+        let rungList = list("Tasklist-L3-Grid.md", done, completed: true)
+        let s = decide(lists: [rungList, list("Tasklist-L3-Drift.md", openStd)], briefs: [brief("L3", status: "folded back (2026-11-01)")])
+        #expect(s.step == "run" && s.list == "docs/Tasklist-L3-Drift.md")
+        let after = decide(lists: [rungList, list("Tasklist-L3-Drift.md", done, completed: true)], briefs: [brief("L3", status: "folded back (2026-11-01)")])
+        #expect(after.step == "replan")
+    }
+
     @Test func tasksUnderAClosedHeadingAreNotOpen() {
         let text = "# Tasklist\n\n## G1 Gate — DEFERRED(after L4)\n\n" + openStd
         let s = decide(lists: [NextStep.File(name: "Tasklist-L3-Grid.md", text: text)], briefs: [brief("L3", status: "agreed")])

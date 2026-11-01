@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.17.2
+
+- Tool 0.6.2: `roadmap next` runs an open `Tasklist-Refactor-*.md` (as `/tasklist-run <file>`) before planning the next rung, after any rung in progress. It also handles a `-Drift` list after fold-back: `run` while open, then `replan`. `roadmap archive` accepts `changed` rungs.
+- `tasklist-run`: a closed `-Drift` list ends with the same `/rung → close` line; `/rung` finishes the close at the re-plan.
+- `tasklist`'s tool check asks for exactly 0.6.2.
+
 ## 0.17.1
 
 The metrics stamp in `tasklist-run` stayed at `0.16.2` through 0.16.3 to 0.17.0, because only the example line was bumped. Every batch since then logged the wrong version, so the ledger's per-version "Judge by" checks for those releases cannot use the stamp; use the commit dates instead.

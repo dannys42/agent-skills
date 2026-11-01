@@ -45,6 +45,13 @@ public struct NextStep: Equatable {
         if let rung = roadmap.ladder.first(where: { $0.status.hasPrefix("in progress") }) {
             return decide(rung: rung.id, input)
         }
+        // The re-plan puts accepted refactor tasks in their own list, run before the next rung is planned.
+        if let (file, tasks) = openLists(input, prefix: "Tasklist-Refactor-").first {
+            let path = input.docDir == "." ? file.name : input.docDir + "/" + file.name
+            var run = make("run", orchestrator(tasks), list: path, why: "\(file.name) has \(tasks.count) open task(s), placed before the next rung; /rung plan goes past it")
+            run.command = "/tasklist-run " + path
+            return run
+        }
         if let rung = roadmap.ladder.first(where: { $0.status.hasPrefix("planned") }) {
             return make("plan", "opus", rung.id, rung: rung.id, why: "\(rung.id) is the first planned rung")
         }
@@ -69,20 +76,11 @@ public struct NextStep: Equatable {
             b.text.split(separator: "\n", omittingEmptySubsequences: false)
                 .first { $0.hasPrefix("Status:") }.map { $0.dropFirst(7).trimmingCharacters(in: .whitespaces).lowercased() }
         } ?? ""
-        // A task under a closed heading is not open work: `tasklist-run` will not pick it, so it must not hold the rung in `run`.
-        let open = lists.filter { !$0.completed }.map { file -> (File, [TaskItem]) in
-            let list = Tasklist(text: file.text)
-            return (file, list.tasks.filter { $0.mark == .open && list.closedHeading(for: $0) == nil })
-        }
-            .filter { !$0.1.isEmpty }.sorted { $0.0.modified > $1.0.modified }
-
-        if let (file, tasks) = open.first {
+        if let (file, tasks) = openLists(input, prefix: "Tasklist-\(id)-").first {
             let path = input.docDir == "." ? file.name : input.docDir + "/" + file.name
-            let heavyCount = tasks.filter { $0.fields["model"]?.lowercased().hasPrefix("heavy") == true }.count
-            let heavy = heavyCount * 2 > tasks.count
             let waiting = tasks.filter { $0.user && $0.blocked == nil }.map(\.id)
             let blocked = tasks.filter { $0.blocked != nil }.map(\.id)
-            let run = make("run", heavy ? "opus" : "sonnet", id, rung: id, list: path, why: "\(file.name) has \(tasks.count) open task(s)")
+            let run = make("run", orchestrator(tasks), id, rung: id, list: path, why: "\(file.name) has \(tasks.count) open task(s)")
             guard waiting.count + blocked.count == tasks.count else { return run }
             var parts: [String] = []
             if !waiting.isEmpty { parts.append("USER tasks waiting: " + waiting.joined(separator: ", ")) }
@@ -104,6 +102,22 @@ public struct NextStep: Equatable {
             return replan
         }
         return make("close", "opus", id, rung: id, list: path, why: "\(last.name) closed; " + (brief == nil ? "no brief to fold back" : "brief not folded back"))
+    }
+
+    /// Live (not `Completed/`) lists with the prefix that have open tasks, newest first. A task under a closed heading is
+    /// not open work: `tasklist-run` will not pick it, so it must not hold a rung in `run`.
+    static func openLists(_ input: Input, prefix: String) -> [(File, [TaskItem])] {
+        input.tasklists.filter { !$0.completed && $0.name.hasPrefix(prefix) && $0.name.hasSuffix(".md") }
+            .map { file -> (File, [TaskItem]) in
+                let list = Tasklist(text: file.text)
+                return (file, list.tasks.filter { $0.mark == .open && list.closedHeading(for: $0) == nil })
+            }
+            .filter { !$0.1.isEmpty }.sorted { $0.0.modified > $1.0.modified }
+    }
+
+    /// Opus when more than half the open tasks are `heavy`, as `tasklist-run`'s "Orchestrator model" says.
+    static func orchestrator(_ tasks: [TaskItem]) -> String {
+        tasks.filter { $0.fields["model"]?.lowercased().hasPrefix("heavy") == true }.count * 2 > tasks.count ? "opus" : "sonnet"
     }
 
     public var rendered: String {
