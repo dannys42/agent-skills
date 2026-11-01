@@ -1,6 +1,6 @@
 ---
 type: llm
-target: {source: file, path: "Documentation/Roadmap-Shop_Lab.md"}
+focus: {source: file, path: "Documentation/Roadmap-Shop_Lab.md"}
 weight: 3
 ---
 

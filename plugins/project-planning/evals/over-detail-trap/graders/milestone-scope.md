@@ -1,6 +1,6 @@
 ---
 type: llm
-target: {source: file, path: "Documentation/Roadmap-Bookmark_Sorter.md"}
+focus: {source: file, path: "Documentation/Roadmap-Bookmark_Sorter.md"}
 weight: 3
 ---
 

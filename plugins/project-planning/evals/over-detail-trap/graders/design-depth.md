@@ -1,6 +1,6 @@
 ---
 type: llm
-target: {source: file, path: "Documentation/SystemDesign/Overview.md"}
+focus: {source: file, path: "Documentation/SystemDesign/Overview.md"}
 weight: 3
 ---
 
