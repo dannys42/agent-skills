@@ -7,6 +7,7 @@ Standing context for every task:
 - Terms come from `plugins/project-planning/skills/system-design/references/terms.md` (written by T2). Cite it, do not redefine a term.
 - The design doc keeps its path `<DocDir>/SystemDesign/Overview.md` and is called the blueprint in skill text. The path stays so existing projects, `next.sh`, the `roadmap` tool and the eval graders keep working.
 - Each skill that logs a `step` event keeps its version stamp as set by `scripts/bump_version.py`. Do not bump versions before T22.
+- Owner reviews: before each `USER` review task, its preparation task writes `docs/project-planning/Review-<UserTaskId>.md` in the shape of `plugins/project-planning/skills/roadmap-plan-next-rung/references/presenting-for-review.md` (as updated by T24): the decisions the reviewed content makes, important ones in a callout first, then notable, then small; every decision with options, a pro and a con each, and a recommendation (or "no recommendation" and why); a closing question. The notes name each decision in plain words with the file and section it lives in, never a bare ID.
 - Eval command (one case: add `--case <name>`): `claude plugin eval plugins/project-planning --runs 3 --scaffold --trust-plugin --allow-tools Bash Write Edit --ablation none -j 3 --no-publish --threshold 0 --judge-model sonnet --max-cost-usd 15 --json plugins/project-planning/evals/results/<label>.json`. Results stay out of git.
 
 ### G1 Baseline and vocabulary
@@ -16,16 +17,29 @@ Standing context for every task:
   - Context: In `plugins/project-planning/evals/foundation-before-goal/graders/milestone-order.md`, add to the Fail line: "Fail if the first milestone's outcome is running or reading an experiment, even when data collection is listed as what it needs." The 0.11.2 baseline passed a run whose M1 was "I can run one product-page experiment" (owner-approved fix, 2026-11-01). Re-run that case on the current skills with label `baseline-0.11.2-fbg2`.
   - Done when: the grader line is committed, and the commit message gives the three new scores with the per-grader passes; the run that has an experiment as M1 now fails milestone-order.
 
+- [ ] T24 Order every review by importance, with options for every decision
+  - Model: heavy (Opus 5.5)
+  - Context: Owner request, 2026-11-01. Update `plugins/project-planning/skills/roadmap-plan-next-rung/references/presenting-for-review.md`. Today only flagged items (at most 5) get options with a pro and con; the rest show a default in the calling skill's order. Change: (1) every decision gets two or three options, each with a one-line pro and con, and a recommendation, or "no recommendation" with the reason; a decision with no real alternative says so in one line. (2) Items are grouped by tier and sorted within a tier by the cost of getting them wrong: **important** (the callout, at most 5; more qualify, say how many), **notable**, **small** last. (3) Add the guide. The test: "if this is wrong, what does it cost to fix three milestones from now?" Important when any of: hard to reverse (stored data, file formats, public interfaces, names others build on, migration of existing projects); wide reach (several skills or tools, or text every run reads); changes a concept rather than wording; changes the owner's workload or the cost (sessions, review points, model per step); low confidence on something consequential. Notable: fixable later in a few files, or changes one skill's behaviour noticeably. Small: local and reversible in one edit (wording, easily overridden defaults, ordering inside a list, internal names). (4) A list whose order is the content (a rung ladder) keeps its order; the decisions about it are listed separately by tier. Keep the one closing question, and the example updated to the new shape. Keep the file about its current length; cut repetition to pay for the additions.
+  - Done when: the file states the tiers, the test and the per-decision options rule, and its example shows all three tiers.
+
 - [ ] T2 Write the shared planning terms
   - Model: heavy (Opus 5.5)
   - Context: New file `plugins/project-planning/skills/system-design/references/terms.md`, under about 120 lines, one short definition and one example each, from the spec's sections "The model", "Cadence", "Names and labels" and "Owner preferences": blueprint; additive check; reviewable surfaces (database schema, REST and wire APIs, public library symbols); `settled` and `working` (with its revisit note); `owner` and `proposed` marks; milestone (outcome, subsystems, exit criteria, rungs); foundation-first order; end-of-goal rule and spike; `PROVISIONAL(<RungId>): replace at <MilestoneId> (<name>)` marker and the Provisional code table; `Touches:`; detail by distance; the "decide after it runs" list; milestone planning, automatic fold-back, escalation, milestone close; re-plan triggers; the rule that an ID shown to the owner carries its name; owner preferences (where, what is not one, the two-overrides rule). Also state which existing terms change meaning or retire (checkpoint rung becomes part of milestone planning; per-rung close becomes the escalation path).
   - Done when: every term the spec introduces is defined once, no definition contradicts the spec, and the file reads without the spec open.
 
+- [ ] T25 Prepare the review notes for the terms review
+  - Model: heavy (Opus 5.5)
+  - Needs: T2, T24
+  - Context: Standing context "Owner reviews". Write `docs/project-planning/Review-T22.md` for `terms.md`: each term is a decision (its meaning); most are important because a concept change spreads to every skill. Include what each term replaces or retires.
+  - Done when: the notes are committed and every term in `terms.md` appears in them.
+
 - [ ] T22 USER — Review the planning terms
+  - Needs: T25
   - Context: The only review that holds work back. Every later skill rests on these concepts, so a change here is cheap now and costly later. Wording you would change inside a skill waits for the content reviews (T7, T16), which do not hold work back. About 10 minutes.
   - Steps:
-    a. Read `plugins/project-planning/skills/system-design/references/terms.md`.
-    b. Reply "approved", or name each term whose meaning should change and how.
+    a. Read `docs/project-planning/Review-T22.md`.
+    b. Open `plugins/project-planning/skills/system-design/references/terms.md` where the notes leave you unsure.
+    c. Reply "approved", or give your choice for each decision you would change.
   - Done when: the owner replies "approved", or the requested changes are applied to `terms.md` and committed (no new review needed unless the owner asks).
 
 ### G2 Blueprint and design sessions
@@ -56,13 +70,19 @@ Standing context for every task:
   - Context: Both cases, label `g2`. Compare per grader with the baseline (T1's scores for foundation-before-goal). Read each run's design doc for over-detail-trap yourself; if a judge verdict looks wrong, say so with the line that shows it.
   - Done when: a short table of scores (baseline vs `g2`, per grader) is appended to the spec under a new "## Eval results" heading and committed; a regression on any grader is named with its cause.
 
+- [ ] T26 Prepare the review notes for the blueprint and design-session review
+  - Model: heavy (Opus 5.5)
+  - Needs: T6
+  - Context: Standing context "Owner reviews". Write `docs/project-planning/Review-T7.md` covering the decisions in `system-design` (SKILL.md, `references/overview-template.md`, adopt, checkpoint and migration) and `design-session`, and the `g2` eval results as one item if any grader regressed.
+  - Done when: the notes are committed.
+
 - [ ] T7 USER — Review the blueprint and design-session skills
+  - Needs: T26
   - Context: First owner content review (spec "Rollout"). It does not hold work back: G3 and G4 continue while you review. About 20 minutes.
   - Steps:
-    a. Read `plugins/project-planning/skills/system-design/SKILL.md` and `references/overview-template.md`.
-    b. Read `plugins/project-planning/skills/design-session/SKILL.md`.
-    c. Read the "Eval results" table in `docs/project-planning/Design-Blueprint_And_Milestones.md`.
-    d. Reply with changes, or "approved".
+    a. Read `docs/project-planning/Review-T7.md`.
+    b. Open `plugins/project-planning/skills/system-design/SKILL.md` and `plugins/project-planning/skills/design-session/SKILL.md` where the notes leave you unsure.
+    c. Reply "approved", or give your choice for each decision you would change.
   - Done when: the owner replies "approved" or lists changes. Each change becomes a fix task, inserted ahead of the first open task, that also updates any later skill already built on the changed text.
 
 ### G3 Milestone map, cadence and fold-back
@@ -124,14 +144,19 @@ Standing context for every task:
   - Context: As T6, label `g3`. Add the column to the spec's "Eval results" table. Run it after any T7 fix tasks that are already open have closed.
   - Done when: the table is updated and committed; any regression against `g2` is named with its cause.
 
+- [ ] T27 Prepare the review notes for the milestone map and fold-back review
+  - Model: heavy (Opus 5.5)
+  - Needs: T15
+  - Context: Standing context "Owner reviews". Write `docs/project-planning/Review-T16.md` covering the decisions in `risk-first-roadmap`, `roadmap-plan-next-rung` (with `auto-fold-back.md`), `rung`, the tool commands and routes, and any rename T9 proposed; the `g3` eval results as one item if any grader regressed.
+  - Done when: the notes are committed.
+
 - [ ] T16 USER — Review the milestone map, cadence and fold-back
+  - Needs: T27
   - Context: Second owner content review. It does not hold work back: G4 and the ledger review continue while you review. About 30 minutes. Also rule on any rename T9 proposed.
   - Steps:
-    a. Read `risk-first-roadmap/SKILL.md` and `references/roadmap-example.md`.
-    b. Read `roadmap-plan-next-rung/SKILL.md` and `references/auto-fold-back.md`.
-    c. Skim `rung/SKILL.md`.
-    d. Read the "Eval results" table.
-    e. Reply with changes and the rename ruling, or "approved".
+    a. Read `docs/project-planning/Review-T16.md`.
+    b. Open the skill files it names where the notes leave you unsure.
+    c. Reply "approved", or give your choice for each decision you would change, including the rename.
   - Done when: the owner replies. Each change becomes a fix task, inserted ahead of the first open task, that also updates any later work already built on the changed text; a rename ruling becomes its own structure-only task.
 
 ### G4 Feedback inbox
@@ -163,10 +188,16 @@ Standing context for every task:
   - Verify: `python3 -m pytest tests`; `swift test --package-path plugins/task-workflow/tools/plantools`
   - Done when: every fix task from the T7 and T16 reviews is closed, tests pass, versions agree in every manifest and stamp, and the eval table has the `1.0.0` column.
 
+- [ ] T28 Prepare the review notes for the final review
+  - Model: standard (Sonnet 5.5)
+  - Needs: T20
+  - Context: Standing context "Owner reviews". Write `docs/project-planning/Review-T21.md`: release now or after the FileOrganizerHero pilot as the important decision; any decisions T20 made (versions, changelog wording, README structure) below it; the eval table's `0.11.2` vs `1.0.0` columns.
+  - Done when: the notes are committed.
+
 - [ ] T21 USER — Final review and pilot decision
+  - Needs: T28
   - Context: Last owner review point (spec "Rollout" steps 4 and 5).
   - Steps:
-    a. Read both CHANGELOG entries and the "Eval results" table.
-    b. Decide whether to release now or after the FileOrganizerHero pilot.
-    c. Reply with the decision.
+    a. Read `docs/project-planning/Review-T21.md`.
+    b. Reply with release-now or pilot-first, and any other change.
   - Done when: the owner replies with release-now or pilot-first.
