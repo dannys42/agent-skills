@@ -12,4 +12,4 @@ Pass when ALL of these hold:
 - Building experiment machinery (hypothesis records, experiment design or locking, assignment, grading or conclusions) is placed only in a milestone after the data-collection milestones.
 - If the roadmap checks early whether the shop's volume can support an experiment, that check is a read-only or throwaway spike over collected data, explicitly not the start of the experiment workflow.
 
-Fail if any rung before the data-collection milestone is done builds experiment machinery, or if the first milestone is the experiment loop.
+Fail if any rung before the data-collection milestone is done builds experiment machinery, or if the first milestone is the experiment loop. Fail if the first milestone's outcome is running or reading an experiment, even when data collection is listed as what it needs.

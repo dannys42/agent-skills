@@ -12,7 +12,7 @@ Standing context for every task:
 
 ### G1 Baseline and vocabulary
 
-- [ ] T1 Tighten the milestone-order grader and re-score the baseline
+- [x] T1 Tighten the milestone-order grader and re-score the baseline
   - Model: standard (Sonnet 5.5)
   - Context: In `plugins/project-planning/evals/foundation-before-goal/graders/milestone-order.md`, add to the Fail line: "Fail if the first milestone's outcome is running or reading an experiment, even when data collection is listed as what it needs." The 0.11.2 baseline passed a run whose M1 was "I can run one product-page experiment" (owner-approved fix, 2026-11-01). Re-run that case on the current skills with label `baseline-0.11.2-fbg2`.
   - Done when: the grader line is committed, and the commit message gives the three new scores with the per-grader passes; the run that has an experiment as M1 now fails milestone-order.
