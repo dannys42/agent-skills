@@ -2,3 +2,6 @@
 .code-graph/
 ignore-me/
 .build/
+
+# plugin eval run output
+plugins/*/evals/results/
