@@ -12,7 +12,7 @@ engineering, storytelling, and writing.
 | `swift-craft` | `naming-swift-tests`, `choosing-swift-design-patterns`, `organizing-swift-files` | Personal Swift conventions: explicit test naming, Swift-native design-pattern selection, and focused file organization |
 | `agent-engineering` | `optimizing-skill-development`, `audit-token-efficiency` | Risk-proportional skill validation with reproducible evidence, and post-task token-efficiency retrospectives |
 | `task-workflow` | `decision-driven-design`, `tasklist`, `tasklist-run` | Resolve consequential design decisions before implementation, then plan and execute the resulting tasks |
-| `project-planning` | `system-design`, `risk-first-roadmap`, `roadmap-plan-next-rung`, `code-quality-pass`, `rung` | Outline a large, vague project or adopt an existing one (tuned for Apple-platform apps), plan it as risk-ordered, end-to-end increments, design each increment just before building it, and keep the code's shape healthy with periodic quality passes |
+| `project-planning` | `system-design`, `risk-first-roadmap`, `roadmap-plan-next-rung`, `code-quality-pass`, `rung`, `design-session` | Outline a large, vague project or adopt an existing one (tuned for Apple-platform apps), plan it as risk-ordered, end-to-end increments, design each increment just before building it, and keep the code's shape healthy with periodic quality passes |
 | `storytelling` | `crafting-compelling-stories` | Audience-aware storytelling and narrative copy grounded in an attributed Joanna Wiebe framework |
 | `peak-hours` | (Claude Code mod, no skills) | A PEAK badge with countdown above the prompt during assumed peak hours (5-11am PT weekdays), with a self-checking record of observed rate-limit cost by hour |
 
@@ -39,6 +39,15 @@ target or a major piece) gets its own design doc of the same shape, written on
 demand, and its parent treats it as one component. Adopt mode documents an
 existing codebase as-is and records changes of direction. Tuned for
 Apple-platform apps.
+
+### `design-session`
+
+Works a design out with you in a free-form session ("let's work through the
+design", "explore options for..."): you lead, the agent offers two or three
+shapes with diagrams, traces consequences and catches contradictions, in a
+scratch notes file. A promote step at the end moves what you pick into the
+system design as `settled` or `working`, parks or drops the rest, and deletes
+the notes.
 
 ### `rung`
 
