@@ -30,9 +30,9 @@ Inspects an existing system, interviews for high-leverage product and engineerin
 
 ### `system-design`
 
-Drafts a one-page outline of a large or ambiguous project with flagged
-assumptions, asks only the few questions that change it, and iterates to
-agreement. Produces `<DocDir>/SystemDesign/Overview.md` with scope, headline
+Agrees a system design for a large or ambiguous project with its owner,
+starting from the owner's own document or a first pass, and only as deep as the
+current milestone needs. Produces `<DocDir>/SystemDesign/Overview.md` with scope, headline
 requirements, a component diagram with depth tags, decisions, and a ranked risk
 register; detail is added later, one rung at a time. A subsystem (a separate
 target or a major piece) gets its own design doc of the same shape, written on

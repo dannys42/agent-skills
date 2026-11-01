@@ -44,7 +44,7 @@ Standing context for every task:
 
 ### G2 System design and design sessions
 
-- [ ] T3 Rewrite `system-design` for the system design model (new projects)
+- [x] T3 Rewrite `system-design` for the system design model (new projects)
   - Model: heavy (Opus 5.5)
   - Needs: T22
   - Context: Spec "1. System design", "Owner preferences", the threat and privacy row of "Open items". Replace the outline-first workflow: start from an owner document when one exists, else ask once "sketch it yourself, or shall I take a first pass?"; read the owner preferences file and project rules before drafting; agree only what the current milestone needs, stopping at the additive check; field-level review only for reviewable surfaces; `settled`/`working` and `owner`/`proposed` marks; offer once to tighten owner wording before saving; a short threat and privacy section; the Provisional code table and manual stand-ins; later milestones one line each. Drop rules the system design format makes obsolete (the one-page target becomes "bounded by the current milestone"; depth tags may stay if still useful, say which). Rewrite `references/overview-template.md` to the system design shape (keep the file name). Keep the description field accurate and trigger-rich. The SKILL.md should end shorter than today's 117 lines or justify each added line.
@@ -225,3 +225,7 @@ Standing context for every task:
 - plantools MetricsTool.swift: duplicated stderr write line; small helper (T13)
 - code-quality-pass quality-files.md: Small template line shows no inline options; the tiers bullet covers it (T29)
 - foundation-before-goal eval: a run with a data-collection first milestone still failed milestone-order 3 of 3; check at T6 whether the grader is too strict (T1)
+- roadmap-plan-next-rung SKILL.md: fallback minimal Overview lists Scope, Headline requirements, Assumptions; fold-back updates "assumptions" (T3; for T9)
+- overview-template.md: legacy Design migration still sends "Constraints and assumptions" to a removed Assumptions section (T3; for T4)
+- system-design adopt mode: marks inferred requirements `assumed` and hands off with /risk-first-roadmap, not /rung (T3; for T4)
+- README.md: system-design paragraph still says headline requirements, detail added one rung at a time (T3; for T20)

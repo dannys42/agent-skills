@@ -1,44 +1,44 @@
-# Overview template
+# System design template
 
-File: `<DocDir>/SystemDesign/Overview.md`. About one page: a thin outline of the whole system that is honest about what is unknown. It is enough to order a roadmap; detail is added per rung by `roadmap-plan-next-rung`, in rung briefs, and in a subsystem doc beside this file when a piece warrants its own design (see [subsystems.md](subsystems.md)). The Overview treats each subsystem as one component, so it stays a page however large the system gets.
+File: `<DocDir>/SystemDesign/Overview.md` (the file keeps this name; skill text calls it the system design). It holds what the owner and agent agreed for the current milestone: subsystems and build targets, the seams between them, the data model, names, threat and privacy, and the decisions and risks behind them. Its size is bounded by the current milestone, not by a page count: later milestones get one line each, and detail inside the agreed seams is written in rung briefs, or in a subsystem doc beside this file when a piece warrants its own design (see [subsystems.md](subsystems.md)). Terms are defined in [terms.md](terms.md).
 
-Table cells stay under about 400 characters: one decision, risk or traceability row is one line, and the reasoning goes in the rung brief or subsystem doc, linked from the cell. A page that is read by section stays readable.
+Table cells stay under about 400 characters: one decision, risk or traceability row is one line, and the reasoning goes in the rung brief or subsystem doc, linked from the cell.
 
-IDs are per document, unique within it, and never reused or renumbered: `A` assumption, `D` decision, `R` risk, `Q` open question, `FR`/`NFR` requirements. Cite another doc's IDs qualified by its name (`Puzzle_Generator:R1`).
+IDs are per document, unique within it, and never reused or renumbered: `D` decision, `R` risk, `Q` open question, `FR`/`NFR` requirements, `A` assumption (older docs). Cite another doc's IDs qualified by its name (`Sales_Store:R1`).
 
 ## Template with example
 
-The example is a printable Sudoku app for macOS, as it stands once the roadmap exists and before any code is written. Keep each section to a few lines or a small table.
+The example is a macOS app that gathers the owner's App Store sales in one place, as agreed for its first milestone, after one spike. Keep each section to a few lines or a small table.
 
 ````markdown
-# System overview: Sudoku Printer
+# System design: App Sales Desk
 
 Status: draft | agreed (<date>)
 Mode: new | as-is (adopted <date>)
-Platform: macOS 14+, SwiftUI
-Roadmap: ../Roadmap-Sudoku_Printer.md (once it exists)
+Platform: macOS 15+, SwiftUI, SQLite
+Source: Documentation/Goal.md (owner document)
+Current milestone: M1 (data in one place)
+Roadmap: ../Roadmap-App_Sales_Desk.md (once it exists)
 
 ## Summary
-A Mac app that generates Sudoku puzzles of a chosen size and prints them cleanly for people who solve on paper.
-Success looks like: a 9×9 puzzle with a unique solution prints on one page in under 2 seconds; digits are readable at arm's length; saved puzzles reopen unchanged.
+Goal: see which App Store changes moved sales for my five apps. `owner`
+This milestone succeeds when: one command imports every app's daily sales and reviews since 2025 into one local store, and a re-run adds nothing twice. `owner`
 
-## Scope
-| In (this version) | Later (wanted, not this version) | Out (not this project) |
+## Scope and milestones
+| Milestone | Outcome (current) or what it adds (later) | Additive check |
 | --- | --- | --- |
-| 9×9 generation with difficulty | 4×4 and 16×16 grids | Solving on screen |
-| Print and PDF export, US Letter | A4, several puzzles per page | iOS app |
-| Save and reopen puzzles | Puzzle books | Online sharing |
+| M1 (data in one place) | I can import all my apps' daily sales and reviews into one store. `owner` | current |
+| M2 (see it) | A dashboard that reads `Sale` and `Review`. `proposed` | yes: reads only |
+| M3 (record changes) | A `Change` entity (price, screenshots, text) linked to an `App`. `proposed` | yes: a new entity |
+| M4 (grade changes) | Grades a `Change` against the sales before and after it. `proposed` | no as drafted: needs daily rows, so D2 stores `Sale` per day now |
 
-## Headline requirements
-Only those that constrain the design.
-- FR1 (must): generate a 9×9 puzzle with exactly one solution.
-- FR2 (must): print a puzzle as vector output.
-- NFR1: digits legible at 9 mm cells when printed; matters because paper is the product.
-- NFR2: generation under 2 s on an M1; matters because users generate several to pick one.
+Out (not this project): other people's apps, ad spend, Android.
 
-## Focus areas
-1. Puzzle Generator: uniqueness and speed are unproven.
-2. Print fidelity: the printed page is what users judge.
+## Requirements
+Only those that constrain this milestone's design.
+- FR1 (must): import daily sales per app and territory from App Store Connect.
+- FR2 (must): a re-import never duplicates a row.
+- NFR1: nothing leaves this Mac except calls to App Store Connect.
 
 ## Components
 ```mermaid
@@ -47,86 +47,112 @@ flowchart LR
   classDef designed stroke-width:1px
   classDef built stroke-width:3px
   classDef subsystem fill:#e7eefc,stroke:#3b5bdb
-  AppShell["App Shell"]
-  Document["Puzzle Document"]
-  GridView["Grid View"]
-  Generator["Puzzle Generator"]
-  PDFExporter["PDF Exporter"]
-  AppShell -->|opens and saves| Document
-  AppShell -->|New Puzzle request| Generator
-  Generator -->|Puzzle| Document
-  Document -->|GridSnapshot| GridView
-  PDFExporter -->|renders| GridView
-  class AppShell,Document,GridView,Generator,PDFExporter sketched
-  class Generator subsystem
+  CLI["Import Command"]
+  Client["Report Client"]
+  Importer["Sales Importer"]
+  Store["Sales Store"]
+  CLI -->|import since date| Importer
+  Importer -->|fetch report| Client
+  Client -->|report file| Importer
+  Importer -->|upsert Sale, Review| Store
+  class CLI,Client,Importer,Store sketched
+  class Store subsystem
 ```
 
-| Component | Responsibility | Depth | Doc |
+| Component | Responsibility | Build target | Depth | Agreement | Doc |
+| --- | --- | --- | --- | --- | --- |
+| Import Command | `asd import --since <date>`, the M1 front end | `asd` CLI | sketched | settled · owner | none |
+| Report Client | Fetches sales and review reports | `SalesKit` package | sketched | working (revisit if Apple retires the sales report API) | none |
+| Sales Importer | Parses reports into `Sale` and `Review` | `SalesKit` package | sketched | settled | none |
+| Sales Store | Owns the SQLite file; the only writer. Contract: public symbols below; owns FR2 | `SalesStore` package | sketched | settled | pending |
+
+## Seams and interfaces
+| Seam | What crosses | Agreement |
+| --- | --- | --- |
+| Importer → Store | `SalesStore` public symbols (below) | settled |
+| Importer ↔ Client | Importer asks for a day's report; Client returns the report file on disk | working (revisit if M2 needs progress while fetching) |
+| Command → Importer | the `asd import` arguments | settled · owner |
+
+### Reviewable surfaces
+Field level, and only what this milestone builds.
+- `sale` table: `app_id` TEXT, `day` DATE, `territory` TEXT, `units` INTEGER, `proceeds_cents` INTEGER; key (`app_id`, `day`, `territory`). `settled`
+- `review` table: `id` TEXT key, `app_id` TEXT, `date` DATE, `rating` INTEGER, `title` TEXT, `body` TEXT. `settled`
+- `SalesStore` public symbols: `Store.open(at:)`, `Store.upsert(_ sales: [Sale])`, `Store.upsert(_ reviews: [Review])`, `Store.sales(app:from:to:)`. `working` (revisit if M2's dashboard needs paging)
+
+## Data model
+- `App` has many `Sale` (one per day and territory) and many `Review`.
+- `Sale` and `Review` are copies of Apple's data, authoritative here once imported; nothing is derived yet.
+
+## Names
+| Name | Means |
+| --- | --- |
+| Sale | units and proceeds for one app, one day, one territory |
+| Review | one customer review, as App Store Connect reports it |
+| Import | fetching reports and writing them to the store |
+
+## Threat and privacy
+- Data: sales of the owner's apps; reviews carry customers' nicknames.
+- Where it goes: one SQLite file on this Mac; nothing is uploaded.
+- Secrets: the App Store Connect API key, kept in the Keychain, never in the repo or the store.
+- Trust boundaries: App Store Connect responses are parsed as untrusted input.
+
+## Provisional code
+| What | Where | Replaced at | Depends on it |
 | --- | --- | --- | --- |
-| App Shell | Document-based app, menus, windows | sketched | none |
-| Puzzle Document | The puzzle file: grid, givens, difficulty; JSON | sketched | none |
-| Grid View | Draws a grid and its digits on screen and into PDF | sketched | none |
-| Puzzle Generator | Swift package. Contract: `generate(difficulty:seed:) -> Puzzle` with exactly one solution; owns FR1, NFR2 | sketched | pending |
-| PDF Exporter | Lays out one page and writes vector PDF | sketched | none |
+| Report fetch that shells out to the `asc` tool | `SalesKit/ShellFetch.swift` | M2 (see it) | Sales Importer, only through the Importer ↔ Client seam |
+
+## Manual stand-ins
+| Replaces | Replaced at | Done by hand |
+| --- | --- | --- |
+| Finding the owner's apps | M2 (see it) | app IDs listed in `apps.json` |
 
 ## Subsystems
 | Doc | Parent | Status |
 | --- | --- | --- |
-| Puzzle_Generator.md | Overview | pending (written when L4 designs its internals) |
+| Sales_Store.md | Overview | pending (written when a rung needs its internals) |
 
 ## Decisions
-| ID | Decision | Kind | Status | Why | Revisit when |
-| --- | --- | --- | --- | --- | --- |
-| D1 | Document-based app; the puzzle file is the data | choice | accepted | users save and reopen puzzles | sync is wanted |
-| D2 | Generator lives in a Swift package with no UI dependency | choice | accepted | provable by tests alone | never |
-
-## Assumptions
-| ID | Statement | Status | If wrong |
-| --- | --- | --- | --- |
-| A1 | Personal use, no App Store distribution yet | assumed | sandbox and signing rungs move early |
-| A2 | Backtracking generation is fast enough for 9×9 | assumed | need a smarter generator; L4 grows |
+| ID | Decision | Kind | Agreement | Why |
+| --- | --- | --- | --- | --- |
+| D1 | One SQLite file; Sales Store is its only writer | choice | settled · owner | one place for data |
+| D2 | Store `Sale` per day, never pre-aggregated | choice | settled | M4 grades changes against daily windows (additive check) |
+| D3 | Fetch by shelling out to `asc` for now | choice | working (revisit at M2, or if `asc` output changes) | fastest proof that the reports carry daily units |
 
 ## Risks (ranked)
 | ID | Unknown | Impact | Uncertainty | Cheapest experiment | Depends on |
 | --- | --- | --- | --- | --- | --- |
-| R1 | Generator uniqueness and speed | H | H | Generate 100 puzzles in a test; check uniqueness and time each | Swift package |
-| R2 | Printed text fidelity | M | M | Render digits at print size; print one page | a drawn grid |
+| R1 | Reviews older than a year can be fetched | H | M | Fetch one app's reviews since 2025 and count them | Report Client |
+| R2 | Territory codes are stable across report versions | M | M | Import two report versions; compare codes | Sales Importer |
 
 ## Open questions
-- Q1: Is difficulty user-chosen or random per puzzle?
+- Q1: Are refunds negative sales rows or a separate entity?
+- Q2 (after it runs): how many days to fetch per call.
 
 ## Traceability
 | Requirement | Rung | Status |
 | --- | --- | --- |
-| FR1 | L4, via Puzzle_Generator (doc pending) | planned |
-| FR2 | L3 | planned |
-| NFR1 | L3 | planned |
-| NFR2 | L4, via Puzzle_Generator (doc pending) | planned |
+| FR1 | none | planned |
+| FR2 | none (via Sales_Store, doc pending) | planned |
+| NFR1 | none | planned |
 ````
 
 ## Notes
 
-- **Depth tags** belong to this doc and say how far each of its components is designed. `sketched`: named with a one-line responsibility. `designed`: a rung brief defines its interface. `built`: it exists in code and a finished rung verified it. A subsystem box is `sketched` until its doc exists, `designed` once that doc is agreed, and `built` when a fold-back verified it. A new project starts all `sketched`; an adopted one tags what exists as `built`. A built component that a later rung changes stays `built`. Tags move only in `roadmap-plan-next-rung` (to `designed`) and its fold-back (to `built`), so the Overview always shows where the design is thin.
-- **Doc** is a link to the component's subsystem doc, `pending` when the component meets a subsystem trigger (a separate build target, its own owner or lifecycle, its own requirements and risks, or more than about five inner parts) but no rung has needed its doc yet, or `none` when it stays a row.
-- **Subsystems are contract only.** A subsystem's row holds its responsibility, a `Doc` link, and a Contract summary (interface and the requirements it owns); its internals live in its own doc and never here. Edit this doc for a subsystem only when its Contract changes.
-- **Subsystems** indexes every subsystem doc at any depth, since the files are flat and each names its parent.
-- **Kind** is `choice` for an ordinary decision and `shift` for a change of direction from the current system (adopt mode). The roadmap must cover every accepted `shift` with a rung.
-- **Cheapest experiment** is the field the roadmap reads most closely. Write it as something that visibly works or fails, not as a worry.
-- **Depends on** records what must exist before the risk can be tested. It decides roadmap order.
-- **Traceability** covers this doc's own requirements only. It is drafted with `none` in the Rung column; `risk-first-roadmap` fills it in, and fold-back sets the status (`planned`, `proven by L4`, `gap`). A requirement allocated to a subsystem reads `L4, via Puzzle_Generator`; while that subsystem's doc is `pending`, `L4, via Puzzle_Generator (doc pending)` is coarse coverage, and writing the subsystem doc must refine it into that doc's own requirements.
-- A confirmed assumption stays with status `confirmed`, so the reasoning survives. After agreement, change things through the decision log, not silent edits.
+- **Scope is the current milestone.** Each later milestone is one line; its Additive check cell says `yes` with the reason, or `no` and the decision that makes it additive. Write nothing about a later milestone's internals.
+- **Agreement** marks, as defined in terms.md: `settled`, `working (revisit if …)`, and `owner` or `proposed`. `proposed` is removed once the owner accepts the item unchanged; an item the owner wrote or edited reads `owner`. An agreed system design has no `proposed` item the current milestone builds.
+- **Reviewable surfaces** are the only place for field-level detail: database schema, REST and wire APIs, a library's public symbols. Everything else is the agent's inside the agreed seams and is not written here.
+- **Names** seed `<DocDir>/Taxonomy.md` and are reviewed as a set against it.
+- **Threat and privacy** stays short. Milestone planning re-checks it for each new seam.
+- **Provisional code** rows match `PROVISIONAL(<RungId>): replace at <MilestoneId> (<milestone name>)` markers in the code. **Manual stand-ins** sit beside it, one row each. Both are empty until a spike is kept or a first pillar needs a hand step.
+- **Depth tags** stay: they show where the design is thin, and diagrams and the roadmap read them. `sketched`: named with a one-line responsibility. `designed`: a rung brief defines its interface (set when milestone planning writes the briefs). `built`: it exists in code and a fold-back verified it. A subsystem box is `sketched` until its doc exists, `designed` once that doc is agreed, and `built` when a fold-back verified it. A new project starts all `sketched`; an adopted one tags what exists as `built`. A built component a later rung changes stays `built`.
+- **Doc** is a link to the component's subsystem doc, `pending` when the component meets a subsystem trigger but no rung has needed its doc yet, or `none` when it stays a row. A subsystem's row holds its responsibility and a Contract summary (interface and the requirements it owns); its internals live in its own doc. The Subsystems section indexes every subsystem doc at any depth, since the files are flat and each names its parent; leave it out until one exists.
+- **Kind** is `choice` for an ordinary decision and `shift` for a change of direction from the current system (adopt mode). The roadmap must cover every accepted `shift`.
+- **Cheapest experiment** is the field the roadmap reads most closely. Write it as something that visibly works or fails, not as a worry. **Depends on** records what must exist before the risk can be tested.
+- **Open questions** are structural. Minutiae marked `after it runs` move to the roadmap's "decide after it runs" list once it exists.
+- **Traceability** covers this doc's own requirements. It is drafted with `none` in the Rung column; the roadmap fills it in, and fold-back sets the status (`planned`, `proven by L4`, `gap`). A requirement allocated to a subsystem reads `L4, via Sales_Store`, with `(doc pending)` while that doc is not written.
+- After agreement, change things through the decision log, not silent edits. Reworking a `working` item as its revisit note foresaw is planned work, not drift.
 - Diagram rules and the Graphviz fallback are in the `roadmap-plan-next-rung` skill's [diagrams.md](../../roadmap-plan-next-rung/references/diagrams.md).
-
-## Deepen on demand
-
-Leave these out of an outline. Add one to the Overview only when it is truly whole-system (it spans many components) and a rung or the user needs it now; otherwise the detail belongs in a rung brief or a subsystem doc. In `full` depth, include all of them up front.
-
-- **Users and key flows:** primary user, then 2–3 flows as "user does X → system does Y → user sees Z". Flows show which entities matter.
-- **Key entities and data model:** each entity's purpose, key fields, owner, and lifetime; relationships; authoritative versus derived data; what is persisted where; file formats the user sees. Names and ownership, no full schemas.
-- **Interfaces:** module boundaries and what crosses them; external file formats, network APIs, OS integrations. Direction only.
-- **Technology direction:** a table of area, choice, why, and the rejected alternative.
-- **Verification strategy:** how each important thing will be known to work (unit tests, snapshot or UI checks, manual checks, measurements). Feeds rung `Done when` lines.
 
 ## Migrating a legacy Design file
 
-An older `<DocDir>/Design-<Topic>.md` maps onto this layout as: Summary, Scope, Focus areas, Requirements (headline only), Constraints and assumptions, Risks, and Decision log go into the Overview; the architecture sketch becomes the Components diagram and table, tagged by what is built; entities, interfaces, technology, and verification stay in the Overview under their deepen-on-demand headings, or move to a subsystem doc when they belong to a piece that warrants one. Keep IDs unchanged. Write the new file beside the old one and leave the legacy file untouched; the user deletes it when satisfied.
+An older `<DocDir>/Design-<Topic>.md` maps onto this layout as: Summary, Scope, Requirements (headline only), Constraints and assumptions, Risks, and Decision log go into the system design; the architecture sketch becomes the Components diagram and table, tagged by what is built; entities and interfaces go under Data model and Seams and interfaces, or move to a subsystem doc when they belong to a piece that warrants one; technology choices become decisions. Keep IDs unchanged. Write the new file beside the old one and leave the legacy file untouched; the user deletes it when satisfied.
