@@ -70,7 +70,7 @@ Standing context for every task:
   - Context: Both cases, label `g2`. Compare per grader with the baseline (T1's scores for foundation-before-goal). Read each run's design doc for over-detail-trap yourself; if a judge verdict looks wrong, say so with the line that shows it.
   - Done when: a short table of scores (baseline vs `g2`, per grader) is appended to the spec under a new "## Eval results" heading and committed; a regression on any grader is named with its cause.
 
-- [ ] T26 Prepare the review notes for the system design and design-session review
+- [x] T26 Prepare the review notes for the system design and design-session review
   - Model: heavy (Opus 5.5)
   - Needs: T6
   - Context: Standing context "Owner reviews". Write `docs/project-planning/Review-T7.md` covering the decisions in `system-design` (SKILL.md, `references/overview-template.md`, adopt, checkpoint and migration) and `design-session`, and the `g2` eval results as one item if any grader regressed.
