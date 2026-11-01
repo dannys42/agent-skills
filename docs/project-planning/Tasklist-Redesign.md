@@ -33,7 +33,7 @@ Standing context for every task:
   - Context: Standing context "Owner reviews". Write `docs/project-planning/Review-T22.md` for `terms.md`: each term is a decision (its meaning); most are important because a concept change spreads to every skill. Include what each term replaces or retires.
   - Done when: the notes are committed and every term in `terms.md` appears in them.
 
-- [ ] T22 USER — Review the planning terms
+- [x] T22 USER — Review the planning terms
   - Needs: T25
   - Context: The only review that holds work back. Every later skill rests on these concepts, so a change here is cheap now and costly later. Wording you would change inside a skill waits for the content reviews (T7, T16), which do not hold work back. About 10 minutes.
   - Steps:
