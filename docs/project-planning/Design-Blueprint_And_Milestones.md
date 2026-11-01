@@ -76,12 +76,14 @@ The agent learns the owner's tastes the way the skills learn from retros: from r
 
 **Order.** The owner sets the milestone order. The agent proposes it and flags dependency problems.
 
-**End-of-goal rule.** Until the goal's foundation milestones are done, work on the goal's own outcome may run only as a **spike**, answering "is it feasible?". It may not build the goal's own machinery. A spike that answers "no" goes to the owner, as a refuted premise does today.
+**End-of-goal rule.** The goal's own machinery waits until its foundation milestones are done, except a thin end-to-end slice (the first pillar) that uses manual stand-ins or provisional code. "Thin" means no machinery a later pillar will have to rebuild. A **spike**, answering "is it feasible?", may run before that and builds none of the goal's machinery. A spike that answers "no" goes to the owner, as a refuted premise does today.
 
 **Spike code may be kept.** It does not have to be thrown away when it is useful for several milestones. Kept spike code is:
 - **marked in the code** with one greppable form: `PROVISIONAL(<RungId>): replace at <MilestoneId> (<milestone name>)`;
 - **listed in the system design's "Provisional code" table**: what it is, where it lives, the milestone that replaces it, and what depends on it;
 - **kept behind a seam**, so foundation code does not depend on its internals. When foundation code must depend on it, the owner either promotes it to a `working` system design item or the dependency waits.
+
+**Manual stand-ins.** A manual or fake step that replaces a capability a later pillar will build, so the first pillar can run end to end (e.g. an API key added to the database by hand; sets done by hand in the database). Provisional code is preferred when possible: code kept behind a seam beats a hand step. Each stand-in is listed in the system design beside the Provisional code table, one row each: what it replaces, the milestone that replaces it, and how it is done by hand. It is replaced on purpose, by that milestone's planning.
 
 The named milestone's planning session schedules the replacement. `metrics signals` counts the markers at zero tokens and flags a marker whose milestone is already done.
 

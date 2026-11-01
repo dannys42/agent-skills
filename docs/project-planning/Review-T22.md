@@ -9,6 +9,8 @@ Each term is one decision: what it means and how widely it reaches. Where the sp
 - **Rename: no "blueprint".** The design doc is "the system design"; its file stays `<DocDir>/SystemDesign/Overview.md` and the skill stays `system-design`. "Blueprint delta" is now "design delta". Applied in terms.md, the spec and the tasklist (the spec's file name stays as it is). See item 1.
 - **Additive check: as written** (item 8). A line in the feedback ledger's "Collect next run" watches for an addition that passes the check but forces rework later.
 - **Foundation and pillars** (new item 17). The foundation grows pillar by pillar, only as deep as the next pillar needs.
+- **Manual stand-ins** (new item 18). A named term beside provisional code: a manual or fake step standing in for a later pillar's capability. Provisional code is preferred; each stand-in is listed in the system design next to the Provisional code table and replaced on purpose.
+- **End-of-goal rule, option 1** (item 9). The goal's own machinery waits until its foundation milestones are done, except a thin end-to-end slice (the first pillar) using stand-ins or provisional code; "thin" means no machinery a later pillar must rebuild. The spike wording stays for "is it feasible?".
 - **Milestone close pauses and resumes** (item 10). It stops at the owner demo; after the owner rules, the same close resumes, possibly in a new session. Splitting the demo into its own session was rejected.
 
 ## Important
@@ -51,6 +53,11 @@ Spec: "foundation first" is settled; the depth rule is the owner's ruling of 202
 Why it would be important: hard to reverse (a text format a tool parses and code in every project will carry).
 No real alternative: the spec settled the marker form, the table's columns and the seam rule, and terms.md matches them. **As written** (recommended).
 
+**18. Manual stand-in is a named term** (terms.md, "Milestones": **Manual stand-in**). New. A manual or fake step that replaces a capability a later pillar will build, so the first pillar can run end to end. Provisional code is preferred when possible (code kept behind a seam beats a hand step); a stand-in is sometimes fine. Each is listed in the system design next to the Provisional code table (what it replaces, the milestone that replaces it, how it is done by hand) and replaced on purpose. E.g. key-value store: the API key is added to the database by hand until the sign-up milestone.
+Spec: owner ruling of 2026-11-01.
+- **New term beside provisional code** (recommended, decided). Pro: the hand steps are listed and replaced on purpose, not forgotten. Con: one more term and one more table.
+- **No term; leave "manual stand-ins" as plain words in the first-pillar definition.** Pro: nothing new to define. Con: hand steps go unlisted and nothing schedules their replacement.
+
 **6. Milestone planning replaces the checkpoint rung and per-rung planning** (terms.md, "Cadence": **Milestone planning**; "Terms that change or retire": **Checkpoint rung**, **Per-rung plan session**, **Depth tags**). One Opus session at a milestone's start looks back at the code, writes the design delta (with the threat and privacy pass), every rung's brief, names as a set and the tasklists; `designed` is now set then, `built` still at fold-back. E.g. "M2 (see it) planning wrote the briefs and tasklists for its four rungs in one session."
 Why it would be important: changes sessions and cost.
 No real alternative: the spec's "Cadence" table and migration settle it, and terms.md matches. **As written** (recommended).
@@ -64,7 +71,7 @@ Spec: settled, nearly word for word.
 - **"New entities, endpoints or symbols", as written** (decided). Pro: concrete, checkable against the reviewable surfaces. Con: may miss additions that are a new subsystem; the feedback ledger now watches for an addition that passes the check but forces rework later.
 - **Add "or subsystems"** (not taken). Pro: covers a milestone that adds a whole component. Con: a new subsystem can hide a restructure the check should catch.
 
-**9. Milestones, foundation first, and spikes before the goal** (terms.md, "Milestones": **Milestone**, **Foundation-first order**, **End-of-goal rule**, **Spike**). Milestones are capability layers with an owner-language outcome, subsystems, demo exit criteria and rungs, ordered so data and the core model come before the goal; until then the goal's own work runs only as a spike that builds none of its machinery. E.g. "can we detect a 10–30% effect at this traffic?" may run; the experiment loop may not. How deep the foundation goes is item 17.
+**9. Milestones, foundation first, and spikes before the goal** (terms.md, "Milestones": **Milestone**, **Foundation-first order**, **End-of-goal rule**, **Spike**). Milestones are capability layers with an owner-language outcome, subsystems, demo exit criteria and rungs, ordered so data and the core model come before the goal; the goal's own machinery waits until its foundation milestones are done, except a thin end-to-end slice (the first pillar) that uses manual stand-ins or provisional code ("thin" means no machinery a later pillar must rebuild). A spike, "is it feasible?", may run first and builds none of the goal's machinery. E.g. "can we detect a 10–30% effect at this traffic?" may run as a spike; the experiment loop waits, unless a first pillar runs it end to end on a hand-entered result. Owner ruled (2026-11-01). How deep the foundation goes is item 17.
 Spec: all four are settled, including the name "end-of-goal rule".
 - **As written** (recommended). Pro: matches the spec and the foundation-before-goal eval. Con: "end-of-goal rule" does not say what it forbids.
 - **Rename to "goal-waits rule"**. Pro: says what it does. Con: departs from the spec's own name and the eval's wording.
