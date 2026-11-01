@@ -21,11 +21,18 @@ Standing context for every task:
   - Context: New file `plugins/project-planning/skills/system-design/references/terms.md`, under about 120 lines, one short definition and one example each, from the spec's sections "The model", "Cadence", "Names and labels" and "Owner preferences": blueprint; additive check; reviewable surfaces (database schema, REST and wire APIs, public library symbols); `settled` and `working` (with its revisit note); `owner` and `proposed` marks; milestone (outcome, subsystems, exit criteria, rungs); foundation-first order; end-of-goal rule and spike; `PROVISIONAL(<RungId>): replace at <MilestoneId> (<name>)` marker and the Provisional code table; `Touches:`; detail by distance; the "decide after it runs" list; milestone planning, automatic fold-back, escalation, milestone close; re-plan triggers; the rule that an ID shown to the owner carries its name; owner preferences (where, what is not one, the two-overrides rule). Also state which existing terms change meaning or retire (checkpoint rung becomes part of milestone planning; per-rung close becomes the escalation path).
   - Done when: every term the spec introduces is defined once, no definition contradicts the spec, and the file reads without the spec open.
 
+- [ ] T22 USER — Review the planning terms
+  - Context: The only review that holds work back. Every later skill rests on these concepts, so a change here is cheap now and costly later. Wording you would change inside a skill waits for the content reviews (T7, T16), which do not hold work back. About 10 minutes.
+  - Steps:
+    a. Read `plugins/project-planning/skills/system-design/references/terms.md`.
+    b. Reply "approved", or name each term whose meaning should change and how.
+  - Done when: the owner replies "approved", or the requested changes are applied to `terms.md` and committed (no new review needed unless the owner asks).
+
 ### G2 Blueprint and design sessions
 
 - [ ] T3 Rewrite `system-design` for the blueprint (new projects)
   - Model: heavy (Opus 5.5)
-  - Needs: T2
+  - Needs: T22
   - Context: Spec "1. Blueprint", "Owner preferences", the threat and privacy row of "Open items". Replace the outline-first workflow: start from an owner document when one exists, else ask once "sketch it yourself, or shall I take a first pass?"; read the owner preferences file and project rules before drafting; agree only what the current milestone needs, stopping at the additive check; field-level review only for reviewable surfaces; `settled`/`working` and `owner`/`proposed` marks; offer once to tighten owner wording before saving; a short threat and privacy section; the Provisional code table; later milestones one line each. Drop rules the blueprint makes obsolete (the one-page target becomes "bounded by the current milestone"; depth tags may stay if still useful, say which). Rewrite `references/overview-template.md` to the blueprint shape (keep the file name). Keep the description field accurate and trigger-rich. The SKILL.md should end shorter than today's 117 lines or justify each added line.
   - Non-goals: adopt and checkpoint modes (T4); milestones in the roadmap (T7).
   - Done when: a reader can follow the skill from an owner document to an agreed blueprint without the spec, and every spec rule in "1. Blueprint" maps to a line.
@@ -38,7 +45,7 @@ Standing context for every task:
 
 - [ ] T5 Write the `design-session` skill
   - Model: heavy (Opus 5.5)
-  - Needs: T2
+  - Needs: T22
   - Context: Spec "Design sessions (new skill)". New `plugins/project-planning/skills/design-session/SKILL.md` (frontmatter like its siblings, `model: opus`, a description that triggers on "let's work through the design", "design session", "explore options for", "I want to think through"). Scratch notes in `<DocDir>/SystemDesign/Sessions/<date>-<topic>.md`; no IDs, statuses or question cap; owner leads; the agent offers 2–3 alternative shapes with Mermaid diagrams (follow `roadmap-plan-next-rung/references/diagrams.md`), traces consequences including the additive check, catches contradictions, offers a throwaway spike; ends with the promote step (to blueprint as `settled` or `working`, parked, dropped), commits the blueprint edit, deletes the notes file, and proposes owner-preference lines per the two-overrides rule. Add it to the plugin README and the repo README skill tables.
   - Done when: the skill is listed in both READMEs, `python3 -m pytest tests` passes, and the promote step's output matches the blueprint format from T3.
   - Verify: `python3 -m pytest tests`
@@ -50,19 +57,19 @@ Standing context for every task:
   - Done when: a short table of scores (baseline vs `g2`, per grader) is appended to the spec under a new "## Eval results" heading and committed; a regression on any grader is named with its cause.
 
 - [ ] T7 USER — Review the blueprint and design-session skills
-  - Context: First owner review point (spec "Rollout"). Takes about 20 minutes.
+  - Context: First owner content review (spec "Rollout"). It does not hold work back: G3 and G4 continue while you review. About 20 minutes.
   - Steps:
     a. Read `plugins/project-planning/skills/system-design/SKILL.md` and `references/overview-template.md`.
     b. Read `plugins/project-planning/skills/design-session/SKILL.md`.
     c. Read the "Eval results" table in `docs/project-planning/Design-Blueprint_And_Milestones.md`.
     d. Reply with changes, or "approved".
-  - Done when: the owner replies "approved" or lists changes; changes become new tasks before T8.
+  - Done when: the owner replies "approved" or lists changes. Each change becomes a fix task, inserted ahead of the first open task, that also updates any later skill already built on the changed text.
 
 ### G3 Milestone map, cadence and fold-back
 
 - [ ] T8 Rewrite `risk-first-roadmap` around the milestone map
   - Model: heavy (Opus 5.5)
-  - Needs: T7
+  - Needs: T3
   - Context: Spec "2. Milestone map", "3. Rungs", re-plan triggers in "Cadence". Milestones as capability layers ordered foundation first; outcome sentence proposed in plain language and marked `proposed` until accepted; exit criteria; owner sets milestone order; end-of-goal rule with spikes and kept spike code (`PROVISIONAL` marker, Provisional code table, behind a seam); risk classes (shape, clock, breadth) only inside the current milestone; detail by distance; `Touches:` on every rung; the "decide after it runs" list; re-plan only on the four triggers; the roadmap's `Updated:` history goes to the log file. Remove the checkpoint-rung placement rules (look-back now runs in milestone planning). Update `references/roadmap-example.md` to match. Keep the archive and partial-read rules that still apply.
   - Done when: every rule in spec sections 2 and 3 maps to a line, and the example roadmap shows milestones, `Touches`, one detailed milestone and one-line later milestones.
 
@@ -80,7 +87,7 @@ Standing context for every task:
 
 - [ ] T11 Update `tasklist` for regression tests and escaped defects
   - Model: standard (Sonnet 5.5)
-  - Needs: T2
+  - Needs: T22
   - Context: Spec "Open items". In `plugins/task-workflow/skills/tasklist/SKILL.md`: a rung list includes at least one test that fails without the rung's change (say it in the rung-list guidance, a line or two); a bug task fixing a closed rung's defect carries `Escaped from: <RungId>` (add to the field table). Update `references/example.md` only if it shows a rung list.
   - Done when: both rules are in the skill, each in under three lines.
 
@@ -91,12 +98,18 @@ Standing context for every task:
   - Verify: `swift test --package-path plugins/task-workflow/tools/plantools`
   - Done when: tests cover each new command and each new route, including an old-format roadmap, and pass.
 
-- [ ] T13 Extend `metrics`: session tokens, provisional markers, escapes, stamps
+- [ ] T13 Extend `metrics`: session tokens, escapes and stamps
   - Model: standard (Sonnet 5.5)
-  - Needs: T12
-  - Context: Spec "Model choice" and "Open items". `metrics tokens` also logs planning, close and design sessions from their transcripts, keyed to the `step` event (`run` id, `skill`, `model`); `metrics signals` counts `PROVISIONAL(` markers and flags one whose milestone is done (read milestone status through PlanKit); `metrics summary` counts `Escaped from:` tasks per rung and milestone; reject or warn on a malformed `skill` stamp (seen in the log: a bare `0.16.2`, `roadmap-plan-next-rung 0018`).
+  - Context: Spec "Model choice" and "Open items". These do not depend on the milestone format, so they can run while the owner reviews. `metrics tokens` also logs planning, close and design sessions from their transcripts, keyed to the `step` event (`run` id, `skill`, `model`); `metrics summary` counts `Escaped from: <RungId>` tasks per rung (the field T11 adds to `tasklist`); reject or warn on a malformed `skill` stamp (seen in the log: a bare `0.16.2`, `roadmap-plan-next-rung 0018`). Do not bump the tool version; T12 does.
   - Verify: `swift test --package-path plugins/task-workflow/tools/plantools`
   - Done when: tests cover each addition and pass.
+
+- [ ] T23 Extend `metrics`: provisional markers and escapes per milestone
+  - Model: standard (Sonnet 5.5)
+  - Needs: T12, T13
+  - Context: Spec "End-of-goal rule" (kept spike code) and "Open items". `metrics signals` counts `PROVISIONAL(` markers and flags one whose named milestone is already done (read milestone status through PlanKit, as T12 parses it); `metrics summary` also totals `Escaped from:` tasks per milestone.
+  - Verify: `swift test --package-path plugins/task-workflow/tools/plantools`
+  - Done when: tests cover both additions and pass.
 
 - [ ] T14 Update `rung`, `next.sh` and `code-quality-pass` for the new steps
   - Model: standard (Sonnet 5.5)
@@ -108,24 +121,24 @@ Standing context for every task:
 - [ ] T15 Re-run the evals after G3
   - Model: standard (Sonnet 5.5)
   - Needs: T8, T9, T10, T14
-  - Context: As T6, label `g3`. Add the column to the spec's "Eval results" table.
+  - Context: As T6, label `g3`. Add the column to the spec's "Eval results" table. Run it after any T7 fix tasks that are already open have closed.
   - Done when: the table is updated and committed; any regression against `g2` is named with its cause.
 
 - [ ] T16 USER — Review the milestone map, cadence and fold-back
-  - Context: Second owner review point. About 30 minutes. Also rule on any rename T9 proposed.
+  - Context: Second owner content review. It does not hold work back: G4 and the ledger review continue while you review. About 30 minutes. Also rule on any rename T9 proposed.
   - Steps:
     a. Read `risk-first-roadmap/SKILL.md` and `references/roadmap-example.md`.
     b. Read `roadmap-plan-next-rung/SKILL.md` and `references/auto-fold-back.md`.
     c. Skim `rung/SKILL.md`.
     d. Read the "Eval results" table.
     e. Reply with changes and the rename ruling, or "approved".
-  - Done when: the owner replies; changes become new tasks before T17.
+  - Done when: the owner replies. Each change becomes a fix task, inserted ahead of the first open task, that also updates any later work already built on the changed text; a rename ruling becomes its own structure-only task.
 
 ### G4 Feedback inbox
 
 - [ ] T17 Retros write to the feedback inbox
   - Model: standard (Sonnet 5.5)
-  - Needs: T16
+  - Needs: T10
   - Context: Spec "Retro feedback inbox" items 1 and 4. In `roadmap-plan-next-rung/references/retrospective.md` (and the retro paragraphs of `system-design` and `tasklist-run`): write the block to `${DANNY_SKILLS_STATE_DIR:-~/.local/state/danny-agent-skills}/feedback/inbox/<utc-timestamp>-<skill>.md` and print one line `retro feedback saved (<n> pending)`; show the block only when asked. Milestone retro at milestone close; per-rung retro only for an unusual rung. The retro reports the share of `proposed` items the owner accepted unchanged. Point the metrics log at the same state directory variable in `tasklist-run` (and the tools, if they hard-code the path: check `MetricsLog.swift`).
   - Done when: no skill still tells the owner to paste a block, and the path is the same in every skill and tool.
 
@@ -139,16 +152,16 @@ Standing context for every task:
 
 - [ ] T19 Review the ledger's untested rows against the redesign
   - Model: heavy (Opus 5.5)
-  - Needs: T16
-  - Context: `docs/project-planning/feedback-ledger.md` change log (about 40 `untested` rows) and its "Collect next run" list. For each: keep (still applies as written), fold (now covered by a redesign rule; name it), or retire (obsolete under the redesign; one-line reason). Move retired rows to a "Retired by 1.0.0" list, keep IDs and dates. Add rows for the redesign itself, with the spec's "Judge by" signals. Update the ledger's Objective paragraph from "thin, incremental" to the blueprint model. Do the same pass on the task-workflow ledger for rows the redesign touches.
+  - Needs: T15
+  - Context: `docs/project-planning/feedback-ledger.md` change log (about 40 `untested` rows) and its "Collect next run" list. For each: keep (still applies as written), fold (now covered by a redesign rule; name it), or retire (obsolete under the redesign; one-line reason). Move retired rows to a "Retired by 1.0.0" list, keep IDs and dates. Add rows for the redesign itself, with the spec's "Judge by" signals. Update the ledger's Objective paragraph from "thin, incremental" to the blueprint model. Do the same pass on the task-workflow ledger for rows the redesign touches. If T16's fix tasks later change a rule a verdict cites, they update that verdict too.
   - Done when: every untested row has a verdict, and the Objective matches the spec.
 
 - [ ] T20 Release notes, versions and final eval
   - Model: standard (Sonnet 5.5)
-  - Needs: T6, T15, T18, T19
+  - Needs: T6, T7, T15, T16, T18, T19, T23
   - Context: `scripts/bump_version.py project-planning 1.0.0` and `scripts/bump_version.py task-workflow <next minor>`; `CHANGELOG.md` entries for both (what changed for the owner, migration of existing projects); plugin and repo README updates for the new model; final eval run, label `1.0.0`, added to the "Eval results" table.
   - Verify: `python3 -m pytest tests`; `swift test --package-path plugins/task-workflow/tools/plantools`
-  - Done when: tests pass, versions agree in every manifest and stamp, and the eval table has the `1.0.0` column.
+  - Done when: every fix task from the T7 and T16 reviews is closed, tests pass, versions agree in every manifest and stamp, and the eval table has the `1.0.0` column.
 
 - [ ] T21 USER — Final review and pilot decision
   - Context: Last owner review point (spec "Rollout" steps 4 and 5).
