@@ -118,7 +118,7 @@ Standing context for every task:
   - Verify: `swift test --package-path plugins/task-workflow/tools/plantools`
   - Done when: tests cover each new command and each new route, including an old-format roadmap, and pass.
 
-- [ ] T13 Extend `metrics`: session tokens, escapes and stamps
+- [x] T13 Extend `metrics`: session tokens, escapes and stamps
   - Model: standard (Sonnet 5.5)
   - Context: Spec "Model choice" and "Open items". These do not depend on the milestone format, so they can run while the owner reviews. `metrics tokens` also logs planning, close and design sessions from their transcripts, keyed to the `step` event (`run` id, `skill`, `model`); `metrics summary` counts `Escaped from: <RungId>` tasks per rung (the field T11 adds to `tasklist`); reject or warn on a malformed `skill` stamp (seen in the log: a bare `0.16.2`, `roadmap-plan-next-rung 0018`). Do not bump the tool version; T12 does.
   - Verify: `swift test --package-path plugins/task-workflow/tools/plantools`
@@ -213,3 +213,7 @@ Standing context for every task:
 - presenting-for-review.md: Small example item is run-together bold text; two bullets would scan better (T24)
 - presenting-for-review.md: old guard "do not flag an item only because it is new or long" dropped; could return as half a sentence (T24)
 - presenting-for-review.md: say that a caller's length limit wins and items past it keep a one-line default (T24; handled for code-quality-pass by its new task)
+- plantools Escapes.byRung: ID taken by split(" ").last, wrong for `Escaped from:`L3` without a space; use the regex capture (T13)
+- plantools Escapes: ID pattern [A-Za-z0-9]+ truncates hyphenated or dotted IDs; recheck against the rung ID format (T13)
+- plantools metrics: steps without `began` are never costed; consider a note or fallback window (T13)
+- plantools MetricsTool.swift: duplicated stderr write line; small helper (T13)

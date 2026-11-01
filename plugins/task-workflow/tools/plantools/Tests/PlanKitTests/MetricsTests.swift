@@ -264,6 +264,56 @@ struct PlanningCostTests {
     }
 }
 
+@Suite("Session metrics")
+struct SessionMetricsTests {
+    @Test func stepTokensCarryTheRunAndModelOfTheirStep() throws {
+        let root = tempDir() + "/projects"
+        try write(turn("2026-10-01T10:30:00.000Z", "claude-opus-5-5", out: 40, id: "in"), to: root + "/-r/s1.jsonl")
+        let log = MetricsLog.events(text: #"{"event":"step","run":"R9","model":"claude-opus-5-5","repo":"/r","ts":"2026-10-01T11:00:00Z","began":"2026-10-01T10:00:00Z","skill":"system-design 0.17.2","target":"design"}"#)
+        let e = try #require(TranscriptTokens.newEvents(log: log, root: root).events.first)
+        #expect(e.string("run") == "R9" && e.string("model") == "claude-opus-5-5" && e.string("skill") == "system-design 0.17.2")
+    }
+
+    @Test func skillStampIsNameThenVersion() {
+        for good in ["tasklist-run 0.17.2", "roadmap-plan-next-rung 0.17.2", "rung 1.0.0"] { #expect(SkillStamp.isValid(good), "\(good)") }
+        for bad in ["0.16.2", "roadmap-plan-next-rung 0018", "tasklist-run", "tasklist-run 0.17", "task-workflow:tasklist 0.17.2", ""] { #expect(!SkillStamp.isValid(bad), "\(bad)") }
+        #expect(!SkillStamp.isValid(nil))
+    }
+
+    @Test func warnsOncePerMalformedStampAndIgnoresOtherEvents() {
+        let log = MetricsLog.events(text: """
+        {"event":"step","skill":"0.16.2"}
+        {"event":"step","skill":"0.16.2"}
+        {"event":"step","skill":"roadmap-plan-next-rung 0018"}
+        {"event":"step","skill":"tasklist-run 0.17.2"}
+        {"event":"batch","skill":"bogus"}
+        {"event":"step"}
+        """)
+        let warnings = SkillStamp.warnings(log: log)
+        #expect(warnings.count == 3)
+        #expect(warnings[0].contains("\"0.16.2\" on 2") && warnings[1].contains("0018") && warnings[2].contains("(none)"))
+    }
+
+    @Test func countsEscapedFromFieldsPerRungAndShowsThemInTheSummary() {
+        let text = """
+        - [ ] T1 Fix crash
+          - Escaped from: L3
+        - [ ] T2 Fix hang
+          - Escaped from: `L3`.
+        - [ ] T3 Fix typo
+          - Escaped from: L12
+        - [ ] T4 Mentions Escaped from: L3 mid-line
+        """
+        let counts = Escapes.byRung(texts: [text])
+        #expect(counts == ["L3": 2, "L12": 1])
+        let log = MetricsLog.events(text: #"{"run":"A","ts":"2026-10-01T10:00:00Z","event":"start","repo":"/p","list":"Tasklist-L3-X.md"}"#)
+        let all = RunSummary.byList(log: log, repo: "/p") { _ in nil }
+        let out = RunSummary.render(target: all["Tasklist-L3-X.md"]!, all: all, escapes: counts)
+        #expect(out.contains("Escaped defects from L3: 2. Escaped defects by rung: L3 2, L12 1."))
+        #expect(!RunSummary.render(target: all["Tasklist-L3-X.md"]!, all: all).contains("Escaped"))
+    }
+}
+
 @Suite("Rung commands")
 struct RungCommandTests {
     @Test func rungStepsMapToTheSkillTheyRun() {

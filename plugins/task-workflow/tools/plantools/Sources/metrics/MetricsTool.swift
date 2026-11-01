@@ -31,7 +31,9 @@ struct MetricsTool: ParsableCommand {
         @Flag(help: "Print the events instead of appending them.") var dryRun = false
 
         func run() throws {
-            let (events, skipped) = TranscriptTokens.newEvents(log: log.events, root: root)
+            let logged = log.events
+            SkillStamp.warnings(log: logged).forEach { FileHandle.standardError.write(Data(($0 + "\n").utf8)) }
+            let (events, skipped) = TranscriptTokens.newEvents(log: logged, root: root)
             let lines = events.map(MetricsLog.encode)
             if dryRun {
                 lines.forEach(CLI.print)
@@ -62,7 +64,8 @@ struct MetricsTool: ParsableCommand {
             }
             guard let numbers else { CLI.fail("no runs logged for \(target) in \(repo)", code: 1) }
             let quality = events.filter { ($0["repo"] as? String) == repo && (($0["event"] as? String) ?? "").hasPrefix("quality") }
-            CLI.print(RunSummary.render(target: numbers, all: all, quality: quality, compare: compare))
+            SkillStamp.warnings(log: events.filter { ($0["repo"] as? String) == repo }).forEach { FileHandle.standardError.write(Data(($0 + "\n").utf8)) }
+            CLI.print(RunSummary.render(target: numbers, all: all, quality: quality, escapes: Escapes.byRung(repo: repo), compare: compare))
         }
     }
 

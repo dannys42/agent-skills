@@ -176,6 +176,9 @@ public enum TranscriptTokens {
                 tokens["step_ts"] = ts
                 tokens["skill"] = skill
                 tokens["repo"] = repo
+                // Planning, close and design sessions are keyed to their `step` event.
+                if let run = event.string("run") { tokens["run"] = run }
+                if let model = event.string("model") { tokens["model"] = model }
                 tokens["target"] = event["target"] ?? NSNull()
                 out.append(tokens)
             case "batch":
