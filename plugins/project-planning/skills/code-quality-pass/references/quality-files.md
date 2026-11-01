@@ -78,16 +78,22 @@ Scope: <baseline, whole codebase | since L20 (48a0287): modules ...> · Signals:
 ## Defects (fix as bug tasks)
 - QD1 <title> — <file:line> — <why it can lose or corrupt data, or misbehave> — Decision: pending
 
-## Needs your attention
-⚑ **QR1** <title> (high impact, low confidence)
-Why: <a few words> · To settle it: <cheapest check or question>
+## Proposals (tiered)
+**Important**
+
+**QR1: Collapse SalesDeriver, ListingChangeDeriver, AnalyticsDeriver behind one `Deriver` protocol.** <one plain sentence on what the code does today>
+Why: <test met, a few words> · To settle it: <cheapest check, only when confidence is the issue>
 - **<option>** (recommended). Pro: ... Con: ...
 - **<option>**. Pro: ... Con: ...
 
-## Proposals (ranked)
-| ID | Proposal | Kind | Size | Evidence | Benefit | Risk | Decision |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| QR1 ⚑ | Collapse SalesDeriver, ListingChangeDeriver, AnalyticsDeriver behind one `Deriver` protocol | refactor-rung | M | 3 files, same shape (cards: Ingest) | one place to add a source | touches scheduler hooks | pending |
+**Notable**
+...
+
+**Small**: ...
+
+| ID | Proposal | Kind | Size | Tier | Evidence | Benefit | Risk | Decision |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| QR1 | Collapse the three derivers behind one `Deriver` protocol | refactor-rung | M | Important | 3 files, same shape (cards: Ingest) | one place to add a source | touches scheduler hooks | pending |
 
 ## Also seen
 - <one line each, no ranking>
@@ -95,8 +101,8 @@ Why: <a few words> · To settle it: <cheapest check or question>
 
 - `Kind`: `refactor-rung`, `task`, `conventions`, `fitness-test`, `accept-shape`.
 - `Size`: S (under about 100 lines), M (a rung's worth), L (several rungs; split before scheduling).
-- "Needs your attention": at most 5 proposals that are high impact (an `L` size, a public interface, persistence, or a change across several modules) or low confidence (evidence from one card, or a benefit that rests on future rungs), chosen by the rules in `roadmap-plan-next-rung`'s `presenting-for-review.md`. Each keeps its row in the ranked table, marked `⚑`. Write `To settle it` only when confidence is the issue, and say "no real alternative" instead of inventing an option.
+- Tiers, the at-most-5 cap on Important, options with a pro and con for every proposal, and the example shape follow `roadmap-plan-next-rung`'s `presenting-for-review.md`; the table is the ranked index and the tier blocks carry the decisions. An `L` size, a public interface, persistence, or a change across several modules usually makes a proposal Important; so does evidence from one card or a benefit that rests on future rungs.
 - Ranking is by benefit over the project's life and how fast the problem compounds, not by effort; `Size` informs scheduling only. A large proposal is split, not demoted or dropped.
-- At most 10 ranked proposals; the rest go to "Also seen". A proposal deferred last time is re-ranked here, not copied.
+- At most 10 ranked proposals, each with options and in the table; the rest go to "Also seen" as one line with a default and no options. A proposal deferred last time is re-ranked here, not copied.
 - `Decision`: `pending`, `accepted (<date>)`, `deferred`, `rejected: <reason>`.
 - Leave out any section with nothing in it.

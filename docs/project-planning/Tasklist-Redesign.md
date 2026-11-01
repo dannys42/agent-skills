@@ -131,7 +131,7 @@ Standing context for every task:
   - Verify: `swift test --package-path plugins/task-workflow/tools/plantools`
   - Done when: tests cover both additions and pass.
 
-- [ ] T29 Align code-quality-pass reports with tiered reviews
+- [x] T29 Align code-quality-pass reports with tiered reviews
   - Model: standard (Sonnet 5.5)
   - Needs: T24
   - Context: Found during T24. `plugins/project-planning/skills/code-quality-pass/references/quality-files.md` (~line 98: at most 5 flagged proposals get options) and `SKILL.md` (~lines 85, 118) still describe the old flagged-only rule. Align them with `roadmap-plan-next-rung/references/presenting-for-review.md`: tiers, options with a pro and con for every proposal, important first; the report's own length limit (10 ranked proposals, one line for the rest) wins, items past it keep a one-line default. The system-design and roadmap-plan-next-rung SKILL.md lines that restate the old rule are fixed by their rewrites (T3, T9), including their no-reference fallbacks.
@@ -217,3 +217,4 @@ Standing context for every task:
 - plantools Escapes: ID pattern [A-Za-z0-9]+ truncates hyphenated or dotted IDs; recheck against the rung ID format (T13)
 - plantools metrics: steps without `began` are never costed; consider a note or fallback window (T13)
 - plantools MetricsTool.swift: duplicated stderr write line; small helper (T13)
+- code-quality-pass quality-files.md: Small template line shows no inline options; the tiers bullet covers it (T29)
