@@ -1,4 +1,4 @@
-# Design: blueprint, milestones and owner-led design for large projects
+# Design: system design, milestones and owner-led design for large projects
 
 Status: draft (2026-11-01), owner-directed, not from a retro
 Touches: `system-design`, `risk-first-roadmap`, `roadmap-plan-next-rung`, `rung`, `code-quality-pass` (project-planning 0.11.2); `tasklist`, `tasklist-run`, `metrics` and `roadmap` tools (task-workflow 0.17.2); `.claude/skills/retro-feedback`; a new design-session skill
@@ -31,7 +31,7 @@ The skills implement one approach: a thin design, a ladder ordered by risk and p
 
 ## The model: three levels
 
-### 1. Blueprint (`system-design`, replaces the thin Overview)
+### 1. System design (`system-design`, replaces the thin Overview)
 
 **Agreed:** subsystems; the seams and interfaces between them; the data model as entities and relationships; build targets; names (seeds `Taxonomy.md`); a short threat and privacy section.
 
@@ -45,9 +45,9 @@ The skills implement one approach: a thin design, a ladder ordered by risk and p
 
 Reworking a `working` item is planned work, not drift.
 
-**Owner's sketch or agent's first pass, the owner's choice.** When the workspace already holds an owner document (a vision, goal or strategy doc), the skill starts from it. Otherwise it asks once: "sketch it yourself, or shall I take a first pass?" Either way it fills the gaps and marks each item `owner` or `proposed`. A first pass follows the owner preferences (see [Owner preferences](#owner-preferences)) and stops at the additive check like any blueprint.
+**Owner's sketch or agent's first pass, the owner's choice.** When the workspace already holds an owner document (a vision, goal or strategy doc), the skill starts from it. Otherwise it asks once: "sketch it yourself, or shall I take a first pass?" Either way it fills the gaps and marks each item `owner` or `proposed`. A first pass follows the owner preferences (see [Owner preferences](#owner-preferences)) and stops at the additive check like any system design.
 
-**Size:** the blueprint is bounded by the current milestone, not by a page count. Later milestones are one line each.
+**Size:** the system design is bounded by the current milestone, not by a page count. Later milestones are one line each.
 
 **Owner text is checked before saving.** Whenever the owner supplies wording (a sketch, a milestone outcome, exit criteria, a name), the agent offers once to tighten it before saving. It lists each ambiguity: a vague term, a name not in or clashing with `Taxonomy.md`, an exit criterion nobody can check, a conflict with an agreed item. It shows a tightened version beside the original. The owner accepts, edits or keeps the original. The agent never rewrites owner text silently.
 
@@ -59,12 +59,14 @@ The agent learns the owner's tastes the way the skills learn from retros: from r
 - **What is not a preference:** a single ruling (that is a decision in the design docs), and feedback on how the skills behave (that goes to the ledger).
 - **What goes in:** a preference enters only after the owner overrides the same kind of `proposed` item twice, or states it outright. Each line has the preference, one example and the date. One ruling is a hypothesis, not a preference.
 - **Who writes it:** milestone close and `design-session`'s promote step propose additions in one line each. The owner accepts or declines.
-- **Used by:** every first pass (blueprint, milestone outcomes, names, rung briefs) reads it before drafting.
+- **Used by:** every first pass (system design, milestone outcomes, names, rung briefs) reads it before drafting.
 - **Judged by:** the share of `proposed` items the owner accepts unchanged, per milestone. It should rise as preferences accumulate. Retros report it, so `/retro-feedback` can tell a skill gap from a missing preference.
 
 ### 2. Milestone map (`risk-first-roadmap`)
 
 **Milestones are capability layers, ordered foundation first.** AppStorePortal, for example: data in one place → see it → record changes → grade changes.
+
+**Foundation and pillars.** The foundation is the shared base the capabilities stand on (the data store, the core model); a pillar is one capability the goal rests on, usually one milestone. The foundation is built only as deep as the next pillar needs, under the same depth limit as the system design; once a pillar is good enough, the foundation is extended for the next pillar as new work in a later milestone, not before. (Owner, 2026-11-01.)
 
 **Each milestone has:**
 - an outcome sentence in plain language the owner would use (the agent proposes it, marked `proposed` until the owner accepts it),
@@ -78,8 +80,8 @@ The agent learns the owner's tastes the way the skills learn from retros: from r
 
 **Spike code may be kept.** It does not have to be thrown away when it is useful for several milestones. Kept spike code is:
 - **marked in the code** with one greppable form: `PROVISIONAL(<RungId>): replace at <MilestoneId> (<milestone name>)`;
-- **listed in the blueprint's "Provisional code" table**: what it is, where it lives, the milestone that replaces it, and what depends on it;
-- **kept behind a seam**, so foundation code does not depend on its internals. When foundation code must depend on it, the owner either promotes it to a `working` blueprint item or the dependency waits.
+- **listed in the system design's "Provisional code" table**: what it is, where it lives, the milestone that replaces it, and what depends on it;
+- **kept behind a seam**, so foundation code does not depend on its internals. When foundation code must depend on it, the owner either promotes it to a `working` system design item or the dependency waits.
 
 The named milestone's planning session schedules the replacement. `metrics signals` counts the markers at zero tokens and flags a marker whose milestone is already done.
 
@@ -106,9 +108,9 @@ Risk ordering (shape, clock, breadth) applies only inside the current milestone.
 
 | | Now | Proposed |
 | --- | --- | --- |
-| Milestone start | Checkpoint rung | Milestone planning session (Opus): checkpoint look-back, blueprint delta for this milestone, every rung's brief, tasklists |
+| Milestone start | Checkpoint rung | Milestone planning session (Opus): checkpoint look-back, design delta for this milestone, every rung's brief, tasklists |
 | Each rung | Plan (Opus), run (Sonnet), close (Opus) with retro and re-plan | Run (Sonnet), then an automatic fold-back at the end of the same session (Sonnet), plus metrics |
-| Milestone end | Nothing distinct | Milestone close (Opus): owner demo and acceptance, one retro, re-plan of the next milestone |
+| Milestone end | Nothing distinct | Milestone close (Opus): re-read, then owner demo and acceptance, one retro, re-plan of the next milestone; it pauses at the demo and, after the owner rules, the same close resumes, possibly in a new session |
 | Re-plan inside a milestone | After every rung | Only when a rung fails, a rung answers a different question, an owner request lands in the current milestone, or a `settled` seam must change |
 
 ### Automatic fold-back
@@ -124,7 +126,7 @@ The automatic fold-back keeps the first two in the run session and sends only ju
 
 **Steps:**
 1. **Checks.** Run the full test suite, or, when it is slow, only the test targets the rung touched; the full suite then runs at milestone close (owner, 2026-11-01). "Slow" is the project rules' value if they set one, else over about 5 minutes on the last full run. Confirm the rung added a regression test. A failure stops here.
-2. **Compare the reviewable surfaces.** Database schema, REST and wire APIs, and public symbols, against the brief and blueprint. Use the rung's diff (`<Base>..HEAD`); a tool extracts what it can at zero tokens. Also check the brief's `Done when` results and each item on the "decide after it runs" list the rung was to settle.
+2. **Compare the reviewable surfaces.** Database schema, REST and wire APIs, and public symbols, against the brief and system design. Use the rung's diff (`<Base>..HEAD`); a tool extracts what it can at zero tokens. Also check the brief's `Done when` results and each item on the "decide after it runs" list the rung was to settle.
 3. **Classify each difference:**
 
    | Difference | Action |
@@ -132,7 +134,7 @@ The automatic fold-back keeps the first two in the run session and sends only ju
    | As agreed | Tick it |
    | Internal only (private types, algorithms, file layout) | One "As built" line; no question |
    | A `working` item reworked as its revisit note foresaw | One "As built" line |
-   | A reviewable surface or `settled` item differs; a deferred item has no answer; a `Done when` did not pass; a new `PROVISIONAL` marker not in the blueprint | **Escalate**: stop, record what differs, route `/rung` to a close session on Opus |
+   | A reviewable surface or `settled` item differs; a deferred item has no answer; a `Done when` did not pass; a new `PROVISIONAL` marker not in the system design | **Escalate**: stop, record what differs, route `/rung` to a close session on Opus |
 
 4. **Update the docs for the clean cases.** Depth tags, traceability, risks the rung's passed `Done when` answers, answered deferred items, names already agreed into `Taxonomy.md`, and the rung's status in the roadmap. Commit as `Fold back rung <RungId>`.
 5. **Report and continue.** One summary line to the owner, a metrics event, and `Next: /rung run <next rung>`. The next brief already exists from milestone planning, so there is no re-plan unless a trigger fired.
@@ -147,23 +149,23 @@ The automatic fold-back keeps the first two in the run session and sends only ju
 
 1. **Measure first.** Extend `metrics tokens` to log planning, close and design sessions from their transcripts, keyed to the `step` event. Zero tokens. Fix the malformed `skill` stamps seen in the log (`0.16.2` with no name, `roadmap-plan-next-rung 0018`).
 2. **Hypothesis:**
-   - Opus: blueprint, milestone planning, milestone close, design sessions.
-   - Sonnet: rung briefs written against a `settled` blueprint, fold-back, mid-milestone re-plans that only re-order.
+   - Opus: system design, milestone planning, milestone close, design sessions.
+   - Sonnet: rung briefs written against a `settled` system design, fold-back, mid-milestone re-plans that only re-order.
 3. **Test.** Plan 2–3 rungs' briefs on Sonnet in the pilot. Compare `Found during` tasks, correction rounds and drift at fold-back with the Opus-planned rungs.
 
 ## Names and labels
 
 - **No bare labels for the owner.** In chat, cards, `Next:` lines, the learning log and `Map.md`, every ID is followed by its short name the first time it appears in a message, e.g. "L4 (architecture check before folder suggestions)". Inside design docs, a cross-doc citation keeps the ID and adds the name where it would otherwise be opaque. The `roadmap` tool gains a lookup so the agent does not have to read sections to get names.
 - **Titles and component names say what they do**, in the owner's words. Avoid general words (Manager, Engine, Helper, Handler), metaphors not in `Taxonomy.md`, and role names ("gate", "stage", "spine").
-- **Names are reviewed as a set** at blueprint and milestone planning, against `Taxonomy.md`. This replaces one flag per new name per rung, except for names added mid-milestone.
+- **Names are reviewed as a set** at the system design and milestone planning, against `Taxonomy.md`. This replaces one flag per new name per rung, except for names added mid-milestone.
 
 ## Design sessions (new skill)
 
-A separate skill for working a design out with the owner. It can be used at any time: before the blueprint, during milestone planning, or in the middle of a milestone.
+A separate skill for working a design out with the owner. It can be used at any time: before the system design, during milestone planning, or in the middle of a milestone.
 
-- **It explores without recording.** It writes to a scratch notes file (`<DocDir>/SystemDesign/Sessions/<date>-<topic>.md`), not to the blueprint. No IDs, statuses or question cap.
+- **It explores without recording.** It writes to a scratch notes file (`<DocDir>/SystemDesign/Sessions/<date>-<topic>.md`), not to the system design. No IDs, statuses or question cap.
 - **The owner leads.** The agent offers 2–3 alternative shapes with diagrams, reflects the owner's sketch back, traces consequences (including the additive check against later milestones), catches contradictions and offers a throwaway spike when only running something will settle a question.
-- **It ends with a promote step.** The owner picks what goes into the blueprint (`settled` or `working`), what is parked for a later milestone and what is dropped. Promotion is a normal blueprint edit and commit. The notes file is then deleted (git keeps it).
+- **It ends with a promote step.** The owner picks what goes into the system design (`settled` or `working`), what is parked for a later milestone and what is dropped. Promotion is a normal system design edit and commit. The notes file is then deleted (git keeps it).
 - **Model:** Opus.
 
 Name: `design-session` (owner, 2026-11-01).
@@ -182,7 +184,7 @@ Name: `design-session` (owner, 2026-11-01).
 | Item | Change |
 | --- | --- |
 | Regression test per rung | Each rung's tasklist includes at least one test that fails without the rung's change (a tasklist guard rail). Fold-back runs the full suite; a failure stops the automatic fold-back. |
-| Threat and privacy pass | A blueprint section (data handled, where it goes, secrets, trust boundaries), re-checked at milestone planning for the milestone's new seams. |
+| Threat and privacy pass | A system design section (data handled, where it goes, secrets, trust boundaries), re-checked at milestone planning for the milestone's new seams. |
 | Owner accepts the outcome | Milestone close: a demo against the exit criteria, ruled accept, accept with follow-ups or reject. Not per rung. |
 | Escaped-defects metric | A bug task cites `Escaped from: <RungId>`; `metrics` counts escapes per rung and per milestone. Collected, not a gate. |
 | Untested ledger rules | Reviewed as part of this change. Each row is kept, folded into the new model or retired as obsolete, with one line of reason. |
@@ -194,7 +196,7 @@ Not built now. When the owner asks for parallel rungs in worktrees:
 - the roadmap allows several rungs `in progress` and `roadmap next` returns a set;
 - rungs run in parallel only when their `Touches` sets do not overlap and the seams between them are `settled`;
 - a running rung writes only its own brief and tasklist;
-- fold-backs into shared docs (blueprint, Taxonomy, roadmap) and merges run one at a time, in fold-back order;
+- fold-backs into shared docs (system design, Taxonomy, roadmap) and merges run one at a time, in fold-back order;
 - `/rung` takes a rung argument.
 
 This is a change to the tool and `rung`, not to the planning skills. `tasklist-run` already supports worktrees inside one tasklist.
@@ -212,7 +214,7 @@ First two cases, written before the skill changes:
 
 | Case | Fixture | Passes if |
 | --- | --- | --- |
-| Over-detail trap | A vision doc for a classifier app, with a tempting deep area (a full evaluation CLI) | The blueprint covers M1 only; the deep area is one line or parked; no algorithm or field detail outside DB, API and public symbols |
+| Over-detail trap | A vision doc for a classifier app, with a tempting deep area (a full evaluation CLI) | The system design covers M1 only; the deep area is one line or parked; no algorithm or field detail outside DB, API and public symbols |
 | Foundation before goal | A goal doc for an analytics-driven experiment tool | M1 is data collection; work on the experiment loop appears only as a spike before the foundation milestones are done |
 
 More cases are added from the pilot: owner sketch kept, not replaced; a rung fails; a request lands mid-milestone; a design session promotes some decisions and drops others.
@@ -225,10 +227,10 @@ The suite runs at release (with `--ablation none`, since a no-plugin baseline sa
 2. Write the two scenario cases and run them on 0.11.2 for a baseline.
 3. Write the new skill text, and review the ledger's untested rows in the same pass. This is a major version: project-planning 1.0.0, with task-workflow bumped for the tool and metrics changes.
 4. Run the cases on the new version.
-5. Pilot on FileOrganizerHero at its next step: the checkpoint before M2 becomes the first milestone planning session, writing the blueprint for M2 from the existing Overview, Experiment_Lab doc and `Strategy/`.
-6. AppStorePortal follows through adopt mode into a blueprint, once the pilot has run one milestone.
+5. Pilot on FileOrganizerHero at its next step: the checkpoint before M2 becomes the first milestone planning session, writing the system design for M2 from the existing Overview, Experiment_Lab doc and `Strategy/`.
+6. AppStorePortal follows through adopt mode into a system design, once the pilot has run one milestone.
 
-**Migration.** Existing Overviews and roadmaps are read as they are. The first milestone planning session converts them (blueprint sections, milestone fields, `Touches` lines, `Map.md`) in a move-mostly commit. IDs never change.
+**Migration.** Existing Overviews and roadmaps are read as they are. The first milestone planning session converts them (system design sections, milestone fields, `Touches` lines, `Map.md`) in a move-mostly commit. IDs never change.
 
 ## Judge by
 

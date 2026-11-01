@@ -5,7 +5,7 @@ Source: [Design-Blueprint_And_Milestones.md](Design-Blueprint_And_Milestones.md)
 Standing context for every task:
 - Write skill text in the house style: plain sentences, no bare IDs shown to the owner, every line earns its tokens (ledger rule 3).
 - Terms come from `plugins/project-planning/skills/system-design/references/terms.md` (written by T2). Cite it, do not redefine a term.
-- The design doc keeps its path `<DocDir>/SystemDesign/Overview.md` and is called the blueprint in skill text. The path stays so existing projects, `next.sh`, the `roadmap` tool and the eval graders keep working.
+- The design doc keeps its path `<DocDir>/SystemDesign/Overview.md` and is called the system design in skill text. The path stays so existing projects, `next.sh`, the `roadmap` tool and the eval graders keep working.
 - Each skill that logs a `step` event keeps its version stamp as set by `scripts/bump_version.py`. Do not bump versions before T22.
 - Owner reviews: before each `USER` review task, its preparation task writes `docs/project-planning/Review-<UserTaskId>.md` in the shape of `plugins/project-planning/skills/roadmap-plan-next-rung/references/presenting-for-review.md` (as updated by T24): the decisions the reviewed content makes, important ones in a callout first, then notable, then small; every decision with options, a pro and a con each, and a recommendation (or "no recommendation" and why); a closing question. The notes name each decision in plain words with the file and section it lives in, never a bare ID.
 - Eval command (one case: add `--case <name>`): `claude plugin eval plugins/project-planning --runs 3 --scaffold --trust-plugin --allow-tools Bash Write Edit --ablation none -j 3 --no-publish --threshold 0 --judge-model sonnet --max-cost-usd 15 --json plugins/project-planning/evals/results/<label>.json`. Results stay out of git.
@@ -24,7 +24,7 @@ Standing context for every task:
 
 - [x] T2 Write the shared planning terms
   - Model: heavy (Opus 5.5)
-  - Context: New file `plugins/project-planning/skills/system-design/references/terms.md`, under about 120 lines, one short definition and one example each, from the spec's sections "The model", "Cadence", "Names and labels" and "Owner preferences": blueprint; additive check; reviewable surfaces (database schema, REST and wire APIs, public library symbols); `settled` and `working` (with its revisit note); `owner` and `proposed` marks; milestone (outcome, subsystems, exit criteria, rungs); foundation-first order; end-of-goal rule and spike; `PROVISIONAL(<RungId>): replace at <MilestoneId> (<name>)` marker and the Provisional code table; `Touches:`; detail by distance; the "decide after it runs" list; milestone planning, automatic fold-back, escalation, milestone close; re-plan triggers; the rule that an ID shown to the owner carries its name; owner preferences (where, what is not one, the two-overrides rule). Also state which existing terms change meaning or retire (checkpoint rung becomes part of milestone planning; per-rung close becomes the escalation path).
+  - Context: New file `plugins/project-planning/skills/system-design/references/terms.md`, under about 120 lines, one short definition and one example each, from the spec's sections "The model", "Cadence", "Names and labels" and "Owner preferences": system design; additive check; reviewable surfaces (database schema, REST and wire APIs, public library symbols); `settled` and `working` (with its revisit note); `owner` and `proposed` marks; milestone (outcome, subsystems, exit criteria, rungs); foundation-first order; end-of-goal rule and spike; `PROVISIONAL(<RungId>): replace at <MilestoneId> (<name>)` marker and the Provisional code table; `Touches:`; detail by distance; the "decide after it runs" list; milestone planning, automatic fold-back, escalation, milestone close; re-plan triggers; the rule that an ID shown to the owner carries its name; owner preferences (where, what is not one, the two-overrides rule). Also state which existing terms change meaning or retire (checkpoint rung becomes part of milestone planning; per-rung close becomes the escalation path).
   - Done when: every term the spec introduces is defined once, no definition contradicts the spec, and the file reads without the spec open.
 
 - [x] T25 Prepare the review notes for the terms review
@@ -42,26 +42,26 @@ Standing context for every task:
     c. Reply "approved", or give your choice for each decision you would change.
   - Done when: the owner replies "approved", or the requested changes are applied to `terms.md` and committed (no new review needed unless the owner asks).
 
-### G2 Blueprint and design sessions
+### G2 System design and design sessions
 
-- [ ] T3 Rewrite `system-design` for the blueprint (new projects)
+- [ ] T3 Rewrite `system-design` for the system design model (new projects)
   - Model: heavy (Opus 5.5)
   - Needs: T22
-  - Context: Spec "1. Blueprint", "Owner preferences", the threat and privacy row of "Open items". Replace the outline-first workflow: start from an owner document when one exists, else ask once "sketch it yourself, or shall I take a first pass?"; read the owner preferences file and project rules before drafting; agree only what the current milestone needs, stopping at the additive check; field-level review only for reviewable surfaces; `settled`/`working` and `owner`/`proposed` marks; offer once to tighten owner wording before saving; a short threat and privacy section; the Provisional code table; later milestones one line each. Drop rules the blueprint makes obsolete (the one-page target becomes "bounded by the current milestone"; depth tags may stay if still useful, say which). Rewrite `references/overview-template.md` to the blueprint shape (keep the file name). Keep the description field accurate and trigger-rich. The SKILL.md should end shorter than today's 117 lines or justify each added line.
+  - Context: Spec "1. System design", "Owner preferences", the threat and privacy row of "Open items". Replace the outline-first workflow: start from an owner document when one exists, else ask once "sketch it yourself, or shall I take a first pass?"; read the owner preferences file and project rules before drafting; agree only what the current milestone needs, stopping at the additive check; field-level review only for reviewable surfaces; `settled`/`working` and `owner`/`proposed` marks; offer once to tighten owner wording before saving; a short threat and privacy section; the Provisional code table; later milestones one line each. Drop rules the system design format makes obsolete (the one-page target becomes "bounded by the current milestone"; depth tags may stay if still useful, say which). Rewrite `references/overview-template.md` to the system design shape (keep the file name). Keep the description field accurate and trigger-rich. The SKILL.md should end shorter than today's 117 lines or justify each added line.
   - Non-goals: adopt and checkpoint modes (T4); milestones in the roadmap (T7).
-  - Done when: a reader can follow the skill from an owner document to an agreed blueprint without the spec, and every spec rule in "1. Blueprint" maps to a line.
+  - Done when: a reader can follow the skill from an owner document to an agreed system design without the spec, and every spec rule in "1. System design" maps to a line.
 
 - [ ] T4 Adapt adopt mode, checkpoint and migration in `system-design`
   - Model: heavy (Opus 5.5)
   - Needs: T3
-  - Context: Spec "Rollout" (migration paragraph) and "Cadence" (checkpoint look-back now runs inside milestone planning). Adopt mode ends in a blueprint for the current milestone. Checkpoint mode becomes the look-back step that milestone planning calls (keep `/system-design checkpoint` as an alias that runs it). Migration: an existing Overview and roadmap are read as they are; the first milestone planning session converts them (blueprint sections, milestone fields, `Touches`, `Map.md`) in a move-mostly commit, IDs unchanged. Update `references/subsystems.md` and `subsystem-template.md` only where the blueprint changes them.
+  - Context: Spec "Rollout" (migration paragraph) and "Cadence" (checkpoint look-back now runs inside milestone planning). Adopt mode ends in a system design for the current milestone. Checkpoint mode becomes the look-back step that milestone planning calls (keep `/system-design checkpoint` as an alias that runs it). Migration: an existing Overview and roadmap are read as they are; the first milestone planning session converts them (system design sections, milestone fields, `Touches`, `Map.md`) in a move-mostly commit, IDs unchanged. Update `references/subsystems.md` and `subsystem-template.md` only where the system design changes them.
   - Done when: adopt, checkpoint and migration each have a short procedure consistent with `terms.md`, and nothing still tells the agent to deepen per rung.
 
 - [ ] T5 Write the `design-session` skill
   - Model: heavy (Opus 5.5)
   - Needs: T22
-  - Context: Spec "Design sessions (new skill)". New `plugins/project-planning/skills/design-session/SKILL.md` (frontmatter like its siblings, `model: opus`, a description that triggers on "let's work through the design", "design session", "explore options for", "I want to think through"). Scratch notes in `<DocDir>/SystemDesign/Sessions/<date>-<topic>.md`; no IDs, statuses or question cap; owner leads; the agent offers 2–3 alternative shapes with Mermaid diagrams (follow `roadmap-plan-next-rung/references/diagrams.md`), traces consequences including the additive check, catches contradictions, offers a throwaway spike; ends with the promote step (to blueprint as `settled` or `working`, parked, dropped), commits the blueprint edit, deletes the notes file, and proposes owner-preference lines per the two-overrides rule. Add it to the plugin README and the repo README skill tables.
-  - Done when: the skill is listed in both READMEs, `python3 -m pytest tests` passes, and the promote step's output matches the blueprint format from T3.
+  - Context: Spec "Design sessions (new skill)". New `plugins/project-planning/skills/design-session/SKILL.md` (frontmatter like its siblings, `model: opus`, a description that triggers on "let's work through the design", "design session", "explore options for", "I want to think through"). Scratch notes in `<DocDir>/SystemDesign/Sessions/<date>-<topic>.md`; no IDs, statuses or question cap; owner leads; the agent offers 2–3 alternative shapes with Mermaid diagrams (follow `roadmap-plan-next-rung/references/diagrams.md`), traces consequences including the additive check, catches contradictions, offers a throwaway spike; ends with the promote step (to the system design as `settled` or `working`, parked, dropped), commits the system design edit, deletes the notes file, and proposes owner-preference lines per the two-overrides rule. Add it to the plugin README and the repo README skill tables.
+  - Done when: the skill is listed in both READMEs, `python3 -m pytest tests` passes, and the promote step's output matches the system design format from T3.
   - Verify: `python3 -m pytest tests`
 
 - [ ] T6 Re-run the evals after G2
@@ -70,13 +70,13 @@ Standing context for every task:
   - Context: Both cases, label `g2`. Compare per grader with the baseline (T1's scores for foundation-before-goal). Read each run's design doc for over-detail-trap yourself; if a judge verdict looks wrong, say so with the line that shows it.
   - Done when: a short table of scores (baseline vs `g2`, per grader) is appended to the spec under a new "## Eval results" heading and committed; a regression on any grader is named with its cause.
 
-- [ ] T26 Prepare the review notes for the blueprint and design-session review
+- [ ] T26 Prepare the review notes for the system design and design-session review
   - Model: heavy (Opus 5.5)
   - Needs: T6
   - Context: Standing context "Owner reviews". Write `docs/project-planning/Review-T7.md` covering the decisions in `system-design` (SKILL.md, `references/overview-template.md`, adopt, checkpoint and migration) and `design-session`, and the `g2` eval results as one item if any grader regressed.
   - Done when: the notes are committed.
 
-- [ ] T7 USER — Review the blueprint and design-session skills
+- [ ] T7 USER — Review the system design and design-session skills
   - Needs: T26
   - Context: First owner content review (spec "Rollout"). It does not hold work back: G3 and G4 continue while you review. About 20 minutes.
   - Steps:
@@ -96,7 +96,7 @@ Standing context for every task:
 - [ ] T9 Rewrite `roadmap-plan-next-rung` for milestone planning and milestone close
   - Model: heavy (Opus 5.5)
   - Needs: T8
-  - Context: Spec "Cadence" table, "Open items" (regression test, owner acceptance). Milestone planning (Opus): the look-back from T4, the blueprint delta for the milestone, every rung's brief (thin, citing agreed seams), and the tasklists; each rung's tasklist requires a regression test. Milestone close (Opus): re-read every fold-back in the milestone together, full test suite, owner demo against exit criteria (accept, accept with follow-ups, reject), one milestone retro, re-plan of the next milestone. Per-rung close remains only as the escalation target of the automatic fold-back. Update `references/rung-brief-template.md` (thinner) and `references/presenting-for-review.md` (IDs carry names). Decide whether the skill should be renamed; if so propose the name in the commit message and do not rename (owner decides at T15).
+  - Context: Spec "Cadence" table, "Open items" (regression test, owner acceptance). Milestone planning (Opus): the look-back from T4, the design delta for the milestone, every rung's brief (thin, citing agreed seams), and the tasklists; each rung's tasklist requires a regression test. Milestone close (Opus): re-read every fold-back in the milestone together, full test suite, owner demo against exit criteria (accept, accept with follow-ups, reject), one milestone retro, re-plan of the next milestone. Per-rung close remains only as the escalation target of the automatic fold-back. Update `references/rung-brief-template.md` (thinner) and `references/presenting-for-review.md` (IDs carry names). Decide whether the skill should be renamed; if so propose the name in the commit message and do not rename (owner decides at T15).
   - Done when: planning, escalated close and milestone close each have a procedure, and nothing schedules an Opus session per rung.
 
 - [ ] T10 Write the automatic fold-back and hook it into `tasklist-run`
@@ -184,7 +184,7 @@ Standing context for every task:
 - [ ] T19 Review the ledger's untested rows against the redesign
   - Model: heavy (Opus 5.5)
   - Needs: T15
-  - Context: `docs/project-planning/feedback-ledger.md` change log (about 40 `untested` rows) and its "Collect next run" list. For each: keep (still applies as written), fold (now covered by a redesign rule; name it), or retire (obsolete under the redesign; one-line reason). Move retired rows to a "Retired by 1.0.0" list, keep IDs and dates. Add rows for the redesign itself, with the spec's "Judge by" signals. Update the ledger's Objective paragraph from "thin, incremental" to the blueprint model. Do the same pass on the task-workflow ledger for rows the redesign touches. If T16's fix tasks later change a rule a verdict cites, they update that verdict too.
+  - Context: `docs/project-planning/feedback-ledger.md` change log (about 40 `untested` rows) and its "Collect next run" list. For each: keep (still applies as written), fold (now covered by a redesign rule; name it), or retire (obsolete under the redesign; one-line reason). Move retired rows to a "Retired by 1.0.0" list, keep IDs and dates. Add rows for the redesign itself, with the spec's "Judge by" signals. Update the ledger's Objective paragraph from "thin, incremental" to the system design model. Do the same pass on the task-workflow ledger for rows the redesign touches. If T16's fix tasks later change a rule a verdict cites, they update that verdict too.
   - Done when: every untested row has a verdict, and the Objective matches the spec.
 
 - [ ] T20 Release notes, versions and final eval
@@ -218,3 +218,4 @@ Standing context for every task:
 - plantools metrics: steps without `began` are never costed; consider a note or fallback window (T13)
 - plantools MetricsTool.swift: duplicated stderr write line; small helper (T13)
 - code-quality-pass quality-files.md: Small template line shows no inline options; the tiers bullet covers it (T29)
+- foundation-before-goal eval: a run with a data-collection first milestone still failed milestone-order 3 of 3; check at T6 whether the grader is too strict (T1)
