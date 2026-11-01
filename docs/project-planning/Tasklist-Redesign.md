@@ -64,7 +64,7 @@ Standing context for every task:
   - Done when: the skill is listed in both READMEs, `python3 -m pytest tests` passes, and the promote step's output matches the system design format from T3.
   - Verify: `python3 -m pytest tests`
 
-- [ ] T6 Re-run the evals after G2
+- [x] T6 Re-run the evals after G2
   - Model: standard (Sonnet 5.5)
   - Needs: T1, T3, T4, T5
   - Context: Both cases, label `g2`. Compare per grader with the baseline (T1's scores for foundation-before-goal). Read each run's design doc for over-detail-trap yourself; if a judge verdict looks wrong, say so with the line that shows it.

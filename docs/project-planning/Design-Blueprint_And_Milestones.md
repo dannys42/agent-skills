@@ -252,3 +252,29 @@ The suite runs at release (with `--ablation none`, since a no-plugin baseline sa
 ## Open questions
 
 None. Next step: rollout step 2 (write the two scenario cases for owner review).
+
+## Eval results
+
+Label `g2` (after the system-design rewrite and design-session; the roadmap skill is not yet rewritten), 3 runs per case, judge Sonnet. Baseline is 0.11.2, with the tightened milestone-order grader for foundation-before-goal. Passes out of 3. Cost of g2: $10.84 including the lost runs (the over-detail-trap re-run, $3.95, replaced three runs lost to a usage-limit error).
+
+| Case | Grader | Baseline | g2 |
+| --- | --- | --- | --- |
+| over-detail-trap | design-depth | 0/3 | 1/3 |
+| over-detail-trap | milestone-scope | 0/3 | 0/3 |
+| over-detail-trap | design-skill-used | 3/3 | 3/3 |
+| over-detail-trap | files-written | 3/3 | 3/3 |
+| over-detail-trap | summary-names-ids | 2/3 | 3/3 |
+| over-detail-trap | score (mean) | 0.33 | 0.50 |
+| foundation-before-goal | milestone-order | 0/3 | 2/3 |
+| foundation-before-goal | perishable-first | 1/3 | 2/3 |
+| foundation-before-goal | summary-names-ids | 1/3 | 1/3 |
+| foundation-before-goal | design-skill-used | 3/3 | 3/3 |
+| foundation-before-goal | files-written | 3/3 | 3/3 |
+| foundation-before-goal | score (mean) | 0.37 | 0.67 |
+
+No grader regressed. Still failing, and the failures are real:
+- **milestone-scope 0/3.** All three roadmaps make M1 the whole measurement lab (two methods, combined score, threshold sweep, sibling confusion), and two add architecture-checkpoint rungs the new planning terms no longer use. Likely cause (a reading of the outputs): the design itself sizes M1 from the vision's FR3/FR4, and the unrewritten roadmap skill keeps the old rung and checkpoint rules.
+- **design-depth 1/3.** Runs 0 and 2 design a combiner and a threshold sweep inside M1 and fix a weighted sum (D8); run 1 passed. Likely cause: the design's M1 is too wide, so "only the current milestone" is applied to an oversized M1. Narrowing M1 is a roadmap and design-session concern, not a design-depth detail problem.
+- **summary-names-ids 1/3 (foundation-before-goal)** is unchanged; cause not investigated (the closing summary is the roadmap skill's, which G2 did not touch).
+
+Judge doubt: foundation-before-goal milestone-order run 0 failed 1 pass to 2 fail, but M1 there is data collection and the only offender is L7, a read-only readout spike over collected data tagged M3 ("L7 - Spike: on days with no known change, how often does a before-and-after comparison 'find' an effect..."), which the grader's last bullet allows. Treat that FAIL as a judge error. The milestone-order grader is not too strict after the fbg2 tightening: the other two runs passed 3 of 3 votes.
