@@ -123,7 +123,7 @@ An `optional` finding that is not applied (the review passed, or you did not sen
 
 ### Tidy lists
 
-A `Tasklist-<RungId>-Tidy.md` comes from the `code-quality-pass` skill and must not change behaviour. Tell the reviewer that its first question is whether the diff changes behaviour. Do not raise tiers in a tidy list: a task still failing review after one correction round is reverted (`git checkout` of its files), closed `[-] DEFERRED` with `Why: <date> needs more than a tidy; proposal`, and the run continues. A tidy list adds no discovered work: note it under `## Review notes` instead.
+A `Tasklist-<MilestoneId>-Tidy.md` (or `Tasklist-<RungId>-Tidy.md`) comes from the `code-quality-pass` skill and must not change behaviour. Tell the reviewer that its first question is whether the diff changes behaviour. Do not raise tiers in a tidy list: a task still failing review after one correction round is reverted (`git checkout` of its files), closed `[-] DEFERRED` with `Why: <date> needs more than a tidy; proposal`, and the run continues. A tidy list adds no discovered work: note it under `## Review notes` instead.
 
 ## Handling outcomes
 
