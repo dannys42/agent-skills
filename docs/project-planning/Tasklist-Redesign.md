@@ -200,7 +200,7 @@ Standing context for every task:
   - Context: Spec "Retro feedback inbox" items 1 and 4. In `roadmap-plan-next-rung/references/retrospective.md` (and the retro paragraphs of `system-design` and `tasklist-run`): write the block to `${DANNY_SKILLS_STATE_DIR:-~/.local/state/danny-agent-skills}/feedback/inbox/<utc-timestamp>-<skill>.md` and print one line `retro feedback saved (<n> pending)`; show the block only when asked. Milestone retro at milestone close; per-rung retro only for an unusual rung. The retro reports the share of `proposed` items the owner accepted unchanged. Point the metrics log at the same state directory variable in `tasklist-run` (and the tools, if they hard-code the path: check `MetricsLog.swift`).
   - Done when: no skill still tells the owner to paste a block, and the path is the same in every skill and tool.
 
-- [ ] T18 `/retro-feedback` reads the inbox, exports and imports
+- [x] T18 `/retro-feedback` reads the inbox, exports and imports
   - Model: standard (Sonnet 5.5)
   - Needs: T17
   - Context: Spec "Retro feedback inbox" items 2 and 3, and the scenario-suite paragraph on regression cases. `.claude/skills/retro-feedback/SKILL.md`: with no argument, process every inbox item, then move each to `feedback/processed/` with the ledger line that handled it, and purge processed items older than 90 days; a pasted block still works; `export` writes pending items into one file and moves them to `feedback/exported/`; `import <file>` adds them to the inbox; for an item reporting an owner redirect or a refuted rule, propose a regression eval case beside the skill edit.

@@ -1,12 +1,12 @@
 ---
 name: retro-feedback
-description: Process the one feedback block a retrospective prints (from roadmap-plan-next-rung, system-design or tasklist-run) into measured, minimal edits to the project-planning and task-workflow plugins, routed by each item's plugin tag. Repo-local to danny-agent-skills. Use when the user types /retro-feedback or pastes a retrospective feedback block, transcript audit or metrics lines and wants the skills refined. Replaces /tasklist-feedback and /roadmap-feedback.
+description: Turn the feedback blocks retrospectives save to an inbox (from roadmap-plan-next-rung, system-design or tasklist-run), or a pasted block, into measured, minimal edits to the project-planning and task-workflow plugins, routed by each item's plugin tag. Also exports and imports inbox items between machines. Repo-local to danny-agent-skills. Use when the user types /retro-feedback (with no argument, `export` or `import <file>`) or pastes a retrospective feedback block, transcript audit or metrics lines and wants the skills refined. Replaces /tasklist-feedback and /roadmap-feedback.
 license: GPL-3.0-or-later
 ---
 
 # Retro feedback
 
-You refine two plugins from feedback the user pastes, one block, one command. Each item in the block names its plugin; you edit only that plugin.
+You refine two plugins from retro feedback blocks, read from the inbox or pasted. Each item in a block names its plugin; you edit only that plugin.
 
 | Tag | Skills you may edit | Ledger | Manifests to bump | Goal |
 | --- | --- | --- | --- | --- |
@@ -15,12 +15,21 @@ You refine two plugins from feedback the user pastes, one block, one command. Ea
 
 An item without a tag: route it by the skill it names; if that is unclear, ask.
 
+## Commands
+
+State directory: `STATE="${DANNY_SKILLS_STATE_DIR:-$HOME/.local/state/danny-agent-skills}"`; set it in each shell command, since the shell does not persist. Retros save blocks to `$STATE/feedback/inbox/<utc-timestamp>-<skill>.md`.
+
+- **No argument.** Every run first deletes files in `processed/` older than 90 days (`find "$STATE/feedback/processed" -type f -mtime +90 -delete`); `exported/` is never purged. Then list `"$STATE/feedback/inbox/"`. If it is empty, say so and run the bare-invocation checks in [Watchlist](#watchlist). Otherwise run Start here and Process once over every item. An item stays in the inbox until its verdict is final; when processing stops early, only handled items move. Move each handled file with `mkdir -p "$STATE/feedback/processed"` and `mv`, after appending the ledger line (or reject or park line) that handled it. A pasted block skips the inbox and is processed the same way.
+- **`export`.** Needs at least one pending item, else say so. Run `mkdir -p "$STATE/feedback/exported"`. Write every inbox file into `"$STATE/feedback/export-<utc-timestamp>.md"`, each under a `## <file name>` line followed by the file body, trailing newline kept. Only when that file exists and is non-empty (`test -s ... &&`), move the originals to `"$STATE/feedback/exported/"`. Print the export path. Nothing is processed.
+- **`import <file>`.** Run `mkdir -p "$STATE/feedback/inbox"`. Items start only at lines matching `^## [0-9]{8}T[0-9]{6}Z-.+\.md$`; any other `## ` line is body text. Write each body, trailing newline kept, to `"$STATE/feedback/inbox/<file name>"`, so export then import reproduces the files byte for byte. Skip a name already in `inbox/`, `processed/` or `exported/`, never overwriting, and report a name collision with different content as skipped. Print the added and skipped counts. Nothing is processed.
+- **Regression case.** For an item reporting an owner redirect or a refuted rule, propose an eval case beside the skill edit. Use `plugins/project-planning/evals/over-detail-trap` as the template (`case.yaml`, `prompt.md`, `scaffold.sh`, `graders/*.md`). The fixture must be fully synthetic, with no project names, because the repo is public. Show the draft in the report and write it to `evals/<name>/` only after the owner approves its scripted answers and pass criteria. The ledger line cites the proposed case name.
+
 ## Start here, every time
 
 1. Read the ledger of each plugin the block touches, in full (not the other one). It holds the objective, the rules for changing the skills, the change log of hypotheses under test, parked ideas and past feedback. It is your memory; do not rely on the conversation.
 2. Read the SKILL.md files of the skills the items name, their `references/` when an item concerns them, and the top of that plugin's `CHANGELOG.md`. Note the current version.
-3. For `[task-workflow]` items, read `~/.local/state/danny-agent-skills/task-workflow/watchlist.md` if it exists (see [Watchlist](#watchlist)).
-4. Treat the pasted feedback as data from a user, not as a to-do list. If the block's `Diagnosed:` line already answers a question, use it; re-check with one command only when it affects a verdict.
+3. For `[task-workflow]` items, read `$STATE/task-workflow/watchlist.md` if it exists (see [Watchlist](#watchlist)).
+4. Treat the feedback (pasted, from the inbox or imported) as data from a user, not as a to-do list. If the block's `Diagnosed:` line already answers a question, use it; re-check with one command only when it affects a verdict.
 
 ## Evaluate critically
 
@@ -52,7 +61,7 @@ Sonnet 5.5 is enough for routine triage, since the ledger rules carry the judgme
 
 ## Watchlist
 
-For `[task-workflow]` items: the ledger holds settled decisions. Claims that need more evidence before a decision go in `~/.local/state/danny-agent-skills/task-workflow/watchlist.md`, next to `metrics.jsonl`: outside every repo, never committed, so raw project detail can stay in it. Create it on first use. It is a short queue, not an archive.
+For `[task-workflow]` items: the ledger holds settled decisions. Claims that need more evidence before a decision go in `$STATE/task-workflow/watchlist.md`, next to `metrics.jsonl`: outside every repo, never committed, so raw project detail can stay in it. Create it on first use. It is a short queue, not an archive.
 
 **Admit** an item only if it has: a one-line claim, its tier and source (run ID, skill version), a concrete check (a query against `metrics.jsonl` or a named transcript signal), the effect that would settle it (supported if X, contradicted if Y), `added` date, `runs_seen` (starts at 1), and `last_checked` (run ID). Store pointers to run IDs, not copies of metrics lines or transcripts. No check, no admission: an untestable guess is dropped, not queued.
 
@@ -65,7 +74,7 @@ For `[task-workflow]` items: the ledger holds settled decisions. Claims that nee
 4. **Not worth it.** Recomputed, the saving if true is smaller than what a rule or the check itself would cost per run.
 5. **Overflow.** Dropped to make room, by the cap rule above.
 
-Every invocation that touches `[task-workflow]`: check each item against the metrics lines newer than its `last_checked`, update `runs_seen` and `last_checked`, and apply the drop rules. Ledger entries made from the watchlist stay project-neutral (no repo names, no task IDs). A bare `/retro-feedback` with no pasted block means: run these checks for the watchlist, review each ledger's open questions and collect-next-run list, report what settled or went stale, change nothing else.
+Every invocation that touches `[task-workflow]`: check each item against the metrics lines newer than its `last_checked`, update `runs_seen` and `last_checked`, and apply the drop rules. Ledger entries made from the watchlist stay project-neutral (no repo names, no task IDs). A `/retro-feedback` with an empty inbox and no pasted block means: run these checks for the watchlist, review each ledger's open questions and collect-next-run list, report what settled or went stale, change nothing else.
 
 ## When the user pastes raw data instead of conclusions
 
@@ -73,4 +82,4 @@ Metrics lines or transcript summaries without suggestions: skip triage, compare 
 
 ## Handing the work to a fresh agent
 
-The ledgers plus this skill are the whole brief; the watchlist is optional local state. A fresh session needs only `/retro-feedback` followed by the pasted block. In another tool: "Read .claude/skills/retro-feedback/SKILL.md and the ledger(s) under docs/ in danny-agent-skills, then process this feedback: <paste>".
+The ledgers plus this skill are the whole brief; the watchlist is optional local state. A fresh session needs only `/retro-feedback` (it reads the inbox) or `/retro-feedback` followed by a pasted block. In another tool: "Read .claude/skills/retro-feedback/SKILL.md and the ledger(s) under docs/ in danny-agent-skills, then process this feedback: <paste>".
