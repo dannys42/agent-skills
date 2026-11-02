@@ -96,7 +96,7 @@ Run alone (`/system-design checkpoint`, kept for older roadmaps whose next rung 
 
 For an Overview, subsystem doc or roadmap written before the system design shape. Read them as they are until the first milestone planning session, which runs this before its look-back; no other mode starts it.
 
-1. **Move, then mark.** Convert each doc as [overview-template.md](references/overview-template.md#migrating-older-docs) maps it: text that is still true moves verbatim, IDs never change, and existing marks carry over (a decision `accepted` reads `settled`, or `working` with its revisit note). Only cells with no source (a component's Agreement, a new milestone line, a `Touches` line) are new, marked `proposed`.
+1. **Move, then mark.** Convert each doc as [overview-template.md](references/overview-template.md#migrating-older-docs) maps it: text that is still true moves verbatim, IDs never change, and existing marks carry over (a decision `accepted` reads `settled`, or `working` with its revisit note; `deferred` becomes an Open question with its reason; `superseded` stays as `superseded by D<n>`, unmarked; a confirmed assumption becomes a `settled · owner` decision). Only cells with no source (a component's Agreement, a new milestone line, a `Touches` line) are new, marked `proposed`.
 2. **Roadmap.** Give each milestone its fields (outcome sentence, subsystems touched, exit criteria), each open rung a `Touches:` line, and generate `Map.md` with `roadmap map <roadmap file>`, never by hand.
 3. **Commit alone**, by explicit path, as `Migrate planning docs to the system design shape`, before any other edit, so the diff reads as moves. **Return** the `proposed` items it added; the caller reviews them with its own.
 
