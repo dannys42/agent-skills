@@ -212,9 +212,15 @@ Standing context for every task:
   - Context: Found during T15: after 13 batches the owner asked whether the run should pause and continue in a clean session. The orchestrator's context is re-read on every dispatch, so a long run gets slower and more expensive, and judgment drifts after a compaction. Consider a check at each batch boundary in tasklist-run's 'Check efficiency' step, using signals the orchestrator can count (batches committed, correction rounds, a compaction having happened, which model the remaining open tasks need against the session's model). Past the threshold: finish the batch, write the end/step metrics lines and a handoff note (references/handoff.md, Route: run), then stop with one Next: line naming the command and model. Decide whether to build it, the thresholds, and whether the decision belongs in tasklist-run only or also in rung's subagent-vs-session rule; record the decision in the spec. Build it if accepted.
   - Done when: the spec records the decision; if built, tasklist-run names the signals, the threshold and the stop message, and a run past the threshold stops with a handoff note and a Next: line.
 
+- [ ] T35 Restore the planning rules the milestone rewrite dropped
+  - Model: standard (Sonnet 5.5)
+  - Needs: T19
+  - Context: Found during T19. In plugins/project-planning/skills/roadmap-plan-next-rung/SKILL.md, compared with the text at 2994be7, restore: Milestone planning step 3's guess clause (an external system's or framework's behaviour, including what a platform does with an event a Done when relies on; completeness, uniqueness and shape for a property of real data; code in message, code or status and read the route or function that produces it; run the build and tests at the base once, a failure being the first task); Briefs are short's per-component tables one line each; first-time owner surface confirmed before drafting the rest. Also check that tasklist-run's Tidy lists rules cover a Tasklist-<MilestoneId>-Tidy.md (no behaviour change, no tier raise).
+  - Done when: Each restored rule is in the skill in one line, the ledger notes that said a rule was dropped now say restored, and the tidy rules name the milestone tidy list.
+
 ### G5 Ledger and release
 
-- [ ] T19 Review the ledger's untested rows against the redesign
+- [x] T19 Review the ledger's untested rows against the redesign
   - Model: heavy (Opus 5.5)
   - Needs: T15
   - Context: `docs/project-planning/feedback-ledger.md` change log (about 40 `untested` rows) and its "Collect next run" list. For each: keep (still applies as written), fold (now covered by a redesign rule; name it), or retire (obsolete under the redesign; one-line reason). Move retired rows to a "Retired by 1.0.0" list, keep IDs and dates. Add rows for the redesign itself, with the spec's "Judge by" signals. Update the ledger's Objective paragraph from "thin, incremental" to the system design model. Do the same pass on the task-workflow ledger for rows the redesign touches. If T16's fix tasks later change a rule a verdict cites, they update that verdict too.
@@ -222,7 +228,7 @@ Standing context for every task:
 
 - [ ] T20 Release notes, versions and final eval
   - Model: standard (Sonnet 5.5)
-  - Needs: T6, T7, T15, T16, T18, T19, T23
+  - Needs: T6, T7, T15, T16, T18, T19, T23, T35
   - Context: `scripts/bump_version.py project-planning 1.0.0` and `scripts/bump_version.py task-workflow <next minor>`; `CHANGELOG.md` entries for both (what changed for the owner, migration of existing projects); plugin and repo README updates for the new model; final eval run, label `1.0.0`, added to the "Eval results" table.
   - Verify: `python3 -m pytest tests`; `swift test --package-path plugins/task-workflow/tools/plantools`
   - Done when: every fix task from the T7 and T16 reviews is closed, tests pass, versions agree in every manifest and stamp, and the eval table has the `1.0.0` column.
