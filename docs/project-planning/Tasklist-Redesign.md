@@ -85,7 +85,7 @@ Standing context for every task:
     c. Reply "approved", or give your choice for each decision you would change.
   - Done when: the owner replies "approved" or lists changes. Each change becomes a fix task, inserted ahead of the first open task, that also updates any later skill already built on the changed text.
 
-- [ ] T32 Record the agreement counts in the step event, not in git
+- [x] T32 Record the agreement counts in the step event, not in git
   - Model: standard (Sonnet 5.5)
   - Context: Owner ruling on the system design review (2026-11-01), item 1: accepted items still drop the `proposed` mark and gain no origin, and the counts are recorded instead. system-design step 7 ("Confirm and hand off") adds fields to its `step` metrics event: `proposed`, `accepted` (unchanged), `edited`, `rejected`; design-session "6. Promote" adds the same fields to its step event. Its "Retrospective" section reads the share accepted unchanged from the metrics log, not git history. Also update the text already built on the old claim that the share cannot be recovered: `roadmap-plan-next-rung/SKILL.md` (the `retro` paragraph) and `references/retrospective.md` (milestone retro bullet) read the counts from the log; milestone planning in `roadmap-plan-next-rung` logs the same fields when it agrees a design delta. Where step fields are listed (grep `next_model` under `plugins/`), add the four with one clause each.
   - Done when: grep -rn "accepted unchanged" plugins/project-planning shows no line saying git or the doc cannot show the share; each session that agrees proposed items names the four step fields; python3 -m pytest tests passes.

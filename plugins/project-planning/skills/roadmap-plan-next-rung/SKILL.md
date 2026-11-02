@@ -69,7 +69,7 @@ Use the template. The next rung's brief is complete; the rest stay thin, citing 
 
 Use the `tasklist` skill for one `<DocDir>/Tasklist-<RungId>-<ShortRungDescription>.md` per rung, `Source:` citing the rung and its brief: verification items become `Done when` checks (the regression test among them), guard rails become `Context` or `Non-goals`, decisions are cited in `Context`, and each "decide after it runs" item the rung settles goes into the `Done when` of the task that settles it, with "record the answer on the roadmap's list". Rungs stay `planned`; the run that starts a rung sets it `in progress` and writes `Base: <git rev-parse --short HEAD>` under its brief's `Status:` line (no brief: in the tasklist's `Source:` line), so fold-back can diff the rung's work. Because every tasklist lands in the one planning commit, `metrics signals --tasklist`'s fallback (the parent of the commit that added the tasklist) gives the milestone's base for every rung: right for close's milestone-wide signals, wrong for one rung.
 
-Commit by explicit path (briefs, tasklists, design docs, `Taxonomy.md`, roadmap) as `Plan milestone <MilestoneId>: <name>`; if the owner said not to commit, say so. Run the tool's map command. End with a sentence naming the first rung with its title and that each rung now runs and folds back on its own, then `Next: /rung (<Model>: /model <alias>)` on the orchestrator model from `tasklist-run`'s "Orchestrator model". Log a `step` event with `skill` `roadmap-plan-next-rung 0.11.2`, `kind` `milestone-plan` (other fields in `tasklist-run`'s metrics log).
+Commit by explicit path (briefs, tasklists, design docs, `Taxonomy.md`, roadmap) as `Plan milestone <MilestoneId>: <name>`; if the owner said not to commit, say so. Run the tool's map command. End with a sentence naming the first rung with its title and that each rung now runs and folds back on its own, then `Next: /rung (<Model>: /model <alias>)` on the orchestrator model from `tasklist-run`'s "Orchestrator model". Log a `step` event with `skill` `roadmap-plan-next-rung 0.11.2`, `kind` `milestone-plan` (other fields in `tasklist-run`'s metrics log), plus the design delta's counts: `proposed`, `accepted` (unchanged), `edited` and `rejected`.
 
 ### Rung 1 and build boundaries
 
@@ -103,7 +103,7 @@ Reached when no rung of the current milestone is `planned` or `in progress` and 
 
 ## Retrospective
 
-`retro [M2]` writes the milestone retro, `retro [L3]` a short one for a failed, re-planned or escalated rung; both run inside the steps above. Follow [retrospective.md](references/retrospective.md): build it from the briefs, design docs, tasklists, git history and `metrics summary`, not from memory; apply nothing. Git does not record how many `proposed` items the owner accepted unchanged; report that only when this session saw the rulings.
+`retro [M2]` writes the milestone retro, `retro [L3]` a short one for a failed, re-planned or escalated rung; both run inside the steps above. Follow [retrospective.md](references/retrospective.md): build it from the briefs, design docs, tasklists, git history and `metrics summary`, not from memory; apply nothing. Read how many `proposed` items the owner accepted unchanged from the `accepted` and `proposed` counts in the `step` events.
 
 ## If a linked file or skill is missing
 

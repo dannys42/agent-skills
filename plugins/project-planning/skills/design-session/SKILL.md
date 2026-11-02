@@ -75,7 +75,7 @@ Agreement marks follow the template: an item the owner wrote or edited reads `ow
 
 If no system design exists yet, write the promoted items into a new `Overview.md` with the template's header (`Status: draft`) and only the sections they fill; `system-design` continues from it.
 
-Commit, staging by explicit path, the system design, `Taxonomy.md`, the project rules file if it changed, and the notes file, as `Design session: <topic>`, so history keeps the notes. Then `git rm` the notes file and commit that as `Remove design session notes: <topic>`. Log a `step` event with `skill` `design-session 0.11.2` and `kind` `design-session` (other fields in `tasklist-run`'s metrics log).
+Commit, staging by explicit path, the system design, `Taxonomy.md`, the project rules file if it changed, and the notes file, as `Design session: <topic>`, so history keeps the notes. Then `git rm` the notes file and commit that as `Remove design session notes: <topic>`. Log a `step` event with `skill` `design-session 0.11.2` and `kind` `design-session` (other fields in `tasklist-run`'s metrics log), plus the counts of the items you proposed for promotion: `proposed`, `accepted` (unchanged), `edited` and `rejected`.
 
 End with a plain sentence saying what changed and what the next step is, then `Next: /rung`, adding `(Opus: /model opus)` when that step needs Opus: a system design still to agree, milestone planning, or a re-plan that step 6 said is due.
 
