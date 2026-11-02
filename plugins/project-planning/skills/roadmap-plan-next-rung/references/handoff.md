@@ -1,6 +1,6 @@
 # Handoff note
 
-Where waiting state lives (terms.md, "Next step"). Any step that stops for the owner (a `USER` task, a blocked task, a run ending on a question, an escalation, the milestone demo, unanswered review questions, a design session that makes a re-plan due) writes one, assuming the owner replies days later in a new session that remembers nothing. `roadmap next` reads it ahead of the roadmap and routes the resume; when `/rung` runs the step as a subagent, the note is that subagent's brief.
+Where waiting state lives (terms.md, "Next step"). Any step that stops for the owner (a `USER` task, a blocked task, a run ending on a question, a pause for a fresh session, an escalation, the milestone demo, unanswered review questions, a design session that makes a re-plan due) writes one, assuming the owner replies days later in a new session that remembers nothing. `roadmap next` reads it ahead of the roadmap and routes the resume; when `/rung` runs the step as a subagent, the note is that subagent's brief.
 
 ## Where
 

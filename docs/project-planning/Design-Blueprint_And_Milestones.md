@@ -147,6 +147,16 @@ The automatic fold-back keeps the first two in the run session and sends only ju
 
 **Expected effect.** Opus sessions go from about two per rung to about two per milestone, plus one per mid-milestone re-plan. This is judged by the metrics below, not assumed.
 
+### Pausing a long run for a fresh session
+
+Decided 2026-11-02: build it, in `tasklist-run` only. The orchestrator's context is re-read on every turn, so a long run gets dearer per batch and judgment drifts after a compaction.
+
+- **Measured** (27 runs of 6 or more batches, `tokens` events, median by batch number): orchestrator context per turn 66k at batch 1, 108k at 5, 159k at 10, about 196k from 13 on; orchestrator cost per batch (cache reads weighted 0.1) 62k units at batch 1, about 140k at 9 to 12. A fresh session's first batch costs the batch-1 figure, so a pause past batch 10 saves roughly 75k units on every batch left.
+- **Rule.** At each batch boundary count the load: batches committed in the session plus half the correction rounds. Open tasks are those `tasklist next` can still pick (not `USER`, `BLOCKED` or blocked by `Needs`); when none qualifies, the normal stop wins. Pause when at least 2 open tasks remain and the load reaches 10, the session was compacted, or the session is on Opus while half or fewer of the open tasks are `heavy` and at least 4 remain. A pause writes the `end` (`stop: pause`) and `step` lines, a `Route: run` handoff note whose `Waiting on:` reads `a fresh session to continue (paused: <signal>)`, and one `Next:` line. The resumed session starts the next batch without a question. No retrospective until the list finishes; its summary covers every session of the list.
+- **Overrides win.** A user-scoped run (an ID, `--one`, `--no-commit`) or an owner who said to keep going never pauses. The Opus signal never fires when the owner chose the model, so a session deliberately started on Opus does not pause on it.
+- **Not in `/rung`.** Its subagent-or-session rule picks how a step starts; the pause happens inside a run, and the `run` handoff note already resumes through `/rung`.
+- **Guesses.** The threshold of 10, the half weight for correction rounds, the 2-task floor and the 4-task floor for the Opus signal are guesses. Every `end` line logs `load` (and `pause_signal` with the signal that fired), so the pilot can tune them against the cost of later batches.
+
 ## Model choice
 
 1. **Measure first.** Extend `metrics tokens` to log planning, close and design sessions from their transcripts, keyed to the `step` event. Zero tokens. Fix the malformed `skill` stamps seen in the log (`0.16.2` with no name, `roadmap-plan-next-rung 0018`).
