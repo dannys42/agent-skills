@@ -17,6 +17,7 @@ Default path: `<DocDir>/Tasklist.md`.
 - `DocDir` is the project's existing documentation directory, typically `Documentation/` or `docs/`. Follow project rules when they name one.
 - Separate efforts that need their own list use `<DocDir>/Tasklist-<Topic>.md`, with `Topic` a short 2–3 word Snake_Case name, matching `Decision-<Topic>.md` when the list comes from a decision ledger.
 - A list that expands one roadmap rung is `<DocDir>/Tasklist-<RungId>-<ShortRungDescription>.md`, for example `Tasklist-L3-Grid_Text_Rendering.md`. `RungId` is the roadmap ID (`L3`); the description is 2–4 Snake_Case words from the rung title. Cite the rung ID and the rung's design brief (`<DocDir>/SystemDesign/Rung-<RungId>-*.md`) in `Source`.
+- A rung's list includes at least one test that fails without the rung's change, carried as a `Done when` (the regression test its brief names, when it has one).
 - When every item in a rung's list is closed, move the file unchanged to `<DocDir>/Completed/` (create the folder if needed) so `<DocDir>` holds only live lists. Do this when the list is fully closed, not before, and say where it went. This applies to rung lists only; other lists stay in place unless the user asks to archive them.
 - Older projects may still have `TODO.md` or `TODO-<Topic>.md`. Read and continue those as they are; do not rename them unless asked.
 - The user may override `DocDir`, `Topic`, or the whole path.
@@ -77,6 +78,7 @@ Headings carry no checkbox; a phase or group is complete when everything under i
 | `Run` | only for a long job (over about a minute) | The exact command that starts it, with paths and arguments, so the executor starts it once and waits once instead of discovering and polling |
 | `Verify` | when the check is a command | The exact invocation(s) behind `Done when`, including the interpreter or venv path and any non-obvious tool. Saves the executor, and later the reviewer, from rediscovering CLI usage |
 | `Done when` | yes for anything non-trivial | The observable check: a test, a command, a behavior |
+| `Escaped from` | only for a bug task fixing a closed rung's defect | `Escaped from: <RungId>` (e.g. `Escaped from: L3`), the ID first; the metrics tool counts these per rung |
 | `Notes` / `Non-goals` | only when a trap exists | The one thing an executor would otherwise get wrong |
 
 Write enough context that the task can be executed without reading the conversation, and stop there. If a task needs more than a short paragraph, it is probably two tasks, or it needs a linked spec (`Spec: <path>`) that the checklist item points to.

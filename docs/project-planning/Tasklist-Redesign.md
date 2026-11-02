@@ -106,7 +106,7 @@ Standing context for every task:
   - Done when: the reference covers every row of the spec's table, and `tasklist-run` calls it exactly once per rung list.
   - Notes: Found during T9: planning commits all tasklists at once, so the run that starts a rung sets it in progress and writes Base: (under the brief's Status:, or in the tasklist Source: line when no brief).
 
-- [ ] T11 Update `tasklist` for regression tests and escaped defects
+- [x] T11 Update `tasklist` for regression tests and escaped defects
   - Model: standard (Sonnet 5.5)
   - Needs: T22
   - Context: Spec "Open items". In `plugins/task-workflow/skills/tasklist/SKILL.md`: a rung list includes at least one test that fails without the rung's change (say it in the rung-list guidance, a line or two); a bug task fixing a closed rung's defect carries `Escaped from: <RungId>` (add to the field table). Update `references/example.md` only if it shows a rung list.
