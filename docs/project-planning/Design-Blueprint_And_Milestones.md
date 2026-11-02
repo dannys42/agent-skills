@@ -257,24 +257,39 @@ None. Next step: rollout step 2 (write the two scenario cases for owner review).
 
 Label `g2` (after the system-design rewrite and design-session; the roadmap skill is not yet rewritten), 3 runs per case, judge Sonnet. Baseline is 0.11.2, with the tightened milestone-order grader for foundation-before-goal. Passes out of 3. Cost of g2: $10.84 including the lost runs (the over-detail-trap re-run, $3.95, replaced three runs lost to a usage-limit error).
 
-| Case | Grader | Baseline | g2 |
-| --- | --- | --- | --- |
-| over-detail-trap | design-depth | 0/3 | 1/3 |
-| over-detail-trap | milestone-scope | 0/3 | 0/3 |
-| over-detail-trap | design-skill-used | 3/3 | 3/3 |
-| over-detail-trap | files-written | 3/3 | 3/3 |
-| over-detail-trap | summary-names-ids | 2/3 | 3/3 |
-| over-detail-trap | score (mean) | 0.33 | 0.50 |
-| foundation-before-goal | milestone-order | 0/3 | 2/3 |
-| foundation-before-goal | perishable-first | 1/3 | 2/3 |
-| foundation-before-goal | summary-names-ids | 1/3 | 1/3 |
-| foundation-before-goal | design-skill-used | 3/3 | 3/3 |
-| foundation-before-goal | files-written | 3/3 | 3/3 |
-| foundation-before-goal | score (mean) | 0.37 | 0.67 |
+Label `g3` (after T8, T9, T10, T14, T32 and T33), same settings. Cost of g3: $13.97 including the lost runs (the first full run, $9.56, lost two over-detail-trap runs to a weekly usage-limit error, and the over-detail-trap re-run, $4.41, replaced all three of that case's runs). `demo-stop-handoff` is new in g3 and has no earlier column: close-paused 3/3, handoff-gitignore 3/3, handoff-resumable 3/3, handoff-written 3/3, handoff-ignored 0/3, stop-message 1/3, score (mean) 0.79. These two are provisional: handoff-ignored fails on a grader defect, so the mean understates the runs (see g3 findings).
 
-No grader regressed. Still failing, and the failures are real:
+| Case | Grader | Baseline | g2 | g3 |
+| --- | --- | --- | --- | --- |
+| over-detail-trap | design-depth | 0/3 | 1/3 | 0/3 |
+| over-detail-trap | milestone-scope | 0/3 | 0/3 | 2/3 |
+| over-detail-trap | design-skill-used | 3/3 | 3/3 | 3/3 |
+| over-detail-trap | files-written | 3/3 | 3/3 | 3/3 |
+| over-detail-trap | summary-names-ids | 2/3 | 3/3 | 1/3 |
+| over-detail-trap | score (mean) | 0.33 | 0.50 | 0.47 |
+| foundation-before-goal | milestone-order | 0/3 | 2/3 | 3/3 |
+| foundation-before-goal | perishable-first | 1/3 | 2/3 | 3/3 |
+| foundation-before-goal | summary-names-ids | 1/3 | 1/3 | 2/3 |
+| foundation-before-goal | design-skill-used | 3/3 | 3/3 | 3/3 |
+| foundation-before-goal | files-written | 3/3 | 3/3 | 3/3 |
+| foundation-before-goal | score (mean) | 0.37 | 0.67 | 0.93 |
+
+No grader regressed (g2). Still failing, and the failures are real:
 - **milestone-scope 0/3.** All three roadmaps make M1 the whole measurement lab (two methods, combined score, threshold sweep, sibling confusion), and two add architecture-checkpoint rungs the new planning terms no longer use. Likely cause (a reading of the outputs): the design itself sizes M1 from the vision's FR3/FR4, and the unrewritten roadmap skill keeps the old rung and checkpoint rules.
 - **design-depth 1/3.** Runs 0 and 2 design a combiner and a threshold sweep inside M1 and fix a weighted sum (D8); run 1 passed. Likely cause: the design's M1 is too wide, so "only the current milestone" is applied to an oversized M1. Narrowing M1 is a roadmap and design-session concern, not a design-depth detail problem.
 - **summary-names-ids 1/3 (foundation-before-goal)** is unchanged; cause not investigated (the closing summary is the roadmap skill's, which G2 did not touch).
 
-Judge doubt: foundation-before-goal milestone-order run 0 failed 1 pass to 2 fail, but M1 there is data collection and the only offender is L7, a read-only readout spike over collected data tagged M3 ("L7 - Spike: on days with no known change, how often does a before-and-after comparison 'find' an effect..."), which the grader's last bullet allows. Treat that FAIL as a judge error. The milestone-order grader is not too strict after the fbg2 tightening: the other two runs passed 3 of 3 votes.
+Judge doubt (g2): foundation-before-goal milestone-order run 0 failed 1 pass to 2 fail, but M1 there is data collection and the only offender is L7, a read-only readout spike over collected data tagged M3 ("L7 - Spike: on days with no known change, how often does a before-and-after comparison 'find' an effect..."), which the grader's last bullet allows. Treat that FAIL as a judge error. The milestone-order grader is not too strict after the fbg2 tightening: the other two runs passed 3 of 3 votes.
+
+
+### g3 findings
+
+Regressions against g2 (both on over-detail-trap, n=3 so partly noise; causes marked speculative are guesses, not checked):
+- **summary-names-ids 3/3 to 1/3.** Run 0 passed; run 1 and run 2 failed. Run 2's summary says "moved to M2 (decision D9 in the system design)" with D9 and M2 given no name, a real failure. Run 1's FAIL is a confirmed judge error (all three votes FAIL): the only identifiers in its summary are D10 and Q1, and each comes with its meaning at first mention (the milestone-2 move of title keywords, combined score, threshold sweep and sibling confusion, then "recorded as decision D10"; "does contacting a bookmarked site count as 'leaving the Mac'? This is open question Q1"); every milestone is named. So the real count is likely 2/3, not 1/3. Cause of run 2's failure (speculative): the closing summary is the roadmap skill's, which is still unrewritten.
+- **design-depth 1/3 to 0/3.** All three Overview.md docs failed. Read by hand: run 1 fails rightly (line 64 gives Title Keyword "weighted by how distinctive a word is across folders", and line 87 signs `CombinedSuggester(parts: [FolderSuggester])`, both M2 detail). Run 0 is borderline: R7 spells out a tuning procedure ("tune on half the filed bookmarks and measure on the other half") and D5 plans thresholds. Run 2 looks like a wrong FAIL (my judgment, not confirmed): line 66 "M1: Domain Method only (D9)", the field-level surfaces on line 85 and 86 are M1 only, later methods are one-line milestone rows, and the only later-scope extras are the glossary terms "Auto-file threshold" and "Threshold sweep" (lines 108 and 109). The grader notes that LLM judges are noisy on long files. Cause (speculative): M1 is now narrow (D9, D10) but the design still sketches later suggesters; narrowing M1 improved milestone-scope (0/3 to 2/3) without fixing depth.
+
+Improvements: milestone-scope 0/3 to 2/3, milestone-order 2/3 to 3/3, perishable-first 2/3 to 3/3, summary-names-ids on foundation-before-goal 1/3 to 2/3.
+
+demo-stop-handoff (new in g3; its scores are provisional until the grader is fixed and the runs re-scored):
+- **handoff-ignored is a grader defect, not a skill failure.** The grader (evals/demo-stop-handoff/graders/handoff-ignored.md) is `type: tool_used`, `tool: Bash`, `input_match: 'git\s+(add|commit)[^"&;|\n]*Handoff'`, `max: 0`, with no `min`. The result line in all three runs is "Bash called 0x (expected 1..0)": `min` defaults to 1, so the range 1..0 can never be met and the grader fails even when no command touches Handoff, which is the behaviour it wants. The fix is `min: 0` (the grader was not changed here). The 0/3 and the 0.79 mean therefore understate the runs; the corrected mean would be higher (about 0.82 for runs 0 and 2 and 1.00 for run 1 if nothing else changed, an estimate). Re-score to know.
+- **stop-message 1/3 (runs 0 and 2 failed, run 1 passed).** Each judge gave FAIL FAIL FAIL with no reasoning, so these causes are my reading of the final messages. Run 2 ends "Next: run `/rung` once you have a ruling. It needs Opus (`/model opus`) and will finish the close...", not the required last line `Next: /rung (Opus: /model opus)`; that is a clear miss of the grader's second bullet. Run 0 ends with the exact line and names M1 at first mention ("Closing M1 (count words) is paused at the demo"), so its likely miss (speculative) is bare IDs: it labels the re-read items "R1, important:" and "R2, minor:" with no plain name beyond the description that follows. The real stop-message score is unknown until the grader is fixed and the runs are re-scored.

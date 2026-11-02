@@ -165,7 +165,7 @@ Standing context for every task:
   - Verify: `python3 -m pytest tests`
   - Notes: Found during T12: roadmap next's command: row means three things (skill alias like /roadmap-plan-next-rung plan M1, owner-typable /rung run L2, /tasklist-run <path>); make it the dispatch target in every route (tool change in NextStep+Milestones.swift if needed) and never echo it to the owner; read the new milestone: row.
 
-- [ ] T15 Re-run the evals after G3
+- [x] T15 Re-run the evals after G3
   - Model: standard (Sonnet 5.5)
   - Needs: T8, T9, T10, T14, T32, T33
   - Context: As T6, label `g3`. Add the column to the spec's "Eval results" table. Run it after any T7 fix tasks that are already open have closed.
@@ -185,6 +185,12 @@ Standing context for every task:
     b. Open the skill files it names where the notes leave you unsure.
     c. Reply "approved", or give your choice for each decision you would change, including the rename.
   - Done when: the owner replies. Each change becomes a fix task, inserted ahead of the first open task, that also updates any later work already built on the changed text; a rename ruling becomes its own structure-only task.
+
+- [ ] T34 Fix the handoff-ignored grader and re-score demo-stop-handoff
+  - Model: light (Haiku 4.5)
+  - Needs: T15
+  - Context: Found during T15. In plugins/project-planning/evals/demo-stop-handoff/graders, handoff-ignored is tool_used with max: 0 and no min, so zero matching calls reads as 'expected 1..0' and fails; set min: 0. Re-score the g3 demo-stop-handoff runs from their kept traces if possible, else re-run that case with --case; update the g3 numbers in the spec's Eval results.
+  - Done when: The grader passes when no Bash call matches, the corrected demo-stop-handoff scores are in the spec's Eval results, and the commit message gives them.
 
 ### G4 Feedback inbox
 
