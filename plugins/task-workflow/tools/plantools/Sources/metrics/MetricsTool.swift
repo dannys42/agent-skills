@@ -65,7 +65,12 @@ struct MetricsTool: ParsableCommand {
             guard let numbers else { CLI.fail("no runs logged for \(target) in \(repo)", code: 1) }
             let quality = events.filter { ($0["repo"] as? String) == repo && (($0["event"] as? String) ?? "").hasPrefix("quality") }
             SkillStamp.warnings(log: events.filter { ($0["repo"] as? String) == repo }).forEach { FileHandle.standardError.write(Data(($0 + "\n").utf8)) }
-            CLI.print(RunSummary.render(target: numbers, all: all, quality: quality, escapes: Escapes.byRung(repo: repo), compare: compare))
+            let escapes = Escapes.byRung(repo: repo)
+            let byMilestone = Roadmap.locate(in: repo).map { Escapes.byMilestone(escapes, roadmap: $0) } ?? [:]
+            var text = RunSummary.render(target: numbers, all: all, quality: quality, escapes: escapes, escapesByMilestone: byMilestone, compare: compare)
+            let roadmaps = Roadmap.paths(in: repo).count
+            if roadmaps > 1, !escapes.isEmpty { text += "\nEscaped defects by milestone skipped: \(roadmaps) roadmaps found." }
+            CLI.print(text)
         }
     }
 

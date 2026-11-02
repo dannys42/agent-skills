@@ -314,6 +314,79 @@ struct SessionMetricsTests {
     }
 }
 
+private let milestoneRoadmap = """
+# Roadmap: Demo
+
+## Milestones
+- M1 (print a puzzle) — I can print. `owner`; touches: Grid_View [done]
+- M2 (any size) — I can pick a size. `proposed` [current]
+
+## Ladder (one line per rung, in order)
+1. L2 — Draw a grid? [done]
+2. L3 — Control text? [done]
+3. L4 — Pick a size? [planned]
+
+## Rungs (detailed)
+
+### L2: Draw a grid
+Milestone: M1
+
+### L3: Control text
+Milestone: M1
+
+### L4: Pick a size
+Milestone: M2
+"""
+
+@Suite("Milestone metrics")
+struct MilestoneMetricsTests {
+    @Test func totalsEscapedDefectsPerMilestoneThroughTheRoadmap() {
+        let text = "- [ ] T1 Fix\n  - Escaped from: L2\n- [ ] T2 Fix\n  - Escaped from: `L3`.\n- [ ] T3 Fix\n  - **Escaped from:** L4\n- [ ] T4 Fix\n  - Escaped from: L9\n"
+        let byRung = Escapes.byRung(texts: [text])
+        #expect(byRung == ["L2": 1, "L3": 1, "L4": 1, "L9": 1])
+        let byMilestone = Escapes.byMilestone(byRung, roadmap: Roadmap(text: milestoneRoadmap))
+        #expect(byMilestone == ["M1": 2, "M2": 1, "(no milestone)": 1])
+        #expect(Escapes.renderMilestones(byMilestone) == "Escaped defects by milestone: (no milestone) 1, M1 2, M2 1.")
+        let log = MetricsLog.events(text: #"{"run":"A","ts":"2026-10-01T10:00:00Z","event":"start","repo":"/p","list":"Tasklist-L2-X.md"}"#)
+        let all = RunSummary.byList(log: log, repo: "/p") { _ in nil }
+        let out = RunSummary.render(target: all["Tasklist-L2-X.md"]!, all: all, escapes: byRung, escapesByMilestone: byMilestone)
+        #expect(out.contains("Escaped defects by milestone: "))
+        #expect(!RunSummary.render(target: all["Tasklist-L2-X.md"]!, all: all).contains("by milestone"))
+    }
+
+    @Test func countsProvisionalMarkersAndFlagsOnesWhoseMilestoneIsDone() {
+        var input = SignalInput()
+        input.milestoneStatus = Dictionary(Roadmap(text: milestoneRoadmap).milestones.map { ($0.id, $0.status) }) { a, _ in a }
+        let tag = "PROVISIONAL" + "("   // split so this file never matches the marker scan
+        input.provisionalLines = [
+            ("Sources/Grid.swift", "    // " + tag + "L2): replace at M1 (print a puzzle)"),
+            ("Sources/Size.swift", "    // " + tag + "L4): replace at M2 (any size)"),
+            ("Sources/Odd.swift", "    // " + tag + "L5): no milestone named"),
+            ("Sources/Doc.swift", "    /// " + tag + "<RungId>): replace at <MilestoneId>"),
+            ("Sources/Gone.swift", "    // " + tag + "L6): replace at M99 (renamed away)"),
+        ]
+        let signals = Signals.evaluate(input)
+        #expect(signals.counts["provisional"] == 3 && signals.counts["provisional_overdue"] == 1)
+        #expect(signals.triggers == ["provisional: PROVISIONAL(L2) in Grid.swift says replace at M1, which is done"])
+        #expect(signals.info.contains("Provisional markers: 3, 1 past their milestone, unknown milestone M99"))
+        #expect(Signals.evaluate(SignalInput()).counts["provisional"] == 0)
+        input.roadmapCount = 2
+        #expect(Signals.evaluate(input).info.contains("Provisional overdue check skipped: 2 roadmaps found"))
+    }
+
+    @Test func stepEventsWithKindRulingAndEscalatedAreAcceptedWithoutWarnings() {
+        let log = MetricsLog.events(text: """
+        {"event":"step","repo":"/r","ts":"2026-10-01T10:00:00Z","skill":"roadmap-plan-next-rung 0.11.2","kind":"fold-back","target":"L3","drift":0,"escalated":true,"next":"/rung","next_model":"opus"}
+        {"event":"step","repo":"/r","ts":"2026-10-01T11:00:00Z","skill":"roadmap-plan-next-rung 0.11.2","kind":"milestone-close","target":"M1","ruling":"accept with follow-ups","next":"/rung","next_model":"opus"}
+        {"event":"step","repo":"/r","ts":"2026-10-01T12:00:00Z","skill":"roadmap-plan-next-rung 0.11.2","kind":"milestone-plan","target":"M2","next":"/rung","next_model":"sonnet"}
+        """)
+        #expect(log.count == 3)
+        #expect(SkillStamp.warnings(log: log).isEmpty)
+        #expect(log[1].string("ruling") == "accept with follow-ups" && log[0].bool("escalated"))
+        #expect(Predictions.render(log: log, repo: "/r").contains("step"))
+    }
+}
+
 @Suite("Rung commands")
 struct RungCommandTests {
     @Test func rungStepsMapToTheSkillTheyRun() {

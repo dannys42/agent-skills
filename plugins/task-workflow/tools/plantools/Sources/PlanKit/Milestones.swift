@@ -200,3 +200,20 @@ extension Roadmap {
         return out
     }
 }
+
+extension Roadmap {
+    /// Tracked `Roadmap-*.md` files (not a `-Log`, `-Rungs` or `Completed/` file).
+    public static func paths(in repo: String) -> [String] {
+        Git.lines(["ls-files", "--", "*Roadmap-*.md"], in: repo).filter {
+            let name = ($0 as NSString).lastPathComponent
+            return name.hasPrefix("Roadmap-") && !name.hasSuffix("-Log.md") && !name.hasSuffix("-Rungs.md") && !$0.contains("Completed/")
+        }
+    }
+
+    /// The roadmap tracked in `repo`; nil when there is none or more than one.
+    public static func locate(in repo: String) -> Roadmap? {
+        let found = paths(in: repo)
+        guard found.count == 1, let text = try? String(contentsOfFile: (repo as NSString).appendingPathComponent(found[0]), encoding: .utf8) else { return nil }
+        return Roadmap(text: text)
+    }
+}

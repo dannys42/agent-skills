@@ -126,7 +126,7 @@ Standing context for every task:
   - Verify: `swift test --package-path plugins/task-workflow/tools/plantools`
   - Done when: tests cover each addition and pass.
 
-- [ ] T23 Extend `metrics`: provisional markers and escapes per milestone
+- [x] T23 Extend `metrics`: provisional markers and escapes per milestone
   - Model: standard (Sonnet 5.5)
   - Needs: T12, T13
   - Context: Spec "End-of-goal rule" (kept spike code) and "Open items". `metrics signals` counts `PROVISIONAL(` markers and flags one whose named milestone is already done (read milestone status through PlanKit, as T12 parses it); `metrics summary` also totals `Escaped from:` tasks per milestone.

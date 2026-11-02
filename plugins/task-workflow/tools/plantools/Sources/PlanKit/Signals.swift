@@ -52,6 +52,12 @@ public struct SignalInput {
     public var priorRungLines: [Int] = []
     public var newSubsystemDocs: [String] = []
     public var churn: [(path: String, commits: Int)] = []
+    /// Lines of tracked non-Markdown files that carry `PROVISIONAL(`, as `git grep -n` prints them (`path:line:text`).
+    public var provisionalLines: [(path: String, text: String)] = []
+    /// Milestone ID to status (`done`, `current`...) from the roadmap; empty when there is none.
+    public var milestoneStatus: [String: String] = [:]
+    /// How many roadmaps the repository tracks; the milestone checks need exactly one.
+    public var roadmapCount = 0
 
     public init() {}
 }
@@ -68,6 +74,11 @@ public struct Signals {
     static let noBaselineLines = 3_000
     static let ignoredSuffixes: Set<String> = ["View", "Views", "App", "Test", "Tests", "Mock", "Mocks", "Preview", "Previews", "Extension", "Extensions"]
     static let mirrorPairs = [("Row", "Input"), ("Row", "Record"), ("Record", "Input"), ("DTO", "Model"), ("Entity", "Model"), ("Row", "Model")]
+
+    /// The strict marker form terms.md defines; the same pattern `git grep -E` uses, so docs and prose that merely mention the form do not count.
+    public static let provisionalPattern = #"PROVISIONAL\(([A-Za-z0-9]+)\): replace at (M[0-9]+)"#
+
+    static func firstCapture(_ pattern: String, in text: String) -> String? { Escapes.firstCapture(pattern, in: text) }
 
     static func count(_ pattern: String, in text: String) -> Int {
         (try? NSRegularExpression(pattern: pattern))?.numberOfMatches(in: text, range: NSRange(text.startIndex..., in: text)) ?? 0
@@ -135,7 +146,23 @@ public struct Signals {
             "shape_groups": groups.count, "mirrors": pairs.count,
         ]
 
+        // Provisional markers: `PROVISIONAL(<RungId>): replace at <MilestoneId> (<name>)`; one whose milestone is done is overdue.
+        let markers = input.provisionalLines.compactMap { line -> (path: String, rung: String, milestone: String)? in
+            guard let re = try? NSRegularExpression(pattern: provisionalPattern),
+                  let m = re.firstMatch(in: line.text, range: NSRange(line.text.startIndex..., in: line.text)),
+                  let rung = Range(m.range(at: 1), in: line.text), let ms = Range(m.range(at: 2), in: line.text) else { return nil }
+            return (line.path, String(line.text[rung]), String(line.text[ms]))
+        }
+        let known = !input.milestoneStatus.isEmpty
+        let overdue = markers.filter { input.milestoneStatus[$0.milestone]?.hasPrefix("done") == true }
+        let unknown = known ? Set(markers.map(\.milestone).filter { input.milestoneStatus[$0] == nil }) : []
+        s.counts["provisional"] = markers.count
+        s.counts["provisional_overdue"] = overdue.count
+
         // Triggers
+        for m in overdue {
+            s.triggers.append("provisional: PROVISIONAL(\(m.rung)) in \((m.path as NSString).lastPathComponent) says replace at \(m.milestone), which is done")
+        }
         if let status = input.status, status.sinceReview >= status.every {
             s.triggers.append("interval: \(status.sinceReview) rungs since the last review (every \(status.every))")
         }
@@ -160,6 +187,9 @@ public struct Signals {
         for doc in input.newSubsystemDocs { s.triggers.append("subsystem: new design doc \(doc)") }
 
         // Info
+        if !markers.isEmpty { s.info.append("Provisional markers: \(markers.count)" + (overdue.isEmpty ? "" : ", \(overdue.count) past their milestone")
+            + (unknown.isEmpty ? "" : ", unknown milestone \(unknown.sorted().joined(separator: ", "))")) }
+        if input.roadmapCount > 1 { s.info.append("Provisional overdue check skipped: \(input.roadmapCount) roadmaps found") }
         if !input.swiftFiles.isEmpty {
             var line = "\(input.swiftFiles.count) Swift files, \(totalLines) lines"
             if !large.isEmpty {
@@ -260,6 +290,13 @@ extension SignalInput {
         input.swiftFiles = swiftPaths.compactMap { path in
             (try? String(contentsOfFile: (repo as NSString).appendingPathComponent(path), encoding: .utf8)).map { (path, $0) }
         }
+        // Tracked files other than Markdown, so the docs that define the marker do not count.
+        input.provisionalLines = Git.lines(["grep", "-n", "-I", "-E", Signals.provisionalPattern, "--", ".", ":(exclude)*.md"], in: repo).compactMap { line in
+            let parts = line.split(separator: ":", maxSplits: 2, omittingEmptySubsequences: false)
+            return parts.count == 3 ? (String(parts[0]), String(parts[2])) : nil
+        }
+        input.roadmapCount = Roadmap.paths(in: repo).count
+        if let roadmap = Roadmap.locate(in: repo) { input.milestoneStatus = Dictionary(roadmap.milestones.map { ($0.id, $0.status) }, uniquingKeysWith: { a, _ in a }) }
         let candidates = statusPath.map { [$0] } ?? ["Documentation", "docs", "Docs"].map { "\($0)/Quality/Status.md" }
         for path in candidates {
             let full = path.hasPrefix("/") ? path : (repo as NSString).appendingPathComponent(path)

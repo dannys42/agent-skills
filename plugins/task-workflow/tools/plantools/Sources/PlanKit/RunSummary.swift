@@ -179,7 +179,7 @@ public enum RunSummary {
 
     /// Numbers table for `target` against the median of the last `compare` rung lists before it, the largest
     /// batches by subagent tokens, and what stands out. Rows that are zero for this rung and its peers are left out.
-    public static func render(target: RungNumbers, all: [String: RungNumbers], quality: [LogEvent] = [], escapes: [String: Int] = [:], compare: Int = 5) -> String {
+    public static func render(target: RungNumbers, all: [String: RungNumbers], quality: [LogEvent] = [], escapes: [String: Int] = [:], escapesByMilestone: [String: Int] = [:], compare: Int = 5) -> String {
         let peers = all.values
             .filter { $0.list != target.list && isRungList($0.list) && $0.lastTS <= target.lastTS }
             .sorted { $0.lastTS < $1.lastTS }
@@ -215,6 +215,7 @@ public enum RunSummary {
         }
         if let trend = orchestratorTrend(target.orchByBatch) { out.append(trend.line) }
         if let line = Escapes.render(escapes, rung: target.rung) { out.append("\n" + line) }
+        if let line = Escapes.renderMilestones(escapesByMilestone) { out.append(line) }
 
         var batches: [String: [RungNumbers.Agent]] = [:]
         target.agents.forEach { batches[$0.tasks, default: []].append($0) }

@@ -28,13 +28,30 @@ public enum Escapes {
         var out: [String: Int] = [:]
         for text in texts {
             for line in text.split(separator: "\n", omittingEmptySubsequences: true) {
-                guard let match = line.range(of: #"^\s*(?:[-*]\s+)?(?:\*\*)?Escaped from:(?:\*\*)?\s*`?([A-Za-z0-9]+)"#, options: .regularExpression) else { continue }
-                let id = line[match].split(separator: " ").last.map { $0.trimmingCharacters(in: CharacterSet(charactersIn: "`*:")) } ?? ""
-                if !id.isEmpty, id != "Escaped" { out[id, default: 0] += 1 }
+                guard let id = firstCapture(#"^\s*(?:[-*]\s+)?(?:\*\*)?Escaped from:(?:\*\*)?\s*`?([A-Za-z0-9]+)"#, in: String(line)) else { continue }
+                out[id, default: 0] += 1
             }
         }
         return out
     }
+
+    static func firstCapture(_ pattern: String, in text: String) -> String? {
+        guard let re = try? NSRegularExpression(pattern: pattern), let m = re.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)),
+              let r = Range(m.range(at: 1), in: text) else { return nil }
+        return String(text[r])
+    }
+
+    /// Escapes totalled per milestone: each rung maps through the roadmap (its `Milestone:` field or horizon tag); rungs the roadmap does not place go under `(no milestone)`.
+    public static func byMilestone(_ byRung: [String: Int], roadmap: Roadmap) -> [String: Int] {
+        var out: [String: Int] = [:]
+        for (rung, n) in byRung {
+            let milestone = roadmap.ladder.first { $0.id.lowercased() == rung.lowercased() }.flatMap { roadmap.milestone(of: $0) }
+            out[milestone ?? noMilestone, default: 0] += n
+        }
+        return out
+    }
+
+    public static let noMilestone = "(no milestone)"
 
     /// The tasklists tracked in `repo`, read from disk.
     public static func byRung(repo: String) -> [String: Int] {
@@ -48,5 +65,11 @@ public enum Escapes {
         var line = "Escaped defects by rung: \(all)."
         if let rung { line = "Escaped defects from \(rung): \(counts[rung] ?? 0). " + line }
         return line
+    }
+
+    public static func renderMilestones(_ counts: [String: Int]) -> String? {
+        guard !counts.isEmpty else { return nil }
+        let all = counts.sorted { $0.key.localizedStandardCompare($1.key) == .orderedAscending }.map { "\($0.key) \($0.value)" }.joined(separator: ", ")
+        return "Escaped defects by milestone: \(all)."
     }
 }
