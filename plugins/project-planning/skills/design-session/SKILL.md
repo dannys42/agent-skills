@@ -25,7 +25,7 @@ Use it at any point: before the system design exists, during milestone planning,
 
 ### 1. Read, then let the owner lead
 
-Read the system design and any subsystem doc the topic touches, the roadmap's current milestone, `<DocDir>/Taxonomy.md`, the project rules file (`CLAUDE.md` or equivalent) and the owner preferences file `~/.local/state/danny-agent-skills/owner-preferences.md` if it exists. If a notes file for this topic exists in `Sessions/`, continue from it. Otherwise create it and state the path.
+Read the system design and any subsystem doc the topic touches, the roadmap's current milestone, `<DocDir>/Taxonomy.md`, the project rules file (`CLAUDE.md` or equivalent) and the owner preferences file `${DANNY_SKILLS_STATE_DIR:-$HOME/.local/state/danny-agent-skills}/owner-preferences.md` if it exists. If a notes file for this topic exists in `Sessions/`, continue from it. Otherwise create it and state the path.
 
 Ask the owner what they are picturing, and reflect their sketch back in a few lines and, when it has two or more parts, a diagram. Ask only what would change the shape; never ask what you could state as a default.
 

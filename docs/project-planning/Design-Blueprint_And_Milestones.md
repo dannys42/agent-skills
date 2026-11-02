@@ -55,7 +55,7 @@ Reworking a `working` item is planned work, not drift.
 
 The agent learns the owner's tastes the way the skills learn from retros: from rulings, with evidence, kept short.
 
-- **Where** (owner, 2026-11-01): a user-level file, `~/.local/state/danny-agent-skills/owner-preferences.md`, for tastes that hold across projects (depth, foundation-first order, small command-line labs, naming style, how options are presented, framework defaults). The project's rules file (`CLAUDE.md` or equivalent) holds project-specific ones (credential limits, domain principles).
+- **Where** (owner, 2026-11-01): a user-level file, `~/.local/state/danny-agent-skills/owner-preferences.md`, for tastes that hold across projects (depth, foundation-first order, small command-line labs, naming style, how options are presented, framework defaults). The project's rules file (`CLAUDE.md` or equivalent) holds project-specific ones (credential limits, domain principles). The file lives in the state directory, which `DANNY_SKILLS_STATE_DIR` can move.
 - **What is not a preference:** a single ruling (that is a decision in the design docs), and feedback on how the skills behave (that goes to the ledger).
 - **What goes in:** a preference enters only after the owner overrides the same kind of `proposed` item twice, or states it outright. Each line has the preference, one example and the date. One ruling is a hypothesis, not a preference.
 - **Who writes it:** milestone close and `design-session`'s promote step propose additions in one line each. The owner accepts or declines.

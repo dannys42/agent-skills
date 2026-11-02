@@ -99,7 +99,7 @@ Reached when no rung of the current milestone is `planned` or `in progress` and 
 6. **Retro.** One milestone retro in a background Sonnet subagent following [retrospective.md](references/retrospective.md) (absolute path; return only the report, apply nothing).
 7. **Owner preferences.** Propose additions in one line each, by terms.md's two-overrides rule; the owner accepts or declines, and accepted ones are written where terms.md says.
 8. **Re-plan the next milestone** with risk-first-roadmap's Re-plan ("At milestone close"), with the accepted quality proposals; without its `Next:` line or `step` event. Record the ruling in the learning log and remove the `Close:` line. Commit by explicit path as `Close milestone <MilestoneId>: <name>`, and run the map command.
-9. **End.** Show the retro after the re-plan summary, a sentence saying the next milestone (with its name) is planned next, then `Next: /rung (Opus: /model opus)`. Log one `step` event with `kind` `milestone-close`, `target` (the MilestoneId), `ruling`, `next` and `next_model`.
+9. **End.** Print the retro report after the re-plan summary, then the one line `retro feedback saved (<n> pending)` (the block is saved to the inbox, not printed), a sentence saying the next milestone (with its name) is planned next, then `Next: /rung (Opus: /model opus)`. Log one `step` event with `kind` `milestone-close`, `target` (the MilestoneId), `ruling`, `next` and `next_model`.
 
 ## Retrospective
 

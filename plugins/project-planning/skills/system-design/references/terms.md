@@ -70,7 +70,7 @@ The shared vocabulary of the project-planning skills. Each term is defined once 
 ## Owner preferences
 
 - **Owner preference.** A taste of the owner's that the agent applies to every first pass (system design, milestone outcomes, names, rung briefs) before drafting. Each line holds the preference, one example and the date. Example: "Prefer a small command-line lab for experiments before building them into the app (e.g. a throwaway tool that tests confidence thresholds, 2026-11-01)."
-- **Where.** Tastes that hold across projects go in `~/.local/state/danny-agent-skills/owner-preferences.md`; project-specific ones (credential limits, domain principles) go in the project's rules file (`CLAUDE.md` or equivalent).
+- **Where.** Tastes that hold across projects go in `${DANNY_SKILLS_STATE_DIR:-$HOME/.local/state/danny-agent-skills}/owner-preferences.md`; project-specific ones (credential limits, domain principles) go in the project's rules file (`CLAUDE.md` or equivalent).
 - **What is not one.** A single ruling (that is a decision in the design docs) and feedback on how the skills behave (that goes to the ledger).
 - **Two-overrides rule.** A preference enters only after the owner overrides the same kind of `proposed` item twice, or states it outright. One ruling is a hypothesis. Milestone close and the promote step of `design-session` (the skill for working a design out with the owner; its promote step moves agreed items into the system design) propose additions, one line each; the owner accepts or declines.
 

@@ -37,7 +37,7 @@ A piece is a **subsystem** when it is a separate build target (app, library or p
 
 ### 1. Inspect before asking
 
-Read the workspace: code, the project rules file (`CLAUDE.md` or equivalent), the owner preferences file `~/.local/state/danny-agent-skills/owner-preferences.md` if it exists, `<DocDir>/Taxonomy.md`, the docs directory and earlier design files. Do not ask for anything you can discover.
+Read the workspace: code, the project rules file (`CLAUDE.md` or equivalent), the owner preferences file `${DANNY_SKILLS_STATE_DIR:-$HOME/.local/state/danny-agent-skills}/owner-preferences.md` if it exists, `<DocDir>/Taxonomy.md`, the docs directory and earlier design files. Do not ask for anything you can discover.
 
 - `<DocDir>/SystemDesign/Overview.md` exists: read it and continue from it, keeping its IDs. IDs are per document; cite another doc's as `Puzzle_Generator:R1`. If it has the older shape (no Scope and milestones table), read it as it is; the first milestone planning session converts it ([Migration](#migration)).
 - A legacy `<DocDir>/Design-<Topic>.md` exists: read it and offer to migrate it into `SystemDesign/Overview.md` (mapping in the template). Write the new file beside it; never overwrite or delete the legacy file.
@@ -102,7 +102,7 @@ For an Overview, subsystem doc or roadmap written before the system design shape
 
 ## Retrospective
 
-Offered after sign-off, or `retro` any time. Follow the `roadmap-plan-next-rung` skill's [retrospective.md](../roadmap-plan-next-rung/references/retrospective.md), built from the system design, any subsystem docs written, their git history and this step's logged counts, not from memory. Apply nothing. If that file is missing, give a few evidence lines (detail written beyond what the current milestone needs, the share of `proposed` items the owner accepted unchanged (from the logged `accepted` and `proposed` counts), owner wording tightened or kept, subsystem rows marked `pending` and why), then one project-neutral fenced feedback block headed `retro feedback`, with skill versions from `../../.claude-plugin/plugin.json`, an evidence tier and a `[project-planning]` tag per point (`measured`, `observed`, `guess`), what to keep and suggested edits, preceded by the line "Paste this block into /retro-feedback in danny-agent-skills:". If nothing stands out, say so in one line.
+Offered after sign-off, or `retro` any time. Follow the `roadmap-plan-next-rung` skill's [retrospective.md](../roadmap-plan-next-rung/references/retrospective.md), built from the system design, any subsystem docs written, their git history and this step's logged counts, not from memory. Apply nothing. If that file is missing, give a few evidence lines (detail written beyond what the current milestone needs, the share of `proposed` items the owner accepted unchanged (from the logged `accepted` and `proposed` counts), owner wording tightened or kept, subsystem rows marked `pending` and why), then one project-neutral feedback block headed `retro feedback`, with skill versions from `../../.claude-plugin/plugin.json`, an evidence tier and a `[project-planning]` tag per point (`measured`, `observed`, `guess`), what to keep and suggested edits, saved to the feedback inbox as `retrospective.md` describes, with one line `retro feedback saved (<n> pending)` instead of the block. If nothing stands out, say so in one line.
 
 ## If a linked file or skill is missing
 

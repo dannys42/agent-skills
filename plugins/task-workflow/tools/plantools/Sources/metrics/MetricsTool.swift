@@ -12,7 +12,7 @@ struct MetricsTool: ParsableCommand {
     )
 
     struct LogOption: ParsableArguments {
-        @Option(help: "Metrics log (default ~/.local/state/danny-agent-skills/task-workflow/metrics.jsonl).") var log: String?
+        @Option(help: "Metrics log (default $DANNY_SKILLS_STATE_DIR/task-workflow/metrics.jsonl, else ~/.local/state/danny-agent-skills/task-workflow/metrics.jsonl).") var log: String?
         var path: String { log ?? MetricsLog.defaultPath }
         var events: [LogEvent] { (try? String(contentsOfFile: path, encoding: .utf8)).map(MetricsLog.events) ?? [] }
     }

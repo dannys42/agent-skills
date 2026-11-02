@@ -194,7 +194,7 @@ Standing context for every task:
 
 ### G4 Feedback inbox
 
-- [ ] T17 Retros write to the feedback inbox
+- [x] T17 Retros write to the feedback inbox
   - Model: standard (Sonnet 5.5)
   - Needs: T10
   - Context: Spec "Retro feedback inbox" items 1 and 4. In `roadmap-plan-next-rung/references/retrospective.md` (and the retro paragraphs of `system-design` and `tasklist-run`): write the block to `${DANNY_SKILLS_STATE_DIR:-~/.local/state/danny-agent-skills}/feedback/inbox/<utc-timestamp>-<skill>.md` and print one line `retro feedback saved (<n> pending)`; show the block only when asked. Milestone retro at milestone close; per-rung retro only for an unusual rung. The retro reports the share of `proposed` items the owner accepted unchanged. Point the metrics log at the same state directory variable in `tasklist-run` (and the tools, if they hard-code the path: check `MetricsLog.swift`).

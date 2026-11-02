@@ -3,10 +3,23 @@ import Foundation
 /// One line of the `tasklist-run` metrics log, kept as a plain JSON object.
 public typealias LogEvent = [String: Any]
 
-/// The shared metrics log: `~/.local/state/danny-agent-skills/task-workflow/metrics.jsonl`.
+/// The shared metrics log: `$DANNY_SKILLS_STATE_DIR/task-workflow/metrics.jsonl`, with the state directory defaulting to `~/.local/state/danny-agent-skills`.
 public enum MetricsLog {
     public static var defaultPath: String {
-        FileManager.default.homeDirectoryForCurrentUser.path + "/.local/state/danny-agent-skills/task-workflow/metrics.jsonl"
+        stateDirectory() + "/task-workflow/metrics.jsonl"
+    }
+
+    /// `DANNY_SKILLS_STATE_DIR` when set and non-empty (a leading `~` expands to `home`), else `<home>/.local/state/danny-agent-skills`.
+    public static func stateDirectory(
+        environment: [String: String] = ProcessInfo.processInfo.environment,
+        home: String = FileManager.default.homeDirectoryForCurrentUser.path
+    ) -> String {
+        guard let dir = environment["DANNY_SKILLS_STATE_DIR"], !dir.isEmpty else {
+            return home + "/.local/state/danny-agent-skills"
+        }
+        if dir == "~" { return home }
+        if dir.hasPrefix("~/") { return home + dir.dropFirst() }
+        return dir
     }
 
     /// Unparseable lines are skipped, like the Python analyzer did.

@@ -432,3 +432,15 @@ struct RungCommandTests {
         #expect(Predictions.skillName("/rung → checkpoint L44") == "system-design")
     }
 }
+
+@Suite("State directory")
+struct StateDirectoryTests {
+    @Test(arguments: [
+        ([String: String](), "/h/.local/state/danny-agent-skills"),
+        (["DANNY_SKILLS_STATE_DIR": ""], "/h/.local/state/danny-agent-skills"),
+        (["DANNY_SKILLS_STATE_DIR": "~/x"], "/h/x"),
+    ])
+    func resolvesTheStateDirectory(environment: [String: String], expected: String) {
+        #expect(MetricsLog.stateDirectory(environment: environment, home: "/h") == expected)
+    }
+}
