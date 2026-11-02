@@ -186,7 +186,7 @@ Standing context for every task:
     c. Reply "approved", or give your choice for each decision you would change, including the rename.
   - Done when: the owner replies. Each change becomes a fix task, inserted ahead of the first open task, that also updates any later work already built on the changed text; a rename ruling becomes its own structure-only task.
 
-- [ ] T34 Fix the handoff-ignored grader and re-score demo-stop-handoff
+- [x] T34 Fix the handoff-ignored grader and re-score demo-stop-handoff
   - Model: light (Haiku 4.5)
   - Needs: T15
   - Context: Found during T15. In plugins/project-planning/evals/demo-stop-handoff/graders, handoff-ignored is tool_used with max: 0 and no min, so zero matching calls reads as 'expected 1..0' and fails; set min: 0. Re-score the g3 demo-stop-handoff runs from their kept traces if possible, else re-run that case with --case; update the g3 numbers in the spec's Eval results.
