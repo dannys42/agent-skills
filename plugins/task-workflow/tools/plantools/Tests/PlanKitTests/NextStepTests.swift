@@ -24,36 +24,36 @@ private let done = "- [x] T1 Did it\n  - Model: standard (Sonnet 5.5)\n"
 struct NextStepTests {
     @Test func noDesignNoRoadmapIsDesign() {
         let s = decide(nil, overview: false)
-        #expect(s.step == "design" && s.model == "opus" && s.command == "/rung design")
-        #expect(s.rendered == "step: design\nmodel: opus\ncommand: /rung design\nwhy: no system design and no roadmap")
+        #expect(s.step == "design" && s.model == "opus" && s.command == "system-design")
+        #expect(s.rendered == "step: design\nmodel: opus\ncommand: system-design\nwhy: no system design and no roadmap")
     }
 
     @Test func overviewWithoutRoadmapIsRoadmap() {
         let s = decide(nil)
-        #expect(s.step == "roadmap" && s.command == "/rung roadmap" && s.model == "opus")
+        #expect(s.step == "roadmap" && s.command == "risk-first-roadmap" && s.model == "opus")
     }
 
     @Test func firstPlannedRungWhenNoneInProgress() {
         let s = decide("## Ladder\n\n1. L1 — a [done]\n2. L2 — b [planned]\n3. L3 — c [planned]\n")
-        #expect(s.step == "plan" && s.rung == "L2" && s.command == "/rung plan L2" && s.model == "opus")
+        #expect(s.step == "plan" && s.rung == "L2" && s.command == "roadmap-plan-next-rung plan" && s.model == "opus")
     }
 
     @Test func nothingLeftIsFinished() {
         let s = decide("## Ladder\n\n1. L1 — a [done]\n2. L2 — b [obsolete: skipped by owner]\n3. L3 — c [failed]\n")
-        #expect(s.step == "finished" && s.command == "/risk-first-roadmap" && s.rung == nil)
+        #expect(s.step == "finished" && s.command == "risk-first-roadmap" && s.rung == nil)
         #expect(s.why == "no planned, deferred or horizon rung left; extend the ladder or stop")
     }
 
     @Test func deferredOrHorizonRungsLeftMeanReplan() {
         let s = decide("## Ladder\n\n1. L1 — a [done]\n2. L2 — b [deferred: waits on M2]\n\n## Horizon\n\n- L5 — e\n")
-        #expect(s.step == "replan" && s.command == "/rung replan" && s.model == "opus" && s.rung == nil)
+        #expect(s.step == "replan" && s.command == "risk-first-roadmap" && s.model == "opus" && s.rung == nil)
         #expect(s.why == "no planned rung; deferred: L2; horizon: L5; bring one back, detail one, or drop them")
     }
 
     @Test func anOpenRefactorListRunsBeforeTheNextRungIsPlanned() {
         let s = decide("## Ladder\n\n1. L1 — a [done]\n2. L2 — b [planned]\n", lists: [list("Tasklist-Refactor-Shared_Parser.md", openStd + openHeavy + openHeavy)])
         #expect(s.step == "run" && s.rung == nil && s.model == "opus")
-        #expect(s.list == "docs/Tasklist-Refactor-Shared_Parser.md" && s.command == "/tasklist-run docs/Tasklist-Refactor-Shared_Parser.md")
+        #expect(s.list == "docs/Tasklist-Refactor-Shared_Parser.md" && s.command == "tasklist-run docs/Tasklist-Refactor-Shared_Parser.md")
         let closed = decide("## Ladder\n\n1. L1 — a [done]\n2. L2 — b [planned]\n", lists: [list("Tasklist-Refactor-Shared_Parser.md", done)])
         #expect(closed.step == "plan" && closed.rung == "L2")
     }
@@ -79,7 +79,7 @@ struct NextStepTests {
 
     @Test func openTasksRunOnSonnetFromTheOpenList() {
         let s = decide(lists: [list("Tasklist-L3-Grid_Text.md", openStd)])
-        #expect(s.step == "run" && s.rung == "L3" && s.model == "sonnet" && s.command == "/rung run L3")
+        #expect(s.step == "run" && s.rung == "L3" && s.model == "sonnet" && s.command == "tasklist-run docs/Tasklist-L3-Grid_Text.md")
         #expect(s.list == "docs/Tasklist-L3-Grid_Text.md")
     }
 
@@ -101,7 +101,7 @@ struct NextStepTests {
     @Test func userOnlyAndBlockedIsUserStep() {
         let tasks = "- [ ] T5 USER — Confirm\n- [ ] T9 USER — Sign\n- [ ] T7 BLOCKED(T5) — Wait\n  - Model: standard (Sonnet 5.5)\n"
         let s = decide(lists: [list("Tasklist-L3-Grid.md", tasks)])
-        #expect(s.step == "user" && s.command == "/rung run L3" && s.list == "docs/Tasklist-L3-Grid.md")
+        #expect(s.step == "user" && s.command == "tasklist-run docs/Tasklist-L3-Grid.md" && s.list == "docs/Tasklist-L3-Grid.md")
         #expect(s.why == "USER tasks waiting: T5, T9; blocked: T7")
     }
 
@@ -119,12 +119,12 @@ struct NextStepTests {
         #expect(decide().why.contains("brief missing"))
         #expect(decide(briefs: [brief("L3", status: "draft")]).why.contains("draft"))
         let s = decide(briefs: [brief("L3", status: "agreed (2026-10-01)")])
-        #expect(s.step == "plan" && s.command == "/rung plan L3" && s.model == "opus" && s.why.contains("agreed"))
+        #expect(s.step == "plan" && s.command == "roadmap-plan-next-rung plan" && s.model == "opus" && s.why.contains("agreed"))
     }
 
     @Test func closedListWithoutFoldBackIsClose() {
         let s = decide(lists: [list("Tasklist-L3-Grid_Text.md", done)], briefs: [brief("L3", status: "agreed (2026-10-01)")])
-        #expect(s.step == "close" && s.command == "/rung close L3" && s.model == "opus" && s.list == "docs/Tasklist-L3-Grid_Text.md")
+        #expect(s.step == "close" && s.command == "roadmap-plan-next-rung plan" && s.model == "opus" && s.list == "docs/Tasklist-L3-Grid_Text.md")
         #expect(s.why == "Tasklist-L3-Grid_Text.md closed; brief not folded back")
         #expect(decide(lists: [list("Tasklist-L3-Grid.md", done)]).step == "close")
     }
@@ -139,7 +139,7 @@ struct NextStepTests {
 
     @Test func foldedBackIsReplan() {
         let s = decide(lists: [list("Tasklist-L3-Grid.md", done, completed: true)], briefs: [brief("L3", status: "folded back (2026-10-02)")])
-        #expect(s.step == "replan" && s.command == "/rung replan" && s.model == "opus")
+        #expect(s.step == "replan" && s.command == "risk-first-roadmap" && s.model == "opus")
         #expect(s.why == "L3 folded back; roadmap still in progress")
     }
 

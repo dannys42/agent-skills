@@ -3,7 +3,7 @@ import { test, expect, mock } from 'claude-code/testing'
 const TODO = '## P1 A\n- [ ] T1 First\n- [ ] T2 Second\n'
 const BLOCK = 'Implement:\n- [ ] T1 First\n'
 
-const NEXT = 'step: close\nrung: L3\nmodel: opus\ncommand: /rung close L3\nwhy: brief not folded back\n'
+const NEXT = 'step: close\nrung: L3\nmodel: opus\ncommand: roadmap-plan-next-rung plan\nwhy: brief not folded back\n'
 
 let n = 0
 let code = 0
@@ -129,7 +129,7 @@ test('the band shows the next step after session start and hides while a run is 
   code = 0
   setup($, on)
   await $.session.start({ source: 'startup', cwd: '/p' })
-  expect(await band($)).toContain('Next: /rung → close L3 (Opus)')
+  expect(await band($)).toContain('Next: /rung (Opus)')
   await spawn($)
   expect(await band($)).not.toContain('Next:')
 })

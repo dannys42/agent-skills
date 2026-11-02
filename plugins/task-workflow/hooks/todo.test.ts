@@ -77,14 +77,14 @@ const stopped = (file: string, statuses: TaskRow['status'][], isActive = false) 
 })
 
 test('a finished rung list points at fold-back on Opus', () => {
-  expect(nextStep(stopped('docs/Tasklist-L3-Grid_Text.md', ['done', 'closed']))).toContain('/rung → close L3')
-  expect(nextStep(stopped('docs/Tasklist-L3-Tidy.md', ['done']))).toContain('close L3')
-  expect(nextStep(stopped('docs/Tasklist-L3-Grid_Text.md', ['done']))).toContain('Opus')
+  expect(nextStep(stopped('docs/Tasklist-L3-Grid_Text.md', ['done', 'closed']))).toContain('Next: /rung.')
+  expect(nextStep(stopped('docs/Tasklist-L3-Tidy.md', ['done']))).toContain('Next: /rung')
+  expect(nextStep(stopped('docs/Tasklist-L3-Grid_Text.md', ['done']))).not.toContain('Opus')
 })
 
 test('a stopped list with open tasks points at resuming the run', () => {
   expect(nextStep(stopped('docs/Tasklist-L3-Grid_Text.md', ['done', 'blocked', 'user']))).toContain('2 tasks still open')
-  expect(nextStep(stopped('docs/Tasklist-L3-Grid_Text.md', ['open']))).toContain('/rung run L3')
+  expect(nextStep(stopped('docs/Tasklist-L3-Grid_Text.md', ['open']))).toContain('then /rung (same')
   expect(nextStep(stopped('docs/Tasklist.md', ['open']))).toContain('/tasklist-run docs/Tasklist.md')
 })
 
@@ -94,13 +94,13 @@ test('no next step while running, for a plain list, or with no tasks', () => {
   expect(nextStep(stopped('docs/Tasklist-L3-Grid_Text.md', []))).toBeUndefined()
 })
 
-const OUT = 'step: close\nrung: L3\nmodel: opus\ncommand: /rung close L3\nwhy: Tasklist-L3-Grid_Text.md closed; brief not folded back\n'
+const OUT = 'step: close\nrung: L3\nmodel: opus\ncommand: roadmap-plan-next-rung plan\nwhy: Tasklist-L3-Grid_Text.md closed; brief not folded back\n'
 
 test('parses roadmap next output into the band line', () => {
   const n = parseNext(OUT)!
   expect(n.step).toBe('close')
   expect(n.rung).toBe('L3')
-  expect(nextBand(n)).toEqual({ text: 'Next: /rung → close L3 (Opus)', why: 'Tasklist-L3-Grid_Text.md closed; brief not folded back' })
+  expect(nextBand(n)).toEqual({ text: 'Next: /rung (Opus)', why: 'Tasklist-L3-Grid_Text.md closed; brief not folded back' })
 })
 
 test('roadmap next output with no roadmap, no step or no command shows nothing', () => {

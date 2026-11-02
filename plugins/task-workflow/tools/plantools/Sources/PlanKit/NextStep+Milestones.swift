@@ -16,7 +16,7 @@ extension NextStep {
         let opus: Set<String> = ["milestone-plan", "escalation", "milestone-close", "replan", "plan", "close", "design"]
         let model = note.model.flatMap { ["opus", "sonnet", "haiku"].contains($0) ? $0 : nil } ?? (opus.contains(step) ? "opus" : "sonnet")
         let waiting = note.waitingOn.map { "waiting on " + $0 } ?? "a stop waits on the owner"
-        return NextStep(step: step, milestone: note.milestone, rung: note.rung, list: note.list, model: model, command: "/rung",
+        return NextStep(step: step, milestone: note.milestone, rung: note.rung, list: note.list, model: model, command: target(step, milestone: note.milestone, rung: note.rung, list: note.list),
                         why: waiting + " (handoff " + (note.date.map { "of \($0)" } ?? "undated") + ")", handoff: path)
     }
 
@@ -41,16 +41,14 @@ extension NextStep {
         }
     }
 
-    /// A milestone-flow step; `command` is the `roadmap-plan-next-rung` alias that runs it, or `tasklist-run` for a list.
-    static func route(_ step: String, _ model: String, _ command: String, milestone: Milestone?, rung: String? = nil, list: String? = nil, why: String) -> NextStep {
-        NextStep(step: step, milestone: milestone?.id, rung: rung, list: list, model: model, command: command, why: why)
+    /// A milestone-flow step; `command` is its dispatch target.
+    static func route(_ step: String, _ model: String, milestone: Milestone?, rung: String? = nil, list: String? = nil, why: String) -> NextStep {
+        make(step, model, milestone: milestone?.id, rung: rung, list: list, why: why)
     }
 
     static func decide(milestones roadmap: Roadmap, _ input: Input) -> NextStep {
         if !input.hasOverview {
-            var design = make("design", "opus", why: "the roadmap has milestones but there is no system design (SystemDesign/Overview.md)")
-            design.command = "/rung design"
-            return design
+            return make("design", "opus", why: "the roadmap has milestones but there is no system design (SystemDesign/Overview.md)")
         }
         if let waiting = waitingState(roadmap, input) { return waiting }
         func path(_ file: File) -> String { input.docDir == "." ? file.name : input.docDir + "/" + file.name }
@@ -61,7 +59,7 @@ extension NextStep {
             let open = roadmap.ladder.filter { $0.status.hasPrefix("planned") || $0.status.hasPrefix("in progress") }
             if next != nil || !open.isEmpty {
                 let why = "no current milestone; " + (next.map { "\($0.named) is the next planned one" } ?? "open rungs: " + open.map(\.id).joined(separator: " "))
-                return route("replan", "opus", "/rung replan", milestone: next, why: why)
+                return route("replan", "opus", milestone: next, why: why)
             }
             return refactorOrNext(roadmap, input)
         }
@@ -77,11 +75,11 @@ extension NextStep {
 
         let unplanned = rungs.filter { isOpen($0) && lists($0.id).isEmpty }
         if !unplanned.isEmpty {
-            return route("milestone-plan", "opus", "/roadmap-plan-next-rung plan \(m.id)", milestone: m,
+            return route("milestone-plan", "opus", milestone: m,
                          why: "\(m.named): \(unplanned.map { named($0.id) }.joined(separator: ", ")) \(unplanned.count == 1 ? "has" : "have") no tasklist")
         }
         if let r = rungs.first(where: { roadmap.escalation(of: $0.id) != nil }) {
-            return route("escalation", "opus", "/roadmap-plan-next-rung escalation \(r.id)", milestone: m, rung: r.id,
+            return route("escalation", "opus", milestone: m, rung: r.id,
                          why: "\(named(r.id)): the automatic fold-back escalated on \(roadmap.escalation(of: r.id) ?? "")")
         }
 
@@ -92,7 +90,7 @@ extension NextStep {
         let side = openLists(input, prefix: "Tasklist-Refactor-") + openLists(input, prefix: "Tasklist-M")
             .filter { $0.0.name.dropFirst("Tasklist-M".count).first?.isNumber == true }
         if let (file, tasks) = side.sorted(by: { $0.0.modified > $1.0.modified }).first {
-            return route("run", orchestrator(tasks), "/tasklist-run " + path(file), milestone: m, list: path(file),
+            return route("run", orchestrator(tasks), milestone: m, list: path(file),
                          why: "\(file.name) has \(tasks.count) open task(s), run before the next rung")
         }
         if let r = rungs.first(where: { $0.status.hasPrefix("planned") }) { return rungStep(r, m, input, roadmap) }
@@ -103,15 +101,15 @@ extension NextStep {
         let horizon = tagged.filter { $0.status == "horizon" }.map { named($0.id) }
         if !deferred.isEmpty || !horizon.isEmpty {
             let parts = [("deferred", deferred), ("horizon", horizon)].filter { !$0.1.isEmpty }.map { "\($0.0): \($0.1.joined(separator: ", "))" }
-            return route("replan", "opus", "/rung replan", milestone: m,
+            return route("replan", "opus", milestone: m,
                          why: "no planned rung in \(m.named); " + parts.joined(separator: "; ") + "; bring one back, detail one, or drop them")
         }
         if rungs.isEmpty {
-            return route("replan", "opus", "/rung replan", milestone: m, why: "\(m.named) has no rungs; add the rungs that reach its outcome")
+            return route("replan", "opus", milestone: m, why: "\(m.named) has no rungs; add the rungs that reach its outcome")
         }
         let why = m.close.map { "every rung of \(m.named) is finished; the close resumes after: \($0)" }
             ?? "every rung of \(m.named) is finished and no fix or follow-up list is open"
-        return route("milestone-close", "opus", "/roadmap-plan-next-rung milestone-close \(m.id)", milestone: m, why: why)
+        return route("milestone-close", "opus", milestone: m, why: why)
     }
 
     /// The step for the rung being built (`in progress`, else the first `planned` one, which the run starts): run an open
@@ -122,7 +120,7 @@ extension NextStep {
         if let (file, tasks) = openLists(input, prefix: "Tasklist-\(r.id)-").first {
             let waiting = tasks.filter { $0.user && $0.blocked == nil }.map(\.id)
             let blocked = tasks.filter { $0.blocked != nil }.map(\.id)
-            var run = route("run", orchestrator(tasks), "/rung run \(r.id)", milestone: m, rung: r.id, list: path(file),
+            var run = route("run", orchestrator(tasks), milestone: m, rung: r.id, list: path(file),
                             why: "\(name): \(file.name) has \(tasks.count) open task(s)")
             guard waiting.count + blocked.count == tasks.count else { return run }
             var parts: [String] = []
@@ -137,11 +135,11 @@ extension NextStep {
             !$0.completed && $0.name.hasPrefix("Tasklist-\(r.id)-") && $0.name.hasSuffix(".md") && !$0.name.hasSuffix("-Tidy.md")
         }.max { $0.modified < $1.modified }
         if let file = unfinished {
-            return route("run", "sonnet", "/rung run \(r.id)", milestone: m, rung: r.id, list: path(file),
+            return route("run", "sonnet", milestone: m, rung: r.id, list: path(file),
                          why: "\(name): \(file.name) is closed but not moved to Completed/, so its fold-back did not finish; tasklist-run re-enters it")
         }
         // Every list is closed and moved, yet the fold-back did not set the rung done: Opus judges the unfinished fold-back.
-        return route("escalation", "opus", "/roadmap-plan-next-rung escalation \(r.id)", milestone: m, rung: r.id,
+        return route("escalation", "opus", milestone: m, rung: r.id,
                      why: "\(name) is \(r.status) with every list closed and moved to Completed/, but the fold-back did not set it done")
     }
 }

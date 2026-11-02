@@ -17,8 +17,8 @@ Backlog: 3 accepted not yet scheduled, 2 deferred · [report](Review-2026-10-18.
 ```
 
 - `Last review:` is `none`, or `<rung> · <short sha> · <date> · [report](...)`. A baseline that found nothing is `<rung or "pre-roadmap"> · <sha> · <date> · checked, no trigger`.
-- `Since review:` lists rungs folded back since then, appended at each fold-back. Past twice `Every`, write a range and a count: `L18–L31 (14)`.
-- `Triggers pending:` the trigger names fold-back saw, comma-separated; cleared at the next review.
+- `Since review:` lists rungs folded back since then; milestone close appends every rung of the milestone. Past twice `Every`, write a range and a count: `L18–L31 (14)`.
+- `Triggers pending:` the trigger names milestone close's `metrics signals` saw, comma-separated; cleared at the next review.
 - `Deferred:` `no`, or `<date>, <reason>`: the latest deferral only.
 - `Accepted shapes:` file-name families (the last CamelCase word of the file name) a review judged to be deliberate conventions.
 - `Backlog:` counts and a link to each live report or Proposals file; never the proposals themselves, and never a count without its link.
@@ -36,10 +36,10 @@ Paste this, with the gathered facts, into the scout's prompt:
 
 ## Proposals file
 
-`<DocDir>/Quality/Proposals-<RungId>.md`, written at tidy step 7 from the scout's own lines, unedited, and completed with the user's rulings. Omit it when the scout returned neither proposals nor defects. The re-plan reads it like a review report.
+`<DocDir>/Quality/Proposals-<MilestoneId>.md`, written at tidy step 7 from the scout's own lines, unedited, and completed with the user's rulings. Omit it when the scout returned neither proposals nor defects. The re-plan reads it like a review report.
 
 ```markdown
-# Tidy proposals <RungId> · base <sha> · <date>
+# Tidy proposals <MilestoneId> · base <sha> · <date>
 
 ## Defects
 - TD1 <scout's line, with file:line> — Bug task with a reproducing test first: pending

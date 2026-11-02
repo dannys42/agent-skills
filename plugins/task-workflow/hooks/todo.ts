@@ -110,10 +110,10 @@ export function nextStep(run: TasklistRun): string | undefined {
   const waiting = run.tasks.filter(t => t.status !== 'done' && t.status !== 'closed').length
   const rung = /^Tasklist-([A-Za-z]+\d+)-/.exec(run.file.split('/').pop() ?? '')?.[1]
   if (waiting > 0) {
-    const command = rung ? `/rung run ${rung}` : `/tasklist-run ${run.file}`
+    const command = rung ? '/rung' : `/tasklist-run ${run.file}`
     return `Next: ${waiting} task${waiting === 1 ? '' : 's'} still open. Resolve blocked or USER tasks, then ${command} (same model).`
   }
-  return rung ? `Next: /rung → close ${rung} (Opus: /model opus).` : undefined
+  return rung ? 'Next: /rung.' : undefined
 }
 
 /** What `roadmap next` printed: its `key: value` lines, keys step, rung, list, model, command, why. */
@@ -130,12 +130,11 @@ export function parseNext(text: string): NextStep | undefined {
   return found as NextStep
 }
 
-/** The band's line, `Next: /rung → close L3 (Opus)`, and the dimmed why; undefined when there is nothing to run. */
+/** The band's line, `Next: /rung (Opus)`, and the dimmed why; undefined when there is nothing to run. `command` is a dispatch target and is never shown. */
 export function nextBand(n: NextStep): { text: string; why?: string } | undefined {
   if (!n.command) return undefined
-  const rest = /^\/rung\s+(.+)$/.exec(n.command)?.[1]
   const model = n.model ? ` (${n.model[0]!.toUpperCase()}${n.model.slice(1)})` : ''
-  return { text: `Next: ${rest ? `/rung → ${rest}` : n.command}${model}`, why: n.why }
+  return { text: `Next: /rung${model}`, why: n.why }
 }
 
 export function costOf(u: Usage): number {

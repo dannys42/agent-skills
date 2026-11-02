@@ -38,8 +38,24 @@ public struct NextStep: Equatable {
         }
     }
 
-    static func make(_ step: String, _ model: String, _ args: String = "", rung: String? = nil, list: String? = nil, why: String) -> NextStep {
-        NextStep(step: step, milestone: nil, rung: rung, list: list, model: model, command: "/rung " + step + (args.isEmpty ? "" : " " + args), why: why)
+    /// The dispatch target for a route: the skill invocation `/rung` runs with the Skill tool. Never shown to the owner.
+    static func target(_ step: String, milestone: String? = nil, rung: String? = nil, list: String? = nil) -> String {
+        func with(_ skill: String, _ args: String?...) -> String { ([skill] + args.compactMap { $0 }).joined(separator: " ") }
+        switch step {
+        case "design": return "system-design"
+        case "roadmap", "replan", "finished": return "risk-first-roadmap"
+        case "milestone-plan": return with("roadmap-plan-next-rung", "plan", milestone ?? rung)
+        // Older roadmaps have no milestones: that session migrates the docs, folds back an in-flight rung, then plans.
+        case "plan", "close": return "roadmap-plan-next-rung plan"
+        case "escalation": return with("roadmap-plan-next-rung", "escalation", rung)
+        case "milestone-close": return with("roadmap-plan-next-rung", "milestone-close", milestone)
+        default: return with("tasklist-run", list) // run, user
+        }
+    }
+
+    static func make(_ step: String, _ model: String, milestone: String? = nil, rung: String? = nil, list: String? = nil, why: String) -> NextStep {
+        NextStep(step: step, milestone: milestone, rung: rung, list: list, model: model,
+                 command: target(step, milestone: milestone, rung: rung, list: list), why: why)
     }
 
     public static func decide(_ input: Input) -> NextStep {
@@ -62,24 +78,21 @@ public struct NextStep: Equatable {
         // The re-plan puts accepted refactor tasks in their own list, run before the next rung is planned.
         if let (file, tasks) = openLists(input, prefix: "Tasklist-Refactor-").first {
             let path = input.docDir == "." ? file.name : input.docDir + "/" + file.name
-            var run = make("run", orchestrator(tasks), list: path, why: "\(file.name) has \(tasks.count) open task(s), placed before the next rung; /rung plan goes past it")
-            run.command = "/tasklist-run " + path
+            let run = make("run", orchestrator(tasks), list: path, why: "\(file.name) has \(tasks.count) open task(s), placed before the next rung; /rung plan goes past it")
             return run
         }
         if roadmap.milestones.isEmpty, let rung = roadmap.ladder.first(where: { $0.status.hasPrefix("planned") }) {
-            return make("plan", "opus", rung.id, rung: rung.id, why: "\(rung.id) is the first planned rung")
+            return make("plan", "opus", rung: rung.id, why: "\(rung.id) is the first planned rung")
         }
         // Deferred and horizon rungs are not finished work: the re-plan brings one back, details one, or drops them.
         let deferred = roadmap.ladder.filter { $0.status.hasPrefix("deferred") }.map(\.id)
         let horizon = roadmap.ladder.filter { $0.status == "horizon" }.map(\.id)
         if !deferred.isEmpty || !horizon.isEmpty {
             let parts = [("deferred", deferred), ("horizon", horizon)].filter { !$0.1.isEmpty }.map { "\($0.0): \($0.1.joined(separator: " "))" }
-            var replan = make("replan", "opus", why: "no planned rung; " + parts.joined(separator: "; ") + "; bring one back, detail one, or drop them")
-            replan.command = "/rung replan"
+            let replan = make("replan", "opus", why: "no planned rung; " + parts.joined(separator: "; ") + "; bring one back, detail one, or drop them")
             return replan
         }
-        var done = make("finished", "opus", why: "no planned, deferred or horizon rung left; extend the ladder or stop")
-        done.command = "/risk-first-roadmap"
+        let done = make("finished", "opus", why: "no planned, deferred or horizon rung left; extend the ladder or stop")
         return done
     }
 
@@ -94,7 +107,7 @@ public struct NextStep: Equatable {
             let path = input.docDir == "." ? file.name : input.docDir + "/" + file.name
             let waiting = tasks.filter { $0.user && $0.blocked == nil }.map(\.id)
             let blocked = tasks.filter { $0.blocked != nil }.map(\.id)
-            let run = make("run", orchestrator(tasks), id, rung: id, list: path, why: "\(file.name) has \(tasks.count) open task(s)")
+            let run = make("run", orchestrator(tasks), rung: id, list: path, why: "\(file.name) has \(tasks.count) open task(s)")
             guard waiting.count + blocked.count == tasks.count else { return run }
             var parts: [String] = []
             if !waiting.isEmpty { parts.append("USER tasks waiting: " + waiting.joined(separator: ", ")) }
@@ -106,16 +119,15 @@ public struct NextStep: Equatable {
         }
         if lists.isEmpty {
             let reason = brief == nil ? "brief missing" : briefStatus.hasPrefix("agreed") ? "brief agreed; no tasklist yet" : "brief is a draft"
-            return make("plan", "opus", id, rung: id, why: "\(id) is in progress; \(reason)")
+            return make("plan", "opus", rung: id, why: "\(id) is in progress; \(reason)")
         }
         let last = lists.max { $0.modified < $1.modified }!
         let path = input.docDir == "." ? last.name : input.docDir + "/" + last.name
         if briefStatus.hasPrefix("folded back") {
-            var replan = make("replan", "opus", rung: id, list: path, why: "\(id) folded back; roadmap still in progress")
-            replan.command = "/rung replan"
+            let replan = make("replan", "opus", rung: id, list: path, why: "\(id) folded back; roadmap still in progress")
             return replan
         }
-        return make("close", "opus", id, rung: id, list: path, why: "\(last.name) closed; " + (brief == nil ? "no brief to fold back" : "brief not folded back"))
+        return make("close", "opus", rung: id, list: path, why: "\(last.name) closed; " + (brief == nil ? "no brief to fold back" : "brief not folded back"))
     }
 
     /// Live (not `Completed/`) lists with the prefix that have open tasks, newest first. A task under a closed heading is
