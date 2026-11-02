@@ -9,11 +9,15 @@ Design: <DocDir>/SystemDesign/Overview.md (or a legacy Design-<Topic>.md)
 Build boundaries: <"decided in L1's brief", or "single target">
 Quality: <DocDir>/Quality/Status.md (code-quality-pass; omit until the first pass)
 Parked ideas: <DocDir>/ParkedIdeas-<Topic>.md (omit until the first one)
+Log: <DocDir>/Roadmap-<Topic>-Log.md (omit until the first move)
 Updated: <date>
 
 ## Milestones
-- M1 — <an outcome the owner can use>; needs: <capabilities> [current]
-- M2 — <outcome>; needs: <capabilities> [planned]
+- M1 (<name>) — <outcome in the owner's words> `<owner|proposed>`; touches: <subsystems> [current]
+  - Exit: <what the owner checks at the demo>
+- M2 (<name>) — <outcome> `<owner|proposed>`; touches: <subsystems> [planned]
+  - Additive check: <verdict from the system design>
+- M3 (<name>) — <one line> `<owner|proposed>` [planned]
 
 ## Ladder (one line per rung, in order)
 1. L1 — <question> [status]
@@ -23,10 +27,13 @@ Updated: <date>
 ### L1: ...
 ...
 
-(Requirement coverage lives in the Overview's traceability table. Only a legacy design without one gets a small FR/NFR-to-rung table here.)
+(Requirement coverage lives in the system design's traceability table. Only a legacy design without one gets a small FR/NFR-to-rung table here.)
 
 ## Horizon (not yet detailed)
-- L6 — <one-line question>
+- L6 — <one-line question> (M1)
+
+## Decide after it runs
+- <question> — settle at <RungId or MilestoneId> (<name>)
 
 ## Learning log
 - L1 (done, <date>): <what we learned, measured answer>
@@ -40,37 +47,38 @@ Ladder line format (the `roadmap` tool and `lint` read exactly this):
 - `<n>` is plain digits and only a position, nothing cites it. A new rung, wherever it sits in the order, takes the next unused ID (`L48`, not `L25a`) and its line goes in place; renumber the `<n>` of the lines after it (never `25a.` or `25.1`: such a line is not read, and the rung is skipped without a warning)
 - the bracket is the last thing on the line, apart from a `detail:` pointer: `1. L1 — Can I run an app? [done] detail: Completed/Roadmap-X-Rungs.md`
 - no other brackets after the status, no status outside the brackets, one line per rung
-- horizon rungs are `- L6 — <question>` bullets under `## Horizon`, not on the ladder, one line each (`M2` and a `ParkedIdeas` pointer may follow the question)
-- milestone lines are `- M<id> — <outcome>; needs: <capabilities> [<status>]`, with status `planned`, `current`, `done`, `deferred` or `dropped`; the `roadmap` tool does not read them
+- horizon rungs are `- L6 — <question>` bullets under `## Horizon`, not on the ladder, one line each (the milestone and a `ParkedIdeas` pointer may follow the question)
+- milestone lines are exactly ``- M<id> (<name>) — <outcome> `<mark>`; touches: <subsystems> [<status>]``, in the owner's order top to bottom. `<mark>` is always present: `owner` once the owner wrote or accepted the outcome, else `proposed`. `; touches: <subsystems>` (comma-separated subsystem names) is required on the current and next milestone and omitted on later ones, which end `` `<mark>` [<status>]``. `<status>` is `planned`, `current`, `done`, `deferred` or `dropped`, last on the line. The current milestone adds an `Exit:` sub-bullet, the next one an `Additive check:` sub-bullet; later ones stay one line. The `roadmap` tool does not read them yet
 
 ## Worked example: printable Sudoku app for macOS
 
-Risks from the design, ranked: generator correctness and speed (high impact, high uncertainty); fidelity of drawing and printed text (medium, medium); document-based app shape (medium, low); arbitrary grid sizes (low, low once the generator is generic). Nothing is on a clock.
+The system design's milestones: M1 prints one classic puzzle (the first pillar: app, grid, digits and generator at minimal depth), M2 adds grid sizes, M3 keeps a library. Risks for M1, ranked: generator correctness and speed (high impact, high uncertainty); fidelity of drawn and printed text (medium, medium); document-based app shape (medium, low). Nothing is on a clock.
 
 ### Milestones
 
-- M1 — I can print a playable 3×3 Sudoku; needs: document app, grid drawing, text, generator [current]
-- M2 — I can print any grid size I choose; needs: generic generator, size picker [planned]
+- M1 (print a puzzle) — I can print a playable 9×9 Sudoku from the app. `owner`; touches: Document_App, Grid_View, Generator, Print_Export [current]
+  - Exit: File > Print gives a page whose puzzle has exactly one solution, readable at arm's length.
+- M2 (any size) — I can choose a grid size and print a puzzle of it. `proposed`; touches: Generator, Size_Picker [planned]
+  - Additive check: yes, the generator takes the box size as a parameter from L4 (fixed 3×3 boxes) on.
+- M3 (puzzle library) — I can keep the puzzles I made and print them again. `proposed` [planned]
 
 ### Ladder
 
-1. L1 — Can I build and run the most basic document-based macOS app? (M1, shape)
-2. L2 — Can I draw the project's most basic repeated element, a fixed 3×3 grid? (M1, shape)
-3. L3 — Do I have fine enough control over the drawing: fonts, size, color, style, readable? (M1, shape)
-4. L4 — Can I produce the core logic: a Sudoku generator for a 3×3 grid, with no UI? (M1, shape)
-5. L5 — Can I see the generator's result on the grid? (M1, shape: the first end-to-end run)
-6. L6 — Can the generator produce a playable starting point (cells removed), shown on screen? (M1, breadth)
-7. L7 — Does everything hold for a 4×4 grid? (M2, breadth)
-8. L8 — Can the user choose arbitrary grid sizes from the UI? (M2, breadth)
+1. L1 — Can I build and run the most basic document-based macOS app? [planned]
+2. L2 — Can I draw the most basic repeated element, a fixed 9×9 grid? [planned]
+3. L3 — Do I control the drawing finely enough: fonts, size, color, style, readable? [planned]
+4. L4 — Can I generate a full 9×9 solution with 3×3 boxes, with no UI? [planned]
+5. L5 — Can I see the generator's result on the grid? [planned]
+6. L6 — Can the generator remove cells so one solution remains, and print it? [planned]
 
-(The milestone and class in brackets are for this example; in a roadmap they live in each rung's section.)
+Every rung serves M1. M2 and M3 have no rungs; each gets them at its own milestone planning.
 
 ### Why this order
 
-- L1–L5 are shape: each could change the UI approach or the generator's design, and L5 is the first end-to-end run. L4 is the biggest unknown and needs no UI, so it may go ahead of L2 if it looks frightening; the user decides.
-- L6 completes M1. L7–L8 are breadth for M2: once the generator is generic they are straightforward changes, not unknowns.
+- M1 is the thinnest end-to-end slice: one fixed size, one generator, no difficulty levels, no saving. Sizes and the library are later lines, and M2's additive check holds because L4 takes the box size as a parameter.
+- L1–L5 are shape, each able to change the UI approach or the generator's design; L5 is the first end-to-end run. L4 is the biggest unknown and needs no UI, so it may go ahead of L2; the owner decides.
 
-### Detailed rungs (first three)
+### Detailed rungs (L1 to L3 shown; L4 to L6 are written the same way)
 
 ```markdown
 ### L1: Build and run a document-based macOS app
@@ -80,34 +88,38 @@ Done when: `xcodebuild build` succeeds, the app launches, File > New opens a win
 De-risks: R-skeleton, R-documents
 Depends on: none
 Milestone: M1
+Touches: Document_App
 Class: shape
-If no: Fall back to a single-window app and revisit documents later; record why in the design.
+If no: Fall back to a single-window app and revisit documents later; record why in the system design.
 
-### L2: Draw a fixed 3x3 grid
+### L2: Draw a fixed 9x9 grid
 Question: Can I draw on a canvas?
-Slice: Replace the blank window content with a 3×3 grid drawn at a fixed size.
+Slice: Replace the blank window content with a 9×9 grid drawn at a fixed size, box lines heavier.
 Done when: The grid appears with even, crisp lines at 1× and 2× scale; a screenshot or a snapshot test shows it.
 De-risks: R-drawing
 Depends on: L1
 Milestone: M1
+Touches: Grid_View
 Class: shape
 If no: Try Core Graphics via an AppKit view instead of SwiftUI Canvas.
 
 ### L3: Control text in the grid
 Question: Do fonts work, and is the size, color, and style legible?
-Slice: Fill the grid with fixed numbers 1–9 in the chosen font; export one page as PDF.
+Slice: Fill the grid with fixed digits 1–9 in the chosen font; export one page as PDF.
 Done when: The PDF shows centered, readable digits; a printed page is checked by eye.
 De-risks: R-text, R-print
 Depends on: L2
 Milestone: M1
+Touches: Grid_View, Print_Export
 Class: shape
-If no: Change font or draw digits as paths; record the decision in the Overview.
+If no: Change font or draw digits as paths; record the decision in the system design.
 ```
 
-### Horizon
+### Decide after it runs
 
-- L4–L6 as listed in the ladder, detailed one at a time after L3 teaches us what the drawing layer can do. L7–L8 stay one line under M2 until M1 is done.
+- Digit font weight on paper — settle at L3 (text in the grid) after a printed page.
+- How many givens to leave — settle at L6 (playable puzzle) after printing a few.
 
 ## Another shape: a CLI or service (not Apple-specific)
 
-The same method yields a different ladder: L1 builds and runs hello-world with CI; L2 reads one real input end to end; L3 proves the one risky integration against the real service; L4 adds the core transformation with tests; L5 adds persistence; later rungs add breadth. What stays the same is the rule, not the content: each rung is runnable and answers the biggest unknown reachable from here. If the service archives data its source keeps only for a while, that ingestion is clock work: it starts right after the skeleton and its coverage is finished before features that read the data go deeper. L5's persistence is one table, the one L4 needs; later tables arrive with the rungs that need them.
+The same method yields a different map. A service that archives data its source keeps only for a while: M1 (data in one place) collects it, M2 (see it) reads it, and the analysis the project is for comes after. Inside M1: L1 builds and runs hello-world with CI; L2 reads one real input end to end into one table; L3 proves the risky integration against the real service; L4 keeps the collection current. Ingestion is clock work, so it sits in the first milestone; an early "is there enough data to analyse?" question is a read-only spike over collected data, not the start of the analysis. What stays the same is the rule, not the content.

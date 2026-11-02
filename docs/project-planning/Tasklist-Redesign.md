@@ -87,7 +87,7 @@ Standing context for every task:
 
 ### G3 Milestone map, cadence and fold-back
 
-- [ ] T8 Rewrite `risk-first-roadmap` around the milestone map
+- [x] T8 Rewrite `risk-first-roadmap` around the milestone map
   - Model: heavy (Opus 5.5)
   - Needs: T3
   - Context: Spec "2. Milestone map", "3. Rungs", re-plan triggers in "Cadence". Milestones as capability layers ordered foundation first; outcome sentence proposed in plain language and marked `proposed` until accepted; exit criteria; owner sets milestone order; end-of-goal rule with spikes and kept spike code (`PROVISIONAL` marker, Provisional code table, behind a seam; manual stand-ins listed beside the table, provisional code preferred); risk classes (shape, clock, breadth) only inside the current milestone; detail by distance; `Touches:` on every rung; the "decide after it runs" list; re-plan only on the four triggers; the roadmap's `Updated:` history goes to the log file. Remove the checkpoint-rung placement rules (look-back now runs in milestone planning). Update `references/roadmap-example.md` to match. Keep the archive and partial-read rules that still apply.
@@ -235,3 +235,5 @@ Standing context for every task:
 - rung SKILL.md passes a rung ID to `system-design checkpoint`; code-quality-pass L79, roadmap-plan-next-rung L48, risk-first-roadmap Checkpoints still describe the retired flow (T4; for T8, T9, T14)
 - design-session SKILL.md: a parked minutia with no roadmap yet has no home; system-design uses Open questions marked `after it runs` (T5)
 - .codex-plugin/plugin.json: defaultPrompt list could gain a design-session prompt at the version bump (T5; for T20)
+- Stale anchors to risk-first-roadmap: roadmap-plan-next-rung SKILL.md:100 "Re-plan after each rung", :101 old `/rung → plan`; plantools RoadmapArchive.swift:4 "Keep the roadmap small"; README.md:8 old ladder (T8; for T9, T12, T20)
+- risk-first-roadmap: the `Additive check:` sub-bullet on the next milestone may trip the over-detail "later milestone is one line" grader; watch at T15 (T8)

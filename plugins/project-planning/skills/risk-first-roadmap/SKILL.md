@@ -1,48 +1,52 @@
 ---
 name: risk-first-roadmap
-description: Turn a system design or a vague project idea into a roadmap of small end-to-end increments, each one a working, observable capability that answers the riskiest remaining unknown. Orders work by risk instead of by layer, so the project proves its hardest assumptions first and keeps a runnable app at every step. Tuned for Apple-platform apps. Use whenever the user wants a roadmap, build order, milestones, or "what should I build first" for a new or large project, has just finished a system design (SystemDesign/Overview.md, or a legacy Design-*.md), has adopted an existing codebase and recorded a change of direction, or says a project is too big to know where to start. Also use to re-plan an existing roadmap after an increment taught something new. Not for designing or breaking down one increment (use roadmap-plan-next-rung, then tasklist) or for product-strategy roadmaps with stakeholders and quarters.
+description: Turn a system design or a vague project idea into a milestone map, capability layers ordered foundation first, each with a plain-language outcome and exit criteria, and inside the current milestone a ladder of small end-to-end rungs ordered riskiest unknown first, so a runnable app exists at every step. Use whenever the user wants a roadmap, milestones, build order or "what should I build first" for a new or large project, has just finished a system design (SystemDesign/Overview.md, or a legacy Design-*.md), has adopted an existing codebase and recorded a change of direction, or says a project is too big to know where to start. Also use to re-plan when a rung fails or answers a different question, an owner request lands in the current milestone or a settled seam must change, and at milestone close for the next milestone. Tuned for Apple-platform apps. Not for designing or breaking down one rung (use roadmap-plan-next-rung, then tasklist) or for product-strategy roadmaps with stakeholders and quarters.
 license: GPL-3.0-or-later
 model: opus
 ---
 
 # Risk-First Roadmap
 
-Build the project as a ladder of increments. Each rung is a complete, end-to-end slice that runs and can be seen, and each rung exists to **answer the riskiest unknown you can answer from where you are now**. Early rungs find and prove the shape of the system with the least that runs end to end; later rungs grow it, one milestone (an outcome the owner can use) at a time. Failing a rung early is cheap, which is the point.
+Value orders the goals; risk orders the work inside one. The roadmap is a **milestone map**: capability layers ordered foundation first, with only the current milestone broken into rungs. Each rung is a complete, end-to-end slice that runs and can be seen, and exists to answer the riskiest unknown the current milestone can answer from where it stands. Failing a rung early is cheap, which is the point.
 
-Read [roadmap-example.md](references/roadmap-example.md) before writing the first rung. It shows the format and a worked ladder. For Apple-platform projects also read [apple-rungs.md](references/apple-rungs.md).
+Use the terms in `system-design`'s [terms.md](../system-design/references/terms.md) as defined there (milestone, foundation, pillar, end-of-goal rule, spike, provisional code, manual stand-in, `Touches:`, detail by distance, re-plan triggers). Read [roadmap-example.md](references/roadmap-example.md) before writing the map; for Apple-platform projects also read [apple-rungs.md](references/apple-rungs.md).
 
 ## Input
 
-Look for the system design: `<DocDir>/SystemDesign/Overview.md`, where `DocDir` is the project's documentation directory (typically `Documentation/` or `docs/`; follow project rules when they name one). If only a legacy `<DocDir>/Design-<Topic>.md` exists, use that. Read its risk register, focus areas, scope, headline requirements, component depth tags, and any decisions of kind `shift`. Also read the risk registers of any subsystem docs beside it (`SystemDesign/<Subsystem>.md`). IDs are per document, so cite them qualified by doc name (`Puzzle_Generator:R3`, `Overview:FR1`) in `De-risks` and traceability. A rung may span several subsystems.
+Read the system design: `<DocDir>/SystemDesign/Overview.md`, where `DocDir` is the project's documentation directory (typically `Documentation/` or `docs/`; follow project rules when they name one), or a legacy `<DocDir>/Design-<Topic>.md`. Read its Scope and milestones table (outcomes and additive checks), headline requirements, component depth tags, Provisional code and Manual stand-ins tables, risks, Open questions marked `after it runs`, and decisions of kind `shift`. Also read the risk registers of subsystem docs beside it (`SystemDesign/<Subsystem>.md`). IDs are per document, so cite them qualified (`Puzzle_Generator:R3`, `Overview:FR1`).
 
-A `shift` decision comes from adopting an existing codebase: it is a change of direction the user wants, not yet built. Treat each accepted shift as work the roadmap must deliver, with its own unknowns (can the new shape coexist with the old one, can data migrate), and give it a rung or horizon item.
+A `shift` decision comes from adopting an existing codebase: a change of direction not yet built. Each accepted shift is work the map must deliver, with its own unknowns (can the new shape coexist with the old one, can data migrate).
 
-If no design exists, say so and offer two paths: run the `system-design` skill first (best when the project is large or the unknowns are many), or build a short risk list with the user right now (fine for a small project). Do not invent a roadmap from nothing; the ordering is only as good as the list of unknowns.
+If no design exists, offer two paths: run `system-design` first (large project, many unknowns), or build a short risk list with the user now (small project). Do not invent a roadmap from nothing.
 
-## How to order the rungs
+## The milestone map
 
-1. **List the unknowns.** Take the risk register and add anything the design missed. For each, write the cheapest experiment that would answer it, expressed as something that visibly works, and give it a class:
-   - **shape**: its answer would change the components, boundaries, data flow or persistence model.
-   - **clock**: each day of delay loses something that cannot be recovered (data that cannot be backfilled, an external window, an archive with no copy).
-   - **breadth**: more of a shape that is already proven.
-2. **Find what each one needs.** An experiment depends on things existing: a running app before you can draw, a canvas before you can test fonts. These dependencies are what force an order.
-3. **Order by class, then by risk.** After the skeleton:
-   1. shape unknowns, until the shape has run end to end once;
-   2. clock items: start each clock at its earliest slice, and finish its coverage before breadth or work for a later milestone;
-   3. breadth, milestone by milestone.
+1. **Milestones are capability layers, ordered foundation first**: what the goal stands on (data, the core model) before the goal itself, e.g. data in one place → see it → record changes → grade changes. Take them from the system design's Scope and milestones table.
+2. **The first milestone is thin.** It is the thinnest foundation the next milestone stands on, or the first pillar: the thinnest end-to-end slice that proves the goal's most fundamental capability across several subsystems at minimal depth, with manual stand-ins for what is not built yet. It builds no machinery a later pillar will rebuild, and the foundation only as deep as the next pillar needs; extending the foundation for a later pillar is new work in a later milestone, not before. E.g. the simplest method that can be measured, not a second method to compare, a threshold sweep or extra reports: those become later one-line milestones or "decide after it runs" items. When the system design's current milestone is wider than this, propose the split as a decision.
+3. **End-of-goal rule.** The goal's own machinery waits until its foundation milestones are done, except the thin first pillar ("thin": nothing a later pillar will rebuild). A **spike** (`Kind: spike`) may run earlier to answer "is it feasible?"; it builds none of the goal's machinery, and a "no" goes to the owner as a refuted premise.
+4. **Kept spike code** is provisional code: marked `PROVISIONAL(<RungId>): replace at <MilestoneId> (<milestone name>)`, added to the system design's Provisional code table and kept behind a seam. When foundation code must depend on it, the owner promotes it to a `working` item or the dependency waits. Prefer it to a manual stand-in; each stand-in is a row in the Manual stand-ins table beside it. The milestone each row names schedules the replacement in its planning.
+5. **Each milestone has** an outcome sentence in the owner's plain language (you draft it, marked `proposed` until the owner accepts it), the subsystems it touches, exit criteria the owner accepts at a demo, and its rungs. When the owner supplies an outcome or exit criterion, offer once to tighten it as `system-design` does (an exit criterion nobody can check, a vague term, a name clashing with `Taxonomy.md`), showing both versions; never rewrite owner text silently.
+6. **The owner sets the order.** Propose it, flag each dependency problem (a milestone that needs one placed after it, a clock item, such as data that cannot be backfilled, in a late milestone), and apply the owner's order. At a pillar boundary, propose the next-pillar options with their dependencies and costs; the owner picks.
 
-   Within a class, among unknowns whose prerequisites already exist, choose the one with the highest impact × uncertainty, and take the smallest slice that answers it. If its prerequisites do not exist, the next rung is the cheapest slice that builds them.
-4. **Always start with the walking skeleton.** The first rung is the most basic version of the product that builds, runs, and shows something. Its question is "can I build and run the most basic thing at all?"
-5. **Tie-break** toward the rung that unlocks the most later rungs, then toward the cheaper one.
-6. **Repeat** until the remaining rungs are low-risk completion work (more of what is proven), then stop being precise about them.
+Milestone IDs (`M1`, `M2`, ...) are never reused. Statuses: `planned`, `current` (exactly one), `done`, `deferred`, `dropped`. The line format is in [roadmap-example.md](references/roadmap-example.md).
 
-**Shape first, then grow.** Prove the shape with the minimum that runs end to end, then grow it. An app with a database needs its first table early, because that table proves the persistence model (shape). It does not need the whole schema: each later table arrives with the rung that needs it (breadth). A prerequisite of the current milestone is never breadth to put off. Experiments need the data they read, so finishing that ingestion comes before deepening the experiment workflow, and sooner still when the data cannot be backfilled (clock).
+Do not add checkpoint rungs: the look-back runs at the start of milestone planning. An older roadmap whose next rung is `Kind: checkpoint` runs it through `system-design`'s checkpoint alias, which sets it `done`.
 
-A sound ladder reads like a series of questions: can I run an app, can I draw, can I control the drawing finely, can I produce the core logic, can I see its result, can I scale it. Reordering these should feel wrong because each one needs the last.
+## Order the rungs of the current milestone
+
+Risk classes apply only inside the current milestone; the owner can pin an order.
+
+1. **List the unknowns** the milestone must answer: its risks from the system design plus anything it missed. For each, write the cheapest experiment that would answer it as something that visibly works, and class it:
+   - **shape**: its answer would change the components, boundaries, data flow or persistence model;
+   - **clock**: each day of delay loses something that cannot be recovered (data that cannot be backfilled, an external window);
+   - **breadth**: more of a shape already proven.
+2. **Find what each needs.** An experiment depends on things existing (a running app before drawing); these dependencies force the order.
+3. **Start with the walking skeleton** in the first milestone: the most basic version that builds, runs and shows something.
+4. **Order by class, then by risk:** shape until the milestone's shape has run end to end once; clock items started at their earliest slice, their coverage finished before breadth; then breadth. Within a class, among unknowns whose prerequisites exist, take the highest impact × uncertainty in the smallest slice that answers it; if the prerequisites do not exist, the next rung is the cheapest slice that builds them. Tie-break toward the rung that unlocks the most, then the cheaper.
+
+Prove the shape with the minimum that runs end to end, then grow it: the first table, not the whole schema; each later table arrives with the rung that needs it. A sound ladder reads like a series of questions where each needs the last: can I run an app, can I draw, can I produce the core logic, can I see its result.
 
 ## Write each rung
-
-Use this shape, and keep it short:
 
 ```markdown
 ### L3: Control text rendering in the grid
@@ -52,157 +56,120 @@ Done when: The PDF opens with crisp, correctly sized digits, and a printed page 
 De-risks: R2 (text fidelity)
 Depends on: L2
 Milestone: M1
+Touches: Grid_View, Print_Export
 Class: shape
-If no: Try a different font stack or draw digits as paths; record in the design.
+If no: Try a different font stack or draw digits as paths; record in the system design.
 ```
 
-- **Question** is the unknown, phrased so the rung can fail.
+- **Question** is the unknown, phrased so the rung can fail. **If no** is the fallback; a rung that cannot fail tests nothing.
 - **Slice** is what the user can run and see. If you cannot demo it, it is not a rung.
-- **Done when** is observable and checkable, with the command or action to check it. A target to reproduce an existing result exactly holds only once both paths are known to read the same input; until then write "compare and explain each difference".
-- **De-risks** links to the design's risk IDs (`R`), so the register shrinks as rungs complete. Rungs use their own prefix, `L` (ladder), so they never collide with risk IDs.
-- **Milestone** names the milestone the rung serves, and **Class** is `shape`, `clock` or `breadth` (see above). A `Kind: refactor` rung takes the milestone it unblocks.
-- **If no** is the fallback or the decision to revisit. A rung that cannot fail is not testing anything.
-- A checkpoint rung adds `Kind: checkpoint` (see [Checkpoints](#checkpoints)).
-- The status lives only in the ladder line's bracket; a section has no `Status:` line. An older roadmap's section may still carry one: change it in the same edit as the bracket, or delete it (`roadmap lint` flags a pair that disagrees).
-- A rung that comes from an accepted code-quality proposal adds `Kind: refactor` and asks whether the new shape holds without changing behaviour ("Can the three derivers share one protocol with every existing test still green?").
+- **Done when** is observable, with the command or action to check it. A target to reproduce an existing result exactly holds only once both paths are known to read the same input; until then write "compare and explain each difference".
+- **De-risks** cites the design's risk IDs (`R`); rungs use `L` (ladder) so they never collide.
+- **Touches** names the subsystems the rung changes, on every rung.
+- **Class** is `shape`, `clock` or `breadth`. `Kind: spike` marks a feasibility spike; `Kind: refactor` marks a rung from an accepted code-quality proposal, asking whether the new shape holds without changing behaviour, and takes the milestone it unblocks.
+- The status lives only in the ladder line's bracket. An older section's `Status:` line: change it with the bracket, or delete it (`roadmap lint` flags a pair that disagrees).
 
-## Milestones
+## Detail by distance
 
-Risk orders the work inside a goal; value orders the goals. Group the rungs under **milestones**: outcomes the owner can use, such as `M1 — I can see every app's data on one timeline`. They go one line each in the roadmap's `## Milestones` section, with the capabilities each needs and a status (`planned`, `current`, `done`, `deferred`, `dropped`). Milestone IDs (`M1`, `M2`, ...) are never reused.
+- **Current milestone:** every rung on the ladder with a section as above. Milestone planning then writes each rung's brief, kept short because the seams are agreed.
+- **Next milestone:** its line plus its additive-check verdict from the system design. No rungs.
+- **Later milestones:** a name and one line. No rungs.
 
-- Draft the milestones from the design's success criteria and scope. The first is the thinnest path from the skeleton to something the owner would use.
-- Order milestones by value, once their prerequisites are met. Exactly one is `current`.
-- Rungs are ordered by the rules above inside the current milestone. A shape or clock rung may serve a later milestone early; nothing else may.
+The `## Horizon` holds one-line rungs not yet detailed: a current-milestone rung a re-plan added, or one whose slice waits on an earlier rung's answer. Detail the owner gave for later work goes verbatim and dated into `<DocDir>/ParkedIdeas-<Topic>.md` under its milestone; the line points there.
 
-## Checkpoints
+**"Decide after it runs" list.** The roadmap's `## Decide after it runs` section is the project's home for minutiae (thresholds, exact output shape, polish, internal names), each filed under the rung or milestone that settles it. When the roadmap is first written, move the system design's Open questions marked `after it runs` here. Fold-back checks the items a rung was to settle.
 
-A checkpoint is a rung that asks whether the architecture holds for what comes next, before it is built on. Place one:
+## New requests and deferrals
 
-- right after the rung that completes the first end-to-end run of the shape, and
-- as the first rung of each milestone after M1, so it runs when that milestone becomes current.
+When the owner asks for something new between rungs, do not design it yet. Map it to a milestone, or propose a new one. If it lands in the current milestone, that is a re-plan trigger: list what it needs, class each item, and add the rungs. If it lands in a later milestone, rewrite that milestone's line if needed and park the detail as above; a clock item is flagged to the owner as an order problem. Say in one or two lines where it landed and what it moved.
 
-```markdown
-### L44: Architecture checkpoint before M2
-Kind: checkpoint
-Question: Does the current architecture hold for M2 (manual experiments)?
-Slice: A look back at the built code against the design, and a look forward over M2's components.
-Done when: The owner has ruled on each proposal, the design docs match the code, and accepted refactor rungs are on the ladder.
-De-risks: shape drift before growth
-Depends on: L30
-Milestone: M2
-Class: shape
-If no: The refactor rungs it places come before M2's first feature rung.
-```
+When the owner defers work: set the rung `[deferred: <what it waits on>]`, change its `Milestone:` to the one it now serves (propose one when none fits), rewrite the affected milestone lines, and add one learning-log entry. In the design docs, mark the question or decision `deferred` with its reason, and move what only it would have added to a later milestone's line.
 
-It runs in `system-design` checkpoint mode, and `/rung` offers it as the default next step. The owner may skip it; a skipped checkpoint is set `obsolete: skipped by owner`. It is not a setup rung: what it shows is the owner's recorded rulings.
+## Rung 1 and build targets
 
-## Detail horizon
+The system design agrees the build targets. When the current milestone needs **more than one build boundary that rung 1 must create** (separate executables, a shared package, an enforced layering between modules), say so in rung 1's slice; their allowed imports, diagram, and build and test commands go in rung 1's brief, gated on the owner approving it. With a single app target (a test target or one local package does not count), say so in one line in the roadmap.
 
-Write the first three or four rungs of the current milestone in full. List the rest of it as one-line **horizon** items in rough order, with no slice or done-when yet. A later milestone is its one line in `## Milestones` and has no rungs yet, apart from any shape or clock rungs it already holds. Later rungs depend on what earlier ones teach, so detailing them now creates false confidence and waste. Expand a horizon item only when it becomes next.
+## Check the map before showing it
 
-A horizon item is one line. Detail the owner has already given goes, verbatim and dated, into `<DocDir>/ParkedIdeas-<Topic>.md` under its milestone, and the horizon line points there. It is read again when the rung is planned.
+Fix these first:
 
-## New requests mid-roadmap
-
-When the owner asks for something new between rungs, do not design it yet:
-
-1. Map it to a milestone, or propose a new one.
-2. List what it needs that is not built, and class each item. A clock item goes on the ladder now.
-3. Add one horizon line per new rung, or one line to the milestone.
-4. Park the request and any detail the owner gave in `ParkedIdeas-<Topic>.md`, as above.
-
-Say in one or two lines where it landed and what, if anything, it moved.
-
-When the owner defers work instead (a rung that must wait for another area, or a design question put off): set the rung `[deferred: <what it waits on>]`, change its `Milestone:` to the one it now serves (propose a new milestone when none fits), rewrite the affected milestone lines, and add one learning-log entry. In the design docs, mark the question or decision `deferred` with its reason, and move what only it would have added to Scope `later` instead of leaving it in the diagram or tables.
-
-## Rung 1 and build boundaries
-
-The skeleton rung otherwise decides the target layout implicitly. When the design implies **more than one build boundary that rung 1 must create** (separate executables, a shared package, or an enforced layering between modules), say so in rung 1's slice. The build targets, their allowed imports, a diagram of them, and their build and test commands are then decided in rung 1's brief (written by `roadmap-plan-next-rung`), not in a separate up-front document or a rung of its own. Gate rung 1's implementation on the owner approving that brief.
-
-With a single app target (a test target or one local package does not count as a second boundary), say so in one line in the roadmap. The traceability check below and the drift checkpoint apply either way.
-
-## Check the ladder before showing it
-
-Fix these smells first:
-
-- **Layer-by-layer rungs** ("build the data model", then "build the UI", then "add persistence"). These deliver nothing visible and defer risk. Slice vertically instead.
-- **A rung nobody can see run.** Add the thinnest visible output, even a log line or a plain list.
+- **A wide first milestone**: it builds machinery a later pillar will rebuild, or foundation deeper than the next pillar needs (e.g. comparing methods, tuning thresholds). Cut it to the thinnest version and move the rest to later lines.
+- **Goal machinery before its foundation** outside the thin first pillar, or a spike that builds machinery.
+- **Rungs or slices for a later milestone**, or detail on one beyond its line.
+- **Layer-by-layer rungs** ("build the data model", then "the UI"). Slice vertically.
+- **A rung nobody can see run.** Add the thinnest visible output, even a log line.
 - **A rung that answers two unknowns.** Split it, so a failure points at one cause.
-- **Polish before proof.** Styling, settings, and onboarding come after the core risks are retired.
-- **Setup rungs with no demo** ("configure CI", "set up architecture"). Fold setup into the first rung that needs it. A checkpoint is the exception (see [Checkpoints](#checkpoints)).
-- **A milestone after M1 that does not start with a checkpoint**, or a first end-to-end run with no checkpoint after it.
-- **A requirement no rung proves.** Every must-have FR/NFR maps to a rung or horizon item, or is listed as an explicit gap the user has seen. Each design doc owns the traceability of its own requirements: fill in the Overview's table (`L4, via Puzzle_Generator` when allocated to a subsystem, `L4, via Puzzle_Generator (doc pending)` while that doc is not written) and each existing subsystem doc's table, and list gaps with qualified IDs (`Puzzle_Generator:NFR1`). A legacy design without a table gets a small one in the roadmap file.
-- **A shift no rung delivers.** Every accepted `shift` decision in the Overview maps to a rung or horizon item.
-- **A big unknown buried late** because its prerequisite looked expensive. Pull it forward by building the cheapest stand-in for the prerequisite.
-- **A clock item ranked behind breadth or a later milestone.** Every day of delay loses something; pull it forward.
-- **A rung for a later milestone while the current one is open**, unless it is shape or clock work. Move it to its milestone's horizon.
-- **A whole layer designed up front** ("the full schema", "every endpoint"). Take the slice the current rung needs; the rest is breadth.
+- **Polish before proof**, or **setup rungs with no demo** ("configure CI"): fold setup into the first rung that needs it.
+- **A rung without `Touches:`**, or kept spike code with no Provisional code row.
+- **A requirement no rung proves.** Every must-have FR/NFR of the current milestone maps to a rung, or is an explicit gap the owner has seen. Each design doc owns its traceability table (`L4, via Puzzle_Generator`, or `(doc pending)` while that doc is unwritten); list gaps with qualified IDs. A legacy design without a table gets a small one in the roadmap.
+- **A shift no milestone delivers.**
+- **A big unknown buried late** because its prerequisite looked expensive: build the cheapest stand-in for the prerequisite.
+- **A clock item behind breadth.** Pull it forward.
+- **A whole layer designed up front** ("the full schema"). Take the slice the rung needs.
 
-## Review with the user
+## Review with the owner
 
-Show the milestones first, one line each, then the ladder as a short numbered list of one-line questions, so the order is easy to judge, and the detail for the first rungs after. Explain the ordering by naming the risk each early rung buys down. Invite changes: the user may know something about risk that the design does not. Before the invitation, call out the ordering choices that deserve a second look, in the shape in `roadmap-plan-next-rung`'s [presenting-for-review.md](../roadmap-plan-next-rung/references/presenting-for-review.md): a rung placed on a guessed risk ranking, an inferred dependency, or an early rung whose cost is unclear, each with alternative orderings and a pro and con for each (without the file: those items first, each with why and two or three options, recommended first). When they reorder, re-check dependencies, update, and tell them what the change does to the early risk exposure.
+Show the milestone list whole first, one line each with the outcome, then the current milestone's ladder as one-line questions, then the first rungs' detail. Name each ID with its short name (`M1 (data in one place)`, `L3 (text in the grid)`). Explain the order by the risk each early rung buys down. Then present every decision in the shape in `roadmap-plan-next-rung`'s [presenting-for-review.md](../roadmap-plan-next-rung/references/presenting-for-review.md): the milestone order, each `proposed` outcome and exit criteria, the first milestone's cut, and rung-order choices resting on a guessed ranking, an inferred dependency or an unclear cost. Without that file: group them Important, Notable, Small; give every decision two or three options, each with a pro and con and the recommended one first; end with one question. When the owner reorders, re-check dependencies and say what it does to early risk exposure.
 
-Save to `<DocDir>/Roadmap-<Topic>.md`, using the `Topic` named in the Overview's `Roadmap:` line (or the legacy design's `Topic`). State the path. If the file exists, read it and continue its IDs (a roadmap over about 30 KB is read by section, see [Keep the roadmap small](#keep-the-roadmap-small)). If it has no `## Milestones` section, offer once, at the next re-plan, a one-time pass: draft the milestones, tag each open rung's milestone and class, place the checkpoints, and show the reorder that would follow. Apply it only on a yes. IDs (`L1`, `L2`, ...) are document-wide, never reused or renumbered, even when a rung is dropped or split.
+## Save and keep the roadmap small
 
-## Keep the roadmap small
+Save to `<DocDir>/Roadmap-<Topic>.md`, using the `Topic` in the system design's `Roadmap:` line (or the legacy design's `Topic`), and state the path. If the file exists, read it and continue its IDs. Rung IDs (`L1`, `L2`, ...) are document-wide, never reused or renumbered.
 
-The roadmap holds the live ladder, open risks and current decisions. Closed history moves out, verbatim, so every read stays cheap and nothing is lost.
+The roadmap holds the map, the live ladder and current decisions. Closed history moves out verbatim, so every read stays cheap:
 
-- **Learning-log entries** are one or two lines, at most about 600 characters: the measured answer and a pointer to where the detail lives (the rung brief's "As built" note, or the design doc that now states it). Raw facts, owner decisions and measured results go in full into that design doc, not into the log.
-- **A finished rung's detail** (`done`, `failed`, `changed`, `obsolete`): at re-plan, move its `### <RungId>` section unchanged to `<DocDir>/Completed/Roadmap-<Topic>-Rungs.md` and end its ladder line with `detail: Completed/Roadmap-<Topic>-Rungs.md` after the bracketed status (see [the ladder line format](references/roadmap-example.md)). The ladder line stays, so the ID still resolves. `roadmap archive <file> <RungId>...` does both (`--dry-run` shows the diff; a rung already archived is skipped); without the tool, do it by hand. Do the move in the same commit as the status change, and check it with `git diff --color-moved`.
-- **An old learning log**: past about 15 entries, move entries older than the last re-plan unchanged to `<DocDir>/Roadmap-<Topic>-Log.md` and leave one link line under `## Learning log`.
-- **Layout that allows partial reads**: one `###` section per rung, headings unchanged once written, ladder lines and table cells short (under about 400 characters; the reasoning goes in the brief and the cell links to it). A line over about 1,500 characters cannot be read in part.
-- **Reading**: do not read the whole file to find one rung. With the `roadmap` tool (`~/.cache/danny-agent-skills/bin/roadmap`, built by the `task-workflow` plugin; see [Plan tool check](#plan-tool-check)): `roadmap status <file>`, `roadmap show <file> <RungId>`, `roadmap outline <file>`, `roadmap section <file> <heading>`, and `roadmap lint <file>` after editing. Without it, `grep -n '^#'` the file and Read the lines you need.
+- **`Updated:`** holds one date. Earlier dates and their history paragraph go to `<DocDir>/Roadmap-<Topic>-Log.md`.
+- **Learning-log entries** are one or two lines, at most about 600 characters: the measured answer and a pointer to the brief's "As built" note or the design doc that now states it.
+- **A finished rung's detail** (`done`, `failed`, `changed`, `obsolete`): at re-plan or milestone close, move its `### <RungId>` section unchanged to `<DocDir>/Completed/Roadmap-<Topic>-Rungs.md` and end its ladder line with `detail: Completed/Roadmap-<Topic>-Rungs.md` after the status. `roadmap archive <file> <RungId>...` does both (`--dry-run` shows the diff); without the tool, do it by hand, in the same commit as the status change, checked with `git diff --color-moved`.
+- **An old learning log**: past about 15 entries, move entries older than the last re-plan unchanged to the Log file, leaving one link line under `## Learning log`.
+- **Partial reads**: one `###` section per rung, headings unchanged once written, ladder lines and cells under about 400 characters (reasoning goes in the brief, linked). A line over about 1,500 characters cannot be read in part.
+- **Reading**: do not read the whole file to find one rung. With the `roadmap` tool (`~/.cache/danny-agent-skills/bin/roadmap`): `roadmap status|outline|lint <file>`, `roadmap show <file> <RungId>`, `roadmap section <file> <heading>`, and `lint` after editing. Without it, `grep -n '^#'` and Read the lines you need. `Map.md` (milestones and rungs one line each with `Touches`) is generated by the tool, never written by hand: after saving or re-planning, run the tool's map command; while the tool has none, skip it and say so in one line.
 
 ### Tidy an existing roadmap or Overview
 
-Never rewrite an existing file unasked. But when you read a roadmap or Overview for any reason (a re-plan, `roadmap-plan-next-rung`, a fold-back), check it once per session, and if a trigger fires, offer one tidy pass, stating what it would do and the bytes it would save. Wait for a yes.
+Never rewrite an existing file unasked. When you read one for any reason, check it once per session, and if a trigger fires, offer one tidy pass, stating what it would do and the bytes it saves. Wait for a yes.
 
-Triggers (with the `roadmap` tool, `roadmap lint <file>` and `roadmap outline <file>` give all of them):
-- the file is over about 40 KB, or finished rungs and the learning log are over half of it: move finished rung sections and the old log out, as above
-- a ladder line has no recognised status, or `lint` reports duplicate IDs or a rung section with no ladder entry: fix the line to the format below (status only, in brackets; an older section's `Status:` line tells you what it is)
-- the file is still over about 40 KB with nothing above left to move: move the dated bullets under `## Why this order` that describe earlier re-plans (not the current order's reasoning) unchanged to the Log file, leaving one link line
-- a Horizon item runs past one line: move its detail verbatim into `ParkedIdeas-<Topic>.md` and leave the one line with a pointer
-- a line is over about 1,500 characters, or table or log cells run past about 400 or 600: shorten the cell, move the reasoning into the rung brief or design doc, and link it
-- an Overview (no tool support: judge from `grep -n '^#'` sizes): a risk, decision or traceability cell that is a paragraph, a retired risk still in the open register, or a decision log entry whose reasoning duplicates a rung brief: shorten to one line and link
+Triggers (`roadmap lint` and `roadmap outline` give them):
+- over about 40 KB, or finished rungs and the learning log over half of it: move them out as above
+- a ladder line with no recognised status, duplicate IDs, or a rung section with no ladder entry: fix the line to the format (an older section's `Status:` line tells you the status)
+- still over about 40 KB: move `## Why this order` bullets about earlier re-plans, and an `Updated:` history paragraph, unchanged to the Log file, leaving one link line
+- a Horizon item past one line: move its detail verbatim into `ParkedIdeas-<Topic>.md`, leaving the line and a pointer
+- a line over about 1,500 characters, or cells past about 400 or 600: shorten and link the reasoning
+- an Overview (judge from `grep -n '^#'` sizes): a risk, decision or traceability cell that is a paragraph, a retired risk in the open register, or a decision whose reasoning duplicates a brief: shorten to one line and link
 
-Do the pass as a move-only commit, separate from content changes, and verify it with `git diff --color-moved` and `roadmap lint`. Never change an ID, a heading or a status in a tidy pass, except to repair a malformed status line, and say which lines you repaired. Offer a pass at most once per session unless the user asks again.
+Do the pass as a move-only commit, verified with `git diff --color-moved` and `roadmap lint`. Never change an ID, heading or status in a tidy pass, except to repair a malformed status line (say which). Offer at most once per session unless asked again.
 
-Two things are deleted, not moved, each offered with the pass and done in a commit of its own: a design doc's closed question whose answer is now a decision row (its ID stays retired), and a design doc's notes for the roadmap once the rungs they asked for are on the ladder. Folded-back briefs and `Completed/` tasklists are kept until the rung's retrospective has run. After that, offer to delete them (git keeps them) and do it only on a yes, first moving any reasoning a design doc links to there into one line of that doc.
+Two things are deleted, not moved, each in a commit of its own: a closed question whose answer is now a decision row, and a design doc's notes for the roadmap once their rungs are on the ladder. Folded-back briefs and `Completed/` tasklists are kept until the milestone's retro has run; then offer to delete them (git keeps them), first moving any reasoning a design doc links to into one line of that doc.
 
 ### Plan tool check
 
-Before the first `roadmap` call in a session, run `~/.cache/danny-agent-skills/bin/roadmap --version`. If it fails or is older than `0.6.2` (a newer version is fine), install it without asking: `sh "$(ls -td ~/.claude/plugins/cache/*/task-workflow/*/tools/plantools/build.sh | head -n 1)"` (the `task-workflow` plugin's build script; if that finds nothing, the plugin is not installed, so skip the tool). If `swift` is missing or the build fails, say so in one line, do not retry, and read by hand. Do not fall back to `grep`, `awk` or `sed` while an install is still untried. `roadmap-plan-next-rung` uses the same check.
+Before the first `roadmap` call in a session, run `~/.cache/danny-agent-skills/bin/roadmap --version`. If it fails or is older than `0.6.2`, install it without asking: `sh "$(ls -td ~/.claude/plugins/cache/*/task-workflow/*/tools/plantools/build.sh | head -n 1)"` (if that finds nothing, the plugin is not installed: skip the tool). If `swift` is missing or the build fails, say so in one line, do not retry, and read by hand. Do not fall back to `grep`, `awk` or `sed` while an install is untried.
 
-## Hand off to implementation
+## Hand off
 
-A roadmap is not a task list. When the user is ready to build the next rung, run `/roadmap-plan-next-rung` for just that rung: it writes a short design brief for the parts the rung touches, agrees it with the user, and hands off to the `tasklist` skill, which writes `<DocDir>/Tasklist-<RungId>-<ShortRungDescription>.md`; `tasklist-run` executes it. `/rung` runs the whole cycle: plan, run, close. Do not pre-expand later rungs.
+A roadmap is not a task list. The next step after a new map is milestone planning for the current milestone: the look-back, the design delta, every rung's brief and the tasklists, on Opus. End with a sentence saying so, then `Next: /rung (Opus: /model opus)`; never a rung or milestone ID on the `Next:` line. Log it as a `step` event with `skill` `risk-first-roadmap 0.11.2` (other fields in `tasklist-run`'s metrics log).
 
-End a new roadmap (and any re-plan) with the next step, as `Next: /rung → plan <rung ID> (Opus: /model opus)`, or, when the next rung is a checkpoint, `Next: /rung → checkpoint <rung ID> (Opus: /model opus), or /rung skip <rung ID>`, because planning designs the rung against the code and settles the open decisions. Name the rung ID so the user can paste the line. Log it as a `step` event with `skill` `risk-first-roadmap 0.11.2` (other fields in `tasklist-run`'s metrics log).
+## Re-plan
 
-## Re-plan after each rung
+Re-plan inside a milestone only on a trigger: a rung fails, a rung answers a different question than it asked, an owner request lands in the current milestone, or a `settled` seam must change. Otherwise the next brief already exists and the next rung just runs. Milestone close also runs this, for the next milestone.
 
-This normally runs as the last part of `/rung close` (`roadmap-plan-next-rung`'s "Close a rung"), after fold-back. After a rung finishes, fold it back first (`/roadmap-plan-next-rung close L3` does it), so the affected design docs (the Overview and any subsystem docs the rung touched), with their risk registers and decision logs, describe what was actually built. Then update the roadmap before starting the next rung:
+- Set the rung's status (`done`, `failed`, `changed`) with a learning-log line holding the measured answer; `changed` says what it answered instead. Update the design docs' risks and decisions if re-planning changed them beyond fold-back.
+- **A "no" trims its branch.** If a rung refutes a milestone's premise, set the milestone's open rungs `deferred` and ask the owner to keep, reshape or drop it. Detail nothing more of it until they answer.
+- **Deferred rungs come back here.** When the wait is over, set the rung `planned` and update its milestone. After a "no", or with no rung `planned`, ask about each deferred rung of the milestone: keep, reshape (rewrite question, slice and done-when), keep waiting, or drop (`obsolete: dropped by owner`; a milestone with nothing left becomes `dropped`). One learning-log entry records the answers.
+- **Code quality** (`code-quality-pass`): accepted entries in `<DocDir>/Quality/Review-<date>.md` or `Quality/Proposals-<RungId>.md` are placed: a `refactor-rung` becomes a `Kind: refactor` rung, ahead of the milestone's first feature rung when a look-back accepted it, otherwise ordered by the rules above; a `task` or `fitness-test` goes to `<DocDir>/Tasklist-Refactor-<Short_Name>.md`, which `/rung` runs before the next rung. Mark each placed proposal. If `Quality/Status.md`'s `Since review:` reached `Every:` or `Triggers pending:` is not `none`, offer `/code-quality-pass review` in one line. Never hold up the next rung for it.
+- **At milestone close**, after the owner accepts the demo: mark it `done`, make the next milestone in the owner's order `current`, list its rungs as above, and move what is now next to its one-line-plus-additive-check form. Its rungs' briefs wait for its milestone planning.
+- Re-rank the remaining unknowns. Add rungs for newly discovered ones, including those a rung that answered a different question revealed; mark rungs that became unnecessary `obsolete` instead of deleting them.
+- **With no rung `planned`**: bring back a deferred rung (above), detail the next horizon item of the current milestone, or drop it; with none left, the milestone goes to milestone close.
+- Tell the owner what moved and why, then end as in [Hand off](#hand-off), with the `Next:` model the next step needs.
 
-- Set its status (`done`, `failed`, `changed`) and record what was learned in one or two lines, including the measured answer to its question. `changed` means the rung finished but answered a different question than it asked (its slice or question changed while it was built); the learning-log line says what it answered instead.
-- Update the affected design docs' risk registers and decision logs if re-planning changed them beyond what fold-back recorded.
-- **After the first end-to-end data rung**, make sure that rung's fold-back compared every affected design doc as a whole with what was built, not just the components it touched. Record any drift in the decision log and fix whichever side is wrong.
-- **Code quality** (`code-quality-pass` skill): if `<DocDir>/Quality/Review-<date>.md` or a `Quality/Proposals-<RungId>.md` (a tidy's, with accepted defects as `task`s, reproducing test first) has accepted entries, place them: a `refactor-rung` becomes a rung (`Kind: refactor`) ordered by the rules above, never ahead of a feature rung unless the user puts it there; a `task` or `fitness-test` becomes a task in `<DocDir>/Tasklist-Refactor-<Short_Name>.md` (the next rung's tasklist does not exist yet), which `/rung` runs before planning the next rung unless the user plans it first. A `conventions` entry needs no placing: the review already wrote it to the conventions file. Mark each placed proposal with its rung or task in the report. Then, if `Quality/Status.md`'s `Since review:` has reached `Every:` or `Triggers pending:` is not `none`, offer `/code-quality-pass review` in one line (run, skip or defer); with no `Status.md`, the fold-back signals already nudged, so say nothing more. This step never holds up the next rung.
-- **A "no" trims its branch.** If the rung answered no to the premise of a milestone (its outcome cannot be reached as planned), set that milestone's remaining open rungs to `deferred` and ask the owner to keep, reshape or drop it. Do not detail more of its rungs until they answer.
-- When every rung of the current milestone is done, mark it `done`, make the next milestone `current`, and expand its first rungs; the first is its checkpoint.
-- **Deferred rungs come back here.** Check each `[deferred: <what it waits on>]` against what was just built and what the owner has said since. When the wait is over, set it `planned`, update its `Milestone:` and the milestone lines, and say so. After a "no" or when no rung is `planned` (`/rung` then routes here), ask the owner about each deferred rung of the milestone: keep (back to `planned`), reshape (rewrite its question, slice and done-when, then `planned`), keep waiting (unchanged), or drop (`obsolete: dropped by owner`; a milestone with nothing left becomes `dropped`). Record each answer in one learning-log entry.
-- Re-rank the remaining risks and promote or demote horizon items. When no rung is `planned`, detail the next horizon item of the current milestone, or, with none left, close the milestone as above. Add new rungs for newly discovered unknowns; mark rungs that became unnecessary `obsolete` instead of deleting them.
-- Tell the user what moved and why, then end with the next step as in [Hand off to implementation](#hand-off-to-implementation), logged as a `step` event.
+Commit a new roadmap, or a re-plan run on its own, staged by explicit path (the roadmap, design docs it changed, a `Completed/` move, a refactor list), as `Roadmap: <what changed>`.
 
-Commit a new roadmap, and a re-plan run on its own, staged by explicit path (the roadmap, design docs it changed, a `Completed/` move, a refactor list) and nothing else, as `Roadmap: <what changed>`. Inside close, close commits it.
-
-Statuses: `planned`, `in progress`, `done`, `failed` (answered "no", fallback taken), `changed` (finished, answering a different question than it asked), `obsolete`, `deferred` (with what it waits on). `/rung` reports the roadmap finished only when no rung is `planned`, `in progress`, `deferred` or on the horizon.
+Rung statuses: `planned`, `in progress`, `done`, `failed` (answered "no", fallback taken), `changed`, `obsolete`, `deferred` (with what it waits on). The roadmap is finished only when no rung is `planned`, `in progress`, `deferred` or on the horizon and no milestone is `planned` or `current`.
 
 ## If a linked skill is missing
 
-This skill hands off to `system-design` (also for checkpoints), `roadmap-plan-next-rung` (`project-planning` plugin) and `tasklist` (`task-workflow` plugin). When one is absent, do not stop: use the fallback below, and say once, in one or two lines, what is missing, how to install it (`claude plugin install project-planning@danny-sung-agent-skills`, `claude plugin install task-workflow@danny-sung-agent-skills`, or `npx skills add dannys42/agent-skills --skill <skill-name>`), and how to recover.
+This skill hands off to `system-design` and `roadmap-plan-next-rung` (`project-planning` plugin) and `tasklist` (`task-workflow` plugin). When one is absent, do not stop: use the fallback below, and say once what is missing, how to install it (`claude plugin install project-planning@danny-sung-agent-skills`, `claude plugin install task-workflow@danny-sung-agent-skills`, or `npx skills add dannys42/agent-skills --skill <skill-name>`), and how to recover.
 
-- No `system-design`: build the short risk list with the user (see Input).
-- No `roadmap-plan-next-rung`: expand the rung straight into tasks with `tasklist`, citing the rung ID; skip fold-back and update the design's risk register by hand when re-planning.
-- No `tasklist`: write the rung's tasks as a plain checklist at `<DocDir>/Tasklist-<RungId>-<ShortRungDescription>.md`, each with an ID, `Needs`, and `Done when`.
-- Recover: once installed, run the skipped step (`/roadmap-plan-next-rung` for the current rung, or `tasklist` to convert the plain checklist). Existing files are read and continued, never overwritten.
+- No `system-design`: build the short risk list with the user (see Input), and the milestone list with it.
+- No `roadmap-plan-next-rung`: expand each rung straight into tasks with `tasklist`, citing the rung ID; update the design's risks by hand at re-plan.
+- No `tasklist`: write a rung's tasks as a plain checklist at `<DocDir>/Tasklist-<RungId>-<ShortRungDescription>.md`, each with an ID, `Needs` and `Done when`.
+- Recover: once installed, run the skipped step. Existing files are read and continued, never overwritten.
