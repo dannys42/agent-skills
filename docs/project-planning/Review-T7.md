@@ -1,5 +1,7 @@
 # Review notes: the system design and design-session skills
 
+Status: waiting on the owner's review (T7 Review the system design and design-session skills, 2026-11-01); delete this file when the review closes.
+
 Reviewed files: `plugins/project-planning/skills/system-design/SKILL.md`, its `references/overview-template.md` (with `subsystem-template.md` and `subsystems.md`, changed to match), and `plugins/project-planning/skills/design-session/SKILL.md` (new). Spec: `docs/project-planning/Design-Blueprint_And_Milestones.md`.
 
 The spec's rulings (what the system design agrees, the additive check, the marks, owner sketch or first pass, the tightening offer, the notes file and promote step) are not reopened. The items below are choices the skill text made where the spec was silent, or how it read the spec. Section names are the headings in each file.

@@ -58,6 +58,9 @@ public struct SignalInput {
     public var milestoneStatus: [String: String] = [:]
     /// How many roadmaps the repository tracks; the milestone checks need exactly one.
     public var roadmapCount = 0
+    /// Wait-point handoff notes in `<DocDir>/Handoff/` (git-ignored, so read from disk), and the day to age them by.
+    public var handoffs: [(path: String, text: String)] = []
+    public var today = Date()
 
     public init() {}
 }
@@ -189,6 +192,10 @@ public struct Signals {
         // Info
         if !markers.isEmpty { s.info.append("Provisional markers: \(markers.count)" + (overdue.isEmpty ? "" : ", \(overdue.count) past their milestone")
             + (unknown.isEmpty ? "" : ", unknown milestone \(unknown.sorted().joined(separator: ", "))")) }
+        let leftOver = input.handoffs.compactMap { note in Handoff(text: note.text).leftOver(today: input.today).map { (note.path, $0) } }
+        s.counts["handoffs"] = input.handoffs.count
+        s.counts["handoffs_left_over"] = leftOver.count
+        for (path, why) in leftOver { s.info.append("Warning: left-over handoff \(path) (\(why)); resume it with /rung or delete it") }
         if input.roadmapCount > 1 { s.info.append("Provisional overdue check skipped: \(input.roadmapCount) roadmaps found") }
         if !input.swiftFiles.isEmpty {
             var line = "\(input.swiftFiles.count) Swift files, \(totalLines) lines"
@@ -297,6 +304,7 @@ extension SignalInput {
         }
         input.roadmapCount = Roadmap.paths(in: repo).count
         if let roadmap = Roadmap.locate(in: repo) { input.milestoneStatus = Dictionary(roadmap.milestones.map { ($0.id, $0.status) }, uniquingKeysWith: { a, _ in a }) }
+        input.handoffs = DocDir.handoffs(DocDir.find(in: repo), in: repo)
         let candidates = statusPath.map { [$0] } ?? ["Documentation", "docs", "Docs"].map { "\($0)/Quality/Status.md" }
         for path in candidates {
             let full = path.hasPrefix("/") ? path : (repo as NSString).appendingPathComponent(path)

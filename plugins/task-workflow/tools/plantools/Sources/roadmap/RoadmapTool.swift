@@ -145,12 +145,7 @@ struct RoadmapTool: ParsableCommand {
             let fm = FileManager.default
             func names(_ path: String) -> [String] { ((try? fm.contentsOfDirectory(atPath: path)) ?? []).filter { $0.hasSuffix(".md") }.sorted() }
             func isRoadmap(_ n: String) -> Bool { n.hasPrefix("Roadmap-") && !n.hasSuffix("-Log.md") }
-            func hasOverview(_ d: String) -> Bool {
-                fm.fileExists(atPath: d + "/SystemDesign/Overview.md") || names(d).contains { $0.hasPrefix("Design-") }
-            }
-            let docDir = dir ?? ["Documentation", "docs", "Docs", "doc"].first { d in
-                names(d).contains { $0.hasPrefix("Roadmap-") } || hasOverview(d)
-            } ?? "."
+            let docDir = dir ?? DocDir.find()
             var file = roadmap
             if file == nil {
                 let found = names(docDir).filter(isRoadmap).map { docDir == "." ? $0 : docDir + "/" + $0 }
@@ -168,9 +163,10 @@ struct RoadmapTool: ParsableCommand {
                 }
             }
             let step = NextStep.decide(.init(
-                docDir: docDir, hasOverview: hasOverview(docDir), roadmap: file.map { Roadmap(text: CLI.read($0)) },
+                docDir: docDir, hasOverview: DocDir.hasOverview(docDir), roadmap: file.map { Roadmap(text: CLI.read($0)) },
                 tasklists: files("", prefix: "Tasklist-", completed: false) + files("/Completed", prefix: "Tasklist-", completed: true),
-                briefs: files("/SystemDesign", prefix: "Rung-", completed: false)))
+                briefs: files("/SystemDesign", prefix: "Rung-", completed: false),
+                handoffs: files("/Handoff", prefix: "", completed: false)))
             CLI.print(step.rendered)
         }
     }

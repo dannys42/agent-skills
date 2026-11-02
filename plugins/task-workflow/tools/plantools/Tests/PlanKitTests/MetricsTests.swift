@@ -374,6 +374,34 @@ struct MilestoneMetricsTests {
         #expect(Signals.evaluate(input).info.contains("Provisional overdue check skipped: 2 roadmaps found"))
     }
 
+    @Test func flagsAHandoffOlderThanTwoWeeksOrWithoutARouteAsLeftOver() {
+        var input = SignalInput()
+        input.today = ISO8601DateFormatter().date(from: "2026-11-20T12:00:00Z")!
+        input.handoffs = [
+            ("docs/Handoff/Tasklist-L2-Grid.md", "Route: run\nDate: 2026-11-18\n\nT4 waits on the owner."),
+            ("docs/Handoff/escalation-L3.md", "# Handoff\n\nRoute: escalation\nDate: 2026-11-01\n"),
+            ("docs/Handoff/notes.md", "Some prose without a header."),
+        ]
+        let signals = Signals.evaluate(input)
+        #expect(signals.counts["handoffs"] == 3 && signals.counts["handoffs_left_over"] == 2)
+        #expect(signals.triggers.isEmpty)
+        #expect(signals.info.contains("Warning: left-over handoff docs/Handoff/escalation-L3.md (19 days old); resume it with /rung or delete it"))
+        #expect(signals.info.contains("Warning: left-over handoff docs/Handoff/notes.md (no Route: line naming a known route); resume it with /rung or delete it"))
+    }
+
+    @Test func gatherReadsHandoffNotesOnceFromTheDocDirRoadmapNextUses() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("handoff-\(UUID().uuidString)").path
+        defer { try? FileManager.default.removeItem(atPath: root) }
+        try FileManager.default.createDirectory(atPath: root + "/docs/Handoff", withIntermediateDirectories: true)
+        try "# Roadmap\n".write(toFile: root + "/docs/Roadmap-X.md", atomically: true, encoding: .utf8)
+        try "Route: run\nDate: 2026-01-01\n".write(toFile: root + "/docs/Handoff/Tasklist-L1-A.md", atomically: true, encoding: .utf8)
+        try "*\n".write(toFile: root + "/docs/Handoff/.gitignore", atomically: true, encoding: .utf8)
+        #expect(DocDir.find(in: root) == "docs")
+        let input = SignalInput.gather(repo: root, base: nil, statusPath: nil, log: [], currentList: nil)
+        #expect(input.handoffs.map(\.path) == ["docs/Handoff/Tasklist-L1-A.md"])
+        #expect(Signals.evaluate(input).counts["handoffs_left_over"] == 1)
+    }
+
     @Test func stepEventsWithKindRulingAndEscalatedAreAcceptedWithoutWarnings() {
         let log = MetricsLog.events(text: """
         {"event":"step","repo":"/r","ts":"2026-10-01T10:00:00Z","skill":"roadmap-plan-next-rung 0.11.2","kind":"fold-back","target":"L3","drift":0,"escalated":true,"next":"/rung","next_model":"opus"}

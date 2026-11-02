@@ -4,10 +4,42 @@ import Foundation
 /// a rung's run (which folds itself back), an escalation review, and milestone close. Routes are internal labels the
 /// `/rung` skill dispatches; the owner only ever types `/rung`.
 extension NextStep {
-    /// Seam for waiting state that outranks the roadmap (T30): a wait-point handoff note naming the step that resumes,
-    /// and the re-plan signal a design session leaves when it changed a `settled` item or added current-milestone
-    /// structure (route `replan`). Neither is read yet; return a step here once they are defined.
-    static func waitingState(_ roadmap: Roadmap, _ input: Input) -> NextStep? { nil }
+    /// Waiting state that outranks the roadmap: the newest live handoff note (references/handoff.md), by `Date:` then file
+    /// time. A design session that changed a `settled` item or added current-milestone structure leaves one with
+    /// `Route: replan`. Notes with no known route are skipped here; `metrics signals` flags them.
+    static func waitingState(_ roadmap: Roadmap, _ input: Input) -> NextStep? {
+        let notes = input.handoffs.filter { !$0.completed && $0.name.hasSuffix(".md") }
+            .map { ($0, Handoff(text: $0.text)) }.filter { $0.1.knownRoute != nil && stale($0.1, roadmap, input) == nil }
+        guard let (file, note) = notes.max(by: { ($0.1.date ?? "", $0.0.modified) < ($1.1.date ?? "", $1.0.modified) }),
+              let step = note.knownRoute else { return nil }
+        let path = (input.docDir == "." ? "" : input.docDir + "/") + "Handoff/" + file.name
+        let opus: Set<String> = ["milestone-plan", "escalation", "milestone-close", "replan", "plan", "close", "design"]
+        let model = note.model.flatMap { ["opus", "sonnet", "haiku"].contains($0) ? $0 : nil } ?? (opus.contains(step) ? "opus" : "sonnet")
+        let waiting = note.waitingOn.map { "waiting on " + $0 } ?? "a stop waits on the owner"
+        return NextStep(step: step, milestone: note.milestone, rung: note.rung, list: note.list, model: model, command: "/rung",
+                        why: waiting + " (handoff " + (note.date.map { "of \($0)" } ?? "undated") + ")", handoff: path)
+    }
+
+    /// Why a note's waiting point is gone, or nil: a run or user note whose list has no open task left in the doc
+    /// directory, a milestone-close note whose milestone is not `Close: awaiting demo`, an escalation note whose rung
+    /// carries no `Escalation:` marker. Such a note was answered in the session that wrote it; it no longer routes.
+    static func stale(_ note: Handoff, _ roadmap: Roadmap, _ input: Input) -> String? {
+        switch note.knownRoute {
+        case "run", "user":
+            guard let list = note.list else { return nil }
+            let name = (list as NSString).lastPathComponent
+            return openLists(input, prefix: name).contains { $0.0.name == name } ? nil : "\(name) has no open task outside Completed/"
+        case "milestone-close":
+            guard let id = note.milestone else { return nil }
+            let close = roadmap.milestones.first { $0.id == id }?.close ?? ""
+            return close.hasPrefix("awaiting demo") ? nil : "\(id) is not awaiting a demo ruling"
+        case "escalation":
+            guard let id = note.rung else { return nil }
+            return roadmap.escalation(of: id) == nil ? "\(id) carries no escalation marker" : nil
+        default:
+            return nil
+        }
+    }
 
     /// A milestone-flow step; `command` is the `roadmap-plan-next-rung` alias that runs it, or `tasklist-run` for a list.
     static func route(_ step: String, _ model: String, _ command: String, milestone: Milestone?, rung: String? = nil, list: String? = nil, why: String) -> NextStep {

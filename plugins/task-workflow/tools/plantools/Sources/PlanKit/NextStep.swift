@@ -9,6 +9,8 @@ public struct NextStep: Equatable {
     public var model: String
     public var command: String
     public var why: String
+    /// The wait-point handoff note this step resumes from; the step that consumes it deletes it.
+    public var handoff: String? = nil
 
     /// A tasklist or brief as found in the doc directory; `completed` marks a file under `Completed/`.
     public struct File {
@@ -28,8 +30,11 @@ public struct NextStep: Equatable {
         public var roadmap: Roadmap?
         public var tasklists: [File]
         public var briefs: [File]
-        public init(docDir: String = ".", hasOverview: Bool, roadmap: Roadmap?, tasklists: [File] = [], briefs: [File] = []) {
+        /// Notes in `<DocDir>/Handoff/`, git-ignored, one per wait for the owner.
+        public var handoffs: [File]
+        public init(docDir: String = ".", hasOverview: Bool, roadmap: Roadmap?, tasklists: [File] = [], briefs: [File] = [], handoffs: [File] = []) {
             self.docDir = docDir; self.hasOverview = hasOverview; self.roadmap = roadmap; self.tasklists = tasklists; self.briefs = briefs
+            self.handoffs = handoffs
         }
     }
 
@@ -44,6 +49,8 @@ public struct NextStep: Equatable {
                 : make("design", "opus", why: "no system design and no roadmap")
         }
         if !roadmap.milestones.isEmpty { return decide(milestones: roadmap, input) }
+        // tasklist-run and design-session write handoff notes whatever the roadmap's format, so an older roadmap reads them too.
+        if let waiting = waitingState(roadmap, input) { return waiting }
         if let rung = roadmap.ladder.first(where: { $0.status.hasPrefix("in progress") }) {
             return decide(rung: rung.id, input)
         }
@@ -132,6 +139,7 @@ public struct NextStep: Equatable {
         if let milestone { rows.append("milestone: \(milestone)") }
         if let rung { rows.append("rung: \(rung)") }
         if let list { rows.append("list: \(list)") }
+        if let handoff { rows.append("handoff: \(handoff)") }
         rows += ["model: \(model)", "command: \(command)", "why: \(why)"]
         return rows.joined(separator: "\n")
     }

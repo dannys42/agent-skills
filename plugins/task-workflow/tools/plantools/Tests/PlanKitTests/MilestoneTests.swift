@@ -190,6 +190,55 @@ struct NextStepMilestoneTests {
         #expect(closing.step == "close" && closing.milestone == nil)
     }
 
+    @Test func aHandoffNoteOutranksTheRoadmapAndNamesItsRouteModelAndPath() {
+        let paused = edited([("  - Exit: File", "  - Close: awaiting demo (2026-11-01)\n  - Exit: File")])
+        let demo = NextStep.File(name: "milestone-close-M1.md", text: "# Handoff: demo of M1\n\nRoute: milestone-close\nMilestone: M1\n"
+            + "Waiting on: the owner's demo ruling\nDate: 2026-11-01\n\nWhat was done: ...", modified: Date(timeIntervalSince1970: 1))
+        let s = NextStep.decide(.init(docDir: "docs", hasOverview: true, roadmap: Roadmap(text: paused), tasklists: [l2Open], handoffs: [demo]))
+        #expect(s.step == "milestone-close" && s.milestone == "M1" && s.model == "opus" && s.command == "/rung")
+        #expect(s.handoff == "docs/Handoff/milestone-close-M1.md" && s.why == "waiting on the owner's demo ruling (handoff of 2026-11-01)")
+        #expect(s.rendered.contains("handoff: docs/Handoff/milestone-close-M1.md"))
+        // The newest dated note wins; one with no known route is left to `metrics signals`.
+        let run = NextStep.File(name: "Tasklist-L2-Grid.md", text: "Route: run\nList: docs/Tasklist-L2-Grid.md\nDate: 2026-11-02\n")
+        let junk = NextStep.File(name: "scratch.md", text: "Route: lunch\nDate: 2026-11-09\n")
+        let newest = NextStep.decide(.init(docDir: "docs", hasOverview: true, roadmap: Roadmap(text: paused), tasklists: [l2Open], handoffs: [demo, run, junk]))
+        #expect(newest.step == "run" && newest.model == "sonnet" && newest.list == "docs/Tasklist-L2-Grid.md" && newest.why == "a stop waits on the owner (handoff of 2026-11-02)")
+        // With no system design, the design route still comes first.
+        #expect(NextStep.decide(.init(docDir: "docs", hasOverview: false, roadmap: Roadmap(text: paused), handoffs: [demo])).step == "design")
+    }
+
+    @Test func aNoteWhoseWaitingPointIsGoneNoLongerRoutes() {
+        let r = Roadmap(text: fixture)
+        func input(_ lists: [NextStep.File] = [l2Open]) -> NextStep.Input {
+            .init(docDir: "docs", hasOverview: true, roadmap: r, tasklists: lists)
+        }
+        let run = Handoff(text: "Route: user\nList: docs/Tasklist-L2-Grid.md\nDate: 2026-11-02\n")
+        #expect(NextStep.stale(run, r, input()) == nil)
+        #expect(NextStep.stale(run, r, input([list("Tasklist-L2-Grid.md", done)])) == "Tasklist-L2-Grid.md has no open task outside Completed/")
+        #expect(NextStep.stale(run, r, input([l2Moved])) != nil)
+        let demo = Handoff(text: "Route: milestone-close\nMilestone: M1\nDate: 2026-11-01\n")
+        #expect(NextStep.stale(demo, r, input()) == "M1 is not awaiting a demo ruling")
+        let escalation = Handoff(text: "Route: escalation\nRung: L2\nDate: 2026-11-01\n")
+        #expect(NextStep.stale(escalation, r, input()) == "L2 carries no escalation marker")
+        let marked = Roadmap(text: edited([("Class: shape\n\n### L3", "Class: shape\nEscalation: 2026-11-01\n- Grid API differs\n\n### L3")]))
+        #expect(NextStep.stale(escalation, marked, input()) == nil)
+        // A stale note leaves the roadmap's own route in place.
+        let note = NextStep.File(name: "milestone-close-M1.md", text: "Route: milestone-close\nMilestone: M1\nDate: 2026-11-01\n")
+        var withNote = input(); withNote.handoffs = [note]
+        let s = NextStep.decide(withNote)
+        #expect(s == NextStep.decide(input()) && s.handoff == nil)
+    }
+
+    @Test func aDesignSessionsReplanNoteRoutesReplanOnBothRoadmapFormats() {
+        let note = NextStep.File(name: "replan-2026-11-03.md", text: "Route: replan\nWaiting on: re-plan after the design session changed a settled seam\nDate: 2026-11-03\n")
+        let milestones = NextStep.decide(.init(docDir: "docs", hasOverview: true, roadmap: Roadmap(text: fixture), tasklists: [l2Open], handoffs: [note]))
+        #expect(milestones.step == "replan" && milestones.model == "opus" && milestones.handoff == "docs/Handoff/replan-2026-11-03.md")
+        let old = Roadmap(text: "## Ladder\n\n1. L1 — a [done]\n2. L2 — b [planned]\n")
+        let s = NextStep.decide(.init(docDir: ".", hasOverview: true, roadmap: old, handoffs: [note]))
+        #expect(s.step == "replan" && s.handoff == "Handoff/replan-2026-11-03.md")
+        #expect(NextStep.decide(.init(docDir: ".", hasOverview: true, roadmap: old)).step == "plan")
+    }
+
     @Test func milestoneRoutesNameTheirSkill() {
         #expect(Predictions.skillName("/roadmap-plan-next-rung plan M1") == "roadmap-plan-next-rung")
         for route in ["milestone-plan", "escalation", "milestone-close"] {

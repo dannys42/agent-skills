@@ -23,7 +23,7 @@ In Claude Code, `scripts/next.sh` ran as this skill loaded (zero turns) and prin
 !`sh "${CLAUDE_SKILL_DIR}/scripts/next.sh"`
 ```
 
-1. Lines `step`, `rung`, `list`, `model`, `command`, `why`: use them. If project rules name a `DocDir` other than the one found, or the output lists several `Roadmap-*.md` (ask which), re-run `~/.cache/danny-agent-skills/bin/roadmap next --dir <DocDir>` or `--roadmap <file>`.
+1. Lines `step`, `rung`, `list`, `handoff`, `model`, `command`, `why`: use them. If project rules name a `DocDir` other than the one found, or the output lists several `Roadmap-*.md` (ask which), re-run `~/.cache/danny-agent-skills/bin/roadmap next --dir <DocDir>` or `--roadmap <file>`.
 2. `roadmap: missing or older than 0.7.0`, or the block above still shows the `!` command (another harness): install and run in one Bash call: `sh "$(ls -td ~/.claude/plugins/cache/*/task-workflow/*/tools/plantools/build.sh | head -n 1)" >/dev/null && ~/.cache/danny-agent-skills/bin/roadmap next`. If the build script is not found or fails, say so in one line and use the table below.
 3. Without the tool, apply this table by hand with `grep` and `ls`:
    - No Overview (`SystemDesign/Overview.md`, or a legacy `Design-*.md`) and no roadmap: `design`. Overview, no roadmap: `roadmap`.
@@ -53,6 +53,8 @@ Use the Skill tool.
 - `user`: show the pending USER tasks' steps verbatim and ask for the `Done when` confirmation per `tasklist-run`'s "USER tasks", then continue as `run`.
 - `close`: `roadmap-plan-next-rung close <rung>`.
 - `retro`: `roadmap-plan-next-rung retro <rung>`.
+
+**Handoff.** When the output has a `handoff:` line, read that note before dispatching: it names the route, the exact question and what to read ([handoff.md](../roadmap-plan-next-rung/references/handoff.md)). Dispatch its route as above (`escalation` and `milestone-close` to `roadmap-plan-next-rung`, `milestone-plan` to `roadmap-plan-next-rung plan`), give the step the note's content (it is the brief when the step runs as a subagent), then delete the note (`rm`) so the step does not look again. A step that stops for the owner again writes a new one.
 
 Follow the invoked skill fully. This skill adds nothing after it, because each step ends with its own `Next:` line.
 

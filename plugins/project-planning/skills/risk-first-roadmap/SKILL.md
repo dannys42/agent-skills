@@ -159,6 +159,7 @@ Re-plan inside a milestone only on a trigger: a rung fails, a rung answers a dif
 - **At milestone close**, after the owner accepts the demo: mark it `done`, make the next milestone in the owner's order `current`, list its rungs as above, and move what is now next to its one-line-plus-additive-check form. Its rungs' briefs wait for its milestone planning.
 - Re-rank the remaining unknowns. Add rungs for newly discovered ones, including those a rung that answered a different question revealed; mark rungs that became unnecessary `obsolete` instead of deleting them.
 - **With no rung `planned`**: bring back a deferred rung (above), detail the next horizon item of the current milestone, or drop it; with none left, the milestone goes to milestone close.
+- A `replan` handoff note in `<DocDir>/Handoff/` (a design session leaves one) is read first and deleted once the re-plan is committed, unless `/rung` already did.
 - Tell the owner what moved and why, then end as in [Hand off](#hand-off), with the `Next:` model the next step needs.
 
 Commit a new roadmap, or a re-plan run on its own, staged by explicit path (the roadmap, design docs it changed, a `Completed/` move, a refactor list), as `Roadmap: <what changed>`.
