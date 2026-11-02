@@ -76,7 +76,7 @@ Standing context for every task:
   - Context: Standing context "Owner reviews". Write `docs/project-planning/Review-T7.md` covering the decisions in `system-design` (SKILL.md, `references/overview-template.md`, adopt, checkpoint and migration) and `design-session`, and the `g2` eval results as one item if any grader regressed.
   - Done when: the notes are committed.
 
-- [ ] T7 USER — Review the system design and design-session skills
+- [x] T7 USER — Review the system design and design-session skills
   - Needs: T26
   - Context: First owner content review (spec "Rollout"). It does not hold work back: G3 and G4 continue while you review. About 20 minutes.
   - Steps:
@@ -84,6 +84,16 @@ Standing context for every task:
     b. Open `plugins/project-planning/skills/system-design/SKILL.md` and `plugins/project-planning/skills/design-session/SKILL.md` where the notes leave you unsure.
     c. Reply "approved", or give your choice for each decision you would change.
   - Done when: the owner replies "approved" or lists changes. Each change becomes a fix task, inserted ahead of the first open task, that also updates any later skill already built on the changed text.
+
+- [ ] T32 Record the agreement counts in the step event, not in git
+  - Model: standard (Sonnet 5.5)
+  - Context: Owner ruling on the system design review (2026-11-01), item 1: accepted items still drop the `proposed` mark and gain no origin, and the counts are recorded instead. system-design step 7 ("Confirm and hand off") adds fields to its `step` metrics event: `proposed`, `accepted` (unchanged), `edited`, `rejected`; design-session "6. Promote" adds the same fields to its step event. Its "Retrospective" section reads the share accepted unchanged from the metrics log, not git history. Also update the text already built on the old claim that the share cannot be recovered: `roadmap-plan-next-rung/SKILL.md` (the `retro` paragraph) and `references/retrospective.md` (milestone retro bullet) read the counts from the log; milestone planning in `roadmap-plan-next-rung` logs the same fields when it agrees a design delta. Where step fields are listed (grep `next_model` under `plugins/`), add the four with one clause each.
+  - Done when: grep -rn "accepted unchanged" plugins/project-planning shows no line saying git or the doc cannot show the share; each session that agrees proposed items names the four step fields; python3 -m pytest tests passes.
+
+- [ ] T33 Map deferred, superseded and confirmed items in migration
+  - Model: standard (Sonnet 5.5)
+  - Context: Owner ruling on the system design review (2026-11-01), item 4: in `plugins/project-planning/skills/system-design/references/overview-template.md` "Migrating older docs" (and the matching line in system-design SKILL.md "Migration" if it lists mappings): an old decision `deferred` becomes an Open question keeping its reason; `superseded` stays in Decisions as `superseded by D<n>` with no agreement mark; a confirmed assumption moves to Decisions as `settled · owner`. Also fix the Review note: legacy Design migration still sends "Constraints and assumptions" to the removed Assumptions section (open world assumptions go to Risks, choices to Decisions).
+  - Done when: the migration text maps deferred, superseded and confirmed assumptions as above, no migration line points at an Assumptions section, and python3 -m pytest tests passes.
 
 ### G3 Milestone map, cadence and fold-back
 
@@ -157,7 +167,7 @@ Standing context for every task:
 
 - [ ] T15 Re-run the evals after G3
   - Model: standard (Sonnet 5.5)
-  - Needs: T8, T9, T10, T14
+  - Needs: T8, T9, T10, T14, T32, T33
   - Context: As T6, label `g3`. Add the column to the spec's "Eval results" table. Run it after any T7 fix tasks that are already open have closed.
   - Done when: the table is updated and committed; any regression against `g2` is named with its cause.
 
@@ -237,7 +247,6 @@ Standing context for every task:
 - code-quality-pass quality-files.md: Small template line shows no inline options; the tiers bullet covers it (T29)
 - foundation-before-goal eval: a run with a data-collection first milestone still failed milestone-order 3 of 3; check at T6 whether the grader is too strict (T1)
 - roadmap-plan-next-rung SKILL.md: fallback minimal Overview lists Scope, Headline requirements, Assumptions; fold-back updates "assumptions" (T3; for T9)
-- overview-template.md: legacy Design migration still sends "Constraints and assumptions" to a removed Assumptions section (T3; for T4)
 - system-design adopt mode: marks inferred requirements `assumed` and hands off with /risk-first-roadmap, not /rung (T3; for T4)
 - README.md: system-design paragraph still says headline requirements, detail added one rung at a time (T3; for T20)
 - system-design SKILL.md: Migration's "no other mode starts it" sits beside New mode's legacy Design-*.md offer; say it is separate (T4)
