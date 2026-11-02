@@ -171,7 +171,7 @@ Standing context for every task:
   - Context: As T6, label `g3`. Add the column to the spec's "Eval results" table. Run it after any T7 fix tasks that are already open have closed.
   - Done when: the table is updated and committed; any regression against `g2` is named with its cause.
 
-- [ ] T27 Prepare the review notes for the milestone map and fold-back review
+- [x] T27 Prepare the review notes for the milestone map and fold-back review
   - Model: heavy (Opus 5.5)
   - Needs: T15
   - Context: Standing context "Owner reviews". Write `docs/project-planning/Review-T16.md` covering the decisions in `risk-first-roadmap`, `roadmap-plan-next-rung` (with `auto-fold-back.md`), `rung`, the tool commands and routes, and any rename T9 proposed; the `g3` eval results as one item if any grader regressed.
