@@ -44,7 +44,7 @@ Read by section, not whole files (`roadmap show|section|outline`; the binary is 
 - **No system design?** Offer `system-design` first (a legacy `<DocDir>/Design-<Topic>.md` can stand in). Do not invent one inside a brief.
 - **Older shape** (no Scope and milestones, no milestone fields or `Touches:`)? Run system-design's Migration first; it commits alone, and its `proposed` items join step 4's review.
 - **An older `Kind: checkpoint` rung next?** Step 2 stands in for it; set it `done` with the look-back's learning-log line.
-- **A rung with closed tasks but no fold-back** (in flight when the project moved to this flow)? Fold it back first, as the automatic fold-back does.
+- **A rung with closed tasks but no fold-back** (in flight when the project moved to this flow)? Fold it back first with [auto-fold-back.md](references/auto-fold-back.md).
 - **A one-line horizon item?** Write its question, slice, done-when, if-no and `Touches:` into the roadmap in risk-first-roadmap's rung format first.
 
 ### 2. Look back
@@ -82,7 +82,7 @@ Reached when the automatic fold-back stopped on something it may not judge and l
 1. **Read** the marker's differences, the brief, the rung's diff (`git diff <Base>..HEAD` for the surfaces involved), the system design and subsystem rows they touch, and the tasklist's outcomes.
 2. **Judge each difference.** When the code is right and the design was a guess, fix the doc; when the code drifted for a bad reason, leave the docs and write a task in `<DocDir>/Tasklist-<RungId>-Drift.md`. An unanswered "decide after it runs" item is settled from the code or the task's output. Changing a `settled` item or a decision, retiring a risk on a partial answer, or calling the rung `failed` needs the owner: return those with a recommendation instead of applying them. Commit what was applied as `Review fold-back of rung <RungId>`.
 3. **Owner items**, if any, in the shape of presenting-for-review.md; apply the rulings.
-4. **Finish the fold-back** for the escalated items as the automatic fold-back does for clean ones, record each drift as a decision, clear the marker, set the brief to `folded back (<date>)` with an "As built" line per difference, and commit by explicit path as `Fold back rung <RungId>`.
+4. **Finish the fold-back** for the escalated items as [auto-fold-back.md](references/auto-fold-back.md) step 4 does for clean ones, record each drift as a decision, clear the marker, set the brief to `folded back (<date>)` with an "As built" line per difference, set the rung `[done]` unless this review wrote a `-Drift` list, and commit by explicit path as `Fold back rung <RungId>`.
 5. **Next.** Start a short retro in a background Sonnet subagent (an escalated rung is unusual; follow [retrospective.md](references/retrospective.md), absolute path, return only the report). A re-plan trigger (rung failed, answered a different question, a `settled` seam must change) runs risk-first-roadmap's Re-plan; rungs it adds have no tasklist, so `/rung` plans them first. Otherwise the next brief exists. Say what moved and why, show the retro, and end with `Next: /rung` plus the model the next step needs (a drift list or the next rung runs on the orchestrator model). Log a `step` event with `kind` `escalation`, `target`, `drift`, `next` and `next_model`.
 
 ## Milestone close
