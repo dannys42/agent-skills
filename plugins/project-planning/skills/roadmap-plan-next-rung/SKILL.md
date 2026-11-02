@@ -77,7 +77,7 @@ When the system design implies more than one build boundary that rung 1 must cre
 
 ## Escalation review
 
-Reached when the automatic fold-back stopped on something it may not judge and left an escalation marker on the rung. Opus; not owner-facing until step 3, so `/rung` may run steps 1 and 2 as an Opus subagent started from a brief or handoff note naming the rung, its brief, its tasklist, its `Base` and the marker.
+Reached when the automatic fold-back stopped on something it may not judge and left an escalation marker on the rung. Also reached, with no marker, for an `in progress` rung whose lists all moved to `Completed/`: the fold-back finished without setting it `[done]`; review its brief and fold-back commit, then finish the fold-back or set it `[done]`. Opus; not owner-facing until step 3, so `/rung` may run steps 1 and 2 as an Opus subagent started from a brief or handoff note naming the rung, its brief, its tasklist, its `Base` and the marker.
 
 1. **Read** the marker's differences, the brief, the rung's diff (`git diff <Base>..HEAD` for the surfaces involved), the system design and subsystem rows they touch, and the tasklist's outcomes.
 2. **Judge each difference.** When the code is right and the design was a guess, fix the doc; when the code drifted for a bad reason, leave the docs and write a task in `<DocDir>/Tasklist-<RungId>-Drift.md`. An unanswered "decide after it runs" item is settled from the code or the task's output. Changing a `settled` item or a decision, retiring a risk on a partial answer, or calling the rung `failed` needs the owner: return those with a recommendation instead of applying them. Commit what was applied as `Review fold-back of rung <RungId>`.

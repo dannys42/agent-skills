@@ -8,7 +8,7 @@ struct RoadmapTool: ParsableCommand {
         commandName: "roadmap",
         abstract: "Read a roadmap, or any markdown file, by section, or print the next step of the rung cycle. Plain text out; exit 1 means a problem was found.",
         version: planToolsVersion,
-        subcommands: [Status.self, Show.self, Outline.self, Section.self, Lint.self, Next.self, Archive.self]
+        subcommands: [Status.self, Show.self, Name.self, Map.self, Outline.self, Section.self, Lint.self, Next.self, Archive.self]
     )
 
     struct Input: ParsableArguments {
@@ -33,6 +33,43 @@ struct RoadmapTool: ParsableCommand {
                 CLI.fail("no rung \(rung) on the ladder", code: 1)
             }
             CLI.print(out)
+        }
+    }
+
+    struct Name: ParsableCommand {
+        static let configuration = CommandConfiguration(
+            abstract: "Each rung or milestone ID with its name, one per line: L4 (Folder suggestions).",
+            discussion: "Exit 1 when an ID is on neither the ladder, the horizon nor the milestone map; the known ones are still printed.")
+        @OptionGroup var input: Input
+        @Argument(help: "Rung or milestone IDs, e.g. L4 M1.") var ids: [String] = []
+
+        func run() throws {
+            if ids.isEmpty { CLI.fail("name at least one ID", code: 2) }
+            let roadmap = Roadmap(text: input.text)
+            var unknown: [String] = []
+            for id in ids {
+                if let named = roadmap.named(id) { CLI.print(named) } else { unknown.append(id) }
+            }
+            if !unknown.isEmpty { CLI.fail("no rung or milestone " + unknown.joined(separator: " "), code: 1) }
+        }
+    }
+
+    struct Map: ParsableCommand {
+        static let configuration = CommandConfiguration(
+            abstract: "Write Map.md beside the roadmap: milestones with status and outcome, each rung one line with name, status and Touches.",
+            discussion: "Map.md is generated, never edited by hand; run this after saving or re-planning the roadmap.")
+        @OptionGroup var input: Input
+        @Flag(name: .customLong("print"), help: "Print the map and write nothing.") var printOnly = false
+
+        func run() throws {
+            let source = URL(fileURLWithPath: input.file)
+            let map = Roadmap(text: input.text).map(source: source.lastPathComponent)
+            if printOnly { CLI.print(map); return }
+            let target = source.deletingLastPathComponent().appendingPathComponent("Map.md").path
+            let existing = try? String(contentsOfFile: target, encoding: .utf8)
+            guard existing != map else { CLI.print("\(target) is up to date"); return }
+            try Editor.replace(file: target, original: existing, with: map)
+            CLI.print("wrote \(target)")
         }
     }
 

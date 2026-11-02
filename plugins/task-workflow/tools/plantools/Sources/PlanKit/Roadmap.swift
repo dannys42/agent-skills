@@ -13,15 +13,17 @@ public struct LogEntry {
     public let rung: String
 }
 
-/// The `risk-first-roadmap` file: a numbered ladder, `### <Rung>` detail sections, a learning log.
+/// The `risk-first-roadmap` file: a milestone map (newer roadmaps), a numbered ladder, `### <Rung>` detail sections, a learning log.
 public struct Roadmap {
     public let markdown: Markdown
+    public private(set) var milestones: [Milestone] = []
     public private(set) var ladder: [LadderRung] = []
     public private(set) var details: [(id: String, line: Int)] = []
     public private(set) var log: [LogEntry] = []
 
     public init(text: String) {
         markdown = Markdown(text: text)
+        milestones = Roadmap.parseMilestones(markdown)
         if let s = markdown.sections.first(where: { $0.level == 2 && $0.title.hasPrefix("Ladder") }) {
             for number in (s.line + 1)...max(s.line + 1, s.endLine) where number <= markdown.lines.count {
                 if let rung = Roadmap.parseLadder(markdown.lines[number - 1], line: number) { ladder.append(rung) }
@@ -180,6 +182,7 @@ public struct Roadmap {
         for entry in log where seen[entry.rung] == nil {
             out.append(.init(.warning, line: entry.line, "learning-log entry names \(entry.rung), which is not on the ladder"))
         }
+        out += lintMilestones()
         let size = markdown.lines.reduce(0) { $0 + $1.utf8.count + 1 }
         if size > budget.maxBytes { out.append(.init(.warning, line: nil, "file is \(size) bytes, over the \(budget.maxBytes) budget")) }
         for (line, length) in markdown.longLines(over: budget.maxLine) {

@@ -18,7 +18,7 @@ public enum Predictions {
     /// `/rung <step>` is a router; the skill is whichever one that step runs. Bare `/rung` or an unknown step names none.
     static func rungSkill(_ step: String?) -> String? {
         switch step {
-        case "plan", "close", "retro": return "roadmap-plan-next-rung"
+        case "plan", "close", "retro", "milestone-plan", "escalation", "milestone-close": return "roadmap-plan-next-rung"
         case "run": return "tasklist-run"
         case "replan", "roadmap": return "risk-first-roadmap"
         case "design", "checkpoint": return "system-design"

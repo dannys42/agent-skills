@@ -3,6 +3,7 @@ import Foundation
 /// The zero-token router for the rung cycle: from what is on disk, the next step a fresh session should run.
 public struct NextStep: Equatable {
     public var step: String
+    public var milestone: String?
     public var rung: String?
     public var list: String?
     public var model: String
@@ -33,7 +34,7 @@ public struct NextStep: Equatable {
     }
 
     static func make(_ step: String, _ model: String, _ args: String = "", rung: String? = nil, list: String? = nil, why: String) -> NextStep {
-        NextStep(step: step, rung: rung, list: list, model: model, command: "/rung " + step + (args.isEmpty ? "" : " " + args), why: why)
+        NextStep(step: step, milestone: nil, rung: rung, list: list, model: model, command: "/rung " + step + (args.isEmpty ? "" : " " + args), why: why)
     }
 
     public static func decide(_ input: Input) -> NextStep {
@@ -42,9 +43,15 @@ public struct NextStep: Equatable {
                 ? make("roadmap", "opus", why: "system design exists; no roadmap yet")
                 : make("design", "opus", why: "no system design and no roadmap")
         }
+        if !roadmap.milestones.isEmpty { return decide(milestones: roadmap, input) }
         if let rung = roadmap.ladder.first(where: { $0.status.hasPrefix("in progress") }) {
             return decide(rung: rung.id, input)
         }
+        return refactorOrNext(roadmap, input)
+    }
+
+    /// No rung in progress on an older roadmap: an open refactor list, else the first planned rung, else re-plan or finish.
+    static func refactorOrNext(_ roadmap: Roadmap, _ input: Input) -> NextStep {
         // The re-plan puts accepted refactor tasks in their own list, run before the next rung is planned.
         if let (file, tasks) = openLists(input, prefix: "Tasklist-Refactor-").first {
             let path = input.docDir == "." ? file.name : input.docDir + "/" + file.name
@@ -52,7 +59,7 @@ public struct NextStep: Equatable {
             run.command = "/tasklist-run " + path
             return run
         }
-        if let rung = roadmap.ladder.first(where: { $0.status.hasPrefix("planned") }) {
+        if roadmap.milestones.isEmpty, let rung = roadmap.ladder.first(where: { $0.status.hasPrefix("planned") }) {
             return make("plan", "opus", rung.id, rung: rung.id, why: "\(rung.id) is the first planned rung")
         }
         // Deferred and horizon rungs are not finished work: the re-plan brings one back, details one, or drops them.
@@ -122,6 +129,7 @@ public struct NextStep: Equatable {
 
     public var rendered: String {
         var rows = ["step: \(step)"]
+        if let milestone { rows.append("milestone: \(milestone)") }
         if let rung { rows.append("rung: \(rung)") }
         if let list { rows.append("list: \(list)") }
         rows += ["model: \(model)", "command: \(command)", "why: \(why)"]

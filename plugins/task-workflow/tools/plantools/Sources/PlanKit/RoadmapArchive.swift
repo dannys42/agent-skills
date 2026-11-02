@@ -1,7 +1,7 @@
 import Foundation
 
 /// `roadmap archive`: moves finished rungs' `###` sections verbatim to the Completed file
-/// and points their ladder lines at it, as `risk-first-roadmap`'s "Keep the roadmap small" says.
+/// and points their ladder lines at it, as `risk-first-roadmap`'s "Save and keep the roadmap small" says.
 public struct RoadmapArchive {
     public static let finishedStatuses = ["done", "failed", "changed", "obsolete"]
 
