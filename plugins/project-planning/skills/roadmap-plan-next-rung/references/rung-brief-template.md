@@ -1,8 +1,8 @@
 # Rung brief template
 
-File: `<DocDir>/SystemDesign/Rung-<RungId>-<ShortRungDescription>.md`. About a page. Every section answers a question the task list would otherwise guess at; leave out a section that has nothing to say, with a one-line "none" rather than a placeholder.
+File: `<DocDir>/SystemDesign/Rung-<RungId>-<ShortRungDescription>.md`, written at milestone planning for every rung of the milestone. The next rung's brief is complete, about a page; the others are thin (see [A thin brief](#a-thin-brief)). Every section answers a question the task list would otherwise guess at; a section with nothing to say is left out or reads "none". Cite the system design's agreed seams and decisions by qualified ID; never restate them.
 
-The example is rung L3 of a printable Sudoku app for macOS. Its Overview names the components App Shell, Puzzle Document, Grid View, Puzzle Generator (a subsystem, `Doc: pending`), and PDF Exporter; L1 and L2 built the app shell and an empty grid. L3 works only at the Overview's level, so it touches one design doc.
+The example is rung L3 of a printable Sudoku app for macOS. Its system design names the components App Shell, Puzzle Document, Grid View, Puzzle Generator (a subsystem, `Doc: pending`), and PDF Exporter; L1 and L2 built the app shell and an empty grid. L3 works only at the system design's top level, so it touches one design doc.
 
 IDs from design docs are cited qualified (`Overview:FR2`); the brief's own rung-local decisions and assumptions use bare IDs local to the brief.
 
@@ -12,10 +12,9 @@ IDs from design docs are cited qualified (`Overview:FR2`); the brief's own rung-
 # Rung L3: Grid Text Rendering
 
 Roadmap: ../Roadmap-Sudoku_Printer.md (L3)
-Overview: Overview.md
+System design: Overview.md
 Status: draft | agreed (<date>) | folded back (<date>)
-Base: <short sha of HEAD just before the planning commit: the parent of the commit that adds the tasklist>
-Tidy: run | skipped | deferred (<date>)   (written at close)
+Base: <short sha of HEAD when the run starts the rung; written by the run>
 
 ## Question and slice
 Question: Do fonts work, and is the size, color, and style legible at screen and print scale?
@@ -63,13 +62,12 @@ Interface crossing the boundary: `GridSnapshot` (cell values and weights, no vie
 ## Decisions
 | ID | Decision | Status | How resolved |
 | --- | --- | --- | --- |
-| Overview:D3 | Render the PDF by drawing Grid View's shapes into a Core Graphics PDF context, not by printing the view | accepted | default; vector output and no print dialog needed; recorded in the Overview because it fixes a component boundary |
-| A1 | SF Pro is acceptable as the numeral font | assumed | rung-local; user to confirm on the printed page |
-
-Deferred: the exact cell inset for optical centering (settled on the 1× snapshot; T2 records it here)
+| Overview:D3 | Render the PDF by drawing Grid View's shapes into a Core Graphics PDF context, not by printing the view | settled | default; vector output and no print dialog needed; recorded in the Overview because it fixes a component boundary |
+| A1 | SF Pro is acceptable as the numeral font | proposed | rung-local; user to confirm on the printed page |
 
 ## Verification
 - `xcodebuild -scheme SudokuPrinter test` passes, including a snapshot test of a filled grid at 1× and 2×.
+- Regression test: `GridTextTests.testDigitsDrawn` fails on the base (no digits drawn) and passes after.
 - Export writes a one-page PDF; `pdfinfo` reports one page, Letter size.
 - USER: print the page; every digit is readable at arm's length and centered by eye.
 
@@ -86,19 +84,35 @@ Deferred: the exact cell inset for optical centering (settled on the 1× snapsho
 
 ## Notes
 
-- **Question and slice** are copied from the roadmap, not rewritten, so the brief and the ladder cannot disagree. If planning shows they are wrong, fix the roadmap and say so.
-- **Scope for this rung** is the most valuable section for the task list: it stops an implementer from finishing the version instead of the rung.
-- **Components and interfaces** list only what the rung creates or changes. Neighbours appear in the diagram only when needed to understand a touched edge. See [diagrams.md](diagrams.md) for the classes.
-- **Design docs touched** lists every design doc the rung changes, so step 5 and fold-back edit those and no others. A rung may span several subsystems.
-- **Decisions** may hold rung-local choices that never reach a design doc. A decision that changes a component, a boundary between components, or technology direction is recorded in the design doc that owns it, with that doc's next ID, and cited qualified here.
-- **Deferred** lists outcome details that change no boundary, each with how it will be settled. At hand-off each goes into the `Done when` of the task that settles it, and the brief names that task's ID; the task records the answer here, and close checks that every item has one. Leave the line out when there are none.
-- **Verification** items are checks with the command or action, so they drop straight into `Done when` and `Verify` fields.
-- **Fold-back** is written now, while the intent is clear, and ticked at fold-back time. It lists every design-doc change the rung should cause if it succeeds, grouped by doc.
-- For rung 1 with more than one build boundary, add a **Build targets** section after Components: each target, its allowed imports, and its build and test commands.
+- **Question and slice** are copied from the roadmap, not rewritten. If planning shows they are wrong, fix the roadmap and say so.
+- **Scope for this rung** stops an implementer from finishing the milestone instead of the rung.
+- **Components and interfaces** list only what the rung creates or changes; neighbours appear only to explain a touched edge. Classes are in [diagrams.md](diagrams.md).
+- **Design docs touched** lists every doc the rung changes, so planning and fold-back edit those and no others.
+- **Decisions** hold rung-local choices. One that changes a component, a seam or technology direction is recorded in the design doc that owns it and cited qualified here.
+- **Verification** items carry the command or action, so they drop straight into `Done when`. One is always a regression test that fails without the rung's change.
+- **Outcome details** (thresholds, exact output, polish) go on the roadmap's "decide after it runs" list under this rung, not in the brief.
+- **Fold-back** is written now, while the intent is clear, and ticked by the automatic fold-back: every design-doc change the rung should cause if it succeeds, grouped by doc.
+- For rung 1 with more than one build boundary, add a **Build targets** section after Components.
+
+## A thin brief
+
+Every rung after the next one. Seams, names and decisions were agreed at milestone planning, so the brief points at them:
+
+```markdown
+# Rung L4: Puzzle Generation
+
+Roadmap: ../Roadmap-Sudoku_Printer.md (L4) · System design: Overview.md · Status: agreed (<date>)
+Question and slice: as in the roadmap.
+Scope: generate one valid puzzle per difficulty; no difficulty rating UI (L6).
+Uses: Overview:D5 (Puzzle Generator as a Swift package), seam `generate(difficulty:) -> Puzzle` (Puzzle_Generator:Contract).
+Verification: `swift test --package-path PuzzleGenerator`; regression test `GeneratorTests.testUniqueSolution` fails on the base.
+Guard rails: do not touch Grid View or PDF Exporter.
+Fold-back: Puzzle_Generator: Grid Solver and Cell Remover `designed → built`; retire Overview:R3 if uniqueness holds.
+```
 
 ## A rung that works inside a subsystem
 
-L4 designs the generator's internals. Puzzle Generator is a separate build target, so it meets a subsystem trigger, and its doc is created in subsystem mode as part of this rung's step 5, with only what L4 needs. The brief's diagram draws the generator's inner components and keeps App Shell as one box; the Overview keeps one Puzzle Generator box.
+L4 designs the generator's internals. Puzzle Generator is a separate build target, so it meets a subsystem trigger, and its doc is created in subsystem mode at milestone planning, with only what L4 needs. The brief's diagram draws the generator's inner components and keeps App Shell as one box; the system design keeps one Puzzle Generator box.
 
 ```markdown
 ## Design docs touched

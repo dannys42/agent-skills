@@ -93,7 +93,7 @@ Standing context for every task:
   - Context: Spec "2. Milestone map", "3. Rungs", re-plan triggers in "Cadence". Milestones as capability layers ordered foundation first; outcome sentence proposed in plain language and marked `proposed` until accepted; exit criteria; owner sets milestone order; end-of-goal rule with spikes and kept spike code (`PROVISIONAL` marker, Provisional code table, behind a seam; manual stand-ins listed beside the table, provisional code preferred); risk classes (shape, clock, breadth) only inside the current milestone; detail by distance; `Touches:` on every rung; the "decide after it runs" list; re-plan only on the four triggers; the roadmap's `Updated:` history goes to the log file. Remove the checkpoint-rung placement rules (look-back now runs in milestone planning). Update `references/roadmap-example.md` to match. Keep the archive and partial-read rules that still apply.
   - Done when: every rule in spec sections 2 and 3 maps to a line, and the example roadmap shows milestones, `Touches`, one detailed milestone and one-line later milestones.
 
-- [ ] T9 Rewrite `roadmap-plan-next-rung` for milestone planning and milestone close
+- [x] T9 Rewrite `roadmap-plan-next-rung` for milestone planning and milestone close
   - Model: heavy (Opus 5.5)
   - Needs: T8
   - Context: Spec "Cadence" table, "Open items" (regression test, owner acceptance). Milestone planning (Opus): the look-back from T4, the design delta for the milestone, every rung's brief (thin, citing agreed seams), and the tasklists; each rung's tasklist requires a regression test. Milestone close (Opus): re-read every fold-back in the milestone together, full test suite, owner demo against exit criteria (accept, accept with follow-ups, reject), one milestone retro, re-plan of the next milestone. The escalation target of the automatic fold-back is an internal route reached through `/rung`; it has no owner-facing close name and no `/rung close` command (owner, 2026-11-01). The escalation and milestone-close re-read steps are written so they can run as an Opus subagent from a brief or handoff note (owner, 2026-11-01). Update `references/rung-brief-template.md` (thinner) and `references/presenting-for-review.md` (IDs carry names). Decide whether the skill should be renamed; if so propose the name in the commit message and do not rename (owner decides at T15).
@@ -104,6 +104,7 @@ Standing context for every task:
   - Needs: T9
   - Context: Spec "Automatic fold-back" (all five steps, the classification table, "what it never does", the safety net) and the owner's test-scope rule (full suite, or the touched targets when the suite is slow, defined in the spec). Write the procedure as `plugins/project-planning/skills/roadmap-plan-next-rung/references/auto-fold-back.md`. In `plugins/task-workflow/skills/tasklist-run/SKILL.md`, when a run closes the last task of a rung list, follow that reference in the same session (if the file is missing, say so in one line and end with `Next: /rung`). Escalation ends the run with prose saying what differs and why an Opus review is next, then `Next: /rung (Opus: /model opus)`. The five-step procedure writes an escalation marker on the rung that `roadmap next` reads. A per-rung retro runs only for a failed, re-planned or escalated rung.
   - Done when: the reference covers every row of the spec's table, and `tasklist-run` calls it exactly once per rung list.
+  - Notes: Found during T9: planning commits all tasklists at once, so the run that starts a rung sets it in progress and writes Base: (under the brief's Status:, or in the tasklist Source: line when no brief).
 
 - [ ] T11 Update `tasklist` for regression tests and escaped defects
   - Model: standard (Sonnet 5.5)
@@ -117,7 +118,7 @@ Standing context for every task:
   - Context: `plugins/task-workflow/tools/plantools` (Swift; `Sources/PlanKit/Roadmap.swift`, `NextStep.swift`, `CLI.swift`, `Sources/roadmap/RoadmapTool.swift`). Add `roadmap map <file>` (writes or prints `Map.md`: milestones with status and outcome, each rung as one line with name, status and `Touches`); `roadmap name <file> <ID>...` (prints each rung or milestone ID with its title); parse `Touches:` and milestone fields; `roadmap next` routes the new steps: `milestone-plan` (no planned rung with a brief in the current milestone), `run`, `escalation` (the rung carries the escalation marker T10's reference records), `milestone-close` (every rung of the current milestone done, or a paused close waiting for the owner's demo ruling, read from its pause state), `replan`, `finished`, `design`. Routes are internal labels, never commands the owner types. `roadmap next` returns route, a one-line reason and the model, and reads the escalation marker and the handoff notes (T30). Keep old roadmaps working (no milestones section: current behaviour). Bump the tool version per its existing practice and update the minimum version in `next.sh`, the Plan tool check and the Metrics tool check.
   - Verify: `swift test --package-path plugins/task-workflow/tools/plantools`
   - Done when: tests cover each new command and each new route, including an old-format roadmap, and pass.
-  - Notes: Found during T5: route replan when a design session left the re-plan signal T30 defines.
+  - Notes: Found during T5: route replan when a design session left the re-plan signal T30 defines. Found during T9: milestone-plan fires when a planned rung of the current milestone has no tasklist (not 'no brief'); parse the milestone's Close: sub-bullet (paused close, rejected) per roadmap-plan-next-rung; an in-progress rung whose tasklist is all closed but not folded back needs a route (fold-back), else close is blocked.
 
 - [x] T13 Extend `metrics`: session tokens, escapes and stamps
   - Model: standard (Sonnet 5.5)
@@ -131,6 +132,7 @@ Standing context for every task:
   - Context: Spec "End-of-goal rule" (kept spike code) and "Open items". `metrics signals` counts `PROVISIONAL(` markers and flags one whose named milestone is already done (read milestone status through PlanKit, as T12 parses it); `metrics summary` also totals `Escaped from:` tasks per milestone.
   - Verify: `swift test --package-path plugins/task-workflow/tools/plantools`
   - Done when: tests cover both additions and pass.
+  - Notes: Found during T9: step events gain kind (milestone-plan, escalation, milestone-close) and ruling; document them in tasklist-run's metrics schema and accept them in metrics.
 
 - [x] T29 Align code-quality-pass reports with tiered reviews
   - Model: standard (Sonnet 5.5)
@@ -237,3 +239,4 @@ Standing context for every task:
 - .codex-plugin/plugin.json: defaultPrompt list could gain a design-session prompt at the version bump (T5; for T20)
 - Stale anchors to risk-first-roadmap: roadmap-plan-next-rung SKILL.md:100 "Re-plan after each rung", :101 old `/rung → plan`; plantools RoadmapArchive.swift:4 "Keep the roadmap small"; README.md:8 old ladder (T8; for T9, T12, T20)
 - risk-first-roadmap: the `Additive check:` sub-bullet on the next milestone may trip the over-detail "later milestone is one line" grader; watch at T15 (T8)
+- roadmap-plan-next-rung close: an open Follow_ups list blocks resuming an accepted close (steps 6–8); exempt it once Close: reads accepted with follow-ups, or run 6–8 before creating it (T9)

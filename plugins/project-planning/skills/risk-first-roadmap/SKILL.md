@@ -28,7 +28,7 @@ If no design exists, offer two paths: run `system-design` first (large project, 
 5. **Each milestone has** an outcome sentence in the owner's plain language (you draft it, marked `proposed` until the owner accepts it), the subsystems it touches, exit criteria the owner accepts at a demo, and its rungs. When the owner supplies an outcome or exit criterion, offer once to tighten it as `system-design` does (an exit criterion nobody can check, a vague term, a name clashing with `Taxonomy.md`), showing both versions; never rewrite owner text silently.
 6. **The owner sets the order.** Propose it, flag each dependency problem (a milestone that needs one placed after it, a clock item, such as data that cannot be backfilled, in a late milestone), and apply the owner's order. At a pillar boundary, propose the next-pillar options with their dependencies and costs; the owner picks.
 
-Milestone IDs (`M1`, `M2`, ...) are never reused. Statuses: `planned`, `current` (exactly one), `done`, `deferred`, `dropped`. The line format is in [roadmap-example.md](references/roadmap-example.md).
+Milestone IDs (`M1`, `M2`, ...) are never reused. Statuses: `planned`, `current` (exactly one), `done`, `deferred`, `dropped`. The line format, with its `Exit:`, `Additive check:` and `Close:` sub-bullets, is in [roadmap-example.md](references/roadmap-example.md); `Close:` exists only while a milestone close is in progress and is removed when it ends.
 
 Do not add checkpoint rungs: the look-back runs at the start of milestone planning. An older roadmap whose next rung is `Kind: checkpoint` runs it through `system-design`'s checkpoint alias, which sets it `done`.
 
