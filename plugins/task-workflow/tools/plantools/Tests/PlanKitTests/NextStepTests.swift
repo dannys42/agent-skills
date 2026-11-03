@@ -35,7 +35,7 @@ struct NextStepTests {
 
     @Test func firstPlannedRungWhenNoneInProgress() {
         let s = decide("## Ladder\n\n1. L1 — a [done]\n2. L2 — b [planned]\n3. L3 — c [planned]\n")
-        #expect(s.step == "plan" && s.rung == "L2" && s.command == "roadmap-plan-next-rung plan" && s.model == "opus")
+        #expect(s.step == "plan" && s.rung == "L2" && s.command == "plan-milestone plan" && s.model == "opus")
     }
 
     @Test func nothingLeftIsFinished() {
@@ -119,12 +119,12 @@ struct NextStepTests {
         #expect(decide().why.contains("brief missing"))
         #expect(decide(briefs: [brief("L3", status: "draft")]).why.contains("draft"))
         let s = decide(briefs: [brief("L3", status: "agreed (2026-10-01)")])
-        #expect(s.step == "plan" && s.command == "roadmap-plan-next-rung plan" && s.model == "opus" && s.why.contains("agreed"))
+        #expect(s.step == "plan" && s.command == "plan-milestone plan" && s.model == "opus" && s.why.contains("agreed"))
     }
 
     @Test func closedListWithoutFoldBackIsClose() {
         let s = decide(lists: [list("Tasklist-L3-Grid_Text.md", done)], briefs: [brief("L3", status: "agreed (2026-10-01)")])
-        #expect(s.step == "close" && s.command == "roadmap-plan-next-rung plan" && s.model == "opus" && s.list == "docs/Tasklist-L3-Grid_Text.md")
+        #expect(s.step == "close" && s.command == "plan-milestone plan" && s.model == "opus" && s.list == "docs/Tasklist-L3-Grid_Text.md")
         #expect(s.why == "Tasklist-L3-Grid_Text.md closed; brief not folded back")
         #expect(decide(lists: [list("Tasklist-L3-Grid.md", done)]).step == "close")
     }

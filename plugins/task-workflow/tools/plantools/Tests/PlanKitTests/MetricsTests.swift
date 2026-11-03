@@ -199,17 +199,22 @@ struct GitTests {
 @Suite("Predictions")
 struct PredictionsTests {
     private let log = MetricsLog.events(text: """
-    {"event":"step","repo":"/r","ts":"2026-10-01T10:00:00Z","skill":"roadmap-plan-next-rung 0.7.0","model":"claude-opus-5-5","target":"L3","next":"/tasklist-run Tasklist-L3-X.md","next_model":"sonnet"}
+    {"event":"step","repo":"/r","ts":"2026-10-01T10:00:00Z","skill":"plan-milestone 0.7.0","model":"claude-opus-5-5","target":"L3","next":"/tasklist-run Tasklist-L3-X.md","next_model":"sonnet"}
     {"event":"start","repo":"/r","run":"R1","ts":"2026-10-01T10:05:00Z","list":"Tasklist-L3-X.md","model":"claude-opus-5-5"}
     {"event":"batch","repo":"/r","run":"R1","ts":"2026-10-01T10:10:00Z","tiers":["standard","heavy"],"rounds":2,"lines":100}
     {"event":"batch","repo":"/r","run":"R1","ts":"2026-10-01T10:12:00Z","tiers":["light"],"rounds":0,"lines":10,"raised":false}
-    {"event":"end","repo":"/r","run":"R1","ts":"2026-10-01T10:20:00Z","stop":"complete","interventions":1,"next":"/roadmap-plan-next-rung fold-back L3","next_model":"opus"}
+    {"event":"end","repo":"/r","run":"R1","ts":"2026-10-01T10:20:00Z","stop":"complete","interventions":1,"next":"/plan-milestone fold-back L3","next_model":"opus"}
     """)
 
     @Test func skillNamesDropVersionsSlashesAndPlugins() {
-        #expect(Predictions.skillName("roadmap-plan-next-rung 0.7.0") == "roadmap-plan-next-rung")
+        #expect(Predictions.skillName("plan-milestone 0.7.0") == "plan-milestone")
         #expect(Predictions.skillName("/task-workflow:tasklist-run L3") == "tasklist-run")
         #expect(Predictions.skillName(nil) == nil)
+    }
+
+    @Test func aLegacySkillStampKeepsItsAttribution() {
+        #expect(Predictions.skillName("roadmap-plan-next-rung 0.7.0") == "plan-milestone")
+        #expect(SkillStamp.isValid("roadmap-plan-next-rung 0.7.0"))
     }
 
     @Test func mixedBatchCountsUnderItsHighestTier() {
@@ -220,7 +225,7 @@ struct PredictionsTests {
 
     @Test func pairsARecommendationWithTheRunItLedTo() {
         let text = Predictions.render(log: log)
-        #expect(text.contains("| roadmap-plan-next-rung → tasklist-run | 1 | 0 | opus ×1 |"))
+        #expect(text.contains("| plan-milestone → tasklist-run | 1 | 0 | opus ×1 |"))
         #expect(text.contains("| another model | 1 | 1.00 | 1.00 |"))
     }
 
@@ -239,7 +244,7 @@ struct PlanningCostTests {
         let root = tempDir() + "/projects"
         try write([turn("2026-10-01T09:00:00.000Z", "claude-opus-5-5", out: 1, id: "before"),
                    turn("2026-10-01T10:30:00.000Z", "claude-opus-5-5", out: 40, id: "in")].joined(separator: "\n"), to: root + "/-r/s1.jsonl")
-        let log = MetricsLog.events(text: #"{"event":"step","repo":"/r","ts":"2026-10-01T11:00:00Z","began":"2026-10-01T10:00:00Z","skill":"roadmap-plan-next-rung 0.7.0","target":"L3"}"#)
+        let log = MetricsLog.events(text: #"{"event":"step","repo":"/r","ts":"2026-10-01T11:00:00Z","began":"2026-10-01T10:00:00Z","skill":"plan-milestone 0.7.0","target":"L3"}"#)
         let (events, _) = TranscriptTokens.newEvents(log: log, root: root)
         let e = try #require(events.first)
         #expect(e.string("event") == "step_tokens" && e.string("step_ts") == "2026-10-01T11:00:00Z")
@@ -248,6 +253,22 @@ struct PlanningCostTests {
     }
 
     @Test func rungSummaryShowsPlanningShareDriftAndTrend() {
+        func tokens(_ n: Int) -> String { #"{"event":"tokens","repo":"/r","run":"R","orch":{"opus":{"in":\#(n),"out":0}},"impl":{},"rev":{}}"# }
+        let log = MetricsLog.events(text: ([
+            #"{"event":"start","repo":"/r","run":"R","ts":"2026-10-01T10:00:00Z","list":"Tasklist-L3-X.md"}"#,
+            #"{"event":"step","repo":"/r","ts":"2026-10-01T09:00:00Z","skill":"plan-milestone 0.7.0","target":"L3","drift":2}"#,
+            #"{"event":"step_tokens","repo":"/r","step_ts":"2026-10-01T09:00:00Z","skill":"plan-milestone 0.7.0","orch":{"opus":{"in":100}},"impl":{},"rev":{}}"#,
+            #"{"event":"end","repo":"/r","run":"R","ts":"2026-10-01T10:30:00Z","discovered":1}"#,
+        ] + [100, 100, 300, 300].map(tokens)).joined(separator: "\n"))
+        let all = RunSummary.byList(log: log, repo: "/r") { _ in nil }
+        let n = try! #require(all["Tasklist-L3-X.md"])
+        #expect(n.planTokens == 100 && n.drift == 2 && n.discovered == 1 && n.runTokens == 800)
+        let text = RunSummary.render(target: n, all: all)
+        #expect(text.contains("Planning was 11% of this rung's tokens"))
+        #expect(text.contains("rose 200%"))
+    }
+
+    @Test func rungSummaryCountsPlanningUnderALegacySkillStamp() {
         func tokens(_ n: Int) -> String { #"{"event":"tokens","repo":"/r","run":"R","orch":{"opus":{"in":\#(n),"out":0}},"impl":{},"rev":{}}"# }
         let log = MetricsLog.events(text: ([
             #"{"event":"start","repo":"/r","run":"R","ts":"2026-10-01T10:00:00Z","list":"Tasklist-L3-X.md"}"#,
@@ -275,8 +296,8 @@ struct SessionMetricsTests {
     }
 
     @Test func skillStampIsNameThenVersion() {
-        for good in ["tasklist-run 0.17.2", "roadmap-plan-next-rung 0.17.2", "rung 1.0.0"] { #expect(SkillStamp.isValid(good), "\(good)") }
-        for bad in ["0.16.2", "roadmap-plan-next-rung 0018", "tasklist-run", "tasklist-run 0.17", "task-workflow:tasklist 0.17.2", ""] { #expect(!SkillStamp.isValid(bad), "\(bad)") }
+        for good in ["tasklist-run 0.17.2", "plan-milestone 0.17.2", "rung 1.0.0"] { #expect(SkillStamp.isValid(good), "\(good)") }
+        for bad in ["0.16.2", "plan-milestone 0018", "tasklist-run", "tasklist-run 0.17", "task-workflow:tasklist 0.17.2", ""] { #expect(!SkillStamp.isValid(bad), "\(bad)") }
         #expect(!SkillStamp.isValid(nil))
     }
 
@@ -284,7 +305,7 @@ struct SessionMetricsTests {
         let log = MetricsLog.events(text: """
         {"event":"step","skill":"0.16.2"}
         {"event":"step","skill":"0.16.2"}
-        {"event":"step","skill":"roadmap-plan-next-rung 0018"}
+        {"event":"step","skill":"plan-milestone 0018"}
         {"event":"step","skill":"tasklist-run 0.17.2"}
         {"event":"batch","skill":"bogus"}
         {"event":"step"}
@@ -404,9 +425,9 @@ struct MilestoneMetricsTests {
 
     @Test func stepEventsWithKindRulingAndEscalatedAreAcceptedWithoutWarnings() {
         let log = MetricsLog.events(text: """
-        {"event":"step","repo":"/r","ts":"2026-10-01T10:00:00Z","skill":"roadmap-plan-next-rung 0.11.2","kind":"fold-back","target":"L3","drift":0,"escalated":true,"next":"/rung","next_model":"opus"}
-        {"event":"step","repo":"/r","ts":"2026-10-01T11:00:00Z","skill":"roadmap-plan-next-rung 0.11.2","kind":"milestone-close","target":"M1","ruling":"accept with follow-ups","next":"/rung","next_model":"opus"}
-        {"event":"step","repo":"/r","ts":"2026-10-01T12:00:00Z","skill":"roadmap-plan-next-rung 0.11.2","kind":"milestone-plan","target":"M2","next":"/rung","next_model":"sonnet"}
+        {"event":"step","repo":"/r","ts":"2026-10-01T10:00:00Z","skill":"plan-milestone 0.11.2","kind":"fold-back","target":"L3","drift":0,"escalated":true,"next":"/rung","next_model":"opus"}
+        {"event":"step","repo":"/r","ts":"2026-10-01T11:00:00Z","skill":"plan-milestone 0.11.2","kind":"milestone-close","target":"M1","ruling":"accept with follow-ups","next":"/rung","next_model":"opus"}
+        {"event":"step","repo":"/r","ts":"2026-10-01T12:00:00Z","skill":"plan-milestone 0.11.2","kind":"milestone-plan","target":"M2","next":"/rung","next_model":"sonnet"}
         """)
         #expect(log.count == 3)
         #expect(SkillStamp.warnings(log: log).isEmpty)
@@ -418,16 +439,16 @@ struct MilestoneMetricsTests {
 @Suite("Rung commands")
 struct RungCommandTests {
     @Test func rungStepsMapToTheSkillTheyRun() {
-        #expect(Predictions.skillName("/rung plan L3") == "roadmap-plan-next-rung")
-        #expect(Predictions.skillName("/project-planning:rung close L3") == "roadmap-plan-next-rung")
-        #expect(Predictions.skillName("/rung retro L3") == "roadmap-plan-next-rung")
+        #expect(Predictions.skillName("/rung plan L3") == "plan-milestone")
+        #expect(Predictions.skillName("/project-planning:rung close L3") == "plan-milestone")
+        #expect(Predictions.skillName("/rung retro L3") == "plan-milestone")
         #expect(Predictions.skillName("/rung run L3") == "tasklist-run")
         #expect(Predictions.skillName("/rung replan") == "risk-first-roadmap")
         #expect(Predictions.skillName("/rung roadmap") == "risk-first-roadmap")
         #expect(Predictions.skillName("/rung design") == "system-design")
         #expect(Predictions.skillName("/rung") == nil)
         #expect(Predictions.skillName("/rung bogus") == nil)
-        #expect(Predictions.skillName("/rung → close L3") == "roadmap-plan-next-rung")
+        #expect(Predictions.skillName("/rung → close L3") == "plan-milestone")
         #expect(Predictions.skillName("/rung -> run L3") == "tasklist-run")
         #expect(Predictions.skillName("/rung → checkpoint L44") == "system-design")
     }

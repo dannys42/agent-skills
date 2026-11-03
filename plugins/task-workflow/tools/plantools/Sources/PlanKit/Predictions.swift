@@ -5,20 +5,24 @@ import Foundation
 public enum Predictions {
     static let tierOrder = ["light": 0, "standard": 1, "heavy": 2]
 
-    /// `roadmap-plan-next-rung 0.7.0` → `roadmap-plan-next-rung`; `/task-workflow:tasklist-run L3` → `tasklist-run`.
+    /// Names a skill went by earlier, so old metrics logs keep their attribution.
+    static let legacySkillNames = ["roadmap-plan-next-rung": "plan-milestone"]
+
+    /// `plan-milestone 0.7.0` → `plan-milestone`; `/task-workflow:tasklist-run L3` → `tasklist-run`.
     /// An arrow is not a word: the skills print `Next: /rung → close L3`, and that line may be logged as written.
     public static func skillName(_ text: String?) -> String? {
         let words = (text ?? "").split(separator: " ").filter { !["→", "->", "=>"].contains($0) }
         guard let word = words.first else { return nil }
         let name = word.drop { $0 == "/" }
         let skill = String(name.split(separator: ":").last ?? name)
+        if let current = legacySkillNames[skill] { return current }
         return skill == "rung" ? rungSkill(words.dropFirst().first.map(String.init)) : skill
     }
 
     /// `/rung <step>` is a router; the skill is whichever one that step runs. Bare `/rung` or an unknown step names none.
     static func rungSkill(_ step: String?) -> String? {
         switch step {
-        case "plan", "close", "retro", "milestone-plan", "escalation", "milestone-close": return "roadmap-plan-next-rung"
+        case "plan", "close", "retro", "milestone-plan", "escalation", "milestone-close": return "plan-milestone"
         case "run": return "tasklist-run"
         case "replan", "roadmap": return "risk-first-roadmap"
         case "design", "checkpoint": return "system-design"

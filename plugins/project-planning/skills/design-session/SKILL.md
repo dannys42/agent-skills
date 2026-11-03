@@ -1,6 +1,6 @@
 ---
 name: design-session
-description: Work a design out together with the owner when they say "let's work through the design", "design session", "explore options for...", "I want to think through..." or "let's work it out together". The owner leads; the agent offers 2-3 alternative shapes with diagrams, traces consequences (including the additive check against later milestones), catches contradictions and offers a throwaway spike when only running something will settle a question. Notes go to a scratch file, not the system design. Ends with a promote step: the owner picks what enters the system design as settled or working, what is parked for a later milestone and what is dropped; the edit is committed and the notes file deleted. Use any time: before a system design exists, during milestone planning or mid-milestone. Not for drafting a whole system design (use system-design) or planning a rung (use roadmap-plan-next-rung).
+description: Work a design out together with the owner when they say "let's work through the design", "design session", "explore options for...", "I want to think through..." or "let's work it out together". The owner leads; the agent offers 2-3 alternative shapes with diagrams, traces consequences (including the additive check against later milestones), catches contradictions and offers a throwaway spike when only running something will settle a question. Notes go to a scratch file, not the system design. Ends with a promote step: the owner picks what enters the system design as settled or working, what is parked for a later milestone and what is dropped; the edit is committed and the notes file deleted. Use any time: before a system design exists, during milestone planning or mid-milestone. Not for drafting a whole system design (use system-design) or planning a rung (use plan-milestone).
 license: GPL-3.0-or-later
 model: opus
 ---
@@ -31,7 +31,7 @@ Ask the owner what they are picturing, and reflect their sketch back in a few li
 
 ### 2. Offer alternative shapes
 
-Offer 2–3 shapes, the owner's own sketch counting as one. For each: a Mermaid diagram following the `roadmap-plan-next-rung` skill's [diagrams.md](../roadmap-plan-next-rung/references/diagrams.md) (node labels are the system design's component names exactly, new pieces `sketched`, what the shape changes marked `touched`), a plain example of how it behaves on a case from the project, and a one-line pro and con. Then recommend one, or say "no recommendation" and why. Name new things by what they do (terms.md, "Names and labels"). Render-check each diagram as diagrams.md says.
+Offer 2–3 shapes, the owner's own sketch counting as one. For each: a Mermaid diagram following the `plan-milestone` skill's [diagrams.md](../plan-milestone/references/diagrams.md) (node labels are the system design's component names exactly, new pieces `sketched`, what the shape changes marked `touched`), a plain example of how it behaves on a case from the project, and a one-line pro and con. Then recommend one, or say "no recommendation" and why. Name new things by what they do (terms.md, "Names and labels"). Render-check each diagram as diagrams.md says.
 
 ### 3. Trace consequences
 
@@ -47,7 +47,7 @@ When only running something will settle a question (is it fast enough, does the 
 
 ### 6. Promote
 
-When the owner says they are done, or the conversation has converged, list every item in the notes that could enter the system design, in the shape in [presenting-for-review.md](../roadmap-plan-next-rung/references/presenting-for-review.md), each with a recommended outcome:
+When the owner says they are done, or the conversation has converged, list every item in the notes that could enter the system design, in the shape in [presenting-for-review.md](../plan-milestone/references/presenting-for-review.md), each with a recommended outcome:
 
 - **Promote as `settled`** or **promote as `working`** with its revisit note ("revisit if …").
 - **Park** for a later milestone, naming the milestone.
@@ -71,7 +71,7 @@ Apply the owner's rulings to the system design ([overview-template.md](../system
 | A parked structural item | an Open questions line naming the milestone it waits for, e.g. "Q4 (parked until M3, record changes): …" |
 | A parked minutia | the "decide after it runs" list, under the milestone that will settle it |
 
-Agreement marks follow the template: an item the owner wrote or edited reads `owner` (e.g. `settled · owner`); an item the owner accepted unchanged carries no `proposed` mark. New IDs continue the document's sequence and are never reused. A change to an agreed item goes through the decision log, not a silent edit. When a promoted item changes a `settled` item (a seam, say) or an owner request adds structure to the current milestone, say plainly that a re-plan is due, and after the commits below write a handoff note so `/rung` routes the re-plan in any later session: `<DocDir>/Handoff/replan-<date>.md` with `Route: replan`, `Model: opus`, `Waiting on: re-plan after the design session on <topic>`, `Date:`, and a body naming the changed items and the commit ([handoff.md](../roadmap-plan-next-rung/references/handoff.md)). Dropped items are not recorded; the notes file in git history keeps them. Write accepted preference lines to the file the owner chose.
+Agreement marks follow the template: an item the owner wrote or edited reads `owner` (e.g. `settled · owner`); an item the owner accepted unchanged carries no `proposed` mark. New IDs continue the document's sequence and are never reused. A change to an agreed item goes through the decision log, not a silent edit. When a promoted item changes a `settled` item (a seam, say) or an owner request adds structure to the current milestone, say plainly that a re-plan is due, and after the commits below write a handoff note so `/rung` routes the re-plan in any later session: `<DocDir>/Handoff/replan-<date>.md` with `Route: replan`, `Model: opus`, `Waiting on: re-plan after the design session on <topic>`, `Date:`, and a body naming the changed items and the commit ([handoff.md](../plan-milestone/references/handoff.md)). Dropped items are not recorded; the notes file in git history keeps them. Write accepted preference lines to the file the owner chose.
 
 If no system design exists yet, write the promoted items into a new `Overview.md` with the template's header (`Status: draft`) and only the sections they fill; `system-design` continues from it.
 

@@ -101,7 +101,7 @@ Why: <test met, a few words> · To settle it: <cheapest check, only when confide
 
 - `Kind`: `refactor-rung`, `task`, `conventions`, `fitness-test`, `accept-shape`.
 - `Size`: S (under about 100 lines), M (a rung's worth), L (several rungs; split before scheduling).
-- Tiers, the at-most-5 cap on Important, options with a pro and con for every proposal, and the example shape follow `roadmap-plan-next-rung`'s `presenting-for-review.md`; the table is the ranked index and the tier blocks carry the decisions. An `L` size, a public interface, persistence, or a change across several modules usually makes a proposal Important; so does evidence from one card or a benefit that rests on future rungs.
+- Tiers, the at-most-5 cap on Important, options with a pro and con for every proposal, and the example shape follow `plan-milestone`'s `presenting-for-review.md`; the table is the ranked index and the tier blocks carry the decisions. An `L` size, a public interface, persistence, or a change across several modules usually makes a proposal Important; so does evidence from one card or a benefit that rests on future rungs.
 - Ranking is by benefit over the project's life and how fast the problem compounds, not by effort; `Size` informs scheduling only. A large proposal is split, not demoted or dropped.
 - At most 10 ranked proposals, each with options and in the table; the rest go to "Also seen" as one line with a default and no options. A proposal deferred last time is re-ranked here, not copied.
 - `Decision`: `pending`, `accepted (<date>)`, `deferred`, `rejected: <reason>`.

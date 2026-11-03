@@ -112,7 +112,7 @@ public struct Roadmap {
         return LadderRung(id: id, status: status, text: text, line: number)
     }
 
-    /// Per `roadmap-plan-next-rung`: first `in progress` rung, else the first `planned`.
+    /// Per `plan-milestone`: first `in progress` rung, else the first `planned`.
     public func nextRung() -> LadderRung? {
         ladder.first { $0.status.hasPrefix("in progress") } ?? ladder.first { $0.status.hasPrefix("planned") }
     }

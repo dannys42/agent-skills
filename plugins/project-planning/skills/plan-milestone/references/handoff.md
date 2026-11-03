@@ -13,7 +13,7 @@ The notes are scratch, never committed. The first write creates `<DocDir>/Handof
 The tool reads only these lines, at the top (after an optional `# Title`):
 
 ```markdown
-Route: run | user | escalation | milestone-close | milestone-plan | replan | plan | close  (`plan` and `close` are legacy routes of older roadmaps; both resume as `roadmap-plan-next-rung plan`, which migrates the roadmap and folds back an in-flight rung first)
+Route: run | user | escalation | milestone-close | milestone-plan | replan | plan | close  (`plan` and `close` are legacy routes of older roadmaps; both resume as `plan-milestone plan`, which migrates the roadmap and folds back an in-flight rung first)
 Model: opus | sonnet
 Waiting on: <the exact question or action, one line, IDs with their names>
 Date: <YYYY-MM-DD>

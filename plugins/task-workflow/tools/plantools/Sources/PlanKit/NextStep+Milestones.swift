@@ -1,6 +1,6 @@
 import Foundation
 
-/// Routing for a roadmap with a `## Milestones` section, as `roadmap-plan-next-rung` defines it: milestone planning,
+/// Routing for a roadmap with a `## Milestones` section, as `plan-milestone` defines it: milestone planning,
 /// a rung's run (which folds itself back), an escalation review, and milestone close. Routes are internal labels the
 /// `/rung` skill dispatches; the owner only ever types `/rung`.
 extension NextStep {

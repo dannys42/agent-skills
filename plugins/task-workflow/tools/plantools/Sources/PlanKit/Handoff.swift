@@ -1,6 +1,6 @@
 import Foundation
 
-/// A wait-point handoff note, `<DocDir>/Handoff/<Route>-<Target>.md` (roadmap-plan-next-rung's references/handoff.md):
+/// A wait-point handoff note, `<DocDir>/Handoff/<Route>-<Target>.md` (plan-milestone's references/handoff.md):
 /// a few `Key: value` header lines the tool reads, then free prose for the agent that resumes.
 public struct Handoff: Equatable {
     public var route: String?

@@ -12,7 +12,7 @@ engineering, storytelling, and writing.
 | `swift-craft` | `naming-swift-tests`, `choosing-swift-design-patterns`, `organizing-swift-files` | Personal Swift conventions: explicit test naming, Swift-native design-pattern selection, and focused file organization |
 | `agent-engineering` | `optimizing-skill-development`, `audit-token-efficiency` | Risk-proportional skill validation with reproducible evidence, and post-task token-efficiency retrospectives |
 | `task-workflow` | `decision-driven-design`, `tasklist`, `tasklist-run` | Resolve consequential design decisions before implementation, then plan and execute the resulting tasks |
-| `project-planning` | `system-design`, `risk-first-roadmap`, `roadmap-plan-next-rung`, `code-quality-pass`, `rung`, `design-session` | Outline a large, vague project or adopt an existing one (tuned for Apple-platform apps), plan it as risk-ordered, end-to-end increments, design each increment just before building it, and keep the code's shape healthy with periodic quality passes |
+| `project-planning` | `system-design`, `risk-first-roadmap`, `plan-milestone`, `code-quality-pass`, `rung`, `design-session` | Outline a large, vague project or adopt an existing one (tuned for Apple-platform apps), plan it as risk-ordered, end-to-end increments, design each increment just before building it, and keep the code's shape healthy with periodic quality passes |
 | `storytelling` | `crafting-compelling-stories` | Audience-aware storytelling and narrative copy grounded in an attributed Joanna Wiebe framework |
 | `peak-hours` | (Claude Code mod, no skills) | A PEAK badge with countdown above the prompt during assumed peak hours (5-11am PT weekdays), with a self-checking record of observed rate-limit cost by hour |
 
@@ -64,7 +64,7 @@ riskiest unknown reachable from where the project is. Writes
 `<DocDir>/Roadmap-<Topic>.md`, details only the next few rungs, and re-plans
 after each one.
 
-### `roadmap-plan-next-rung`
+### `plan-milestone`
 
 Designs just the next roadmap rung before it is built: scope for the rung, the
 requirements and components it touches (with a highlighted diagram), decisions,

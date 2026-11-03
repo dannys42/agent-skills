@@ -1,6 +1,6 @@
 # Subsystems
 
-Shared by `system-design` and `roadmap-plan-next-rung`. A design doc that grows forever stops being read and stops being updated, and then it stops being true. So no design doc grows without bound: when a piece of the system needs its own design, it gets its own doc, and every other doc treats it as a single component.
+Shared by `system-design` and `plan-milestone`. A design doc that grows forever stops being read and stops being updated, and then it stops being true. So no design doc grows without bound: when a piece of the system needs its own design, it gets its own doc, and every other doc treats it as a single component.
 
 ## Layout
 
@@ -51,7 +51,7 @@ IDs (`D`, `R`, `Q`, `FR`, `NFR`, and `A` in older docs) are per document: unique
 
 1. **Inspect** the parent doc, the subsystem's row and Contract there, the code for that piece, and any rung briefs that touched it.
 2. **Draft in one pass.** Start from the Contract, since it is what the parent already relies on; then scope, requirements (allocated ones by parent ID, refined ones as this doc's own, refining every one the parent covers as `(doc pending)`), components, decisions and risks, marking what you add `proposed` and each agreed item `settled` or `working`. Design only what the current milestone needs from this piece, but keep the standard shape so later work knows where to add.
-3. **Review** the `proposed` items in the shape in [presenting-for-review.md](../../roadmap-plan-next-rung/references/presenting-for-review.md), asking only what would change the Contract, the inner components or the top risks.
+3. **Review** the `proposed` items in the shape in [presenting-for-review.md](../../plan-milestone/references/presenting-for-review.md), asking only what would change the Contract, the inner components or the top risks.
 4. **Iterate** until the user says it is good enough; set `Status: agreed (<date>)`. Commit the doc and the parent's edits from step 5 together; when milestone planning or a re-plan called this, they go in that session's commit.
 5. **Update the parent** only for the box, its `Doc` link and depth tag, the Contract summary if it changed, and the subsystem index.
 6. **Re-plan if the ladder changes.** Called from milestone planning, return the rung changes the agreed doc implies; that session places them. Run alone, if a rung must be added, moved ahead or re-based, that is a re-plan trigger: end with `Next: /rung (Opus: /model opus)` rather than leaving notes for the roadmap in the doc.

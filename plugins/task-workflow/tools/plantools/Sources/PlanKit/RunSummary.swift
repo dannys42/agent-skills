@@ -20,7 +20,7 @@ public struct RungNumbers {
     /// Tokens of every role in the rung's `tokens` events.
     public var runTokens: Int?
     public var discovered = 0
-    /// Planning and fold-back (`roadmap-plan-next-rung` steps for this rung): tokens from `step_tokens`, and the drift fold-back found.
+    /// Planning and fold-back (`plan-milestone` steps for this rung): tokens from `step_tokens`, and the drift fold-back found.
     public var planTokens: Int?, drift: Int?
     public var planSteps = 0
     /// Batches with two or more correction rounds, a tier raise or a block.
@@ -139,14 +139,14 @@ public enum RunSummary {
         }
     }
 
-    /// Planning cost belongs to the rung a `roadmap-plan-next-rung` step names, though it happens outside any run.
+    /// Planning cost belongs to the rung a `plan-milestone` step names, though it happens outside any run.
     static func attachPlanning(events: [LogEvent], to out: inout [String: RungNumbers]) {
         var tokens: [String: Int] = [:]
         for e in events where e.string("event") == "step_tokens" {
             tokens["\(e.string("skill") ?? "")|\(e.string("step_ts") ?? "")"] = roles(of: e)
         }
         var byRung: [String: (tokens: Int?, drift: Int?, steps: Int)] = [:]
-        for e in events where e.string("event") == "step" && Predictions.skillName(e.string("skill")) == "roadmap-plan-next-rung" {
+        for e in events where e.string("event") == "step" && Predictions.skillName(e.string("skill")) == "plan-milestone" {
             guard let target = e.string("target") else { continue }
             var p = byRung[target] ?? (nil, nil, 0)
             p.steps += 1

@@ -111,7 +111,7 @@ struct NextStepMilestoneTests {
     @Test func milestonePlanWhenAPlannedRungOfTheCurrentMilestoneHasNoTasklist() {
         let s = decide(lists: [l2Open])
         #expect(s.step == "milestone-plan" && s.model == "opus" && s.milestone == "M1" && s.rung == nil)
-        #expect(s.command == "roadmap-plan-next-rung plan M1")
+        #expect(s.command == "plan-milestone plan M1")
         #expect(s.why == "M1 (print a puzzle): L3 (Control text in the grid) has no tasklist")
         #expect(s.rendered.hasPrefix("step: milestone-plan\nmilestone: M1\nmodel: opus"))
     }
@@ -125,7 +125,7 @@ struct NextStepMilestoneTests {
     @Test func escalationWhenTheRungCarriesTheMarker() {
         let text = edited([("Class: shape\n\n### L3", "Class: shape\nEscalation: 2026-11-01\n- Grid API differs\n\n### L3")])
         let s = decide(text, lists: [l2Moved, l3Listed])
-        #expect(s.step == "escalation" && s.model == "opus" && s.rung == "L2" && s.command == "roadmap-plan-next-rung escalation L2")
+        #expect(s.step == "escalation" && s.model == "opus" && s.rung == "L2" && s.command == "plan-milestone escalation L2")
         #expect(s.why == "L2 (Draw a fixed 9x9 grid): the automatic fold-back escalated on 2026-11-01")
     }
 
@@ -184,7 +184,7 @@ struct NextStepMilestoneTests {
 
     @Test func milestoneCloseWhenEveryRungIsFinishedAndResumesFromTheCloseLine() {
         let s = decide(edited(allDone), lists: [list("Tasklist-M1-Fixes.md", done, completed: true)])
-        #expect(s.step == "milestone-close" && s.model == "opus" && s.milestone == "M1" && s.command == "roadmap-plan-next-rung milestone-close M1")
+        #expect(s.step == "milestone-close" && s.model == "opus" && s.milestone == "M1" && s.command == "plan-milestone milestone-close M1")
         #expect(s.why == "every rung of M1 (print a puzzle) is finished and no fix or follow-up list is open")
         let paused = decide(edited(allDone + [("  - Exit: File", "  - Close: awaiting demo (2026-11-01)\n  - Exit: File")]))
         #expect(paused.step == "milestone-close" && paused.why.hasSuffix("the close resumes after: awaiting demo (2026-11-01)"))
@@ -205,7 +205,7 @@ struct NextStepMilestoneTests {
 
     @Test func anOldFormatRoadmapKeepsThePerRungRoutes() {
         let old = "## Ladder\n\n1. L1 — a [done]\n2. L2 — b [planned]\n"
-        #expect(decide(old).step == "plan" && decide(old).command == "roadmap-plan-next-rung plan")
+        #expect(decide(old).step == "plan" && decide(old).command == "plan-milestone plan")
         let closing = decide("## Ladder\n\n1. L1 — a [in progress]\n", lists: [list("Tasklist-L1-A.md", done)])
         #expect(closing.step == "close" && closing.milestone == nil)
     }
@@ -215,7 +215,7 @@ struct NextStepMilestoneTests {
         let demo = NextStep.File(name: "milestone-close-M1.md", text: "# Handoff: demo of M1\n\nRoute: milestone-close\nMilestone: M1\n"
             + "Waiting on: the owner's demo ruling\nDate: 2026-11-01\n\nWhat was done: ...", modified: Date(timeIntervalSince1970: 1))
         let s = NextStep.decide(.init(docDir: "docs", hasOverview: true, roadmap: Roadmap(text: paused), tasklists: [l2Open], handoffs: [demo]))
-        #expect(s.step == "milestone-close" && s.milestone == "M1" && s.model == "opus" && s.command == "roadmap-plan-next-rung milestone-close M1")
+        #expect(s.step == "milestone-close" && s.milestone == "M1" && s.model == "opus" && s.command == "plan-milestone milestone-close M1")
         #expect(s.handoff == "docs/Handoff/milestone-close-M1.md" && s.why == "waiting on the owner's demo ruling (handoff of 2026-11-01)")
         #expect(s.rendered.contains("handoff: docs/Handoff/milestone-close-M1.md"))
         // The newest dated note wins; one with no known route is left to `metrics signals`.
@@ -262,9 +262,9 @@ struct NextStepMilestoneTests {
     }
 
     @Test func milestoneRoutesNameTheirSkill() {
-        #expect(Predictions.skillName("roadmap-plan-next-rung plan M1") == "roadmap-plan-next-rung")
+        #expect(Predictions.skillName("plan-milestone plan M1") == "plan-milestone")
         for route in ["milestone-plan", "escalation", "milestone-close"] {
-            #expect(Predictions.skillName("/rung \(route)") == "roadmap-plan-next-rung")
+            #expect(Predictions.skillName("/rung \(route)") == "plan-milestone")
         }
     }
 }

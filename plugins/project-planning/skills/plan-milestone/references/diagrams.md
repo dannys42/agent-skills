@@ -1,6 +1,6 @@
 # Diagrams in the design docs
 
-Shared by `system-design` (the Overview and subsystem docs) and `roadmap-plan-next-rung` (rung briefs). A diagram is there to show structure a reader would otherwise rebuild in their head from prose; anything else is decoration that goes stale.
+Shared by `system-design` (the Overview and subsystem docs) and `plan-milestone` (rung briefs). A diagram is there to show structure a reader would otherwise rebuild in their head from prose; anything else is decoration that goes stale.
 
 ## When a diagram earns its place
 

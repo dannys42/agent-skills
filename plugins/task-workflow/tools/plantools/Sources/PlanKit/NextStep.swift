@@ -44,11 +44,11 @@ public struct NextStep: Equatable {
         switch step {
         case "design": return "system-design"
         case "roadmap", "replan", "finished": return "risk-first-roadmap"
-        case "milestone-plan": return with("roadmap-plan-next-rung", "plan", milestone ?? rung)
+        case "milestone-plan": return with("plan-milestone", "plan", milestone ?? rung)
         // Older roadmaps have no milestones: that session migrates the docs, folds back an in-flight rung, then plans.
-        case "plan", "close": return "roadmap-plan-next-rung plan"
-        case "escalation": return with("roadmap-plan-next-rung", "escalation", rung)
-        case "milestone-close": return with("roadmap-plan-next-rung", "milestone-close", milestone)
+        case "plan", "close": return "plan-milestone plan"
+        case "escalation": return with("plan-milestone", "escalation", rung)
+        case "milestone-close": return with("plan-milestone", "milestone-close", milestone)
         default: return with("tasklist-run", list) // run, user
         }
     }

@@ -151,7 +151,7 @@ Field level, and only what this milestone builds.
 - **Open questions** are structural. Minutiae marked `after it runs` move to the roadmap's "decide after it runs" list once it exists.
 - **Traceability** covers this doc's own requirements. It is drafted with `none` in the Rung column; the roadmap fills it in, and fold-back sets the status (`planned`, `proven by L4`, `gap`). A requirement allocated to a subsystem reads `L4, via Sales_Store`, with `(doc pending)` while that doc is not written.
 - After agreement, change things through the decision log, not silent edits. Reworking a `working` item as its revisit note foresaw is planned work, not drift.
-- Diagram rules and the Graphviz fallback are in the `roadmap-plan-next-rung` skill's [diagrams.md](../../roadmap-plan-next-rung/references/diagrams.md).
+- Diagram rules and the Graphviz fallback are in the `plan-milestone` skill's [diagrams.md](../../plan-milestone/references/diagrams.md).
 
 ## Migrating older docs
 

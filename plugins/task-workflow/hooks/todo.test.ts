@@ -94,7 +94,7 @@ test('no next step while running, for a plain list, or with no tasks', () => {
   expect(nextStep(stopped('docs/Tasklist-L3-Grid_Text.md', []))).toBeUndefined()
 })
 
-const OUT = 'step: close\nrung: L3\nmodel: opus\ncommand: roadmap-plan-next-rung plan\nwhy: Tasklist-L3-Grid_Text.md closed; brief not folded back\n'
+const OUT = 'step: close\nrung: L3\nmodel: opus\ncommand: plan-milestone plan\nwhy: Tasklist-L3-Grid_Text.md closed; brief not folded back\n'
 
 test('parses roadmap next output into the band line', () => {
   const n = parseNext(OUT)!

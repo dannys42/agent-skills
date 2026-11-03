@@ -1,0 +1,6 @@
+interface:
+  display_name: "Plan Milestone"
+  short_description: "Plan the next milestone, then hand off to tasklist"
+  default_prompt: "Use $plan-milestone to plan the next milestone of the roadmap before building it."
+policy:
+  allow_implicit_invocation: true

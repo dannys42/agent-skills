@@ -32,7 +32,7 @@
     "defaultPrompt": [
       "Use $system-design to shape a high-level design for this project idea.",
       "Use $risk-first-roadmap to turn the system design into an incremental roadmap.",
-      "Use $roadmap-plan-next-rung to plan the next rung of the roadmap before building it."
+      "Use $plan-milestone to plan the next milestone of the roadmap before building it."
     ]
   }
 }

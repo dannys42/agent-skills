@@ -1,6 +1,6 @@
 ---
 name: risk-first-roadmap
-description: Turn a system design or a vague project idea into a milestone map, capability layers ordered foundation first, each with a plain-language outcome and exit criteria, and inside the current milestone a ladder of small end-to-end rungs ordered riskiest unknown first, so a runnable app exists at every step. Use whenever the user wants a roadmap, milestones, build order or "what should I build first" for a new or large project, has just finished a system design (SystemDesign/Overview.md, or a legacy Design-*.md), has adopted an existing codebase and recorded a change of direction, or says a project is too big to know where to start. Also use to re-plan when a rung fails or answers a different question, an owner request lands in the current milestone or a settled seam must change, and at milestone close for the next milestone. Tuned for Apple-platform apps. Not for designing or breaking down one rung (use roadmap-plan-next-rung, then tasklist) or for product-strategy roadmaps with stakeholders and quarters.
+description: Turn a system design or a vague project idea into a milestone map, capability layers ordered foundation first, each with a plain-language outcome and exit criteria, and inside the current milestone a ladder of small end-to-end rungs ordered riskiest unknown first, so a runnable app exists at every step. Use whenever the user wants a roadmap, milestones, build order or "what should I build first" for a new or large project, has just finished a system design (SystemDesign/Overview.md, or a legacy Design-*.md), has adopted an existing codebase and recorded a change of direction, or says a project is too big to know where to start. Also use to re-plan when a rung fails or answers a different question, an owner request lands in the current milestone or a settled seam must change, and at milestone close for the next milestone. Tuned for Apple-platform apps. Not for designing or breaking down one rung (use plan-milestone, then tasklist) or for product-strategy roadmaps with stakeholders and quarters.
 license: GPL-3.0-or-later
 model: opus
 ---
@@ -109,7 +109,7 @@ Fix these first:
 
 ## Review with the owner
 
-Show the milestone list whole first, one line each with the outcome, then the current milestone's ladder as one-line questions, then the first rungs' detail. Name each ID with its short name (`M1 (data in one place)`, `L3 (text in the grid)`). Explain the order by the risk each early rung buys down. Then present every decision in the shape in `roadmap-plan-next-rung`'s [presenting-for-review.md](../roadmap-plan-next-rung/references/presenting-for-review.md): the milestone order, each `proposed` outcome and exit criteria, the first milestone's cut, and rung-order choices resting on a guessed ranking, an inferred dependency or an unclear cost. Without that file: group them Important, Notable, Small; give every decision two or three options, each with a pro and con and the recommended one first; end with one question. When the owner reorders, re-check dependencies and say what it does to early risk exposure.
+Show the milestone list whole first, one line each with the outcome, then the current milestone's ladder as one-line questions, then the first rungs' detail. Name each ID with its short name (`M1 (data in one place)`, `L3 (text in the grid)`). Explain the order by the risk each early rung buys down. Then present every decision in the shape in `plan-milestone`'s [presenting-for-review.md](../plan-milestone/references/presenting-for-review.md): the milestone order, each `proposed` outcome and exit criteria, the first milestone's cut, and rung-order choices resting on a guessed ranking, an inferred dependency or an unclear cost. Without that file: group them Important, Notable, Small; give every decision two or three options, each with a pro and con and the recommended one first; end with one question. When the owner reorders, re-check dependencies and say what it does to early risk exposure.
 
 ## Save and keep the roadmap small
 
@@ -168,9 +168,9 @@ Rung statuses: `planned`, `in progress`, `done`, `failed` (answered "no", fallba
 
 ## If a linked skill is missing
 
-This skill hands off to `system-design` and `roadmap-plan-next-rung` (`project-planning` plugin) and `tasklist` (`task-workflow` plugin). When one is absent, do not stop: use the fallback below, and say once what is missing, how to install it (`claude plugin install project-planning@danny-sung-agent-skills`, `claude plugin install task-workflow@danny-sung-agent-skills`, or `npx skills add dannys42/agent-skills --skill <skill-name>`), and how to recover.
+This skill hands off to `system-design` and `plan-milestone` (`project-planning` plugin) and `tasklist` (`task-workflow` plugin). When one is absent, do not stop: use the fallback below, and say once what is missing, how to install it (`claude plugin install project-planning@danny-sung-agent-skills`, `claude plugin install task-workflow@danny-sung-agent-skills`, or `npx skills add dannys42/agent-skills --skill <skill-name>`), and how to recover.
 
 - No `system-design`: build the short risk list with the user (see Input), and the milestone list with it.
-- No `roadmap-plan-next-rung`: expand each rung straight into tasks with `tasklist`, citing the rung ID; update the design's risks by hand at re-plan.
+- No `plan-milestone`: expand each rung straight into tasks with `tasklist`, citing the rung ID; update the design's risks by hand at re-plan.
 - No `tasklist`: write a rung's tasks as a plain checklist at `<DocDir>/Tasklist-<RungId>-<ShortRungDescription>.md`, each with an ID, `Needs` and `Done when`.
 - Recover: once installed, run the skipped step. Existing files are read and continued, never overwritten.

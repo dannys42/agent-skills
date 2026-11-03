@@ -1,7 +1,7 @@
 # Design: system design, milestones and owner-led design for large projects
 
 Status: draft (2026-11-01), owner-directed, not from a retro
-Touches: `system-design`, `risk-first-roadmap`, `roadmap-plan-next-rung`, `rung`, `code-quality-pass` (project-planning 0.11.2); `tasklist`, `tasklist-run`, `metrics` and `roadmap` tools (task-workflow 0.17.2); `.claude/skills/retro-feedback`; a new design-session skill
+Touches: `system-design`, `risk-first-roadmap`, `plan-milestone`, `rung`, `code-quality-pass` (project-planning 0.11.2); `tasklist`, `tasklist-run`, `metrics` and `roadmap` tools (task-workflow 0.17.2); `.claude/skills/retro-feedback`; a new design-session skill
 Supersedes in part: [Design-Shape_Value_Names.md](Design-Shape_Value_Names.md) (its classes, milestones and checkpoints stay; its ordering moves inside a milestone)
 
 ## Problems

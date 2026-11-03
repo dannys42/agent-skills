@@ -1,7 +1,7 @@
 import Foundation
 
 /// The `skill` stamp of a logged `step` event: `<skill-name> <plugin version>`, as `scripts/bump_version.py` writes it
-/// (`tasklist-run 0.17.2`). A bare version or a retro number (`roadmap-plan-next-rung 0018`) is malformed.
+/// (`tasklist-run 0.17.2`). A bare version or a retro number (`plan-milestone 0018`) is malformed.
 public enum SkillStamp {
     public static func isValid(_ stamp: String?) -> Bool {
         guard let stamp else { return false }

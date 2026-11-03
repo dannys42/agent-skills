@@ -1,6 +1,6 @@
 # Presenting items for the user to rule on
 
-Shared by `system-design`, `risk-first-roadmap`, `roadmap-plan-next-rung` and `code-quality-pass`, and by the repo-local feedback skills. Use it whenever you hand the user a list to accept, reject or choose from: a draft's questions and assumptions, a rung order, review proposals, triage verdicts, "worth changing" items. It adds tiers, an order and options; it never removes an item or a field the calling skill shows.
+Shared by `system-design`, `risk-first-roadmap`, `plan-milestone` and `code-quality-pass`, and by the repo-local feedback skills. Use it whenever you hand the user a list to accept, reject or choose from: a draft's questions and assumptions, a rung order, review proposals, triage verdicts, "worth changing" items. It adds tiers, an order and options; it never removes an item or a field the calling skill shows.
 
 ## Tiers
 

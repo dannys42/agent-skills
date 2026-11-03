@@ -3,7 +3,7 @@ import { test, expect, mock } from 'claude-code/testing'
 const TODO = '## P1 A\n- [ ] T1 First\n- [ ] T2 Second\n'
 const BLOCK = 'Implement:\n- [ ] T1 First\n'
 
-const NEXT = 'step: close\nrung: L3\nmodel: opus\ncommand: roadmap-plan-next-rung plan\nwhy: brief not folded back\n'
+const NEXT = 'step: close\nrung: L3\nmodel: opus\ncommand: plan-milestone plan\nwhy: brief not folded back\n'
 
 let n = 0
 let code = 0
