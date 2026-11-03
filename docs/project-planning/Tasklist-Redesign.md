@@ -288,10 +288,8 @@ Standing context for every task:
 - risk-first-roadmap: the `Additive check:` sub-bullet on the next milestone may trip the over-detail "later milestone is one line" grader; watch at T15 (T8)
 - roadmap-plan-next-rung close: an open Follow_ups list blocks resuming an accepted close (steps 6–8); exempt it once Close: reads accepted with follow-ups, or run 6–8 before creating it (T9)
 - plantools Signals: a handoff note roadmap next already skips as stale gets no warning until 14 days old; reuse NextStep.stale in signals (T30)
-- plan-milestone Milestone close step 4 (Demo) and references/handoff.md "The stop message" disagree on what goes in chat versus only in the handoff note; every demo-stop-handoff run gave the full walkthrough and the handoff path (T20)
-- evals/demo-stop-handoff/graders/stop-message.md: pass bullets omit the short-and-measurable and no-handoff-path rules from handoff.md; 0/3 twice (T20)
 
-- [ ] T39 Make the demo stop message and handoff note agree
+- [x] T39 Make the demo stop message and handoff note agree
   - Model: standard (Sonnet 5.5)
   - Context: plan-milestone Milestone close step 4 (Demo) and references/handoff.md 'The stop message' disagree on what goes in chat versus only in the handoff note; every demo-stop-handoff run gave the full walkthrough and the handoff path (stop-message 0/3 twice). Make step 4 follow handoff.md (short, measurable, no handoff path in chat), and update evals/demo-stop-handoff/graders/stop-message.md pass bullets to include the short-and-measurable and no-handoff-path rules.
   - Done when: Skill text and grader state the same rules; python3 -m pytest tests passes.
