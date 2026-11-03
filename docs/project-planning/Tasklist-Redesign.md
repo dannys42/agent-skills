@@ -259,6 +259,13 @@ Standing context for every task:
     b. Reply with release-now or pilot-first, and any other change.
   - Done when: the owner replies with release-now or pilot-first.
 
+### G6 Known gaps from the 1.0.0 eval
+
+- [x] T38 Every closing summary names each milestone and rung it mentions
+  - Model: standard (Sonnet 5.5)
+  - Context: Spec 'Eval results' 1.0.0 findings: foundation-before-goal summary-names-ids went 2/3 to 0/3. Add the 'an ID shown to the owner carries its name' rule (terms.md) to the closing summary step of risk-first-roadmap and system-design SKILL.md, in one line each, and check roadmap-plan-next-rung and plan-milestone closing text for the same gap. Also fix the review notes on stale anchors to the retired per-rung flow in risk-first-roadmap, roadmap-plan-next-rung and code-quality-pass that touch the same lines.
+  - Done when: Each closing summary step states the rule; python3 -m pytest tests passes.
+
 ## Review notes
 
 - presenting-for-review.md: Small example item is run-together bold text; two bullets would scan better (T24)
@@ -281,6 +288,21 @@ Standing context for every task:
 - risk-first-roadmap: the `Additive check:` sub-bullet on the next milestone may trip the over-detail "later milestone is one line" grader; watch at T15 (T8)
 - roadmap-plan-next-rung close: an open Follow_ups list blocks resuming an accepted close (steps 6–8); exempt it once Close: reads accepted with follow-ups, or run 6–8 before creating it (T9)
 - plantools Signals: a handoff note roadmap next already skips as stale gets no warning until 14 days old; reuse NextStep.stale in signals (T30)
-- risk-first-roadmap and system-design SKILL.md: the closing summary step does not repeat that every milestone or rung ID carries its name; foundation-before-goal summary-names-ids went 2/3 to 0/3 at 1.0.0 (T20)
 - plan-milestone Milestone close step 4 (Demo) and references/handoff.md "The stop message" disagree on what goes in chat versus only in the handoff note; every demo-stop-handoff run gave the full walkthrough and the handoff path (T20)
 - evals/demo-stop-handoff/graders/stop-message.md: pass bullets omit the short-and-measurable and no-handoff-path rules from handoff.md; 0/3 twice (T20)
+
+- [ ] T39 Make the demo stop message and handoff note agree
+  - Model: standard (Sonnet 5.5)
+  - Context: plan-milestone Milestone close step 4 (Demo) and references/handoff.md 'The stop message' disagree on what goes in chat versus only in the handoff note; every demo-stop-handoff run gave the full walkthrough and the handoff path (stop-message 0/3 twice). Make step 4 follow handoff.md (short, measurable, no handoff path in chat), and update evals/demo-stop-handoff/graders/stop-message.md pass bullets to include the short-and-measurable and no-handoff-path rules.
+  - Done when: Skill text and grader state the same rules; python3 -m pytest tests passes.
+
+- [ ] T40 Diagnose design-depth failures from the documents
+  - Model: heavy (Opus 5.5)
+  - Context: design-depth is 1/3 at 1.0.0. Re-run over-detail-trap once (label 1.0.0-dd), read each Overview.md the run wrote by hand, and decide per failure whether the doc is truly over-detailed (then fix the system-design skill text or template that allowed it) or the judge is wrong (then tighten the grader). Standing eval command applies.
+  - Done when: Each failing doc has a stated cause, the skill or grader change is committed, and the finding is appended to the spec under 1.0.0 findings.
+
+- [ ] T41 Re-run all evals after the gap fixes
+  - Model: standard (Sonnet 5.5)
+  - Needs: T38, T39, T40
+  - Context: Label 1.0.1-gaps, all three cases, standing eval command. Add the column to the spec's Eval results table and name any grader below its 1.0.0 score with its cause. Then update docs/project-planning/Review-T21.md eval table.
+  - Done when: Table column and Review-T21.md updated and committed.
