@@ -245,7 +245,7 @@ Standing context for every task:
   - Verify: `python3 -m pytest tests`; `swift test --package-path plugins/task-workflow/tools/plantools`
   - Done when: every fix task from the T7 and T16 reviews is closed, tests pass, versions agree in every manifest and stamp, and the eval table has the `1.0.0` column.
 
-- [ ] T28 Prepare the review notes for the final review
+- [x] T28 Prepare the review notes for the final review
   - Model: standard (Sonnet 5.5)
   - Needs: T20
   - Context: Standing context "Owner reviews". Write `docs/project-planning/Review-T21.md`: release now or after the FileOrganizerHero pilot as the important decision; any decisions T20 made (versions, changelog wording, README structure) below it; the eval table's `0.11.2` vs `1.0.0` columns.
