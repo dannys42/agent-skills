@@ -294,7 +294,7 @@ Standing context for every task:
   - Context: plan-milestone Milestone close step 4 (Demo) and references/handoff.md 'The stop message' disagree on what goes in chat versus only in the handoff note; every demo-stop-handoff run gave the full walkthrough and the handoff path (stop-message 0/3 twice). Make step 4 follow handoff.md (short, measurable, no handoff path in chat), and update evals/demo-stop-handoff/graders/stop-message.md pass bullets to include the short-and-measurable and no-handoff-path rules.
   - Done when: Skill text and grader state the same rules; python3 -m pytest tests passes.
 
-- [ ] T40 Diagnose design-depth failures from the documents
+- [x] T40 Diagnose design-depth failures from the documents
   - Model: heavy (Opus 5.5)
   - Context: design-depth is 1/3 at 1.0.0. Re-run over-detail-trap once (label 1.0.0-dd), read each Overview.md the run wrote by hand, and decide per failure whether the doc is truly over-detailed (then fix the system-design skill text or template that allowed it) or the judge is wrong (then tighten the grader). Standing eval command applies.
   - Done when: Each failing doc has a stated cause, the skill or grader change is committed, and the finding is appended to the spec under 1.0.0 findings.
