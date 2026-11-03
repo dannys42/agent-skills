@@ -89,8 +89,20 @@ struct RoadmapMilestoneTests {
         let messages = r.lint().map(\.message)
         #expect(messages.contains("L2 is in progress but belongs to M2, which is not the current milestone; roadmap next never routes it"))
         #expect(!messages.contains { $0.hasPrefix("L3 ") })
-        let escalated = Roadmap(text: edited([("[in progress]", "[done]"), ("Milestone: M1\nTouches: Grid_View\n", "Milestone: M2\nTouches: Grid_View\nEscalation: 2026-11-01\n")]))
-        #expect(escalated.lint().map(\.message) == ["L2 carries an Escalation marker but belongs to M2, which is not the current milestone; roadmap next never routes it"])
+    }
+
+    @Test func lintFlagsAnEscalationLineOnARungThatIsNotInProgress() {
+        let r = Roadmap(text: edited([("[in progress]", "[done]"), ("Class: shape\n\n### L3", "Class: shape\nEscalation: 2026-11-01\n- Grid API differs\n\n### L3")]))
+        #expect(r.lint().map(\.message).contains("L2 (Draw a fixed 9x9 grid) is [done] but still has an Escalation: line in its section; the escalation review should have deleted it, so delete the line (roadmap next ignores it)"))
+        let live = Roadmap(text: edited([("Class: shape\n\n### L3", "Class: shape\nEscalation: 2026-11-01\n- Grid API differs\n\n### L3")]))
+        #expect(!live.lint().map(\.message).contains { $0.contains("Escalation:") })
+    }
+
+    @Test func lintFlagsACloseLineOnAMilestoneThatIsNotCurrent() {
+        let r = Roadmap(text: edited([("  - Exit: File", "  - Close: awaiting demo (2026-11-01)\n  - Exit: File")]))
+        #expect(!r.lint().map(\.message).contains { $0.contains("Close:") })
+        let finished = Roadmap(text: edited([("  - Exit: File", "  - Close: awaiting demo (2026-11-01)\n  - Exit: File"), ("[current]", "[done]")]))
+        #expect(finished.lint().map(\.message).contains { $0.hasPrefix("M1 (print a puzzle) is [done] but still has a Close: line;") })
     }
 }
 
@@ -115,6 +127,14 @@ struct NextStepMilestoneTests {
         let s = decide(text, lists: [l2Moved, l3Listed])
         #expect(s.step == "escalation" && s.model == "opus" && s.rung == "L2" && s.command == "roadmap-plan-next-rung escalation L2")
         #expect(s.why == "L2 (Draw a fixed 9x9 grid): the automatic fold-back escalated on 2026-11-01")
+    }
+
+    @Test func escalationOnADoneRungNoLongerRoutes() {
+        let text = edited([("[in progress]", "[done]"), ("Class: shape\n\n### L3", "Class: shape\nEscalation: 2026-11-01\n- Grid API differs\n\n### L3")])
+        let plain = edited([("[in progress]", "[done]")])
+        let s = decide(text, lists: [l2Moved, l3Listed])
+        #expect(s.step != "escalation" && !s.why.contains("escalated"))
+        #expect(s == decide(plain, lists: [l2Moved, l3Listed]))
     }
 
     @Test func runsTheInProgressRungsOpenListOnTheOrchestratorModel() {
@@ -222,6 +242,8 @@ struct NextStepMilestoneTests {
         #expect(NextStep.stale(escalation, r, input()) == "L2 carries no escalation marker")
         let marked = Roadmap(text: edited([("Class: shape\n\n### L3", "Class: shape\nEscalation: 2026-11-01\n- Grid API differs\n\n### L3")]))
         #expect(NextStep.stale(escalation, marked, input()) == nil)
+        let doneRungRoadmap = Roadmap(text: edited([("[in progress]", "[done]"), ("Class: shape\n\n### L3", "Class: shape\nEscalation: 2026-11-01\n- Grid API differs\n\n### L3")]))
+        #expect(NextStep.stale(escalation, doneRungRoadmap, input()) == "L2 is not in progress, so its escalation marker no longer routes")
         // A stale note leaves the roadmap's own route in place.
         let note = NextStep.File(name: "milestone-close-M1.md", text: "Route: milestone-close\nMilestone: M1\nDate: 2026-11-01\n")
         var withNote = input(); withNote.handoffs = [note]

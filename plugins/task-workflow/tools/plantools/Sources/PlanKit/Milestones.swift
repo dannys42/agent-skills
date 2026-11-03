@@ -191,11 +191,16 @@ extension Roadmap {
                 if seen[m] == nil {
                     out.append(.init(.warning, line: rung.line, "\(rung.id) names milestone \(m), which is not in ## Milestones"))
                 }
-                if m != currentMilestone?.id, rung.status.hasPrefix("in progress") || escalation(of: rung.id) != nil {
-                    let what = rung.status.hasPrefix("in progress") ? "is in progress" : "carries an Escalation marker"
-                    out.append(.init(.warning, line: rung.line, "\(rung.id) \(what) but belongs to \(m), which is not the current milestone; roadmap next never routes it"))
+                if m != currentMilestone?.id, rung.status.hasPrefix("in progress") {
+                    out.append(.init(.warning, line: rung.line, "\(rung.id) is in progress but belongs to \(m), which is not the current milestone; roadmap next never routes it"))
                 }
             }
+        }
+        for rung in ladder where escalation(of: rung.id) != nil && !rung.status.hasPrefix("in progress") {
+            out.append(.init(.warning, line: rung.line, "\(named(rung.id) ?? rung.id) is [\(rung.status)] but still has an Escalation: line in its section; the escalation review should have deleted it, so delete the line (roadmap next ignores it)"))
+        }
+        for m in milestones where m.close != nil && !m.status.hasPrefix("current") {
+            out.append(.init(.warning, line: m.line, "\(m.named) is [\(m.status)] but still has a Close: line; the milestone close should have deleted it, so delete the line"))
         }
         return out
     }

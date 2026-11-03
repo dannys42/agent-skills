@@ -226,7 +226,7 @@ Standing context for every task:
   - Context: `docs/project-planning/feedback-ledger.md` change log (about 40 `untested` rows) and its "Collect next run" list. For each: keep (still applies as written), fold (now covered by a redesign rule; name it), or retire (obsolete under the redesign; one-line reason). Move retired rows to a "Retired by 1.0.0" list, keep IDs and dates. Add rows for the redesign itself, with the spec's "Judge by" signals. Update the ledger's Objective paragraph from "thin, incremental" to the system design model. Do the same pass on the task-workflow ledger for rows the redesign touches. If T16's fix tasks later change a rule a verdict cites, they update that verdict too.
   - Done when: every untested row has a verdict, and the Objective matches the spec.
 
-- [ ] T36 Lint a left-over Escalation or Close line and stop routing on it
+- [x] T36 Lint a left-over Escalation or Close line and stop routing on it
   - Model: standard (Sonnet 5.5)
   - Needs: T16
   - Context: Owner ruling on the milestone review (2026-11-02): keep the marker lines and add the lint check. Review-T16.md, the item on where a rung or close stands, the option 'As written, plus a lint check'. In plugins/task-workflow/tools/plantools (Milestones.swift lintMilestones and NextStep+Milestones.swift): roadmap lint flags an Escalation: on a rung that is not in progress and a Close: on a milestone that is not current; roadmap next ignores an Escalation: on a done rung; the escalation review and the skill text say the line is deleted when the review ends. Add tests for both lint rules and for the routing guard; update the ledger row if one cites this.

@@ -35,7 +35,9 @@ extension NextStep {
             return close.hasPrefix("awaiting demo") ? nil : "\(id) is not awaiting a demo ruling"
         case "escalation":
             guard let id = note.rung else { return nil }
-            return roadmap.escalation(of: id) == nil ? "\(id) carries no escalation marker" : nil
+            let inProgress = roadmap.ladder.first { $0.id == id }?.status.hasPrefix("in progress") == true
+            if roadmap.escalation(of: id) == nil { return "\(id) carries no escalation marker" }
+            return inProgress ? nil : "\(id) is not in progress, so its escalation marker no longer routes"
         default:
             return nil
         }
@@ -78,7 +80,7 @@ extension NextStep {
             return route("milestone-plan", "opus", milestone: m,
                          why: "\(m.named): \(unplanned.map { named($0.id) }.joined(separator: ", ")) \(unplanned.count == 1 ? "has" : "have") no tasklist")
         }
-        if let r = rungs.first(where: { roadmap.escalation(of: $0.id) != nil }) {
+        if let r = rungs.first(where: { $0.status.hasPrefix("in progress") && roadmap.escalation(of: $0.id) != nil }) {
             return route("escalation", "opus", milestone: m, rung: r.id,
                          why: "\(named(r.id)): the automatic fold-back escalated on \(roadmap.escalation(of: r.id) ?? "")")
         }
