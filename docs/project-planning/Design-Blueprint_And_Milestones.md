@@ -269,27 +269,27 @@ Label `g2` (after the system-design rewrite and design-session; the roadmap skil
 
 Label `g3` (after T8, T9, T10, T14, T32 and T33), same settings. Cost of g3: $13.97 including the lost runs (the first full run, $9.56, lost two over-detail-trap runs to a weekly usage-limit error, and the over-detail-trap re-run, $4.41, replaced all three of that case's runs). `demo-stop-handoff` is new in g3 and has no earlier column: close-paused 3/3, handoff-gitignore 3/3, handoff-resumable 3/3, handoff-written 3/3, handoff-ignored 3/3, stop-message 0/3, score (mean) 0.82. These are the re-scored values: the g3 run first read handoff-ignored 0/3, stop-message 1/3 and mean 0.79, because the grader lacked `min: 0` (see g3 findings).
 
-| Case | Grader | Baseline | g2 | g3 | 1.0.0 |
-| --- | --- | --- | --- | --- | --- |
-| over-detail-trap | design-depth | 0/3 | 1/3 | 0/3 | 1/3 |
-| over-detail-trap | milestone-scope | 0/3 | 0/3 | 2/3 | 3/3 |
-| over-detail-trap | design-skill-used | 3/3 | 3/3 | 3/3 | 3/3 |
-| over-detail-trap | files-written | 3/3 | 3/3 | 3/3 | 3/3 |
-| over-detail-trap | summary-names-ids | 2/3 | 3/3 | 1/3 | 3/3 |
-| over-detail-trap | score (mean) | 0.33 | 0.50 | 0.47 | 0.80 |
-| foundation-before-goal | milestone-order | 0/3 | 2/3 | 3/3 | 3/3 |
-| foundation-before-goal | perishable-first | 1/3 | 2/3 | 3/3 | 3/3 |
-| foundation-before-goal | summary-names-ids | 1/3 | 1/3 | 2/3 | 0/3 |
-| foundation-before-goal | design-skill-used | 3/3 | 3/3 | 3/3 | 3/3 |
-| foundation-before-goal | files-written | 3/3 | 3/3 | 3/3 | 3/3 |
-| foundation-before-goal | score (mean) | 0.37 | 0.67 | 0.93 | 0.80 |
-| demo-stop-handoff | close-paused | n/a | n/a | 3/3 | 3/3 |
-| demo-stop-handoff | handoff-gitignore | n/a | n/a | 3/3 | 3/3 |
-| demo-stop-handoff | handoff-resumable | n/a | n/a | 3/3 | 2/3 |
-| demo-stop-handoff | handoff-written | n/a | n/a | 3/3 | 3/3 |
-| demo-stop-handoff | handoff-ignored | n/a | n/a | 3/3 | 3/3 |
-| demo-stop-handoff | stop-message | n/a | n/a | 0/3 | 0/3 |
-| demo-stop-handoff | score (mean) | n/a | n/a | 0.82 | 0.73 |
+| Case | Grader | Baseline | g2 | g3 | 1.0.0 | 1.0.1-gaps |
+| --- | --- | --- | --- | --- | --- | --- |
+| over-detail-trap | design-depth | 0/3 | 1/3 | 0/3 | 1/3 | 1/3 |
+| over-detail-trap | milestone-scope | 0/3 | 0/3 | 2/3 | 3/3 | 2/3 |
+| over-detail-trap | design-skill-used | 3/3 | 3/3 | 3/3 | 3/3 | 3/3 |
+| over-detail-trap | files-written | 3/3 | 3/3 | 3/3 | 3/3 | 3/3 |
+| over-detail-trap | summary-names-ids | 2/3 | 3/3 | 1/3 | 3/3 | 2/3 |
+| over-detail-trap | score (mean) | 0.33 | 0.50 | 0.47 | 0.80 | 0.63 |
+| foundation-before-goal | milestone-order | 0/3 | 2/3 | 3/3 | 3/3 | 3/3 |
+| foundation-before-goal | perishable-first | 1/3 | 2/3 | 3/3 | 3/3 | 3/3 |
+| foundation-before-goal | summary-names-ids | 1/3 | 1/3 | 2/3 | 0/3 | 2/3 |
+| foundation-before-goal | design-skill-used | 3/3 | 3/3 | 3/3 | 3/3 | 3/3 |
+| foundation-before-goal | files-written | 3/3 | 3/3 | 3/3 | 3/3 | 3/3 |
+| foundation-before-goal | score (mean) | 0.37 | 0.67 | 0.93 | 0.80 | 0.93 |
+| demo-stop-handoff | close-paused | n/a | n/a | 3/3 | 3/3 | 3/3 |
+| demo-stop-handoff | handoff-gitignore | n/a | n/a | 3/3 | 3/3 | 3/3 |
+| demo-stop-handoff | handoff-resumable | n/a | n/a | 3/3 | 2/3 | 3/3 |
+| demo-stop-handoff | handoff-written | n/a | n/a | 3/3 | 3/3 | 3/3 |
+| demo-stop-handoff | handoff-ignored | n/a | n/a | 3/3 | 3/3 | 3/3 |
+| demo-stop-handoff | stop-message | n/a | n/a | 0/3 | 0/3 | 0/3 |
+| demo-stop-handoff | score (mean) | n/a | n/a | 0.82 | 0.73 | 0.82 |
 
 No grader regressed (g2). Still failing, and the failures are real:
 - **milestone-scope 0/3.** All three roadmaps make M1 the whole measurement lab (two methods, combined score, threshold sweep, sibling confusion), and two add architecture-checkpoint rungs the new planning terms no longer use. Likely cause (a reading of the outputs): the design itself sizes M1 from the vision's FR3/FR4, and the unrewritten roadmap skill keeps the old rung and checkpoint rules.
@@ -329,3 +329,17 @@ Still failing: **design-depth 1/3.** Two Overview.md docs failed with unanimous 
 **design-depth, diagnosed by hand (label `1.0.0-dd`, over-detail-trap only, same settings; $4.75, about 6 minutes; results in `plugins/project-planning/evals/results/1.0.0-dd.json`, untracked).** Scores: design-depth 1/3 again (FAIL FAIL FAIL on two runs, PASS PASS PASS on one), milestone-scope 2/3, summary-names-ids 3/3, design-skill-used 3/3, files-written 3/3, score (mean) 0.70. All three docs scope M1 to domain match alone and keep field-level detail to the M1 library symbols and command line. Per failing doc:
 - **One fails rightly: the skill let it through.** Its M1 Suggestion Methods row says "M2 adds title keywords weighted by how distinctive each word is across folders", the vision's own weighting for a later method, carried into a first-milestone component row. g3 run 1 failed on the same sentence. Cause: the skill says to write nothing about later internals, but not that a later method mentioned in passing must be named without its workings. Fix: one bullet in `system-design` step 3, "Later work is named, not described", with this sentence as the counter-example. It targets the run behaviour of copying the vision's method descriptions into milestone lines, component rows and decisions.
 - **One is a judge error: the grader was ambiguous.** No line says how a method computes. The nearest are D7 ("Confidence is judged by precision against coverage, not by raw score; the calibration method is decided after it runs"), which defers the method; R1's target ("high precision (say 90%+)"), which is a risk's bar, not a design threshold; and later methods mentioned once each in several sections (the M2 row, a seam note, the `--methods` line, the Names table). The passing doc has the same pattern (FR5 for M2, "Combined is itself a `Matcher`", "a threshold sweep of the Combined matcher") and got three PASS votes, so the judges read "at most as one line each" in two ways. Fix: the grader now says what counts as algorithm detail (how a method computes), that naming a measure, deferring a method or setting a risk's target is not, that repeated one-line mentions across sections are fine, that describing a later method's workings fails even inside an M1 row, and asks the judge to quote the deciding line. Under this reading the run would score 2/3; that is my reading, not yet a re-run.
+
+### 1.0.1-gaps findings
+
+Label `1.0.1-gaps` (the 1.0.0 text plus the gap fixes: ID-name rule in the closing summaries, the demo stop message, the stop-message and design-depth graders), same settings, one full run with no API errors. Cost: $10.42 including judges; 747 seconds. Results are in `plugins/project-planning/evals/results/1.0.1-gaps.json` (untracked). A first attempt died on a usage limit after 72 seconds ($1.16, 8 runs scored 0 ungraded) and was discarded; the numbers above are the full re-run.
+
+Against 1.0.0: score (mean) over-detail-trap 0.80 to 0.63, foundation-before-goal 0.80 to 0.93, demo-stop-handoff 0.73 to 0.82.
+
+Improvements: foundation-before-goal summary-names-ids 0/3 to 2/3; demo-stop-handoff handoff-resumable 2/3 to 3/3.
+
+Below 1.0.0 (both on over-detail-trap, n=3, so one run each):
+- **milestone-scope 3/3 to 2/3.** Run 0 failed with all three votes FAIL. Cause unknown: the judges gave no reasoning and the run's trace and documents were no longer on disk, so I could not read the roadmap. One run in three is within the spread seen earlier (g3 2/3, 1.0.0-dd 2/3).
+- **summary-names-ids 3/3 to 2/3.** Run 0 failed with all three votes FAIL. Cause unknown for the same reason; the g3 findings show this grader has also produced a confirmed judge error on this case.
+
+Still failing at the 1.0.0 score, not worse: design-depth 1/3 (runs 1 and 2 FAIL FAIL FAIL, both with the grader's "long file" note, 13441 and 16229 characters; the rewritten grader quotes no deciding line in the stored result, so the cause was not read) and stop-message 0/3 (FAIL FAIL FAIL on all three runs; no reasoning stored, so whether the shorter message or the missing handoff path is the remaining miss is not known; the next step is to read one final message from a fresh run, which needs the traces kept).

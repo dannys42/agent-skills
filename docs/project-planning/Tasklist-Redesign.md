@@ -299,7 +299,7 @@ Standing context for every task:
   - Context: design-depth is 1/3 at 1.0.0. Re-run over-detail-trap once (label 1.0.0-dd), read each Overview.md the run wrote by hand, and decide per failure whether the doc is truly over-detailed (then fix the system-design skill text or template that allowed it) or the judge is wrong (then tighten the grader). Standing eval command applies.
   - Done when: Each failing doc has a stated cause, the skill or grader change is committed, and the finding is appended to the spec under 1.0.0 findings.
 
-- [ ] T41 Re-run all evals after the gap fixes
+- [x] T41 Re-run all evals after the gap fixes
   - Model: standard (Sonnet 5.5)
   - Needs: T38, T39, T40
   - Context: Label 1.0.1-gaps, all three cases, standing eval command. Add the column to the spec's Eval results table and name any grader below its 1.0.0 score with its cause. Then update docs/project-planning/Review-T21.md eval table.

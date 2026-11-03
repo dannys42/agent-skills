@@ -10,29 +10,29 @@ The spec's rulings are not reopened. The spec's Rollout lists the pilot on FileO
 
 Passes out of 3 per grader, judge Sonnet. The full table is in the spec's "Eval results", with the interim columns g2 (after the system design rewrite) and g3 (after the milestone map and fold-back work). The 1.0.0 results file (`plugins/project-planning/evals/results/1.0.0.json`) is untracked, as the spec states.
 
-| Case | Grader | 0.11.2 | 1.0.0 |
-| --- | --- | --- | --- |
-| over-detail-trap | design-depth | 0/3 | 1/3 |
-| over-detail-trap | milestone-scope | 0/3 | 3/3 |
-| over-detail-trap | summary-names-ids | 2/3 | 3/3 |
-| over-detail-trap | design-skill-used, files-written | 3/3 each | 3/3 each |
-| over-detail-trap | score (mean) | 0.33 | 0.80 |
-| foundation-before-goal | milestone-order | 0/3 | 3/3 |
-| foundation-before-goal | perishable-first | 1/3 | 3/3 |
-| foundation-before-goal | summary-names-ids | 1/3 | 0/3 |
-| foundation-before-goal | design-skill-used, files-written | 3/3 each | 3/3 each |
-| foundation-before-goal | score (mean) | 0.37 | 0.80 |
-| demo-stop-handoff (new, no 0.11.2 column) | stop-message | n/a | 0/3 |
-| demo-stop-handoff | handoff-resumable | n/a | 2/3 |
-| demo-stop-handoff | the other four graders | n/a | 3/3 each |
-| demo-stop-handoff | score (mean) | n/a | 0.73 |
+| Case | Grader | 0.11.2 | 1.0.0 | 1.0.1-gaps |
+| --- | --- | --- | --- | --- |
+| over-detail-trap | design-depth | 0/3 | 1/3 | 1/3 |
+| over-detail-trap | milestone-scope | 0/3 | 3/3 | 2/3 |
+| over-detail-trap | summary-names-ids | 2/3 | 3/3 | 2/3 |
+| over-detail-trap | design-skill-used, files-written | 3/3 each | 3/3 each | 3/3 each |
+| over-detail-trap | score (mean) | 0.33 | 0.80 | 0.63 |
+| foundation-before-goal | milestone-order | 0/3 | 3/3 | 3/3 |
+| foundation-before-goal | perishable-first | 1/3 | 3/3 | 3/3 |
+| foundation-before-goal | summary-names-ids | 1/3 | 0/3 | 2/3 |
+| foundation-before-goal | design-skill-used, files-written | 3/3 each | 3/3 each | 3/3 each |
+| foundation-before-goal | score (mean) | 0.37 | 0.80 | 0.93 |
+| demo-stop-handoff (new, no 0.11.2 column) | stop-message | n/a | 0/3 | 0/3 |
+| demo-stop-handoff | handoff-resumable | n/a | 2/3 | 3/3 |
+| demo-stop-handoff | the other four graders | n/a | 3/3 each | 3/3 each |
+| demo-stop-handoff | score (mean) | n/a | 0.73 | 0.82 |
 
-Both original cases are well above the baseline. Three results are still failing: design-depth (1/3, and judges are noisy on long files; I did not read the documents by hand), foundation-before-goal summary-names-ids (0/3, all nine votes FAIL, a real gap) and stop-message (0/3 twice; read by hand, the messages meet the grader's three bullets but all give the handoff path, which `plan-milestone/references/handoff.md` "The stop message" forbids). The run cost $10.94 with judges, about 12 minutes.
+Both original cases are well above the baseline. After the gap fixes (`1.0.1-gaps`, $10.42, 747 seconds) two results are still failing: design-depth (1/3, unchanged; judges are noisy on long files and the stored result has no reasoning) and stop-message (0/3 for the third run in a row; no reasoning stored, cause not read). The foundation-before-goal summary gap is closed (0/3 to 2/3) and handoff-resumable is back to 3/3. Two graders sit below their 1.0.0 score, both on over-detail-trap: milestone-scope (3/3 to 2/3) and summary-names-ids (3/3 to 2/3), one run each with all votes FAIL; cause unknown, since the traces were gone. The 1.0.0 run cost $10.94 with judges, about 12 minutes.
 
 ## Important
 
 **1. Release timing: the release is already committed; the question is whether it ships to users now or after the FileOrganizerHero pilot** (Design-Blueprint_And_Milestones.md, "Rollout" steps 4 and 5). The spec ran the evals (step 4) and then piloted on FileOrganizerHero (step 5): its checkpoint before M2 becomes the first milestone planning session, which also exercises the migration of an existing project. Today the version bumps, changelogs and marketplace entries are committed locally but `main` is 50 commits ahead of `origin/main` (checked with `git ls-remote origin main`: the remote is still at d2d0d0a), so nothing is published yet; pushing `main` is the release.
-Why: wide reach (every run of seven skills and the tool reads the new text), migration of existing projects, and the evidence is n=3 per grader on synthetic cases, not a real project. Three graders still fail at 1.0.0 (design-depth, foundation-before-goal summary-names-ids and demo-stop-handoff stop-message), and against g3 two results slipped (foundation-before-goal mean 0.93 to 0.80, handoff-resumable 3/3 to 2/3).
+Why: wide reach (every run of seven skills and the tool reads the new text), migration of existing projects, and the evidence is n=3 per grader on synthetic cases, not a real project. Three graders failed at 1.0.0 (design-depth, foundation-before-goal summary-names-ids and demo-stop-handoff stop-message); after the gap fixes (`1.0.1-gaps`) summary-names-ids passes 2/3, while design-depth (1/3) and stop-message (0/3) still fail, and over-detail-trap milestone-scope and summary-names-ids each slipped from 3/3 to 2/3.
 To settle it: is FileOrganizerHero the only project you have in flight, and are you willing to be on 1.0.0 while it is piloted? The migration commit and the milestone planning session have never run on a real project.
 - **Release now, pilot afterwards.** Pro: the evals show clear gains, the pilot then runs on the released version and any finding becomes a 1.0.x fix. Con: a defect in migration or milestone planning, which no eval covers, reaches you (and anyone else who installs) as a released version, and a version number cannot be taken back.
 - **Pilot first, release after** (recommended). Pro: the pilot covers what the evals cannot (migration of a real Overview and roadmap, the first real milestone planning session, handoff notes in use), and its findings go in before the number is public. Con: the release waits for one real milestone planning session, and the pilot runs on an unpublished build (an install from the repository, which the pilot needs anyway).
