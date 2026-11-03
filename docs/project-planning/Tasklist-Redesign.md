@@ -177,7 +177,7 @@ Standing context for every task:
   - Context: Standing context "Owner reviews". Write `docs/project-planning/Review-T16.md` covering the decisions in `risk-first-roadmap`, `roadmap-plan-next-rung` (with `auto-fold-back.md`), `rung`, the tool commands and routes, and any rename T9 proposed; the `g3` eval results as one item if any grader regressed.
   - Done when: the notes are committed.
 
-- [ ] T16 USER — Review the milestone map, cadence and fold-back
+- [x] T16 USER — Review the milestone map, cadence and fold-back
   - Needs: T27
   - Context: Second owner content review. It does not hold work back: G4 and the ledger review continue while you review. About 30 minutes. Also rule on any rename T9 proposed.
   - Steps:
@@ -226,9 +226,21 @@ Standing context for every task:
   - Context: `docs/project-planning/feedback-ledger.md` change log (about 40 `untested` rows) and its "Collect next run" list. For each: keep (still applies as written), fold (now covered by a redesign rule; name it), or retire (obsolete under the redesign; one-line reason). Move retired rows to a "Retired by 1.0.0" list, keep IDs and dates. Add rows for the redesign itself, with the spec's "Judge by" signals. Update the ledger's Objective paragraph from "thin, incremental" to the system design model. Do the same pass on the task-workflow ledger for rows the redesign touches. If T16's fix tasks later change a rule a verdict cites, they update that verdict too.
   - Done when: every untested row has a verdict, and the Objective matches the spec.
 
+- [ ] T36 Lint a left-over Escalation or Close line and stop routing on it
+  - Model: standard (Sonnet 5.5)
+  - Needs: T16
+  - Context: Owner ruling on the milestone review (2026-11-02): keep the marker lines and add the lint check. Review-T16.md, the item on where a rung or close stands, the option 'As written, plus a lint check'. In plugins/task-workflow/tools/plantools (Milestones.swift lintMilestones and NextStep+Milestones.swift): roadmap lint flags an Escalation: on a rung that is not in progress and a Close: on a milestone that is not current; roadmap next ignores an Escalation: on a done rung; the escalation review and the skill text say the line is deleted when the review ends. Add tests for both lint rules and for the routing guard; update the ledger row if one cites this.
+  - Done when: A done rung with an Escalation: line and a finished milestone with a Close: line each produce a lint warning, roadmap next no longer routes escalation for the done rung, and swift test passes with the new cases.
+
+- [ ] T37 Rename roadmap-plan-next-rung to plan-milestone
+  - Model: standard (Sonnet 5.5)
+  - Needs: T36
+  - Context: Owner ruling on the milestone review (2026-11-02): the name is plan-milestone. Structure only, no behaviour change: git mv plugins/project-planning/skills/roadmap-plan-next-rung to plan-milestone; update the name in its frontmatter and agents/openai.yaml, every reference in the other skills, README files, plugin.json prompts, the evals (prompts and graders that name the skill), the plantools sources and tests that carry the skill name, tasklist-run and tasklist skills, the ledgers and the spec, and the trigger phrase 'plan the next rung' in its description. Leave CHANGELOG entries that describe history and Completed lists untouched; note the old name in the new CHANGELOG entry at release. Check metrics and step-event stamps that parse a skill name still parse.
+  - Done when: No file outside CHANGELOGs and history notes mentions roadmap-plan-next-rung (git grep), the skill directory is renamed, python3 -m pytest tests and swift test --package-path plugins/task-workflow/tools/plantools pass, and the diff changes names only.
+
 - [ ] T20 Release notes, versions and final eval
   - Model: standard (Sonnet 5.5)
-  - Needs: T6, T7, T15, T16, T18, T19, T23, T35
+  - Needs: T6, T7, T15, T16, T18, T19, T23, T35, T36, T37
   - Context: `scripts/bump_version.py project-planning 1.0.0` and `scripts/bump_version.py task-workflow <next minor>`; `CHANGELOG.md` entries for both (what changed for the owner, migration of existing projects); plugin and repo README updates for the new model; final eval run, label `1.0.0`, added to the "Eval results" table.
   - Verify: `python3 -m pytest tests`; `swift test --package-path plugins/task-workflow/tools/plantools`
   - Done when: every fix task from the T7 and T16 reviews is closed, tests pass, versions agree in every manifest and stamp, and the eval table has the `1.0.0` column.

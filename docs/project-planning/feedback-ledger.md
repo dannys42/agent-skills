@@ -126,6 +126,7 @@ Claims that need evidence before any change. Each: claim, tier, source version, 
 
 ## Parked
 
+- Decision fatigue in owner reviews (feedback 2026-11-02): the milestone review held 20 decisions and the system design review a similar count, and the owner accepted most recommendations unchanged. Parked as a future feature after 1.0.0: look at how to cut the count the owner must read (for example, fewer decisions per review by deciding small ones by default and listing them in one line, or a shorter review for a milestone whose proposals were mostly accepted). One session, observed. Judge by: the share of `proposed` items accepted unchanged, which the milestone retro now reports; revisit when several milestones show a high share.
 - Tasklist-side suggestions (reviewer tier for additive migrations, auto-computed metrics lines/files, a "visible gap noted, not scheduled" field): belong to task-workflow, not this plugin; send through `/tasklist-feedback`. Reviewer-tier claim is observed, 1 run.
 - Committing planning files before the first batch (guess): not a rule.
 
