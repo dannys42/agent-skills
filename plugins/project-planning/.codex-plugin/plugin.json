@@ -1,7 +1,7 @@
 {
   "name": "project-planning",
-  "version": "0.11.2",
-  "description": "Start large, ambiguous projects: outline the system with the user, turn it into a risk-first roadmap of end-to-end increments, then design each increment just before building it",
+  "version": "1.0.0",
+  "description": "Start large, ambiguous projects: outline the system with the user, turn it into a risk-first roadmap of milestones, then plan each milestone before building it",
   "license": "GPL-3.0-or-later",
   "skills": "./skills/",
   "author": {
@@ -20,7 +20,7 @@
   "interface": {
     "displayName": "Project Planning",
     "shortDescription": "Design a project, then plan it risk-first",
-    "longDescription": "Agree a system design bounded by the current milestone (subsystems, seams, data model, settled or working marks, and a risk register) (or adopt an existing codebase as-is), order the work as end-to-end increments that each answer the riskiest remaining unknown, then design each increment just before it is built and fold what was built back into the design. Tuned for Apple-platform apps.",
+    "longDescription": "Agree a system design bounded by the current milestone (subsystems, seams, data model, settled or working marks, and a risk register) (or adopt an existing codebase as-is), order the work as milestones, foundation first, with rungs that each answer the riskiest remaining unknown, then plan each milestone before it is built and fold what was built back into the design. Tuned for Apple-platform apps.",
     "developerName": "Danny Sung",
     "category": "Productivity",
     "capabilities": [
@@ -32,6 +32,7 @@
     "defaultPrompt": [
       "Use $system-design to shape a high-level design for this project idea.",
       "Use $risk-first-roadmap to turn the system design into an incremental roadmap.",
+      "Use $design-session to work a design out together before committing it to the system design.",
       "Use $plan-milestone to plan the next milestone of the roadmap before building it."
     ]
   }

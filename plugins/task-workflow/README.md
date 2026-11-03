@@ -24,13 +24,14 @@ at a time: a subagent on the cheapest adequate model implements each batch, an
 Opus reviewer checks it against the task's intent, corrections loop back to the
 implementer, and the passing change is committed before the next batch. Supports
 one-task runs, named task/group/phase scope, no-commit, confirm-before-commit,
-and parallel worktrees, and queues token-efficiency fixes in the tasklist.
+and parallel worktrees, and queues token-efficiency fixes in the tasklist. When a rung's list finishes it folds the rung back into the design in the same session (escalating what it cannot judge), leaves a handoff note whenever it stops waiting on you, and pauses for a fresh session when a long run gets dear.
 
 ### Plan tools (optional)
 
 `tools/plantools/` holds three small Swift command-line tools: `tasklist` and
 `roadmap` apply the list and roadmap rules mechanically (next eligible task,
-lint, next ID, tick, one-rung and one-section reads), and `metrics` reads the
+lint, next ID, tick, one-rung and one-section reads, the milestone map and the
+generated `Map.md`), and `metrics` reads the
 run log and the repository (exact per-batch tokens from transcripts, a rung's
 retrospective numbers, zero-token code-quality signals). `tools/plantools/build.sh`
 runs `swift build -c release` and copies the binaries to

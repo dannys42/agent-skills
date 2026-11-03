@@ -103,7 +103,7 @@ A model the user names wins.
 
 ## Metrics events
 
-Append to the `tasklist-run` metrics log (`${DANNY_SKILLS_STATE_DIR:-$HOME/.local/state/danny-agent-skills}/task-workflow/metrics.jsonl`), in the same Bash call as the step it records, with `v` 1, `run` (a new UTC ID per pass), `ts`, `skill` (`code-quality-pass 0.11.2`), `repo`:
+Append to the `tasklist-run` metrics log (`${DANNY_SKILLS_STATE_DIR:-$HOME/.local/state/danny-agent-skills}/task-workflow/metrics.jsonl`), in the same Bash call as the step it records, with `v` 1, `run` (a new UTC ID per pass), `ts`, `skill` (`code-quality-pass 1.0.0`), `repo`:
 
 - `quality`: `kind` (`tidy`, `review`, `baseline`, `deferred`), `rung` (the rung it follows), `trigger` (`milestone-close`, `manual`, `milestone-plan`, or the trigger names), `models`, `commits` and `lines` (a review or baseline; a tidy omits them, as it logs before its tasks run, and its own `tasklist-run` run carries the numbers), `proposals`, `defects`, and `signals` (the `metrics signals --json` object), and `model` (the model ID you ran on). A tidy that hands off to `tasklist-run` also writes a `step` event as `tasklist-run`'s metrics log defines it (`next_model` `sonnet`).
 - `quality_outcome` (once the user has ruled a review's proposals, or a tidy's proposals and defects): `kind` (`review` or `tidy`), `accepted`, `deferred`, `rejected` (entries still `pending` count as deferred), and `kinds` (accepted counts by kind; `bug` for an accepted defect).

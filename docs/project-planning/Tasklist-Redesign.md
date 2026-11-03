@@ -238,7 +238,7 @@ Standing context for every task:
   - Context: Owner ruling on the milestone review (2026-11-02): the name is plan-milestone. Structure only, no behaviour change: git mv plugins/project-planning/skills/roadmap-plan-next-rung to plan-milestone; update the name in its frontmatter and agents/openai.yaml, every reference in the other skills, README files, plugin.json prompts, the evals (prompts and graders that name the skill), the plantools sources and tests that carry the skill name, tasklist-run and tasklist skills, the ledgers and the spec, and the trigger phrase 'plan the next rung' in its description. Leave CHANGELOG entries that describe history and Completed lists untouched; note the old name in the new CHANGELOG entry at release. Check metrics and step-event stamps that parse a skill name still parse.
   - Done when: No file outside CHANGELOGs and history notes mentions roadmap-plan-next-rung (git grep), the skill directory is renamed, python3 -m pytest tests and swift test --package-path plugins/task-workflow/tools/plantools pass, and the diff changes names only.
 
-- [ ] T20 Release notes, versions and final eval
+- [x] T20 Release notes, versions and final eval
   - Model: standard (Sonnet 5.5)
   - Needs: T6, T7, T15, T16, T18, T19, T23, T35, T36, T37
   - Context: `scripts/bump_version.py project-planning 1.0.0` and `scripts/bump_version.py task-workflow <next minor>`; `CHANGELOG.md` entries for both (what changed for the owner, migration of existing projects); plugin and repo README updates for the new model; final eval run, label `1.0.0`, added to the "Eval results" table.
@@ -281,3 +281,6 @@ Standing context for every task:
 - risk-first-roadmap: the `Additive check:` sub-bullet on the next milestone may trip the over-detail "later milestone is one line" grader; watch at T15 (T8)
 - roadmap-plan-next-rung close: an open Follow_ups list blocks resuming an accepted close (steps 6–8); exempt it once Close: reads accepted with follow-ups, or run 6–8 before creating it (T9)
 - plantools Signals: a handoff note roadmap next already skips as stale gets no warning until 14 days old; reuse NextStep.stale in signals (T30)
+- risk-first-roadmap and system-design SKILL.md: the closing summary step does not repeat that every milestone or rung ID carries its name; foundation-before-goal summary-names-ids went 2/3 to 0/3 at 1.0.0 (T20)
+- plan-milestone Milestone close step 4 (Demo) and references/handoff.md "The stop message" disagree on what goes in chat versus only in the handoff note; every demo-stop-handoff run gave the full walkthrough and the handoff path (T20)
+- evals/demo-stop-handoff/graders/stop-message.md: pass bullets omit the short-and-measurable and no-handoff-path rules from handoff.md; 0/3 twice (T20)

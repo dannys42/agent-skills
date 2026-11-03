@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.0.0
+
+A new planning model for large projects. The system design is now a living blueprint agreed only as deep as the current milestone needs, the roadmap is a map of milestones with rungs inside, and the owner works with the agent in fewer, larger Opus sessions. Pair it with task-workflow 0.18.0.
+
+What changed for the owner:
+
+- **System design model.** `system-design` starts from your own vision doc or a first pass and agrees structure first: subsystems, seams, data model, names, threat and privacy, decisions and ranked risks. Later milestones get one line each. Every item is marked `proposed`, `working` or `settled`, so you can see what you have agreed.
+- **Milestone map.** `risk-first-roadmap` orders work as milestones (foundation first, then pillars), each with an outcome sentence, the subsystems it touches and exit criteria you accept at a demo. Rungs sit inside a milestone and carry a `Touches:` line. `Map.md` is generated from the roadmap at zero tokens. Provisional code and manual stand-ins are listed in the system design and marked `PROVISIONAL(<RungId>)` in code.
+- **`plan-milestone`** (formerly `roadmap-plan-next-rung`) plans a whole milestone in one Opus session: the look-back at the system design, the design delta, and every rung's brief and tasklist, each with a regression test. It also reviews a rung whose automatic fold-back escalated, and closes a milestone.
+- **`design-session`** (new) works a design out with you at any point. You lead, it offers alternative shapes, traces consequences and catches contradictions. It writes scratch notes, and a promote step moves what you pick into the system design.
+- **Automatic fold-back.** `tasklist-run` folds a finished rung back into the design in the same session: it runs the checks, compares the rung's reviewable surfaces with the brief, updates the docs for clean cases and commits. A difference it cannot judge becomes an escalation, and the next `/rung` runs an Opus review.
+- **Milestone close** re-reads every fold-back, runs the full suite, pauses at your demo against the exit criteria (accept, accept with follow-ups or reject), then runs one retro and re-plans the next milestone. After your ruling, `/rung` resumes the same close.
+- **Owner preferences.** A preference enters only after you override the same kind of `proposed` item twice or state it outright. Every first pass reads the list.
+- **Handoff notes.** Every stop that waits on you leaves a note a fresh session can resume from, and `/rung` is the one command for every next step.
+- **Retro feedback inbox.** Retros save their feedback block to `~/.local/state/danny-agent-skills/feedback/inbox/` and print one line (`retro feedback saved (<n> pending)`). Set `DANNY_SKILLS_STATE_DIR` to use another folder, for example a synced one; the metrics log moves with it. `/retro-feedback` with no argument reads the inbox, `export` writes pending items to one file and `import <file>` reads it on another machine.
+- **Lint of left-over markers.** `roadmap lint` flags an escalation or close line left on a milestone that is already done, and `roadmap next` ignores a stale escalation.
+- **Other.** `code-quality-pass` reports proposals in importance tiers with options for each. Reviews list decisions by importance, with options and a recommendation for every one.
+
+Migration of existing projects: nothing to do by hand. Existing Overviews, subsystem docs and roadmaps are read as they are. The first milestone planning session converts them in one move-mostly commit titled `Migrate planning docs to the system design shape`. Text that is still true moves verbatim and IDs never change. Accepted decisions read `settled` (or `working` with their revisit note), deferred ones become open questions, and each milestone gets its fields, each open rung a `Touches:` line and the roadmap a generated `Map.md`. Only cells with no source are new, marked `proposed`, and you review them with the rest. Older `Design-<Topic>.md` files are still offered for migration by `system-design`. The old `/roadmap-plan-next-rung`, `close <RungId>` and `retro <RungId>` commands are gone; `/rung` replaces them.
+
 ## 0.11.2
 
 Gaps in the rung cycle found in the same review: planning documents that nothing committed, three definitions of `Base`, `Deferred:` items never checked, drift-fix tasks written where `/rung` cannot see them, a tidy offer that contradicted itself, and a status nobody defined.

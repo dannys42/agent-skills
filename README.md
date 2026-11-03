@@ -12,7 +12,7 @@ engineering, storytelling, and writing.
 | `swift-craft` | `naming-swift-tests`, `choosing-swift-design-patterns`, `organizing-swift-files` | Personal Swift conventions: explicit test naming, Swift-native design-pattern selection, and focused file organization |
 | `agent-engineering` | `optimizing-skill-development`, `audit-token-efficiency` | Risk-proportional skill validation with reproducible evidence, and post-task token-efficiency retrospectives |
 | `task-workflow` | `decision-driven-design`, `tasklist`, `tasklist-run` | Resolve consequential design decisions before implementation, then plan and execute the resulting tasks |
-| `project-planning` | `system-design`, `risk-first-roadmap`, `plan-milestone`, `code-quality-pass`, `rung`, `design-session` | Outline a large, vague project or adopt an existing one (tuned for Apple-platform apps), plan it as risk-ordered, end-to-end increments, design each increment just before building it, and keep the code's shape healthy with periodic quality passes |
+| `project-planning` | `system-design`, `risk-first-roadmap`, `plan-milestone`, `code-quality-pass`, `rung`, `design-session` | Outline a large, vague project or adopt an existing one (tuned for Apple-platform apps), plan it as risk-ordered milestones, plan each milestone before building it, and keep the code's shape healthy with periodic quality passes |
 | `storytelling` | `crafting-compelling-stories` | Audience-aware storytelling and narrative copy grounded in an attributed Joanna Wiebe framework |
 | `peak-hours` | (Claude Code mod, no skills) | A PEAK badge with countdown above the prompt during assumed peak hours (5-11am PT weekdays), with a self-checking record of observed rate-limit cost by hour |
 
@@ -32,9 +32,10 @@ Inspects an existing system, interviews for high-leverage product and engineerin
 
 Agrees a system design for a large or ambiguous project with its owner,
 starting from the owner's own document or a first pass, and only as deep as the
-current milestone needs. Produces `<DocDir>/SystemDesign/Overview.md` with scope, headline
-requirements, a component diagram with depth tags, decisions, and a ranked risk
-register; detail is added later, one rung at a time. A subsystem (a separate
+current milestone needs. Produces `<DocDir>/SystemDesign/Overview.md` with scope,
+requirements, a component diagram with depth tags, decisions marked `proposed`,
+`working` or `settled`, and a ranked risk register; later milestones get one
+line each and are detailed at their own planning session. A subsystem (a separate
 target or a major piece) gets its own design doc of the same shape, written on
 demand, and its parent treats it as one component. Adopt mode documents an
 existing codebase as-is and records changes of direction. Tuned for
@@ -51,33 +52,34 @@ the notes.
 
 ### `rung`
 
-Runs the next step of the rung cycle from the project's files, so you do not
-have to remember which command comes next. Three sessions per rung: `/rung`
-plans it, `/rung` runs its tasklist, and `/rung` closes it (fold-back,
-retrospective and re-plan in one Opus session). `/rung status` shows where the
-project stands without doing anything.
+Runs the next step from the project's files, so you do not have to remember
+which command comes next: plan a milestone, run a rung's tasklist (which folds
+the rung back into the design automatically), review an escalation, or close
+the milestone. `/rung status` shows where the project stands without doing
+anything.
 
 ### `risk-first-roadmap`
 
-Turns the design into a roadmap of end-to-end increments, each answering the
-riskiest unknown reachable from where the project is. Writes
-`<DocDir>/Roadmap-<Topic>.md`, details only the next few rungs, and re-plans
-after each one.
+Turns the design into a roadmap of milestones, foundation first, each with an
+outcome, the subsystems it touches and exit criteria, and rungs inside it that
+answer the riskiest unknown first. Writes `<DocDir>/Roadmap-<Topic>.md` and a
+generated `Map.md`, details only the current milestone, and re-plans when a
+rung fails or answers a different question.
 
 ### `plan-milestone`
 
-Designs just the next roadmap rung before it is built: scope for the rung, the
-requirements and components it touches (with a highlighted diagram), decisions,
-verification, and guard rails, in
-`<DocDir>/SystemDesign/Rung-<RungId>-<ShortRungDescription>.md`. Hands off to
-`tasklist`, then folds the finished rung back into the design and offers a
-retrospective.
+Plans a whole milestone before it is built: the look-back at the system design,
+the milestone's design delta, and every rung's brief
+(`<DocDir>/SystemDesign/Rung-<RungId>-<ShortRungDescription>.md`) and tasklist,
+each with a regression test. Also reviews a rung whose automatic fold-back
+escalated, and closes the milestone with the owner's demo, one retrospective
+and the next milestone's re-plan.
 
 ### `code-quality-pass`
 
-`/code-quality-pass`: periodic code-quality passes for a project built rung by
-rung. `tidy` makes small behaviour-preserving cleanups to the files one rung
-changed; `review` is a read-only whole-codebase architecture review whose ranked
+`/code-quality-pass`: periodic code-quality passes for a project built milestone by
+milestone. `tidy` makes small behaviour-preserving cleanups to the milestone's
+files, at close; `review` is a read-only whole-codebase architecture review whose ranked
 proposals the roadmap re-plan turns into refactor rungs or tasks. Zero-token
 signals decide when a review is due; it never blocks feature work.
 

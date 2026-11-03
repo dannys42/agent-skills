@@ -146,7 +146,7 @@ Before the first `roadmap` call in a session, run `~/.cache/danny-agent-skills/b
 
 ## Hand off
 
-A roadmap is not a task list. The next step after a new map is milestone planning for the current milestone: the look-back, the design delta, every rung's brief and the tasklists, on Opus. End with a sentence saying so, then `Next: /rung (Opus: /model opus)`; never a rung or milestone ID on the `Next:` line. Log it as a `step` event with `skill` `risk-first-roadmap 0.11.2` (other fields in `tasklist-run`'s metrics log).
+A roadmap is not a task list. The next step after a new map is milestone planning for the current milestone: the look-back, the design delta, every rung's brief and the tasklists, on Opus. End with a sentence saying so, then `Next: /rung (Opus: /model opus)`; never a rung or milestone ID on the `Next:` line. Log it as a `step` event with `skill` `risk-first-roadmap 1.0.0` (other fields in `tasklist-run`'s metrics log).
 
 ## Re-plan
 

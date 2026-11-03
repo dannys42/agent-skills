@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.18.0
+
+Tool 0.7.0 and skill changes for project-planning 1.0.0. `tasklist` asks for exactly 0.7.0.
+
+- `tasklist-run` folds a finished rung back into the design in the same session, and stops with a handoff note that names what a fresh session needs. It pauses for a fresh session when at least 2 open tasks remain and the load (batches committed this session plus half the correction rounds) reaches 10, the session was compacted, or the session is on Opus (not chosen by the owner), half or fewer of the open tasks are `heavy` and at least 4 are left. A user-scoped run or an owner who said to keep going never pauses, and each `end` line logs `load` and `pause_signal`.
+- `tasklist`: a rung's list carries a regression test that fails without the rung's change, and a bug task cites `Escaped from: <RungId>`.
+- `roadmap` tool: milestone map and `Map.md`, `Touches` lines, milestone routing in `roadmap next`, and lint of a left-over escalation or close line. `roadmap next` ignores a stale escalation or handoff note.
+- `metrics`: counts `PROVISIONAL` markers and flags one whose milestone is done, counts escapes per rung and per milestone, warns on a malformed `skill` stamp, keys step costs by run and model, and logs planning, close and design sessions from their transcripts. `step` events carry milestone fields and agreement counts.
+- Retros save feedback to the inbox (`DANNY_SKILLS_STATE_DIR` moves it), and `/retro-feedback` can export and import it.
+
+Migration: nothing to do. The first `tasklist` use rebuilds the tool to the version it asks for; existing tasklists and metrics logs read as they are.
+
 ## 0.17.2
 
 - Tool 0.6.2: `roadmap next` runs an open `Tasklist-Refactor-*.md` (as `/tasklist-run <file>`) before planning the next rung, after any rung in progress. It also handles a `-Drift` list after fold-back: `run` while open, then `replan`. `roadmap archive` accepts `changed` rungs.

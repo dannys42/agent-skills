@@ -269,20 +269,27 @@ Label `g2` (after the system-design rewrite and design-session; the roadmap skil
 
 Label `g3` (after T8, T9, T10, T14, T32 and T33), same settings. Cost of g3: $13.97 including the lost runs (the first full run, $9.56, lost two over-detail-trap runs to a weekly usage-limit error, and the over-detail-trap re-run, $4.41, replaced all three of that case's runs). `demo-stop-handoff` is new in g3 and has no earlier column: close-paused 3/3, handoff-gitignore 3/3, handoff-resumable 3/3, handoff-written 3/3, handoff-ignored 3/3, stop-message 0/3, score (mean) 0.82. These are the re-scored values: the g3 run first read handoff-ignored 0/3, stop-message 1/3 and mean 0.79, because the grader lacked `min: 0` (see g3 findings).
 
-| Case | Grader | Baseline | g2 | g3 |
-| --- | --- | --- | --- | --- |
-| over-detail-trap | design-depth | 0/3 | 1/3 | 0/3 |
-| over-detail-trap | milestone-scope | 0/3 | 0/3 | 2/3 |
-| over-detail-trap | design-skill-used | 3/3 | 3/3 | 3/3 |
-| over-detail-trap | files-written | 3/3 | 3/3 | 3/3 |
-| over-detail-trap | summary-names-ids | 2/3 | 3/3 | 1/3 |
-| over-detail-trap | score (mean) | 0.33 | 0.50 | 0.47 |
-| foundation-before-goal | milestone-order | 0/3 | 2/3 | 3/3 |
-| foundation-before-goal | perishable-first | 1/3 | 2/3 | 3/3 |
-| foundation-before-goal | summary-names-ids | 1/3 | 1/3 | 2/3 |
-| foundation-before-goal | design-skill-used | 3/3 | 3/3 | 3/3 |
-| foundation-before-goal | files-written | 3/3 | 3/3 | 3/3 |
-| foundation-before-goal | score (mean) | 0.37 | 0.67 | 0.93 |
+| Case | Grader | Baseline | g2 | g3 | 1.0.0 |
+| --- | --- | --- | --- | --- | --- |
+| over-detail-trap | design-depth | 0/3 | 1/3 | 0/3 | 1/3 |
+| over-detail-trap | milestone-scope | 0/3 | 0/3 | 2/3 | 3/3 |
+| over-detail-trap | design-skill-used | 3/3 | 3/3 | 3/3 | 3/3 |
+| over-detail-trap | files-written | 3/3 | 3/3 | 3/3 | 3/3 |
+| over-detail-trap | summary-names-ids | 2/3 | 3/3 | 1/3 | 3/3 |
+| over-detail-trap | score (mean) | 0.33 | 0.50 | 0.47 | 0.80 |
+| foundation-before-goal | milestone-order | 0/3 | 2/3 | 3/3 | 3/3 |
+| foundation-before-goal | perishable-first | 1/3 | 2/3 | 3/3 | 3/3 |
+| foundation-before-goal | summary-names-ids | 1/3 | 1/3 | 2/3 | 0/3 |
+| foundation-before-goal | design-skill-used | 3/3 | 3/3 | 3/3 | 3/3 |
+| foundation-before-goal | files-written | 3/3 | 3/3 | 3/3 | 3/3 |
+| foundation-before-goal | score (mean) | 0.37 | 0.67 | 0.93 | 0.80 |
+| demo-stop-handoff | close-paused | n/a | n/a | 3/3 | 3/3 |
+| demo-stop-handoff | handoff-gitignore | n/a | n/a | 3/3 | 3/3 |
+| demo-stop-handoff | handoff-resumable | n/a | n/a | 3/3 | 2/3 |
+| demo-stop-handoff | handoff-written | n/a | n/a | 3/3 | 3/3 |
+| demo-stop-handoff | handoff-ignored | n/a | n/a | 3/3 | 3/3 |
+| demo-stop-handoff | stop-message | n/a | n/a | 0/3 | 0/3 |
+| demo-stop-handoff | score (mean) | n/a | n/a | 0.82 | 0.73 |
 
 No grader regressed (g2). Still failing, and the failures are real:
 - **milestone-scope 0/3.** All three roadmaps make M1 the whole measurement lab (two methods, combined score, threshold sweep, sibling confusion), and two add architecture-checkpoint rungs the new planning terms no longer use. Likely cause (a reading of the outputs): the design itself sizes M1 from the vision's FR3/FR4, and the unrewritten roadmap skill keeps the old rung and checkpoint rules.
@@ -303,3 +310,18 @@ Improvements: milestone-scope 0/3 to 2/3, milestone-order 2/3 to 3/3, perishable
 demo-stop-handoff, re-run after the grader fix (a fresh sample, not a re-score of the original g3 runs):
 - **handoff-ignored was a grader defect, now fixed.** The grader (evals/demo-stop-handoff/graders/handoff-ignored.md) is `type: tool_used`, `tool: Bash`, `input_match: 'git\s+(add|commit)[^"&;|\n]*Handoff'`, `max: 0`. It had no `min`, so the range 1..0 could never be met; the g3 runs all read "Bash called 0x (expected 1..0)". `min: 0` is now set, and the re-run reads "Bash called 0x (expected 0..0)" and passes 3/3. The g3 traces were no longer on disk and the CLI has no re-grade command, so the case was re-run with `--case` (results in plugins/project-planning/evals/results/g3-dsh.json, untracked). Re-run cost: $1.35 for the runs, $1.46 with judges.
 - **stop-message 0/3 on the re-run (g3 had 1/3; the runs are different samples).** Judge votes were FAIL PASS FAIL, FAIL FAIL FAIL and FAIL FAIL FAIL, and the judges gave no reasoning, so the causes below are my reading of the final messages (speculative). All three end with the exact `Next: /rung (Opus: /model opus)` line and name the handoff note, so the remaining miss is likely the grader's first bullet, "without needing any file opened": each message sends the owner to `Documentation/Handoff/milestone-close-M1.md` for the detail of the ruling. The g3 run 2 miss (ending "Next: run `/rung` once you have a ruling...") did not recur. Run 0's earlier bare-ID concern (R1, R2 labels) was not re-checked.
+
+### 1.0.0 findings
+
+Label `1.0.0` (the released skill text, after T6, T7, T15, T16, T18, T19, T23 and T35 to T37), same settings (3 runs per case, judge Sonnet, `--max-cost-usd 15`), one full run with no lost runs. Cost: $10.94 including judges ($10.18 as the CLI totals it); about 12 minutes. The demo-stop-handoff g3 column holds the re-run numbers from the g3 findings, and the case has no Baseline or g2 column. Results are in `plugins/project-planning/evals/results/1.0.0.json` (untracked).
+
+Against g3: score (mean) over-detail-trap 0.47 to 0.80, foundation-before-goal 0.93 to 0.80, demo-stop-handoff 0.82 to 0.73. Against the 0.11.2 baseline (0.33, 0.37): both original cases are higher.
+
+Improvements: over-detail-trap milestone-scope 2/3 to 3/3 and summary-names-ids 1/3 to 3/3; design-depth 0/3 to 1/3 (still failing).
+
+Regressions against g3:
+- **foundation-before-goal summary-names-ids 2/3 to 0/3.** The judges' failures are fair (all nine votes FAIL). The bare IDs are milestone and rung IDs, not decision IDs: run 1 says "what M1 builds" before M1 is named; run 2 writes "M1 has seven steps" and "plans M1" with no IDs in its numbered list; run 3 has bare M2, M3 and "L2, L5 and L7". Cause: the closing summary step of `risk-first-roadmap` and `system-design` does not repeat the "every ID carries its name" rule. This is a skill gap, not a regression: the pass counts have moved 1/3, 1/3, 2/3 and 0/3 across runs.
+- **demo-stop-handoff handoff-resumable 3/3 to 2/3** (votes FAIL PASS FAIL on one run; no reasoning given, so cause unknown; n=3, may be noise).
+- **demo-stop-handoff stop-message stays 0/3**, as in the g3 re-run. Read by hand, all three messages meet the grader's three pass bullets (what was done and the ruling asked, the exact `Next:` line, no per-kind resume command or bare IDs). All three also give the handoff path, which `plan-milestone/references/handoff.md` "The stop message" forbids, and milestone close step 4 (Demo) and `handoff.md` disagree about what goes in chat versus only in the note. The grader's pass bullets omit the "short, measurable" and "no handoff path" rules. That length is the failing criterion is speculative, because the judge reasoning is not stored.
+
+Still failing: **design-depth 1/3.** Two Overview.md docs failed with unanimous votes, one with the grader's "long file" note. The g3 caveat applies: judges are noisy on long files, and I did not read the docs by hand this round.
