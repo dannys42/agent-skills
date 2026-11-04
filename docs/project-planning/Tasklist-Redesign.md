@@ -251,13 +251,14 @@ Standing context for every task:
   - Context: Standing context "Owner reviews". Write `docs/project-planning/Review-T21.md`: release now or after the FileOrganizerHero pilot as the important decision; any decisions T20 made (versions, changelog wording, README structure) below it; the eval table's `0.11.2` vs `1.0.0` columns.
   - Done when: the notes are committed.
 
-- [ ] T21 USER — Final review and pilot decision
+- [x] T21 USER — Final review and pilot decision
   - Needs: T28
   - Context: Last owner review point (spec "Rollout" steps 4 and 5).
   - Steps:
     a. Read `docs/project-planning/Review-T21.md`.
     b. Reply with release-now or pilot-first, and any other change.
   - Done when: the owner replies with release-now or pilot-first.
+  - Notes: Owner reply 2026-11-03: release now, pilot afterwards ('publish first and gather feedback'). The three known gaps were already fixed by the gap tasks; all other review items go ahead as recommended.
 
 ### G6 Known gaps from the 1.0.0 eval
 
