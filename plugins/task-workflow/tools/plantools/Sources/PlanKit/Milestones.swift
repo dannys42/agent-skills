@@ -164,15 +164,20 @@ extension Roadmap {
         return out.joined(separator: "\n")
     }
 
+    /// Lines of `## Milestones` that look like a milestone (`- M<digit>...`) but do not parse, so `roadmap next` cannot see them.
+    var unparsedMilestoneLines: [Int] {
+        guard let s = markdown.sections.first(where: { $0.level == 2 && $0.title.hasPrefix("Milestones") }) else { return [] }
+        return ((s.line + 1)...max(s.line + 1, s.endLine)).filter { number in
+            guard number <= markdown.lines.count else { return false }
+            let line = markdown.lines[number - 1]
+            return line.hasPrefix("- M") && line.dropFirst(3).first?.isNumber == true && !milestones.contains { $0.line == number }
+        }
+    }
+
     func lintMilestones() -> [Finding] {
         var out: [Finding] = []
-        if let s = markdown.sections.first(where: { $0.level == 2 && $0.title.hasPrefix("Milestones") }) {
-            for number in (s.line + 1)...max(s.line + 1, s.endLine) where number <= markdown.lines.count {
-                let line = markdown.lines[number - 1]
-                if line.hasPrefix("- M"), line.dropFirst(3).first?.isNumber == true, !milestones.contains(where: { $0.line == number }) {
-                    out.append(.init(.warning, line: number, "milestone line is not in the format - M<id> (<name>) — <outcome> `<mark>`; touches: <subsystems> [<status>]"))
-                }
-            }
+        for number in unparsedMilestoneLines {
+            out.append(.init(.warning, line: number, "milestone line is not in the format - M<id> (<name>) — <outcome> `<mark>`; touches: <subsystems> [<status>]"))
         }
         var seen: [String: Int] = [:]
         for m in milestones {

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.18.1
+
+Tool 0.7.1. `tasklist` asks for exactly 0.7.1, which rebuilds the binaries.
+
+- `roadmap next`: a `## Milestones` section whose lines all fail to parse (for example `- M1 — outcome [done]`, with no `(<name>)`) no longer reads as an older roadmap and routes `plan` or `close` by the legacy rules. It routes `replan` and names the format to fix; `roadmap lint` still names the lines. Found on a project whose milestone lines had no names.
+- The source of the previous tool change (the `plan-milestone` rename of the dispatch target) shipped without a version bump, so installed 0.7.0 binaries kept printing `roadmap-plan-next-rung plan` and the version check could not see it. Any change under `tools/plantools` now bumps `planToolsVersion` (ledger rule 6).
+- `tasklist-run`: the first-batch step lists `set notes` before `done`, with the reason: a closed task refuses a note.
+
 ## 0.18.0
 
 Tool 0.7.0 and skill changes for project-planning 1.0.0. `tasklist` asks for exactly 0.7.0.

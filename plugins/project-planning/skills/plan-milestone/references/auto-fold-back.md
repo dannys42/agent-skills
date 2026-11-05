@@ -45,6 +45,7 @@ Only what a clean difference or a passed `Done when` settles, in the docs the br
 - risks its passed `Done when` answers in full (never on a partial answer);
 - the answer recorded on each "decide after it runs" item it settled;
 - names the owner already agreed, into `Taxonomy.md`;
+- stale references: for each component, command or file the diff deleted or renamed, search the design docs and roadmap for the old name and fix what it leaves false (the one bullet that reaches docs the brief does not list);
 - the brief's `## Fold-back` items ticked and its "As built" lines.
 
 With no escalation, also set the brief to `folded back (<date>)` and the rung `[done]` in the roadmap. Move the list to `<DocDir>/Completed/` and commit it with these changes by explicit path as `Fold back rung <RungId>`; with an escalation, the marker goes in the same commit and the message is `Fold back rung <RungId> (escalated)`, so the plain message always means a finished fold-back. Under `--no-commit` or `--confirm-commit`, follow the override.
@@ -62,6 +63,6 @@ Decide which side of a drift is wrong, change a decision or a `settled` item, ad
 - **Clean:** one summary line to the owner (what was folded back, "As built" count), then `Next: /rung` with the model the next step needs: the next rung's run on `tasklist-run`'s orchestrator model, or, after the milestone's last rung, milestone close (`Next: /rung (Opus: /model opus)`). The next brief exists from milestone planning, so nothing is re-planned. No per-rung retro.
 - **Escalated:** a few sentences saying what differs from the agreed design and why that needs an Opus review (judging which side is wrong), then `Next: /rung (Opus: /model opus)`. Write the review's handoff note first ([handoff.md](handoff.md), `Route: escalation`), naming the rung, its brief, its tasklist, its `Base` and the marker. The escalation review starts the per-rung retro.
 
-This is the step's only `step` event: `tasklist-run` writes its `end` line without one. Log it as `tasklist-run`'s metrics log describes, with `skill` `plan-milestone 1.0.0`, `kind` `fold-back`, `target` (the RungId), `drift` (differences found beyond "as agreed"), `escalated` (true or false), `next` and `next_model`.
+This is the step's only `step` event: `tasklist-run` writes its `end` line without one. Log it as `tasklist-run`'s metrics log describes, with `skill` `plan-milestone 1.0.1`, `kind` `fold-back`, `target` (the RungId), `drift` (differences found beyond "as agreed"), `escalated` (true or false), `next` and `next_model`.
 
 **Safety net:** milestone close re-reads every fold-back of the milestone together on Opus, so a drift missed here is caught there at the latest.

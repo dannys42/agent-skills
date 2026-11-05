@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.1
+
+Three one-line additions from milestone retros, each judged by a count in the ledger.
+
+- `plan-milestone` brief writing: before a brief is agreed, a requirement its Scope defers moves in the design's traceability in the same commit, and every rung ID it cites exists (`roadmap name <ID>`). Two of five escalations in one rung were exactly this.
+- Automatic fold-back, step 4: for each component, command or file the rung deleted or renamed, search the design docs and roadmap for the old name and fix what it leaves false. A milestone close re-read had fixed about 25 such statements in bulk.
+- Retro feedback block: take skill versions from the run's own `skill` stamps, not an installed manifest, which can lag. Pair it with task-workflow 0.18.1.
+
 ## 1.0.0
 
 A new planning model for large projects. The system design is now a living blueprint agreed only as deep as the current milestone needs, the roadmap is a map of milestones with rungs inside, and the owner works with the agent in fewer, larger Opus sessions. Pair it with task-workflow 0.18.0.

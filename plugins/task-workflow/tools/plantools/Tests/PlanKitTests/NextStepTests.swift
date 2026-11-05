@@ -33,6 +33,13 @@ struct NextStepTests {
         #expect(s.step == "roadmap" && s.command == "risk-first-roadmap" && s.model == "opus")
     }
 
+    @Test func milestoneLinesThatDoNotParseAreNotAnOlderRoadmap() {
+        // Milestone lines without the `(<name>)` part parse to nothing; the legacy route would say `plan` for a planned rung with a live list.
+        let text = "## Milestones\n- M1 — a [current]\n\n## Ladder\n\n1. L1 — a [planned]\n"
+        let s = decide(text, lists: [list("Tasklist-L1-Grid.md", openStd)])
+        #expect(s.step == "replan" && s.command == "risk-first-roadmap" && s.why.contains("1 line(s) in ## Milestones do not parse"))
+    }
+
     @Test func firstPlannedRungWhenNoneInProgress() {
         let s = decide("## Ladder\n\n1. L1 — a [done]\n2. L2 — b [planned]\n3. L3 — c [planned]\n")
         #expect(s.step == "plan" && s.rung == "L2" && s.command == "plan-milestone plan" && s.model == "opus")

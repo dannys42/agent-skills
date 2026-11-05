@@ -65,6 +65,12 @@ public struct NextStep: Equatable {
                 : make("design", "opus", why: "no system design and no roadmap")
         }
         if !roadmap.milestones.isEmpty { return decide(milestones: roadmap, input) }
+        // A `## Milestones` section whose lines all fail to parse must not read as an older roadmap: that route would
+        // plan or fold back by the legacy rules and could send the owner to a re-plan that is not needed.
+        let unparsed = roadmap.unparsedMilestoneLines
+        if !unparsed.isEmpty {
+            return make("replan", "opus", why: "\(unparsed.count) line(s) in ## Milestones do not parse (roadmap lint names them); fix their format first: - M<id> (<name>) — <outcome>; touches: <subsystems> [<status>]")
+        }
         // tasklist-run and design-session write handoff notes whatever the roadmap's format, so an older roadmap reads them too.
         if let waiting = waitingState(roadmap, input) { return waiting }
         if let rung = roadmap.ladder.first(where: { $0.status.hasPrefix("in progress") }) {
