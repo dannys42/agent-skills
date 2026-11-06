@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.18.2
+
+Tool 0.7.2. `tasklist` asks for exactly 0.7.2, which rebuilds the binaries.
+
+- `roadmap map`: the generated `Map.md` header now reads "Generated, do not edit by hand. Regenerate with `~/.cache/danny-agent-skills/bin/roadmap map <file>`", with the full binary path. Two sessions that never loaded `risk-first-roadmap` could not find the tool (it is not on PATH), searched the filesystem, and hand-edited or left a stale Map.md.
+
 ## 0.18.1
 
 Tool 0.7.1. `tasklist` asks for exactly 0.7.1, which rebuilds the binaries.
