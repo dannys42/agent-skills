@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.2
+
+One line in `risk-first-roadmap` (Detail by distance): a horizon line ends with its milestone in parentheses, `(M2)`, because the `roadmap` tool ignores a bare `M2` and listed 13 horizon rungs under "Rungs without a milestone". One-run hypothesis; the two tool-side fixes (lint warning, archived rungs keeping their milestone) are collected in the ledger.
+
 ## 1.0.1 (retro round, no version bump)
 
 No skill text changed. The `Map.md` header fix shipped in task-workflow 0.18.2 (tool 0.7.2), since the header is written by the `roadmap` tool.

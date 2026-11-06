@@ -75,7 +75,7 @@ If no: Try a different font stack or draw digits as paths; record in the system 
 - **Next milestone:** its line plus its additive-check verdict from the system design. No rungs.
 - **Later milestones:** a name and one line. No rungs.
 
-The `## Horizon` holds one-line rungs not yet detailed: a current-milestone rung a re-plan added, or one whose slice waits on an earlier rung's answer. Detail the owner gave for later work goes verbatim and dated into `<DocDir>/ParkedIdeas-<Topic>.md` under its milestone; the line points there.
+The `## Horizon` holds one-line rungs not yet detailed: a current-milestone rung a re-plan added, or one whose slice waits on an earlier rung's answer. Each line ends with its milestone in parentheses, `(M2)`; the tool ignores a bare `M2`. Detail the owner gave for later work goes verbatim and dated into `<DocDir>/ParkedIdeas-<Topic>.md` under its milestone; the line points there.
 
 **"Decide after it runs" list.** The roadmap's `## Decide after it runs` section is the project's home for minutiae (thresholds, exact output shape, polish, internal names), each filed under the rung or milestone that settles it. When the roadmap is first written, move the system design's Open questions marked `after it runs` here. Fold-back checks the items a rung was to settle.
 
@@ -146,7 +146,7 @@ Before the first `roadmap` call in a session, run `~/.cache/danny-agent-skills/b
 
 ## Hand off
 
-A roadmap is not a task list. The next step after a new map is milestone planning for the current milestone: the look-back, the design delta, every rung's brief and the tasklists, on Opus. End with a sentence saying so, then `Next: /rung (Opus: /model opus)`; never a rung or milestone ID on the `Next:` line. In the closing summary every milestone or rung you mention carries its name (`system-design`'s terms.md, "An ID shown to the owner carries its name"). Log it as a `step` event with `skill` `risk-first-roadmap 1.0.1` (other fields in `tasklist-run`'s metrics log).
+A roadmap is not a task list. The next step after a new map is milestone planning for the current milestone: the look-back, the design delta, every rung's brief and the tasklists, on Opus. End with a sentence saying so, then `Next: /rung (Opus: /model opus)`; never a rung or milestone ID on the `Next:` line. In the closing summary every milestone or rung you mention carries its name (`system-design`'s terms.md, "An ID shown to the owner carries its name"). Log it as a `step` event with `skill` `risk-first-roadmap 1.0.2` (other fields in `tasklist-run`'s metrics log).
 
 ## Re-plan
 
